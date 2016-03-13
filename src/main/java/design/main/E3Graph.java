@@ -12,6 +12,8 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
+import design.main.Info.Base;
+
 // TODO: Check all graph mutations for begin/end!
 
 class E3Graph extends mxGraph {
@@ -154,7 +156,7 @@ class E3Graph extends mxGraph {
 			mxRectangle area = (isConstrainChild(cell)) ? getCellContainmentArea(cell)
 					: getMaximumGraphBounds();
 			mxGeometry geo = model.getGeometry(cell);
-
+			
 			if (geo != null && area != null)
 			{
 				// Keeps child within the content area of the parent
@@ -255,6 +257,9 @@ class E3Graph extends mxGraph {
 
 	/**
 	 * Adds a valueport to valueinterface cell vi.
+	 * This is a static function because it seems separate functionality from the
+	 * actual graph class (non e3fraud-graphs can also use this functionality now.
+	 * It could be refactored just fine though.
 	 * @param graph
 	 * @param vi
 	 */
@@ -264,7 +269,7 @@ class E3Graph extends mxGraph {
 		graph.getModel().beginUpdate();
 
 		try {
-			mxICell valuePort = (mxICell) graph.insertVertex(vi, null, new Boolean(incoming), 0.5, 0.5, 8.66, 10, "ValuePortWest");
+			mxICell valuePort = (mxICell) graph.insertVertex(vi, null, new Info.ValuePort(incoming), 0.5, 0.5, 8.66, 10, "ValuePortWest");
 			mxGeometry vpGm = valuePort.getGeometry();
 			vpGm.setRelative(true);
 			vpGm.setOffset(new mxPoint(-vpGm.getCenterX(), -vpGm.getCenterY()));
@@ -367,14 +372,8 @@ class E3Graph extends mxGraph {
 	public String convertValueToString(Object obj) {
 		mxICell cell = (mxICell) obj;
 		
-		String style = cell.getStyle();
-		
-		if (style == null) {
-			return super.convertValueToString(cell);
-		}
-		
-		if (style.startsWith("ValuePort")) {
-			return "";
+		if (cell.getValue() instanceof Info.Base) {
+			return ((Info.Base) cell.getValue()).toString();
 		}
 
 		return super.convertValueToString(cell);
@@ -412,5 +411,20 @@ class E3Graph extends mxGraph {
 		}
 		
 		return super.isValidSource(obj);
+	}
+	
+	@Override
+	public Object[] cloneCells(Object[] cells, boolean allowInvalidEdges) {
+		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
+		mxICell[] clonedCells = (mxICell[]) clones;
+		
+		for ( mxICell cell : clonedCells) {
+			if (cell.getValue() instanceof Info.Base) {
+				Info.Base info = (Base) cell.getValue();
+				cell.setValue(info.getCopy());
+			}
+		}
+		
+		return clonedCells;
 	}
 }

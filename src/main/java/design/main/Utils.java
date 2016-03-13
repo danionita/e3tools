@@ -1,7 +1,9 @@
 package design.main;
 
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxRectangle;
+import com.mxgraph.view.mxGraph;
 
 public class Utils {
 	public static boolean overlap(mxRectangle a, mxRectangle b) {
@@ -54,5 +56,29 @@ public class Utils {
 	
 	public static mxRectangle rect(mxGeometry gm) {
 		return new mxRectangle(gm.getX(), gm.getY(), gm.getWidth(), gm.getHeight());
+	}
+	
+	/**
+	 * Returns true if the given value interface or value port is situated on a top-level actor.
+	 * That is, it is not nested.
+	 * @param cell
+	 * @return
+	 */
+	public static boolean isToplevelValueInterface(mxGraph graph, mxICell cell) {
+		if (cell == null) return false;
+		if (cell.isEdge()) return false;
+		
+		String style = cell.getStyle();
+		if (style.startsWith("ValuePort")) {
+			return isToplevelValueInterface(graph, cell.getParent());
+		} else if (style.equals("ValueInterface")) {
+			mxICell parent = cell.getParent();
+
+			if (parent == null) return false;
+
+			return parent.getParent() == graph.getDefaultParent();
+		}
+		
+		return false;
 	}
 }

@@ -106,7 +106,6 @@ public class E3Style {
 	
 	public static void addStencil(String filename) {
 		try {
-//			String nodeXml = mxUtils.readFile(E3Style.class.getResource("/design/resources/" + filename).getPath());
 			String nodeXml = mxUtils.readInputStream(E3Style.class.getResourceAsStream("/design/resources/" + filename));
 			
 			// Find first occurrence of < to avoid unicode BOM
