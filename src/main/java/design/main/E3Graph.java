@@ -1,6 +1,7 @@
 package design.main;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,7 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
+import design.main.Info.ValuePort;
 
 // TODO: Check all graph mutations for begin/end!
 
@@ -291,7 +293,7 @@ class E3Graph extends mxGraph {
 	 */
 	public static void rotateValuePort(mxGraph graph, mxICell vi, mxICell vp) {
 		mxGeometry viGm = vi.getGeometry();
-		boolean incoming = (Boolean) vp.getValue();
+		boolean incoming = ((ValuePort) vp.getValue()).incoming;
 		
 		mxRectangle vpArea = graph.getCellContainmentArea(vi);
 		if (viGm.getWidth() > viGm.getHeight()) {
@@ -361,7 +363,8 @@ class E3Graph extends mxGraph {
 		
 		if (style == null) return true;
 		
-		return !style.startsWith("ValuePort");
+		return !style.startsWith("ValuePort")
+				&& !style.equals("Dot");
 	}
 	
 	/**
@@ -380,51 +383,80 @@ class E3Graph extends mxGraph {
 	}
 	
 	/**
-	 * Make sure valueports are not editable.
+	 * Make sure contentless nodes are not editable.
 	 */
 	@Override
 	public boolean isCellEditable(Object obj) {
 		if (obj instanceof mxICell) {
 			mxICell cell = (mxICell) obj;
 			
+			// TODO: Convert this to checking the user objects if
+			// we need the style to be more fine-grained
 			String style = cell.getStyle();
 			if (style != null) {
-				return !style.startsWith("ValuePort") && !style.equals("ValueInterface");
+				return !style.startsWith("ValuePort")
+						&& !style.equals("ValueInterface")
+						&& !style.equals("StartSignal")
+						&& !style.equals("EndSignal")
+						&& !style.equals("Dot");
 			}
 		}
 		
 		return super.isCellEditable(obj);
 	}
 	
-	@Override
-	public boolean isValidSource(Object obj) {
-		if (obj instanceof mxICell) {
-			mxICell cell = (mxICell) obj;
-			
-			String style = cell.getStyle();
-			
-			if (style.startsWith("ValuePort")) {
-				return true;
-			}
-			
-			return false;
-		}
-		
-		return super.isValidSource(obj);
-	}
-	
+//	/**
+//	 * Returns true if a connection can be made here. Normally only ValuePorts
+//	 * and Signal things can make connections.
+//	 */
+//	@Override
+//	public boolean isValidSource(Object obj) {
+//		if (obj instanceof mxICell) {
+//			mxICell cell = (mxICell) obj;
+//			
+//			String style = cell.getStyle();
+//			
+//			if (style == null) return false;
+//			
+//			return style.startsWith("ValuePort") ||
+//					style.equals("Dot");
+//		}
+//		
+//		return super.isValidSource(obj);
+//	}
+//	
 	@Override
 	public Object[] cloneCells(Object[] cells, boolean allowInvalidEdges) {
 		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
-		mxICell[] clonedCells = (mxICell[]) clones;
+//		mxICell[] clonedCells = (mxICell[]) clones;
 		
-		for ( mxICell cell : clonedCells) {
-			if (cell.getValue() instanceof Info.Base) {
-				Info.Base info = (Base) cell.getValue();
-				cell.setValue(info.getCopy());
+		for ( Object obj : clones) {
+			if (obj instanceof mxICell) {
+				mxICell cell = (mxICell) obj;
+				if (cell.getValue() instanceof Info.Base) {
+					Info.Base info = (Base) cell.getValue();
+					cell.setValue(info.getCopy());
+				}
 			}
 		}
 		
-		return clonedCells;
+		return clones;
+	}
+	
+	@Override
+	public boolean isPort(Object obj) {
+		String style = model.getStyle(obj);
+			
+		if (style == null) return false;
+		
+		return style.equals("Dot");
+	}
+	
+	@Override
+	public boolean isCellConnectable(Object cell) {
+		String style = model.getStyle(cell);
+		if (style == null) return false;
+		return style.equals("Dot")
+				|| style.startsWith("ValuePort");
 	}
 }

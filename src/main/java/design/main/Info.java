@@ -1,7 +1,10 @@
 package design.main;
 
+import java.io.Serializable;
+
 public class Info {
-	public static abstract class Base {
+	public static abstract class Base implements Serializable {
+		private static final long serialVersionUID = -566615792608025058L;
 		public abstract Base getCopy();
 		public String toString() {
 			return "";
@@ -9,6 +12,7 @@ public class Info {
 	}
 	
 	public static class ValuePort extends Base {
+		private static final long serialVersionUID = 9212361683143336826L;
 		public boolean incoming;
 		
 		ValuePort(boolean incoming_) {
@@ -24,6 +28,8 @@ public class Info {
 	}
 	
 	public static class ValueInterface extends Base {
+		private static final long serialVersionUID = -4820088710010430783L;
+
 		public static enum Side {TOP, RIGHT, BOTTOM, LEFT}
 		
 		public Side side;
@@ -37,6 +43,7 @@ public class Info {
 	}
 	
 	public static class Actor extends Base {
+		private static final long serialVersionUID = -5569247045409511931L;
 		public String name;
 		
 		@Override
@@ -52,6 +59,7 @@ public class Info {
 	}
 
 	public static class MarketSegment extends Base {
+		private static final long serialVersionUID = 952747256997418957L;
 		public String name;
 		
 		@Override
@@ -67,6 +75,7 @@ public class Info {
 	}
 
 	public static class ValueActivity extends Base {
+		private static final long serialVersionUID = 6344879576710522969L;
 		public String name;
 		
 		@Override

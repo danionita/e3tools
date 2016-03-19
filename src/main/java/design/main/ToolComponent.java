@@ -1,12 +1,14 @@
 package design.main;
 
-import java.awt.Point;
-
-import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
+
+import design.main.Info.Actor;
+import design.main.Info.MarketSegment;
+import design.main.Info.ValueActivity;
 
 public class ToolComponent extends mxGraphComponent {
 	public final mxGraph graph = getGraph();
@@ -26,7 +28,8 @@ public class ToolComponent extends mxGraphComponent {
 				
 				if (style == null) return true;
 				
-				return !cell.getStyle().startsWith("ValuePort");
+				return !cell.getStyle().startsWith("ValuePort")
+						&& !style.equals("Dot");
 			}
 
 			/**
@@ -62,15 +65,34 @@ public class ToolComponent extends mxGraphComponent {
 		graph.getModel().beginUpdate();
 		try {
 			// Simple blocks
-			Object va = graph.insertVertex(root, null, new Info.ValueActivity(), 20, 20, 120, 120, "ValueActivity");
-			Object ac = graph.insertVertex(root, null, new Info.Actor(), 20, 160, 120, 120, "Actor");
-			Object ms = graph.insertVertex(root, null, new Info.MarketSegment(), 20, 300, 120, 120, "MarketSegment");
+			ValueActivity vaInfo = new ValueActivity();
+			vaInfo.name = "ValueActivity1";
+			Object va = graph.insertVertex(root, null, vaInfo, 20, 20, 120, 120, "ValueActivity");
+			
+			Actor acInfo = new Actor();
+			acInfo.name = "Actor1";
+			Object ac = graph.insertVertex(root, null, acInfo, 20, 160, 120, 120, "Actor");
+			
+			MarketSegment msInfo = new MarketSegment();
+			msInfo.name = "MarketSegment1";
+			Object ms = graph.insertVertex(root, null, msInfo, 20, 300, 120, 120, "MarketSegment");
 			
 			// Value Interface
 			mxICell vi = (mxICell) graph.insertVertex(root, null, new Info.ValueInterface(), 20, 440, 20, 50, "ValueInterface");
 			E3Graph.addValuePort(graph, vi, true);
 			E3Graph.addValuePort(graph, vi, false);
-
+			
+			mxCell ss = (mxCell) graph.insertVertex(root, null, null, 20, 500, 30, 30, "StartSignal");
+			ss.setConnectable(false);
+			mxICell dot = (mxICell) graph.insertVertex(ss, null, null, 0.5, 0.5, 5, 5, "Dot");
+			dot.getGeometry().setRelative(true);
+			dot.getGeometry().setOffset(new mxPoint(-2.5, -2.5));
+			
+			mxCell es = (mxCell) graph.insertVertex(root, null, null, 20, 550, 45, 45, "EndSignal");
+			es.setConnectable(false);
+			mxCell dot2 = (mxCell) graph.insertVertex(es, null, null, 0.5, 0.5, 5, 5, "Dot");
+			dot2.getGeometry().setRelative(true);
+			dot2.getGeometry().setOffset(new mxPoint(-2.5, -2.5));
 		} finally {
 			graph.getModel().endUpdate();
 		}

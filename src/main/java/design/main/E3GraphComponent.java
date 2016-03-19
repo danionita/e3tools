@@ -12,6 +12,8 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 
+import design.main.Info.ValuePort;
+
 public class E3GraphComponent extends mxGraphComponent {
 	public E3GraphComponent(mxGraph graph) {
 		super(graph);
@@ -20,10 +22,9 @@ public class E3GraphComponent extends mxGraphComponent {
 		// TODO: Only allow useful keybindings to be added
 		new mxKeyboardHandler(this);
 		
-		// I think this is to enable dropping cells
-		getConnectionHandler().setCreateTarget(true);
+		getConnectionHandler().setCreateTarget(false);
 		graph.setAllowDanglingEdges(false);
-		
+		graph.setPortsEnabled(false);
 		getGraphHandler().setRemoveCellsFromParent(true);
 		// This makes drag and drop behave properly
 		// If you turn these on a drag-shadow that is sometimes offset improperly
@@ -44,13 +45,20 @@ public class E3GraphComponent extends mxGraphComponent {
 
 				graph.getModel().beginUpdate();
 				try {
-					if (style != null && style.equals("ValueInterface")) {
-						mxICell parent = (mxICell) cell.getParent();
-						if (parent == graph.getDefaultParent()) {
-							cell.removeFromParent();
+					if (style != null) {
+						if (style.equals("ValueInterface")) {
+							mxICell parent = (mxICell) cell.getParent();
+							if (parent == graph.getDefaultParent()) {
+								cell.removeFromParent();
+							}
+							
+							graph.constrainChild(cell);
+						} else if (style.equals("StartSignal") || style.equals("EndSignal")) {
+							Object parent = graph.getModel().getParent(cell);
+							if (parent == graph.getDefaultParent()) {
+								cell.removeFromParent();
+							}
 						}
-						
-						graph.constrainChild(cell);
 					}
 				} finally {
 					graph.getModel().endUpdate();
@@ -60,25 +68,35 @@ public class E3GraphComponent extends mxGraphComponent {
 				mxICell source = (mxICell) evt.getProperty("source");
 				mxICell target = (mxICell) evt.getProperty("target");
 				
+				// TODO: Uncomment + fix this! (Make it work with signals too)
 				if (source != null && target != null) {
-					graph.getModel().setStyle(cell, "ValueExchange");
+					String sourceStyle = source.getStyle();
+					String targetStyle = source.getStyle();
+					
+					System.out.println(sourceStyle + " -> " + targetStyle);
+					
+					if (sourceStyle.equals("Dot") && sourceStyle.equals(targetStyle)) {
+						graph.getModel().setStyle(cell, "ConnectionElement");
+					} else if (sourceStyle.startsWith("ValuePort") && targetStyle.startsWith("ValuePort")) {
+						graph.getModel().setStyle(cell, "ValueExchange");
 
-					boolean sourceIncoming = (Boolean) source.getValue();
-					boolean targetIncoming = (Boolean) target.getValue();
-					
-					System.out.println(sourceIncoming);
-					System.out.println(targetIncoming);
-					System.out.println(sourceIncoming ^ targetIncoming);
-					
-					// Reverse engineered from the original editor:
-					// For two top level actors, one should be incoming and one
-					// Should be outgoing. If one of them is nested, anything goes.
-					boolean sourceIsTopLevel = Utils.isToplevelValueInterface(graph, source);
-					boolean targetIsTopLevel = Utils.isToplevelValueInterface(graph, target);
-					
-					// One should be an incoming value interface, other one should be outgoing
-					if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
-						cell.removeFromParent();
+						boolean sourceIncoming = ((ValuePort) source.getValue()).incoming;
+						boolean targetIncoming = ((ValuePort) target.getValue()).incoming;
+						
+						System.out.println(sourceIncoming);
+						System.out.println(targetIncoming);
+						System.out.println(sourceIncoming ^ targetIncoming);
+						
+						// Reverse engineered from the original editor:
+						// For two top level actors, one should be incoming and one
+						// Should be outgoing. If one of them is nested, anything goes.
+						boolean sourceIsTopLevel = Utils.isToplevelValueInterface(graph, source);
+						boolean targetIsTopLevel = Utils.isToplevelValueInterface(graph, target);
+						
+						// One should be an incoming value interface, other one should be outgoing
+						if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
+							cell.removeFromParent();
+						}
 					}
 				}
 			}

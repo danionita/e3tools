@@ -89,8 +89,32 @@ public class E3Style {
 		style.put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
 		stylesheet.putCellStyle("ValueExchange", style);
 		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_STROKEWIDTH, 3);
+		style.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		style.put(mxConstants.STYLE_FILLCOLOR, "#FF0000");
+		style.put(mxConstants.STYLE_DASHED, true);
+		stylesheet.putCellStyle("ConnectionElement", style);
+		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "StartSignalStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		stylesheet.putCellStyle("StartSignal", style);
+		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "EndSignalStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		stylesheet.putCellStyle("EndSignal", style);
+		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "DotStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		stylesheet.putCellStyle("Dot", style);
+		
 		// Aw yeah '90
 		graphComponent.getViewport().setOpaque(true);
+		style.put(mxConstants.STYLE_FILLCOLOR, "#00FF00");
 		graphComponent.getViewport().setBackground(Color.WHITE);
 		
 		// To get rid of the folding icon
@@ -102,6 +126,9 @@ public class E3Style {
 		addStencil("valueportnorth.shape");
 		addStencil("valueportsouth.shape");
 		addStencil("marketsegment.shape");
+		addStencil("startsignal.shape");
+		addStencil("endsignal.shape");
+		addStencil("dot.shape");
 	}
 	
 	public static void addStencil(String filename) {
