@@ -14,6 +14,8 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
 public class E3Style {
+	public static final double DOTRADIUS = 2.5;
+	
 	public static void styleGraphComponent(mxGraphComponent graphComponent) {
 		mxGraph graph = graphComponent.getGraph();
 		
@@ -100,11 +102,13 @@ public class E3Style {
 		style = new Hashtable<>();
 		style.put(mxConstants.STYLE_SHAPE, "StartSignalStencil");
 		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		style.put(mxConstants.STYLE_RESIZABLE, 0);
 		stylesheet.putCellStyle("StartSignal", style);
 		
 		style = new Hashtable<>();
 		style.put(mxConstants.STYLE_SHAPE, "EndSignalStencil");
 		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		style.put(mxConstants.STYLE_RESIZABLE, 0);
 		stylesheet.putCellStyle("EndSignal", style);
 		
 		style = new Hashtable<>();

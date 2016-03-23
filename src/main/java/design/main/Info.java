@@ -2,6 +2,8 @@ package design.main;
 
 import java.io.Serializable;
 
+import design.main.Info.ValueInterface.Side;
+
 public class Info {
 	public static abstract class Base implements Serializable {
 		private static final long serialVersionUID = -566615792608025058L;
@@ -24,6 +26,41 @@ public class Info {
 			ValuePort vp = new ValuePort(false);
 			vp.incoming = incoming;
 			return vp;
+		}
+
+		String getDirection(ValueInterface vi) {
+			ValueInterface.Side side = vi.side;
+			assert(side != null);
+			
+			if (side == Side.TOP) {
+				if (incoming) {
+					return "South";
+				} else {
+					return "North";
+				}
+			} else if (side == Side.RIGHT) {
+				if (incoming) {
+					return "West";
+				} else {
+					return "East";
+				}
+			} else if (side == Side.BOTTOM) {
+				if (incoming) {
+					return "North";
+				} else {
+					return "South";
+				}
+			} else if (side == Side.LEFT){
+				if (incoming) {
+					return "East";
+				} else {
+					return "West";
+				}
+			} else {
+				System.out.println("No match! It is: " + side);
+			}
+
+			return null;
 		}
 	}
 	

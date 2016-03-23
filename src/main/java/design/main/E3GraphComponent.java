@@ -68,7 +68,6 @@ public class E3GraphComponent extends mxGraphComponent {
 				mxICell source = (mxICell) evt.getProperty("source");
 				mxICell target = (mxICell) evt.getProperty("target");
 				
-				// TODO: Uncomment + fix this! (Make it work with signals too)
 				if (source != null && target != null) {
 					String sourceStyle = source.getStyle();
 					String targetStyle = source.getStyle();
@@ -80,6 +79,7 @@ public class E3GraphComponent extends mxGraphComponent {
 					} else if (sourceStyle.startsWith("ValuePort") && targetStyle.startsWith("ValuePort")) {
 						graph.getModel().setStyle(cell, "ValueExchange");
 
+						// TODO: Make this NOT throw an exceptino when connecting dot to value port
 						boolean sourceIncoming = ((ValuePort) source.getValue()).incoming;
 						boolean targetIncoming = ((ValuePort) target.getValue()).incoming;
 						

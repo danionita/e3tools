@@ -9,6 +9,7 @@ import com.mxgraph.view.mxGraph;
 import design.main.Info.Actor;
 import design.main.Info.MarketSegment;
 import design.main.Info.ValueActivity;
+import design.main.Info.ValueInterface;
 
 public class ToolComponent extends mxGraphComponent {
 	public final mxGraph graph = getGraph();
@@ -78,10 +79,19 @@ public class ToolComponent extends mxGraphComponent {
 			Object ms = graph.insertVertex(root, null, msInfo, 20, 300, 120, 120, "MarketSegment");
 			
 			// Value Interface
-			mxICell vi = (mxICell) graph.insertVertex(root, null, new Info.ValueInterface(), 20, 440, 20, 50, "ValueInterface");
+			ValueInterface viInfo = new ValueInterface();
+			viInfo.side = ValueInterface.Side.LEFT;
+			mxICell vi = (mxICell) graph.insertVertex(root, null, viInfo, 20, 440, 20, 50, "ValueInterface");
 			E3Graph.addValuePort(graph, vi, true);
 			E3Graph.addValuePort(graph, vi, false);
+			mxICell viDot = (mxICell) graph.insertVertex(vi, null, null,
+					vi.getGeometry().getWidth() - 2 * E3Style.DOTRADIUS,
+					vi.getGeometry().getHeight() / 2 - E3Style.DOTRADIUS,
+					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2,
+					"Dot");
 			
+			// TODO: Add info's here?
+			// TODO: Change to DOTRADIUS
 			mxCell ss = (mxCell) graph.insertVertex(root, null, null, 20, 500, 30, 30, "StartSignal");
 			ss.setConnectable(false);
 			mxICell dot = (mxICell) graph.insertVertex(ss, null, null, 0.5, 0.5, 5, 5, "Dot");

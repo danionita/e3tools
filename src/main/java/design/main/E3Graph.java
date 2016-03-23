@@ -14,6 +14,8 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
+import design.main.Info.ValueInterface;
+import design.main.Info.ValueInterface.Side;
 import design.main.Info.ValuePort;
 
 // TODO: Check all graph mutations for begin/end!
@@ -199,6 +201,8 @@ class E3Graph extends mxGraph {
 		if (vi.getStyle() == null || !vi.getStyle().equals("ValueInterface")) return;
 		if (vi.getParent() == null) return;
 		
+		Info.ValueInterface viInfo = (ValueInterface) graph.getModel().getValue(vi);
+		
 		mxGeometry viGm = vi.getGeometry();
 		mxGeometry parentGm = vi.getParent().getGeometry();
 		if (parentGm != null) {
@@ -214,18 +218,31 @@ class E3Graph extends mxGraph {
 			if (min == top || min == bottom) {
 				viGm.setWidth(30);
 				viGm.setHeight(20);
+				
+				if (min == top) viInfo.side = Side.TOP;
+				if (min == bottom) viInfo.side = Side.BOTTOM;
 			} else {
 				viGm.setWidth(20);
 				viGm.setHeight(30);
+				
+				if (min == left) viInfo.side = Side.LEFT;
+				if (min == right) viInfo.side = Side.RIGHT;
 			}
 		}
 		
-		List<mxICell> valuePorts = new ArrayList<>();
+		List<mxCell> valuePorts = new ArrayList<>();
+		mxCell dot = null;
 		for (int i = 0; i < vi.getChildCount(); i++) {
-			mxICell child = vi.getChildAt(i);
+			mxCell child = (mxCell) vi.getChildAt(i);
 			if (child.getStyle().startsWith("ValuePort")) {
 				valuePorts.add(child);
+			} else if (child.getStyle().equals("Dot")) {
+				dot = child;
 			}
+		}
+		
+		if (viInfo.side == Side.TOP || viInfo.side == Side.RIGHT) {
+			Collections.reverse(valuePorts);
 		}
 
 		if (viGm.getWidth() > viGm.getHeight() && valuePorts.size() > 0) {
@@ -255,6 +272,23 @@ class E3Graph extends mxGraph {
 
 			i++;
 		}
+		
+		if (dot == null) return;
+		mxGeometry dotGm = dot.getGeometry();
+		if (viInfo.side == Side.TOP) {
+			dotGm.setX(viGm.getWidth() / 2 - E3Style.DOTRADIUS);
+			dotGm.setY(viGm.getHeight() - 2 * E3Style.DOTRADIUS);
+		} else if (viInfo.side == Side.RIGHT) {
+			dotGm.setX(0);
+			dotGm.setY(viGm.getHeight() / 2 - E3Style.DOTRADIUS);
+		} else if (viInfo.side == Side.BOTTOM) {
+			dotGm.setX(viGm.getWidth() / 2 - E3Style.DOTRADIUS);
+			dotGm.setY(0);
+		} else { // viInfo.side == Side.LEFT || viInfo.side == null
+			dotGm.setX(viGm.getWidth() - 2 * E3Style.DOTRADIUS);
+			dotGm.setY(viGm.getHeight() / 2 - E3Style.DOTRADIUS);
+		}
+		
 	}
 
 	/**
@@ -267,15 +301,19 @@ class E3Graph extends mxGraph {
 	 */
 	public static void addValuePort(mxGraph graph, mxICell vi, boolean incoming) {
 		assert(vi.getStyle().equals("ValueInterface"));
+		assert(vi.getValue() instanceof Info.ValueInterface);
 		
 		graph.getModel().beginUpdate();
 
 		try {
-			mxICell valuePort = (mxICell) graph.insertVertex(vi, null, new Info.ValuePort(incoming), 0.5, 0.5, 8.66, 10, "ValuePortWest");
+			ValueInterface viInfo = (ValueInterface) vi.getValue();
+			ValuePort vpInfo = new ValuePort(incoming);
+			mxCell valuePort = (mxCell) graph.insertVertex(vi, null, vpInfo, 0.5, 0.5, 8.66, 10);
+			valuePort.setStyle("ValuePort" + vpInfo.getDirection(viInfo));
+
 			mxGeometry vpGm = valuePort.getGeometry();
 			vpGm.setRelative(true);
 			vpGm.setOffset(new mxPoint(-vpGm.getCenterX(), -vpGm.getCenterY()));
-			((mxCell) valuePort).setConnectable(true);
 			
 			straightenValueInterface(graph, vi);
 		} finally {
@@ -293,60 +331,64 @@ class E3Graph extends mxGraph {
 	 */
 	public static void rotateValuePort(mxGraph graph, mxICell vi, mxICell vp) {
 		mxGeometry viGm = vi.getGeometry();
-		boolean incoming = ((ValuePort) vp.getValue()).incoming;
+//		boolean incoming = ((ValuePort) vp.getValue()).incoming;
+		ValueInterface viInfo = (ValueInterface) vi.getValue();
+		ValuePort vpInfo = (ValuePort) vp.getValue();
 		
-		mxRectangle vpArea = graph.getCellContainmentArea(vi);
-		if (viGm.getWidth() > viGm.getHeight()) {
-			if (vpArea == null) {
-				if (incoming) {
-					graph.getModel().setStyle(vp, "ValuePortSouth");
-				} else {
-					graph.getModel().setStyle(vp, "ValuePortNorth");
-				}
-			} else {
-				// Horizontal
-				if (vpArea.getY() < 0) {
-					// Top
-					if (incoming) {
-						graph.getModel().setStyle(vp, "ValuePortSouth");
-					} else {
-						graph.getModel().setStyle(vp, "ValuePortNorth");
-					}
-				} else {
-					// Bottom
-					if (incoming) {
-						graph.getModel().setStyle(vp, "ValuePortNorth");
-					} else {
-						graph.getModel().setStyle(vp, "ValuePortSouth");
-					}
-				}
-			}
-		} else {
-			if (vpArea == null) {
-				if (incoming) {
-					graph.getModel().setStyle(vp, "ValuePortEast");
-				} else {
-					graph.getModel().setStyle(vp, "ValuePortWest");
-				}
-			} else {
-				// Vertical
-				if (vpArea.getX() < 0) {
-					// Left side
-					if (incoming) {
-						graph.getModel().setStyle(vp, "ValuePortEast");
-					} else {
-						graph.getModel().setStyle(vp, "ValuePortWest");
-					}
-				} else {
-					// Right side
-					if (incoming) {
-						graph.getModel().setStyle(vp, "ValuePortWest");
-					} else {
-						graph.getModel().setStyle(vp, "ValuePortEast");
-					}
-				}
-			}
-		}
+		graph.getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
+		
+//		mxRectangle vpArea = graph.getCellContainmentArea(vi);
+//		if (viGm.getWidth() > viGm.getHeight()) {
+//			if (vpArea == null) {
+//				if (incoming) {
+//					graph.getModel().setStyle(vp, "ValuePortSouth");
+//				} else {
+//					graph.getModel().setStyle(vp, "ValuePortNorth");
+//				}
+//			} else {
+//				// Horizontal
+//				if (vpArea.getY() < 0) {
+//					// Top
+//					if (incoming) {
+//						graph.getModel().setStyle(vp, "ValuePortSouth");
+//					} else {
+//						graph.getModel().setStyle(vp, "ValuePortNorth");
+//					}
+//				} else {
+//					// Bottom
+//					if (incoming) {
+//						graph.getModel().setStyle(vp, "ValuePortNorth");
+//					} else {
+//						graph.getModel().setStyle(vp, "ValuePortSouth");
+//					}
+//				}
+//			}
+//		} else {
+//			if (vpArea == null) {
+//				if (incoming) {
+//					graph.getModel().setStyle(vp, "ValuePortEast");
+//				} else {
+//					graph.getModel().setStyle(vp, "ValuePortWest");
+//				}
+//			} else {
+//				// Vertical
+//				if (vpArea.getX() < 0) {
+//					// Left side
+//					if (incoming) {
+//						graph.getModel().setStyle(vp, "ValuePortEast");
+//					} else {
+//						graph.getModel().setStyle(vp, "ValuePortWest");
+//					}
+//				} else {
+//					// Right side
+//					if (incoming) {
+//						graph.getModel().setStyle(vp, "ValuePortWest");
+//					} else {
+//						graph.getModel().setStyle(vp, "ValuePortEast");
+//					}
+//				}
+//			}
+//		}
 	}
 	
 	/**
@@ -404,39 +446,16 @@ class E3Graph extends mxGraph {
 		
 		return super.isCellEditable(obj);
 	}
-	
-//	/**
-//	 * Returns true if a connection can be made here. Normally only ValuePorts
-//	 * and Signal things can make connections.
-//	 */
-//	@Override
-//	public boolean isValidSource(Object obj) {
-//		if (obj instanceof mxICell) {
-//			mxICell cell = (mxICell) obj;
-//			
-//			String style = cell.getStyle();
-//			
-//			if (style == null) return false;
-//			
-//			return style.startsWith("ValuePort") ||
-//					style.equals("Dot");
-//		}
-//		
-//		return super.isValidSource(obj);
-//	}
-//	
+
 	@Override
 	public Object[] cloneCells(Object[] cells, boolean allowInvalidEdges) {
 		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
-//		mxICell[] clonedCells = (mxICell[]) clones;
 		
 		for ( Object obj : clones) {
-			if (obj instanceof mxICell) {
-				mxICell cell = (mxICell) obj;
-				if (cell.getValue() instanceof Info.Base) {
-					Info.Base info = (Base) cell.getValue();
-					cell.setValue(info.getCopy());
-				}
+			Object val = model.getValue(obj);
+			if (val instanceof Info.Base) {
+				Info.Base info = (Base) val;
+				model.setValue(obj, info.getCopy());
 			}
 		}
 		
