@@ -127,4 +127,25 @@ public class Info {
 			return name;
 		}
 	}
+	
+	public static class Dot extends Base {
+		private static final long serialVersionUID = 6736897501245007019L;
+
+		@Override
+		public Base getCopy() {
+			return new Dot();
+		}
+	}
+	
+	public static class LogicBase extends Base {
+		private static final long serialVersionUID = 7083658541375507487L;
+		public boolean isOr = false;
+
+		@Override
+		public Base getCopy() {
+			LogicBase lb = new LogicBase();
+			lb.isOr = isOr;
+			return lb;
+		}
+	}
 }

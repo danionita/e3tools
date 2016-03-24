@@ -14,7 +14,7 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
 public class E3Style {
-	public static final double DOTRADIUS = 2.5;
+	public static final double DOTRADIUS = 4;
 	
 	public static void styleGraphComponent(mxGraphComponent graphComponent) {
 		mxGraph graph = graphComponent.getGraph();
@@ -27,6 +27,8 @@ public class E3Style {
 		baseStyle.put(mxConstants.STYLE_STROKECOLOR,  "#000000");
 		baseStyle.put(mxConstants.STYLE_STROKEWIDTH, 1.0);
 		baseStyle.put(mxConstants.STYLE_FONTCOLOR, "#000000");
+		baseStyle.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_LEFT);
+		baseStyle.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_TOP);
 		
 		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_ROUNDED, true);
@@ -60,29 +62,32 @@ public class E3Style {
 		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_FILLCOLOR, "#FFFFFF");
 		style.put(mxConstants.STYLE_GRADIENTCOLOR, "#FFFFFF");
-		style.put(mxConstants.STYLE_SHAPE, "ValuePortWestStencil");
+		style.put(mxConstants.STYLE_SHAPE, "ValuePortStencil");
 		style.put(mxConstants.STYLE_RESIZABLE, 0);
 		stylesheet.putCellStyle("ValuePortWest", style);
 
 		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_FILLCOLOR, "#FFFFFF");
 		style.put(mxConstants.STYLE_GRADIENTCOLOR, "#FFFFFF");
-		style.put(mxConstants.STYLE_SHAPE, "ValuePortEastStencil");
+		style.put(mxConstants.STYLE_SHAPE, "ValuePortStencil");
 		style.put(mxConstants.STYLE_RESIZABLE, 0);
+		style.put(mxConstants.STYLE_ROTATION, 180);
 		stylesheet.putCellStyle("ValuePortEast", style);
 		style = new Hashtable<>(baseStyle);
 
 		style.put(mxConstants.STYLE_FILLCOLOR, "#FFFFFF");
 		style.put(mxConstants.STYLE_GRADIENTCOLOR, "#FFFFFF");
-		style.put(mxConstants.STYLE_SHAPE, "ValuePortNorthStencil");
+		style.put(mxConstants.STYLE_SHAPE, "ValuePortStencil");
 		style.put(mxConstants.STYLE_RESIZABLE, 0);
+		style.put(mxConstants.STYLE_ROTATION, 90);
 		stylesheet.putCellStyle("ValuePortNorth", style);
 
 		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_FILLCOLOR, "#FFFFFF");
 		style.put(mxConstants.STYLE_GRADIENTCOLOR, "#FFFFFF");
-		style.put(mxConstants.STYLE_SHAPE, "ValuePortSouthStencil");
+		style.put(mxConstants.STYLE_SHAPE, "ValuePortStencil");
 		style.put(mxConstants.STYLE_RESIZABLE, 0);
+		style.put(mxConstants.STYLE_ROTATION, 270);
 		stylesheet.putCellStyle("ValuePortSouth", style);
 		
 		style = new Hashtable<>();
@@ -116,6 +121,15 @@ public class E3Style {
 		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
 		stylesheet.putCellStyle("Dot", style);
 		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "BarStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		stylesheet.putCellStyle("Bar", style);
+		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_OPACITY, 0);
+		stylesheet.putCellStyle("LogicBase", style);
+		
 		// Aw yeah '90
 		graphComponent.getViewport().setOpaque(true);
 		style.put(mxConstants.STYLE_FILLCOLOR, "#00FF00");
@@ -125,14 +139,12 @@ public class E3Style {
 		graphComponent.setFoldingEnabled(false);
 			
 		// Add custom stencils
-		addStencil("valueportwest.shape");
-		addStencil("valueporteast.shape");
-		addStencil("valueportnorth.shape");
-		addStencil("valueportsouth.shape");
+		addStencil("valueport.shape");
 		addStencil("marketsegment.shape");
 		addStencil("startsignal.shape");
 		addStencil("endsignal.shape");
 		addStencil("dot.shape");
+		addStencil("bar.shape");
 	}
 	
 	public static void addStencil(String filename) {

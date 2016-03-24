@@ -70,7 +70,7 @@ public class E3GraphComponent extends mxGraphComponent {
 				
 				if (source != null && target != null) {
 					String sourceStyle = source.getStyle();
-					String targetStyle = source.getStyle();
+					String targetStyle = target.getStyle();
 					
 					System.out.println(sourceStyle + " -> " + targetStyle);
 					
@@ -78,6 +78,8 @@ public class E3GraphComponent extends mxGraphComponent {
 						graph.getModel().setStyle(cell, "ConnectionElement");
 					} else if (sourceStyle.startsWith("ValuePort") && targetStyle.startsWith("ValuePort")) {
 						graph.getModel().setStyle(cell, "ValueExchange");
+						
+						System.out.println("Connecting " + sourceStyle + " --> " + targetStyle);
 
 						// TODO: Make this NOT throw an exceptino when connecting dot to value port
 						boolean sourceIncoming = ((ValuePort) source.getValue()).incoming;
@@ -94,8 +96,21 @@ public class E3GraphComponent extends mxGraphComponent {
 						boolean targetIsTopLevel = Utils.isToplevelValueInterface(graph, target);
 						
 						// One should be an incoming value interface, other one should be outgoing
-						if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
+						// But only if they are both top-level
+						graph.getModel().beginUpdate();
+						try {
+							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
+								cell.removeFromParent();
+							}
+						} finally {
+							graph.getModel().endUpdate();
+						}
+					} else {
+						graph.getModel().beginUpdate();
+						try {
 							cell.removeFromParent();
+						} finally {
+							graph.getModel().endUpdate();
 						}
 					}
 				}

@@ -4,12 +4,10 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JSplitPane;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 public class Main { 
@@ -27,10 +25,15 @@ public class Main {
 
 		mxGraph graph = new E3Graph();
 		mxGraphComponent graphComponent = new E3GraphComponent(graph);
-		Object root = graph.getDefaultParent();
-
-		graph.insertVertex(root, null, "Actor1", 200, 200, 100, 100, "Actor");
 		
+		graph.getModel().beginUpdate();
+		try {
+			// Playground for custom shapes
+			
+		} finally {
+			graph.getModel().endUpdate();
+		}
+
 		// Create tool pane
 		mxGraphComponent tools = new ToolComponent();
 		

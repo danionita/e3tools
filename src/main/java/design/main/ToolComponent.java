@@ -7,6 +7,7 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
+import design.main.Info.LogicBase;
 import design.main.Info.MarketSegment;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueInterface;
@@ -67,15 +68,15 @@ public class ToolComponent extends mxGraphComponent {
 		try {
 			// Simple blocks
 			ValueActivity vaInfo = new ValueActivity();
-			vaInfo.name = "ValueActivity1";
+			vaInfo.name = "ValueActivity";
 			Object va = graph.insertVertex(root, null, vaInfo, 20, 20, 120, 120, "ValueActivity");
 			
 			Actor acInfo = new Actor();
-			acInfo.name = "Actor1";
+			acInfo.name = "Actor";
 			Object ac = graph.insertVertex(root, null, acInfo, 20, 160, 120, 120, "Actor");
 			
 			MarketSegment msInfo = new MarketSegment();
-			msInfo.name = "MarketSegment1";
+			msInfo.name = "MarketSegment";
 			Object ms = graph.insertVertex(root, null, msInfo, 20, 300, 120, 120, "MarketSegment");
 			
 			// Value Interface
@@ -91,18 +92,36 @@ public class ToolComponent extends mxGraphComponent {
 					"Dot");
 			
 			// TODO: Add info's here?
-			// TODO: Change to DOTRADIUS
 			mxCell ss = (mxCell) graph.insertVertex(root, null, null, 20, 500, 30, 30, "StartSignal");
 			ss.setConnectable(false);
-			mxICell dot = (mxICell) graph.insertVertex(ss, null, null, 0.5, 0.5, 5, 5, "Dot");
+			mxICell dot = (mxICell) graph.insertVertex(ss, null, null, 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 			dot.getGeometry().setRelative(true);
-			dot.getGeometry().setOffset(new mxPoint(-2.5, -2.5));
+			dot.getGeometry().setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
 			
 			mxCell es = (mxCell) graph.insertVertex(root, null, null, 20, 550, 45, 45, "EndSignal");
 			es.setConnectable(false);
-			mxCell dot2 = (mxCell) graph.insertVertex(es, null, null, 0.5, 0.5, 5, 5, "Dot");
+			mxCell dot2 = (mxCell) graph.insertVertex(es, null, null, 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 			dot2.getGeometry().setRelative(true);
-			dot2.getGeometry().setOffset(new mxPoint(-2.5, -2.5));
+			dot2.getGeometry().setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
+			
+			// Add logic components
+			LogicBase lb = new LogicBase();
+			lb.isOr = true;
+			Object orLogicBase = graph.insertVertex(root, null, lb, 100, 100, 30, 50, "LogicBase");
+			Object bar = graph.insertVertex(orLogicBase, null, null, 0.5, 0, 1, 50, "Bar");
+			graph.getCellGeometry(bar).setRelative(true);
+			
+			Object mainDot = graph.insertVertex(orLogicBase, null, null, 1, 0.5,
+					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
+			graph.getCellGeometry(mainDot).setRelative(true);
+			graph.getCellGeometry(mainDot).setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
+			
+			for (int i = 0; i < 5; i++) {
+				Object inputDot = graph.cloneCells(new Object[]{mainDot})[0];
+				graph.addCell(inputDot, orLogicBase);
+				graph.getCellGeometry(inputDot).setX(0);
+				graph.getCellGeometry(inputDot).setY((i + 0.5) / 5.0);
+			}
 		} finally {
 			graph.getModel().endUpdate();
 		}

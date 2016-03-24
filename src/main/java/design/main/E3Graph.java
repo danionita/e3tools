@@ -331,64 +331,10 @@ class E3Graph extends mxGraph {
 	 */
 	public static void rotateValuePort(mxGraph graph, mxICell vi, mxICell vp) {
 		mxGeometry viGm = vi.getGeometry();
-//		boolean incoming = ((ValuePort) vp.getValue()).incoming;
 		ValueInterface viInfo = (ValueInterface) vi.getValue();
 		ValuePort vpInfo = (ValuePort) vp.getValue();
 		
 		graph.getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
-		
-//		mxRectangle vpArea = graph.getCellContainmentArea(vi);
-//		if (viGm.getWidth() > viGm.getHeight()) {
-//			if (vpArea == null) {
-//				if (incoming) {
-//					graph.getModel().setStyle(vp, "ValuePortSouth");
-//				} else {
-//					graph.getModel().setStyle(vp, "ValuePortNorth");
-//				}
-//			} else {
-//				// Horizontal
-//				if (vpArea.getY() < 0) {
-//					// Top
-//					if (incoming) {
-//						graph.getModel().setStyle(vp, "ValuePortSouth");
-//					} else {
-//						graph.getModel().setStyle(vp, "ValuePortNorth");
-//					}
-//				} else {
-//					// Bottom
-//					if (incoming) {
-//						graph.getModel().setStyle(vp, "ValuePortNorth");
-//					} else {
-//						graph.getModel().setStyle(vp, "ValuePortSouth");
-//					}
-//				}
-//			}
-//		} else {
-//			if (vpArea == null) {
-//				if (incoming) {
-//					graph.getModel().setStyle(vp, "ValuePortEast");
-//				} else {
-//					graph.getModel().setStyle(vp, "ValuePortWest");
-//				}
-//			} else {
-//				// Vertical
-//				if (vpArea.getX() < 0) {
-//					// Left side
-//					if (incoming) {
-//						graph.getModel().setStyle(vp, "ValuePortEast");
-//					} else {
-//						graph.getModel().setStyle(vp, "ValuePortWest");
-//					}
-//				} else {
-//					// Right side
-//					if (incoming) {
-//						graph.getModel().setStyle(vp, "ValuePortWest");
-//					} else {
-//						graph.getModel().setStyle(vp, "ValuePortEast");
-//					}
-//				}
-//			}
-//		}
 	}
 	
 	/**
@@ -406,7 +352,8 @@ class E3Graph extends mxGraph {
 		if (style == null) return true;
 		
 		return !style.startsWith("ValuePort")
-				&& !style.equals("Dot");
+				&& !style.equals("Dot")
+				&& !style.equals("Bar");
 	}
 	
 	/**
@@ -422,6 +369,29 @@ class E3Graph extends mxGraph {
 		}
 
 		return super.convertValueToString(cell);
+	}
+	
+	@Override
+	public void cellLabelChanged(Object cell, Object newValue, boolean autoSize) {
+		Object oldValue = model.getValue(cell);
+		if (oldValue instanceof Info.Base) {
+			if (newValue instanceof String) {
+				String name = (String) newValue;
+				if (oldValue instanceof Info.Actor) {
+					Info.Actor actor = (Info.Actor) oldValue;
+					actor.name = name;
+				} else if (oldValue instanceof Info.MarketSegment) {
+					Info.MarketSegment marketSegment = (Info.MarketSegment) oldValue;
+					marketSegment.name = name;
+				} else if (oldValue instanceof Info.ValueActivity) {
+					Info.ValueActivity valueActivity = (Info.ValueActivity) oldValue;
+					valueActivity.name = name;
+				}
+			}
+			
+			newValue = oldValue;
+		}
+		super.cellLabelChanged(cell, newValue, autoSize);
 	}
 	
 	/**
