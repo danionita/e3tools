@@ -11,6 +11,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -152,6 +153,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		// is shown. Once they fix it in mxGraph we can turn it back on but it's not really needed.
 		getGraphHandler().setImagePreview(false);
 		getGraphHandler().setCenterPreview(false);
+//		getGraphHandler().setCloneEnabled(false);
 		graph.getSelectionModel().setSingleSelection(true);
 		
 		// Set styling of nodes, background color, etc.
@@ -274,6 +276,7 @@ public class E3GraphComponent extends mxGraphComponent {
 			public void invoke(Object sender, mxEventObject evt) {
 				Object[] cells = ((Object[]) evt.getProperty("cells"));
 				mxCell cell = (mxCell) cells[0];
+				System.out.println("Moved: " + cell.getStyle());
 
 				graph.getModel().beginUpdate();
 				try {
@@ -328,16 +331,6 @@ public class E3GraphComponent extends mxGraphComponent {
 //				toolbarPane.setBounds((int) pos.getX(), (int) pos.getY(), 30, 70);
 //			}
 //		});
-
-		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
-			@Override
-			public void invoke(Object sender, mxEventObject evt) {
-				String style = graph.getModel().getStyle(graph.getSelectionCell());
-				if (style != null && (style.equals("EastTriangle") || style.equals("Bar"))) {
-					graph.selectCell(false, true, false);
-				}
-			}
-		});
 	}
 	
 	public void triggerContextMenu(MouseEvent e) {

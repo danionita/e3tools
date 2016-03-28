@@ -356,7 +356,9 @@ class E3Graph extends mxGraph {
 		if (style == null) return true;
 		
 		return !style.startsWith("ValuePort")
-				&& !style.equals("Dot");
+				&& !style.equals("Dot")
+				&& !style.equals("Bar")
+				&& !style.equals("EastTriangle");
 	}
 	
 	/**

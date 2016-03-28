@@ -37,7 +37,9 @@ public class ToolComponent extends mxGraphComponent {
 				if (style == null) return true;
 				
 				return !cell.getStyle().startsWith("ValuePort")
-						&& !style.equals("Dot");
+						&& !style.equals("Dot")
+						&& !style.equals("Bar")
+						&& !style.equals("EastTriangle");
 			}
 
 			/**
@@ -153,14 +155,15 @@ public class ToolComponent extends mxGraphComponent {
 			graph.getModel().endUpdate();
 		}
 
-		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
-			@Override
-			public void invoke(Object sender, mxEventObject evt) {
-				String style = graph.getModel().getStyle(graph.getSelectionCell());
-				if (style != null && (style.equals("EastTriangle") || style.equals("Bar"))) {
-					graph.selectCell(false, true, false);
-				}
-			}
-		});
+		// This enables clicking on the easttriangle as well (and gate)
+//		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
+//			@Override
+//			public void invoke(Object sender, mxEventObject evt) {
+//				String style = graph.getModel().getStyle(graph.getSelectionCell());
+//				if (style != null && (style.equals("EastTriangle") || style.equals("Bar"))) {
+//					graph.selectCell(false, true, false);
+//				}
+//			}
+//		});
 	}
 }
