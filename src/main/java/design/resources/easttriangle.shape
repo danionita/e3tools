@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<shape xmlns="http://www.utwente.nl/e3fraud"
+       xmlns:svg="http://www.w3.org/2000/svg">
+  <name>EastTriangleStencil</name>
+  <description>A simple eastwards triangle</description>
+  <icon></icon>
+  <aspectratio type="fixed"/>
+  <svg:svg width="10" height="10" style="">
+  	<!-- <svg:rect x="4" y="0" width="2" height="10" style="stroke:#000000;fill:#000000"/> 
+  	<svg:line x1="5" y1="0" x2="10" y2="5" style="stroke:#000000;stroke-width:2" />
+  	<svg:line x1="5" y1="10" x2="10" y2="5" style="stroke:#000000;stroke-width:2" />-->
+  	<svg:polygon points="4,0 10,5 4,10" style="stroke-linecap: butt"/>
+  </svg:svg>
+</shape>
+

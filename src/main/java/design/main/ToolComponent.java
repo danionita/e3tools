@@ -1,14 +1,20 @@
 package design.main;
 
 import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxEvent;
+import com.mxgraph.util.mxEventObject;
+import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
+import design.main.Info.Dot;
 import design.main.Info.LogicBase;
 import design.main.Info.MarketSegment;
+import design.main.Info.Side;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueInterface;
 
@@ -81,7 +87,7 @@ public class ToolComponent extends mxGraphComponent {
 			
 			// Value Interface
 			ValueInterface viInfo = new ValueInterface();
-			viInfo.side = ValueInterface.Side.LEFT;
+			viInfo.side = Side.LEFT;
 			mxICell vi = (mxICell) graph.insertVertex(root, null, viInfo, 20, 440, 20, 50, "ValueInterface");
 			E3Graph.addValuePort(graph, vi, true);
 			E3Graph.addValuePort(graph, vi, false);
@@ -105,25 +111,56 @@ public class ToolComponent extends mxGraphComponent {
 			dot2.getGeometry().setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
 			
 			// Add logic components
+			// Or component
 			LogicBase lb = new LogicBase();
 			lb.isOr = true;
-			Object orLogicBase = graph.insertVertex(root, null, lb, 100, 100, 30, 50, "LogicBase");
+			Object orLogicBase = graph.insertVertex(root, null, lb, 90, 450, 30, 50, "LogicBase");
 			Object bar = graph.insertVertex(orLogicBase, null, null, 0.5, 0, 1, 50, "Bar");
-			graph.getCellGeometry(bar).setRelative(true);
+			mxGeometry barGm = (mxGeometry) graph.getCellGeometry(bar).clone();
+			barGm.setRelative(true);
+			graph.getModel().setGeometry(bar, barGm);
 			
-			Object mainDot = graph.insertVertex(orLogicBase, null, null, 1, 0.5,
+			Object mainDot = graph.insertVertex(orLogicBase, null, new Dot(true), 0.75, 0.5,
 					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
-			graph.getCellGeometry(mainDot).setRelative(true);
-			graph.getCellGeometry(mainDot).setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
+			mxGeometry dotGm = (mxGeometry) graph.getCellGeometry(mainDot).clone();
+			dotGm.setRelative(true);
+			dotGm.setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
+			graph.getModel().setGeometry(mainDot, dotGm);
 			
-			for (int i = 0; i < 5; i++) {
-				Object inputDot = graph.cloneCells(new Object[]{mainDot})[0];
-				graph.addCell(inputDot, orLogicBase);
-				graph.getCellGeometry(inputDot).setX(0);
-				graph.getCellGeometry(inputDot).setY((i + 0.5) / 5.0);
+			for (int i = 0; i < 3; i++) {
+				E3Graph.addDot(graph, (mxCell) orLogicBase);
 			}
+			
+			// And component
+			Object andLogicBase = graph.insertVertex(root, null, new LogicBase(), 90, 520, 30, 50, "LogicBase");
+			Object triangle = graph.insertVertex(andLogicBase, null, null, 0.5, 0, 15, 30, "EastTriangle");
+			mxGeometry triangleGm = (mxGeometry) graph.getCellGeometry(triangle).clone();
+			triangleGm.setRelative(true);
+			graph.getModel().setGeometry(triangle, triangleGm);
+			
+			mainDot = graph.insertVertex(andLogicBase, null, new Dot(true), 0.75, 0.5, 
+					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
+			dotGm = (mxGeometry) graph.getCellGeometry(mainDot).clone();
+			dotGm.setRelative(true);
+			dotGm.setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
+			graph.getModel().setGeometry(mainDot, dotGm);
+			
+			for (int i = 0; i < 3; i++) {
+				E3Graph.addDot(graph, (mxCell) andLogicBase);
+			}
+
 		} finally {
 			graph.getModel().endUpdate();
 		}
+
+		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				String style = graph.getModel().getStyle(graph.getSelectionCell());
+				if (style != null && (style.equals("EastTriangle") || style.equals("Bar"))) {
+					graph.selectCell(false, true, false);
+				}
+			}
+		});
 	}
 }

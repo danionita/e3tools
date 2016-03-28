@@ -1,7 +1,6 @@
 package design.main;
 
 import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -14,8 +13,10 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
+import design.main.Info.Dot;
+import design.main.Info.LogicBase;
+import design.main.Info.Side;
 import design.main.Info.ValueInterface;
-import design.main.Info.ValueInterface.Side;
 import design.main.Info.ValuePort;
 
 // TODO: Check all graph mutations for begin/end!
@@ -39,7 +40,10 @@ class E3Graph extends mxGraph {
 		if (style == null) return false;
 		if (droppeeStyle == null)  return false;
 		
-		if (droppeeStyle.equals("ValueInterface")) {
+		if (droppeeStyle.equals("ValueInterface")
+				|| droppeeStyle.equals("StartSignal")
+				|| droppeeStyle.equals("EndSignal")
+				|| droppeeStyle.equals("LogicBase")) {
 			return style.equals("Actor") || style.equals("ValueActivity") || style.equals("MarketSegment");
 		} else {
 			return style.equals("Actor") || style.equals("ValueActivity");
@@ -352,8 +356,7 @@ class E3Graph extends mxGraph {
 		if (style == null) return true;
 		
 		return !style.startsWith("ValuePort")
-				&& !style.equals("Dot")
-				&& !style.equals("Bar");
+				&& !style.equals("Dot");
 	}
 	
 	/**
@@ -410,7 +413,11 @@ class E3Graph extends mxGraph {
 						&& !style.equals("ValueInterface")
 						&& !style.equals("StartSignal")
 						&& !style.equals("EndSignal")
-						&& !style.equals("Dot");
+						&& !style.equals("Dot")
+						&& !style.equals("Bar")
+						&& !style.equals("EastTriangle")
+						&& !style.equals("LogicBase");
+						
 			}
 		}
 		
@@ -447,5 +454,108 @@ class E3Graph extends mxGraph {
 		if (style == null) return false;
 		return style.equals("Dot")
 				|| style.startsWith("ValuePort");
+	}
+	
+	public static void straightenLogicUnit(mxGraph graph, mxCell logicUnit) {
+		List<mxICell> dots = new ArrayList<>(); 
+		mxICell unitDot = null;
+		mxICell bar = null;
+		for (int i = 0; i < logicUnit.getChildCount(); i++) {
+			mxICell child = logicUnit.getChildAt(i);
+			Dot dotInfo = (Dot) child.getValue();
+			if (dotInfo == null) {
+				bar = child;
+				continue;
+			}
+			if (!dotInfo.isUnit) {
+				dots.add(child); 
+			} else {
+				unitDot = child;  
+			}
+		}
+		
+		Side side = ((LogicBase) logicUnit.getValue()).direction;
+		
+		graph.getModel().beginUpdate();
+		try {
+			for (int i = 0; i < dots.size(); i++) {
+				mxICell dot = dots.get(i);
+				mxGeometry gm = (mxGeometry) graph.getCellGeometry(dot).clone();
+				double horizontal = (i + 0.5) / (double) dots.size();
+				
+				if (side == Side.TOP) {
+					gm.setX(horizontal);
+					gm.setY(1);
+				} else if (side == Side.RIGHT) {
+					gm.setX(0);
+					gm.setY(horizontal);
+				} else if (side == Side.BOTTOM) {
+					gm.setX(horizontal);
+					gm.setY(0);
+				} else if (side == Side.LEFT) {
+					gm.setY(horizontal);
+					gm.setX(1);
+				} 				
+
+				graph.getModel().setGeometry(dot,  gm);
+			}
+			
+			mxGeometry gm = (mxGeometry) unitDot.getGeometry().clone();
+			gm.setX(0.5);
+			gm.setY(0.5);
+			
+			mxGeometry barGm = (mxGeometry) bar.getGeometry().clone();
+			barGm.setX(0.5);
+			barGm.setY(0.5);
+			barGm.setWidth(1);
+			barGm.setHeight(1);
+
+			boolean isTriangle = graph.getModel().getStyle(bar).equals("EastTriangle");
+			double width = logicUnit.getGeometry().getWidth();
+			double height = logicUnit.getGeometry().getHeight();
+
+			if (side == Side.TOP) {
+				gm.setY(0);
+				barGm.setX(0);
+				barGm.setWidth(width);
+				if (isTriangle) barGm.setHeight(height / 2);
+			} else if (side == Side.RIGHT) {
+				gm.setX(1);
+				barGm.setY(0);
+				barGm.setHeight(height);
+				if (isTriangle) barGm.setWidth(width / 2);
+			} else if (side == Side.BOTTOM) {
+				gm.setY(1);
+				barGm.setX(0);
+				barGm.setWidth(width);
+				if (isTriangle) barGm.setHeight(height / 2);
+			} else if (side == Side.LEFT){
+				gm.setX(0);
+				barGm.setY(0);
+				barGm.setHeight(height);
+				if (isTriangle) barGm.setWidth(width / 2);
+			}
+
+			graph.getModel().setGeometry(unitDot, gm);
+			graph.getModel().setGeometry(bar, barGm);
+		} finally {
+			graph.getModel().endUpdate();
+		}
+	}
+	
+	public static void addDot(mxGraph graph, mxCell logicUnit) {
+		graph.getModel().beginUpdate();
+		try {
+			Object obj = graph.insertVertex(logicUnit, null, new Dot(), 0, 0, 
+					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
+			mxGeometry gm = (mxGeometry) graph.getCellGeometry(obj).clone();
+			gm.setRelative(true);
+			gm.setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
+			graph.getModel().setGeometry(obj, gm);
+			
+			straightenLogicUnit(graph, logicUnit);
+		} finally {
+			graph.getModel().endUpdate();
+		}
 	}
 }

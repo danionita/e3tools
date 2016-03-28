@@ -130,6 +130,14 @@ public class E3Style {
 		style.put(mxConstants.STYLE_OPACITY, 0);
 		stylesheet.putCellStyle("LogicBase", style);
 		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "EastTriangleStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		style.put(mxConstants.STYLE_STROKEWIDTH, 2);
+		style.put(mxConstants.STYLE_FILLCOLOR, "#000000");
+		style.put(mxConstants.STYLE_PERIMETER, mxConstants.PERIMETER_TRIANGLE);
+		stylesheet.putCellStyle("EastTriangle", style);
+		
 		// Aw yeah '90
 		graphComponent.getViewport().setOpaque(true);
 		style.put(mxConstants.STYLE_FILLCOLOR, "#00FF00");
@@ -145,6 +153,7 @@ public class E3Style {
 		addStencil("endsignal.shape");
 		addStencil("dot.shape");
 		addStencil("bar.shape");
+		addStencil("easttriangle.shape");
 	}
 	
 	public static void addStencil(String filename) {

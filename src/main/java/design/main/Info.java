@@ -2,14 +2,30 @@ package design.main;
 
 import java.io.Serializable;
 
-import design.main.Info.ValueInterface.Side;
-
 public class Info {
 	public static abstract class Base implements Serializable {
 		private static final long serialVersionUID = -566615792608025058L;
 		public abstract Base getCopy();
 		public String toString() {
 			return "";
+		}
+	}
+
+	public static enum Side {
+		TOP, RIGHT, BOTTOM, LEFT;
+		public Side rotateRight() {
+			if (this == TOP) {
+				return RIGHT;
+			} else if (this == RIGHT) {
+				return BOTTOM;
+			} else if (this == BOTTOM) {
+				return LEFT;
+			} else { // (this == LEFT)
+				return TOP;
+			}
+		}
+		public Side rotateLeft() {
+			return this.rotateRight().rotateRight().rotateRight();
 		}
 	}
 	
@@ -29,7 +45,7 @@ public class Info {
 		}
 
 		String getDirection(ValueInterface vi) {
-			ValueInterface.Side side = vi.side;
+			Side side = vi.side;
 			assert(side != null);
 			
 			if (side == Side.TOP) {
@@ -67,7 +83,6 @@ public class Info {
 	public static class ValueInterface extends Base {
 		private static final long serialVersionUID = -4820088710010430783L;
 
-		public static enum Side {TOP, RIGHT, BOTTOM, LEFT}
 		
 		public Side side;
 		
@@ -130,21 +145,30 @@ public class Info {
 	
 	public static class Dot extends Base {
 		private static final long serialVersionUID = 6736897501245007019L;
+		// Unit dot is dot that is alone on one side of the logic unit
+		public boolean isUnit = false;
+		
+		public Dot() {}
+		public Dot(boolean isUnit_) {isUnit = isUnit_;}
 
 		@Override
 		public Base getCopy() {
-			return new Dot();
+			Dot dot = new Dot();
+			dot.isUnit = isUnit;
+			return dot;
 		}
 	}
 	
 	public static class LogicBase extends Base {
 		private static final long serialVersionUID = 7083658541375507487L;
 		public boolean isOr = false;
+		public Side direction = Side.RIGHT;
 
 		@Override
 		public Base getCopy() {
 			LogicBase lb = new LogicBase();
 			lb.isOr = isOr;
+			lb.direction = direction;
 			return lb;
 		}
 	}

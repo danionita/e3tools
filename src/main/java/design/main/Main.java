@@ -1,13 +1,20 @@
 package design.main;
 
+import java.awt.Color;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 public class Main { 
@@ -23,13 +30,40 @@ public class Main {
 			System.out.println("Couldn't set Look and Feel to system");
 		}
 
+//		// Add context sensitive toolbar
+//		JPanel containerPane = new JPanel();
+//		mainFrame.getRootPane().setGlassPane(containerPane);
+//		JPanel toolbarPane = new JPanel();
+//		
+//		containerPane.add(toolbarPane);
+//		containerPane.setLayout(null);
+//		containerPane.setVisible(true);
+//		containerPane.setOpaque(false);
+//
+//		toolbarPane.setBounds(100, 100, 30, 70);
+//		toolbarPane.setLayout(new BoxLayout(toolbarPane, BoxLayout.Y_AXIS));
+//		toolbarPane.setBackground(new Color(100, 100, 0, 128));
+//		toolbarPane.setSize(300, 300);
+//		toolbarPane.setLocation(300, 100);
+//		toolbarPane.add(new JButton("Add"));
+//		toolbarPane.add(new JButton("Remove"));
+//		toolbarPane.setVisible(true);
+//		toolbarPane.setOpaque(true);
+		JPanel toolbarPane = null;
+
+		// Add menubar
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(new JMenu("File"));
+		menuBar.add(new JMenu("Graph"));
+		mainFrame.setJMenuBar(menuBar);
+		
 		mxGraph graph = new E3Graph();
-		mxGraphComponent graphComponent = new E3GraphComponent(graph);
+		Object root = graph.getDefaultParent();
+		mxGraphComponent graphComponent = new E3GraphComponent(graph, menuBar, toolbarPane);
 		
 		graph.getModel().beginUpdate();
 		try {
 			// Playground for custom shapes
-			
 		} finally {
 			graph.getModel().endUpdate();
 		}
@@ -41,12 +75,6 @@ public class Main {
 		JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tools, graphComponent);
 		mainPane.setResizeWeight(0.1);
 		mainFrame.getContentPane().add(mainPane);
-		
-		// Add menubar
-		JMenuBar jmb = new JMenuBar();
-		jmb.add(new JMenu("File"));
-		jmb.add(new JMenu("Graph"));
-		mainFrame.setJMenuBar(jmb);
 		
 		// Show main screen
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
