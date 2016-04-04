@@ -39,7 +39,7 @@ public class ToolComponent extends mxGraphComponent {
 				return !cell.getStyle().startsWith("ValuePort")
 						&& !style.equals("Dot")
 						&& !style.equals("Bar")
-						&& !style.equals("EastTriangle");
+						&& !style.endsWith("Triangle");
 			}
 
 			/**

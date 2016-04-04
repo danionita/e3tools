@@ -3,11 +3,14 @@ package design.main;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
@@ -358,7 +361,7 @@ class E3Graph extends mxGraph {
 		return !style.startsWith("ValuePort")
 				&& !style.equals("Dot")
 				&& !style.equals("Bar")
-				&& !style.equals("EastTriangle");
+				&& !style.endsWith("Triangle");
 	}
 	
 	/**
@@ -512,31 +515,49 @@ class E3Graph extends mxGraph {
 			barGm.setWidth(1);
 			barGm.setHeight(1);
 
-			boolean isTriangle = graph.getModel().getStyle(bar).equals("EastTriangle");
+			boolean isTriangle = graph.getModel().getStyle(bar).endsWith("Triangle");
 			double width = logicUnit.getGeometry().getWidth();
 			double height = logicUnit.getGeometry().getHeight();
-
+			
 			if (side == Side.TOP) {
 				gm.setY(0);
 				barGm.setX(0);
 				barGm.setWidth(width);
-				if (isTriangle) barGm.setHeight(height / 2);
+
+				if (isTriangle) {
+					barGm.setY(0);
+					barGm.setHeight(height / 2);
+					graph.getModel().setStyle(bar, new String("NorthTriangle"));
+				}
 			} else if (side == Side.RIGHT) {
 				gm.setX(1);
 				barGm.setY(0);
 				barGm.setHeight(height);
-				if (isTriangle) barGm.setWidth(width / 2);
+
+				if (isTriangle) {
+					barGm.setWidth(width / 2);
+					graph.getModel().setStyle(bar, new String("EastTriangle"));
+				}
 			} else if (side == Side.BOTTOM) {
 				gm.setY(1);
 				barGm.setX(0);
 				barGm.setWidth(width);
-				if (isTriangle) barGm.setHeight(height / 2);
+				if (isTriangle) {
+					barGm.setHeight(height / 2);
+					graph.getModel().setStyle(bar, new String("SouthTriangle"));
+				}
 			} else if (side == Side.LEFT){
 				gm.setX(0);
 				barGm.setY(0);
 				barGm.setHeight(height);
-				if (isTriangle) barGm.setWidth(width / 2);
+				if (isTriangle) {
+					barGm.setX(0);
+					barGm.setWidth(width / 2);
+					graph.getModel().setStyle(bar, new String("WestTriangle"));
+				}
 			}
+			
+			System.out.println(graph.getModel().getStyle(bar));
 
 			graph.getModel().setGeometry(unitDot, gm);
 			graph.getModel().setGeometry(bar, barGm);

@@ -131,6 +131,30 @@ public class E3Style {
 		stylesheet.putCellStyle("LogicBase", style);
 		
 		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "SouthTriangleStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		style.put(mxConstants.STYLE_STROKEWIDTH, 2);
+		style.put(mxConstants.STYLE_FILLCOLOR, "#000000");
+		style.put(mxConstants.STYLE_PERIMETER, mxConstants.PERIMETER_TRIANGLE);
+		stylesheet.putCellStyle("SouthTriangle", style);
+		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "WestTriangleStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		style.put(mxConstants.STYLE_STROKEWIDTH, 2);
+		style.put(mxConstants.STYLE_FILLCOLOR, "#000000");
+		style.put(mxConstants.STYLE_PERIMETER, mxConstants.PERIMETER_TRIANGLE);
+		stylesheet.putCellStyle("WestTriangle", style);
+		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "NorthTriangleStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		style.put(mxConstants.STYLE_STROKEWIDTH, 2);
+		style.put(mxConstants.STYLE_FILLCOLOR, "#000000");
+		style.put(mxConstants.STYLE_PERIMETER, mxConstants.PERIMETER_TRIANGLE);
+		stylesheet.putCellStyle("NorthTriangle", style);
+		
+		style = new Hashtable<>();
 		style.put(mxConstants.STYLE_SHAPE, "EastTriangleStencil");
 		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
 		style.put(mxConstants.STYLE_STROKEWIDTH, 2);
@@ -154,6 +178,9 @@ public class E3Style {
 		addStencil("dot.shape");
 		addStencil("bar.shape");
 		addStencil("easttriangle.shape");
+		addStencil("southtriangle.shape");
+		addStencil("westtriangle.shape");
+		addStencil("northtriangle.shape");
 	}
 	
 	public static void addStencil(String filename) {
