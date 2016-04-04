@@ -1,9 +1,11 @@
 package design.main;
 
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
@@ -11,7 +13,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -23,10 +24,10 @@ import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraphSelectionModel;
 
 import design.main.Info.Dot;
 import design.main.Info.LogicBase;
-import design.main.Info.Side;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 
@@ -288,6 +289,45 @@ public class E3GraphComponent extends mxGraphComponent {
 			}
 		});
 		
+		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				System.out.println("-- Selection changed --");
+				
+				mxGraphSelectionModel model = (mxGraphSelectionModel) sender;
+				// TODO: Added and removed are switched in mxGraphSelection.mxSelectionChange.execute
+				// When fixed, turn these back around
+				Collection<Object> added = new ArrayList<>((Collection<Object>) evt.getProperty("removed"));
+				Collection<Object> removed = new ArrayList<>((Collection<Object>) evt.getProperty("added"));
+				
+				Iterator<Object> it = added.iterator();
+				ArrayList<Object> newAdded = new ArrayList<>();
+				boolean changes = false;
+				while (it.hasNext()) {
+					Object obj = it.next();
+					String style = graph.getModel().getStyle(obj);
+					System.out.println("Selectee style: " + style);
+
+					if (style != null && style.endsWith("Triangle")) {
+						newAdded.add(graph.getModel().getParent(obj));
+						changes = true;
+					}
+				}
+				
+				it = removed.iterator();
+				while(it.hasNext()) {
+					System.out.println("Removed style: " +
+							graph.getModel().getStyle(it.next()));
+				}
+
+				if (changes) {
+					System.out.println("And again!");
+					((E3Graph.GoodSelectionModel) graph.getSelectionModel())
+							.publicChangeSelection(newAdded, added);		
+				}
+			}
+		});
+		
 		getGraphControl().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -332,6 +372,16 @@ public class E3GraphComponent extends mxGraphComponent {
 //			}
 //		});
 	}
+
+//	public mxPoint toScreen(mxPoint point) {
+//		mxPoint result = new mxPoint(point);
+//		Rectangle bounds = getBounds();
+//		Rectangle menuBounds = menuBar.getBounds();
+//		result.setX(result.getX() + bounds.getX());
+//		result.setY(result.getY() + menuBounds.getHeight() + bounds.getY());
+//		
+//		return result;
+//	}
 	
 	public void triggerContextMenu(MouseEvent e) {
 		Object obj = getCellAt(e.getX(), e.getY());
@@ -362,13 +412,4 @@ public class E3GraphComponent extends mxGraphComponent {
 		}
 	}
 	
-	public mxPoint toScreen(mxPoint point) {
-		mxPoint result = new mxPoint(point);
-		Rectangle bounds = getBounds();
-		Rectangle menuBounds = menuBar.getBounds();
-		result.setX(result.getX() + bounds.getX());
-		result.setY(result.getY() + menuBounds.getHeight() + bounds.getY());
-		
-		return result;
-	}
 }

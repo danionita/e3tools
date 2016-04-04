@@ -2,18 +2,17 @@ package design.main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraphSelectionModel;
 
 import design.main.Info.Base;
 import design.main.Info.Dot;
@@ -360,8 +359,8 @@ class E3Graph extends mxGraph {
 		
 		return !style.startsWith("ValuePort")
 				&& !style.equals("Dot")
-				&& !style.equals("Bar")
-				&& !style.endsWith("Triangle");
+				&& !style.equals("Bar");
+//				&& !style.endsWith("Triangle");
 	}
 	
 	/**
@@ -580,5 +579,22 @@ class E3Graph extends mxGraph {
 		} finally {
 			graph.getModel().endUpdate();
 		}
+	}
+	
+	// This makes changeSelection public so it works better from the outside
+	// TODO: Consider integrating the listener in E3GraphComponent into this class
+	public class GoodSelectionModel extends mxGraphSelectionModel {
+		public GoodSelectionModel(mxGraph graph) {
+			super(graph);
+		}
+
+		public void publicChangeSelection(Collection<Object> added, Collection<Object> removed) {
+			changeSelection(added, removed);
+		}
+	}
+	
+	@Override
+	protected mxGraphSelectionModel createSelectionModel() {
+		return new GoodSelectionModel(this);
 	}
 }
