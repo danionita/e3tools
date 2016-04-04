@@ -1,3 +1,34 @@
+This software is distributed under the GPL-3 license.  It is free,
+open source, and has the following attribution requirements
+(GPL Section 7):
+
+(a) you agree to retain in 'e3tools' and any modifications to 'e3tools'
+    the copyright and the following author attribution:
+    'This product includes software developed by the
+    "University of Twente" (http://www.utwente.nl/) and the Vrije Universiteit Amsterdam (http://e3value.few.vu.nl/).'
+(b) you agree that 'e3tools' and any modifications to 'e3tools' will,
+    when used, display the attribution:
+     Based on 'e3tools' project (https://github.com/danionita/e3tools).
+     For license and citation information see https://github.com/danionita/e3tools/blob/master/LICENSE
+(c) you agree that 'e3tools' and any modifications to 'e3tools' will
+    display the citation information, as provided in the original
+    CITATION file: https://github.com/danionita/e3tools/blob/master/CITATION.
+(d) you agree to retain in the documentation contained within this
+    software, and any modifications of it, the author attribution
+    (GPL Section 7, clause c).
+--------------------------------------------------
+
+What does this mean?
+====================
+
+If you are modifying 'e3tools' or adopting any source code from
+'e3tools' for use in another application, you must ensure that the
+copyright and attributions mentioned in the license above appear
+in the code of your modified version or application. These 
+attributions must also appear when the package is loaded
+(e.g., via 'library' or 'include').
+
+
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
