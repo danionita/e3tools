@@ -563,49 +563,4 @@ class E3Graph extends mxGraph {
 			graph.getModel().endUpdate();
 		}
 	}
-	
-//	@Override
-//	protected mxGraphSelectionModel createSelectionModel() {
-//		mxGraphSelectionModel selectionModel = super.createSelectionModel();
-//		
-////		selectionModel.addListener(mxEvent.CHANGE, new mxIEventListener() {
-////			@Override
-////			public void invoke(Object sender, mxEventObject evt) {
-////				System.out.println("-- Selection changed --");
-////				
-////				mxGraphSelectionModel model = (mxGraphSelectionModel) sender;
-////				// TODO: Added and removed are switched in mxGraphSelection.mxSelectionChange.execute
-////				// When fixed, turn these back around
-////				Collection<Object> added = new ArrayList<>((Collection<Object>) evt.getProperty("removed"));
-////				Collection<Object> removed = new ArrayList<>((Collection<Object>) evt.getProperty("added"));
-////				
-////				Iterator<Object> it = added.iterator();
-////				ArrayList<Object> newAdded = new ArrayList<>();
-////				boolean changes = false;
-////				while (it.hasNext()) {
-////					Object obj = it.next();
-////					String style = getModel().getStyle(obj);
-////					System.out.println("Selectee style: " + style);
-////
-////					if (style != null && style.endsWith("Triangle")) {
-////						newAdded.add(getModel().getParent(obj));
-////						changes = true;
-////					}
-////				}
-////				
-////				it = removed.iterator();
-////				while(it.hasNext()) {
-////					System.out.println("Removed style: " +
-////							getModel().getStyle(it.next()));
-////				}
-////
-////				if (changes) {
-////					System.out.println("And again!");
-////					selectionModel.changeSelection(newAdded, added);		
-////				}
-////			}
-////		});
-//
-//		return selectionModel;
-//	}
 }
