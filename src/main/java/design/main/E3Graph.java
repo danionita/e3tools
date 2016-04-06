@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.util.mxEvent;
+import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
@@ -344,26 +347,6 @@ class E3Graph extends mxGraph {
 	}
 	
 	/**
-	 * Decides whether or not a cell is selectable. 
-	 * In practice, anything is selectable, except value ports.
-	 */
-	@Override
-	public boolean isCellSelectable(Object obj) {
-		if (!(obj instanceof mxICell)) return false;
-		
-		mxICell cell = (mxICell) obj;
-		
-		String style = cell.getStyle();
-		
-		if (style == null) return true;
-		
-		return !style.startsWith("ValuePort")
-				&& !style.equals("Dot")
-				&& !style.equals("Bar");
-//				&& !style.endsWith("Triangle");
-	}
-	
-	/**
 	 * Valueports should not have a label, so they are silenced (by returning
 	 * an empty string). Anything else should just excert default behaviour.
 	 */
@@ -581,20 +564,48 @@ class E3Graph extends mxGraph {
 		}
 	}
 	
-	// This makes changeSelection public so it works better from the outside
-	// TODO: Consider integrating the listener in E3GraphComponent into this class
-	public class GoodSelectionModel extends mxGraphSelectionModel {
-		public GoodSelectionModel(mxGraph graph) {
-			super(graph);
-		}
-
-		public void publicChangeSelection(Collection<Object> added, Collection<Object> removed) {
-			changeSelection(added, removed);
-		}
-	}
-	
-	@Override
-	protected mxGraphSelectionModel createSelectionModel() {
-		return new GoodSelectionModel(this);
-	}
+//	@Override
+//	protected mxGraphSelectionModel createSelectionModel() {
+//		mxGraphSelectionModel selectionModel = super.createSelectionModel();
+//		
+////		selectionModel.addListener(mxEvent.CHANGE, new mxIEventListener() {
+////			@Override
+////			public void invoke(Object sender, mxEventObject evt) {
+////				System.out.println("-- Selection changed --");
+////				
+////				mxGraphSelectionModel model = (mxGraphSelectionModel) sender;
+////				// TODO: Added and removed are switched in mxGraphSelection.mxSelectionChange.execute
+////				// When fixed, turn these back around
+////				Collection<Object> added = new ArrayList<>((Collection<Object>) evt.getProperty("removed"));
+////				Collection<Object> removed = new ArrayList<>((Collection<Object>) evt.getProperty("added"));
+////				
+////				Iterator<Object> it = added.iterator();
+////				ArrayList<Object> newAdded = new ArrayList<>();
+////				boolean changes = false;
+////				while (it.hasNext()) {
+////					Object obj = it.next();
+////					String style = getModel().getStyle(obj);
+////					System.out.println("Selectee style: " + style);
+////
+////					if (style != null && style.endsWith("Triangle")) {
+////						newAdded.add(getModel().getParent(obj));
+////						changes = true;
+////					}
+////				}
+////				
+////				it = removed.iterator();
+////				while(it.hasNext()) {
+////					System.out.println("Removed style: " +
+////							getModel().getStyle(it.next()));
+////				}
+////
+////				if (changes) {
+////					System.out.println("And again!");
+////					selectionModel.changeSelection(newAdded, added);		
+////				}
+////			}
+////		});
+//
+//		return selectionModel;
+//	}
 }

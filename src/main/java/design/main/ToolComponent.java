@@ -17,31 +17,13 @@ import design.main.Info.MarketSegment;
 import design.main.Info.Side;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueInterface;
+import design.main.listeners.ProxySelection;
 
 public class ToolComponent extends mxGraphComponent {
 	public final mxGraph graph = getGraph();
 
 	public ToolComponent() {
 		super(new mxGraph() {
-			/**
-			 * This ensures that ValuePorts can't be selected
-			 */
-			@Override
-			public boolean isCellSelectable(Object obj) {
-				if (!(obj instanceof mxICell)) return true;
-				
-				mxICell cell = (mxICell) obj;
-				
-				String style = cell.getStyle();
-				
-				if (style == null) return true;
-				
-				return !cell.getStyle().startsWith("ValuePort")
-						&& !style.equals("Dot")
-						&& !style.equals("Bar")
-						&& !style.endsWith("Triangle");
-			}
-
 			/**
 			 * Valueports should not have a label, so they are silenced (by returning
 			 * an empty string). Anything else should just excert default behaviour.
@@ -156,14 +138,6 @@ public class ToolComponent extends mxGraphComponent {
 		}
 
 		// This enables clicking on the easttriangle as well (and gate)
-//		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
-//			@Override
-//			public void invoke(Object sender, mxEventObject evt) {
-//				String style = graph.getModel().getStyle(graph.getSelectionCell());
-//				if (style != null && (style.equals("EastTriangle") || style.equals("Bar"))) {
-//					graph.selectCell(false, true, false);
-//				}
-//			}
-//		});
+		graph.getSelectionModel().addListener(mxEvent.CHANGE, new ProxySelection(graph));
 	}
 }
