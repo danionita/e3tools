@@ -73,7 +73,7 @@ public class Main {
 		
 		// Create split view
 		JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tools, graphComponent);
-		mainPane.setResizeWeight(0.1);
+		mainPane.setResizeWeight(0.025);
 		mainFrame.getContentPane().add(mainPane);
 		
 		// Show main screen

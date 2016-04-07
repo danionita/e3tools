@@ -15,6 +15,7 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.swing.handler.mxGraphHandler;
 import com.mxgraph.swing.handler.mxKeyboardHandler;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
@@ -146,7 +147,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		getConnectionHandler().setCreateTarget(false);
 		graph.setAllowDanglingEdges(false);
 		graph.setPortsEnabled(false);
-		getGraphHandler().setRemoveCellsFromParent(false);
+		getGraphHandler().setRemoveCellsFromParent(true);
 		// This makes drag and drop behave properly
 		// If you turn these on a drag-shadow that is sometimes offset improperly
 		// is shown. Once they fix it in mxGraph we can turn it back on but it's not really needed.
@@ -200,22 +201,13 @@ public class E3GraphComponent extends mxGraphComponent {
 					String sourceStyle = source.getStyle();
 					String targetStyle = target.getStyle();
 					
-					System.out.println(sourceStyle + " -> " + targetStyle);
-					
 					if (sourceStyle.equals("Dot") && sourceStyle.equals(targetStyle)) {
 						graph.getModel().setStyle(cell, "ConnectionElement");
 					} else if (sourceStyle.startsWith("ValuePort") && targetStyle.startsWith("ValuePort")) {
 						graph.getModel().setStyle(cell, "ValueExchange");
 						
-						System.out.println("Connecting " + sourceStyle + " --> " + targetStyle);
-
-						// TODO: Make this NOT throw an exceptino when connecting dot to value port
 						boolean sourceIncoming = ((ValuePort) source.getValue()).incoming;
 						boolean targetIncoming = ((ValuePort) target.getValue()).incoming;
-						
-						System.out.println(sourceIncoming);
-						System.out.println(targetIncoming);
-						System.out.println(sourceIncoming ^ targetIncoming);
 						
 						// Reverse engineered from the original editor:
 						// For two top level actors, one should be incoming and one
@@ -372,4 +364,27 @@ public class E3GraphComponent extends mxGraphComponent {
 		}
 	}
 	
+	/**
+	 * Makes sure that only actors can be moved out of parents.
+	 */
+	@Override
+	protected mxGraphHandler createGraphHandler() {
+		return new mxGraphHandler(this) {
+			@Override
+			protected boolean shouldRemoveCellFromParent(Object parent, Object[] cells, MouseEvent e) {
+				Object obj = cells[0];
+				String style = graph.getModel().getStyle(obj);
+				
+				if (style != null && (
+						style.equals("Actor")
+							|| style.equals("ValueActivity")
+							|| style.equals("MarketSegment")
+						)) {
+					return super.shouldRemoveCellFromParent(parent, cells, e);
+				}
+				
+				return false;
+			}
+		};
+	}
 }

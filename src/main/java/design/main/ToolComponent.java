@@ -25,6 +25,17 @@ public class ToolComponent extends mxGraphComponent {
 	public ToolComponent() {
 		super(new mxGraph() {
 			/**
+			 * To prevent the labels from being selected
+			 * @param cell The cell to check
+			 * @return True if the cell can be selected
+			 */
+			@Override
+			public boolean isCellSelectable(Object cell) {
+				String style = getModel().getStyle(cell);
+				return style != null && !style.equals("NameText");
+			}
+			
+			/**
 			 * Valueports should not have a label, so they are silenced (by returning
 			 * an empty string). Anything else should just excert default behaviour.
 			 */
@@ -59,46 +70,46 @@ public class ToolComponent extends mxGraphComponent {
 			// Simple blocks
 			ValueActivity vaInfo = new ValueActivity();
 			vaInfo.name = "ValueActivity";
-			Object va = graph.insertVertex(root, null, vaInfo, 20, 20, 120, 120, "ValueActivity");
+			graph.insertVertex(root, null, vaInfo, 10, 20, 90, 90, "ValueActivity");
 			
 			Actor acInfo = new Actor();
 			acInfo.name = "Actor";
-			Object ac = graph.insertVertex(root, null, acInfo, 20, 160, 120, 120, "Actor");
+			graph.insertVertex(root, null, acInfo, 10, 120, 90, 90, "Actor");
 			
 			MarketSegment msInfo = new MarketSegment();
 			msInfo.name = "MarketSegment";
-			Object ms = graph.insertVertex(root, null, msInfo, 20, 300, 120, 120, "MarketSegment");
+			graph.insertVertex(root, null, msInfo, 10, 220, 90, 90, "MarketSegment");
 			
 			// Value Interface
 			ValueInterface viInfo = new ValueInterface();
 			viInfo.side = Side.LEFT;
-			mxICell vi = (mxICell) graph.insertVertex(root, null, viInfo, 20, 440, 20, 50, "ValueInterface");
+			mxICell vi = (mxICell) graph.insertVertex(root, null, viInfo, 80, 320, 20, 50, "ValueInterface");
 			E3Graph.addValuePort(graph, vi, true);
 			E3Graph.addValuePort(graph, vi, false);
-			mxICell viDot = (mxICell) graph.insertVertex(vi, null, null,
+			graph.insertVertex(vi, null, null,
 					vi.getGeometry().getWidth() - 2 * E3Style.DOTRADIUS,
 					vi.getGeometry().getHeight() / 2 - E3Style.DOTRADIUS,
 					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2,
 					"Dot");
 			
-			// TODO: Add info's here?
-			mxCell ss = (mxCell) graph.insertVertex(root, null, null, 20, 500, 30, 30, "StartSignal");
+			// Start signal
+			mxCell ss = (mxCell) graph.insertVertex(root, null, null, 70, 380, 30, 30, "StartSignal");
 			ss.setConnectable(false);
 			mxICell dot = (mxICell) graph.insertVertex(ss, null, null, 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 			dot.getGeometry().setRelative(true);
 			dot.getGeometry().setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
 			
-			mxCell es = (mxCell) graph.insertVertex(root, null, null, 20, 550, 45, 45, "EndSignal");
+			// End signal
+			mxCell es = (mxCell) graph.insertVertex(root, null, null, 55, 420, 45, 45, "EndSignal");
 			es.setConnectable(false);
 			mxCell dot2 = (mxCell) graph.insertVertex(es, null, null, 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 			dot2.getGeometry().setRelative(true);
 			dot2.getGeometry().setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
 			
-			// Add logic components
 			// Or component
 			LogicBase lb = new LogicBase();
 			lb.isOr = true;
-			Object orLogicBase = graph.insertVertex(root, null, lb, 90, 450, 30, 50, "LogicBase");
+			Object orLogicBase = graph.insertVertex(root, null, lb, 70, 475, 30, 50, "LogicBase");
 			Object bar = graph.insertVertex(orLogicBase, null, null, 0.5, 0, 1, 50, "Bar");
 			mxGeometry barGm = (mxGeometry) graph.getCellGeometry(bar).clone();
 			barGm.setRelative(true);
@@ -116,7 +127,7 @@ public class ToolComponent extends mxGraphComponent {
 			}
 			
 			// And component
-			Object andLogicBase = graph.insertVertex(root, null, new LogicBase(), 90, 520, 30, 50, "LogicBase");
+			Object andLogicBase = graph.insertVertex(root, null, new LogicBase(), 70, 535, 30, 50, "LogicBase");
 			Object triangle = graph.insertVertex(andLogicBase, null, null, 0.5, 0, 15, 30, "EastTriangle");
 			mxGeometry triangleGm = (mxGeometry) graph.getCellGeometry(triangle).clone();
 			triangleGm.setRelative(true);
@@ -132,6 +143,16 @@ public class ToolComponent extends mxGraphComponent {
 			for (int i = 0; i < 3; i++) {
 				E3Graph.addDot(graph, (mxCell) andLogicBase);
 			}
+			
+			// Add some fancy labels
+			graph.insertVertex(root, null, "Value Activity", 120, 20, 100, 100, "NameText");
+			graph.insertVertex(root, null, "Actor", 120, 120, 100, 100, "NameText");
+			graph.insertVertex(root, null, "Market Segment", 120, 220, 100, 100, "NameText");
+			graph.insertVertex(root, null, "Value interface", 120, 320, 100, 50, "NameText");
+			graph.insertVertex(root, null, "Start signal", 120, 380, 100, 33, "NameText");
+			graph.insertVertex(root, null, "End signal", 120, 420, 100, 45, "NameText");
+			graph.insertVertex(root, null, "Or gate", 120, 475, 100, 50, "NameText");
+			graph.insertVertex(root, null, "And gate", 120, 535, 100, 50, "NameText");
 
 		} finally {
 			graph.getModel().endUpdate();

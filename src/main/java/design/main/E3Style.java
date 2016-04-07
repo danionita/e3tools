@@ -162,6 +162,12 @@ public class E3Style {
 		style.put(mxConstants.STYLE_PERIMETER, mxConstants.PERIMETER_TRIANGLE);
 		stylesheet.putCellStyle("EastTriangle", style);
 		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_OPACITY, 0);
+		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
+		style.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_LEFT);
+		stylesheet.putCellStyle("NameText", style);
+		
 		// Aw yeah '90
 		graphComponent.getViewport().setOpaque(true);
 		style.put(mxConstants.STYLE_FILLCOLOR, "#00FF00");
