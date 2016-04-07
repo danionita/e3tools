@@ -147,6 +147,8 @@ public class E3GraphComponent extends mxGraphComponent {
 		getConnectionHandler().setCreateTarget(false);
 		graph.setAllowDanglingEdges(false);
 		graph.setPortsEnabled(false);
+		graph.setCellsDisconnectable(false);
+		graph.setEdgeLabelsMovable(false);
 		getGraphHandler().setRemoveCellsFromParent(true);
 		// This makes drag and drop behave properly
 		// If you turn these on a drag-shadow that is sometimes offset improperly
@@ -203,6 +205,16 @@ public class E3GraphComponent extends mxGraphComponent {
 					
 					if (sourceStyle.equals("Dot") && sourceStyle.equals(targetStyle)) {
 						graph.getModel().setStyle(cell, "ConnectionElement");
+						Object[] sourceEdges = graph.getEdges(source);
+						Object[] targetEdges = graph.getEdges(target);
+						if (sourceEdges.length + targetEdges.length > 2) {
+							graph.getModel().beginUpdate();
+							try {
+								graph.getModel().remove(cell);
+							} finally {
+								graph.getModel().endUpdate();
+							}
+						}
 					} else if (sourceStyle.startsWith("ValuePort") && targetStyle.startsWith("ValuePort")) {
 						graph.getModel().setStyle(cell, "ValueExchange");
 						
@@ -220,7 +232,7 @@ public class E3GraphComponent extends mxGraphComponent {
 						graph.getModel().beginUpdate();
 						try {
 							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
-								cell.removeFromParent();
+								graph.getModel().remove(cell);
 							}
 						} finally {
 							graph.getModel().endUpdate();
@@ -228,7 +240,7 @@ public class E3GraphComponent extends mxGraphComponent {
 					} else {
 						graph.getModel().beginUpdate();
 						try {
-							cell.removeFromParent();
+							graph.getModel().remove(cell);
 						} finally {
 							graph.getModel().endUpdate();
 						}
