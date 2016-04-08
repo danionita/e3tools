@@ -32,7 +32,6 @@ import design.main.listeners.ProxySelection;
 
 public class E3GraphComponent extends mxGraphComponent {
 	JMenuBar menuBar;
-	JPanel toolbarPane;
 
 	// Make pop-up menu
 	JPopupMenu defaultMenu = new JPopupMenu();
@@ -42,11 +41,10 @@ public class E3GraphComponent extends mxGraphComponent {
 	JPopupMenu valuePortMenu = new JPopupMenu();
 	Object contextTarget = null;
 	
-	public E3GraphComponent(mxGraph graph, JMenuBar menuBar_, JPanel toolbarPane_) {
+	public E3GraphComponent(mxGraph graph, JMenuBar menuBar_) {
 		super(graph);
 		
 		menuBar = menuBar_;
-		toolbarPane = toolbarPane_;
 		
 		// Construct context menus
 		JMenu addMenu = new JMenu("Add");
@@ -175,19 +173,19 @@ public class E3GraphComponent extends mxGraphComponent {
 						if (style.equals("ValueInterface")) {
 							mxICell parent = (mxICell) cell.getParent();
 							if (parent == graph.getDefaultParent()) {
-								cell.removeFromParent();
+								graph.getModel().remove(cell);
 							}
 							
 							graph.constrainChild(cell);
 						} else if (style.equals("StartSignal") || style.equals("EndSignal")) {
 							Object parent = graph.getModel().getParent(cell);
 							if (parent == graph.getDefaultParent()) {
-								cell.removeFromParent();
+								graph.getModel().remove(cell);
 							}
 						} else if (style.equals("LogicBase")) {
 							Object parent = graph.getModel().getParent(cell);
 							if (parent == graph.getDefaultParent()) {
-								cell.removeFromParent();
+								graph.getModel().remove(cell);
 							}
 						}
 					}
@@ -307,46 +305,8 @@ public class E3GraphComponent extends mxGraphComponent {
 				}
 			}
 		});
-		
-		// If a context sensitive menu is needed:
-//		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
-//			
-//			@Override
-//			public void invoke(Object sender, mxEventObject evt) {
-//				if (!(sender instanceof mxGraphSelectionModel)) return;
-//				mxGraphSelectionModel selectionModel = (mxGraphSelectionModel) sender;
-//				
-//				Object[] objs = selectionModel.getCells();
-//				
-//				if (objs.length == 0) {
-//					toolbarPane.setVisible(false);
-//					return;
-//				}
-//				toolbarPane.setVisible(true);
-//				Object obj = objs[0];
-//				
-//				if (!(obj instanceof mxICell)) return;
-//				mxICell cell = (mxICell) obj;
-//				
-//				mxGeometry gm = cell.getGeometry();
-//				Rectangle bounds = getBounds();
-//				int padding = 20;
-//				mxPoint pos = toScreen(new mxPoint(gm.getX() + gm.getWidth() + 20, gm.getY()));
-//				toolbarPane.setBounds((int) pos.getX(), (int) pos.getY(), 30, 70);
-//			}
-//		});
 	}
-
-//	public mxPoint toScreen(mxPoint point) {
-//		mxPoint result = new mxPoint(point);
-//		Rectangle bounds = getBounds();
-//		Rectangle menuBounds = menuBar.getBounds();
-//		result.setX(result.getX() + bounds.getX());
-//		result.setY(result.getY() + menuBounds.getHeight() + bounds.getY());
-//		
-//		return result;
-//	}
-	
+		
 	public void triggerContextMenu(MouseEvent e) {
 		Object obj = getCellAt(e.getX(), e.getY());
 		String style = graph.getModel().getStyle(obj);

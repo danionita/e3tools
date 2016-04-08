@@ -207,6 +207,7 @@ class E3Graph extends mxGraph {
 	 * @param vi
 	 */
 	public static void straightenValueInterface(mxGraph graph, mxICell vi) {
+		// TODO: Do the mxGeometries properly here
 		if (vi.getStyle() == null || !vi.getStyle().equals("ValueInterface")) return;
 		if (vi.getParent() == null) return;
 		
