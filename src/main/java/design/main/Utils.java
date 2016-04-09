@@ -81,4 +81,8 @@ public class Utils {
 		
 		return false;
 	}
+	
+	public static mxGeometry geometry(mxGraph graph, Object obj) {
+		return (mxGeometry) graph.getCellGeometry(obj).clone();
+	}
 }

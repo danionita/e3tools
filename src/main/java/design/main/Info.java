@@ -1,14 +1,32 @@
 package design.main;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Info {
+	public static int nextSUID = 0;
+	public static int getSUID() {
+		return nextSUID++;
+	}
+	
 	public static abstract class Base implements Serializable {
 		private static final long serialVersionUID = -566615792608025058L;
+		
+		public int SUID = getSUID();
+		public final HashMap<String, String> formulas = new LinkedHashMap<>();
+		public String name;
+		
 		public abstract Base getCopy();
 		public String toString() {
 			return "";
 		}
+	}
+	
+	public static final void setCommons(Base source, Base target) {
+		target.SUID = source.SUID;
+		target.name = source.name;
+		target.formulas.putAll(source.formulas);
 	}
 
 	public static enum Side {
@@ -40,6 +58,8 @@ public class Info {
 		@Override
 		public Base getCopy() {
 			ValuePort vp = new ValuePort(false);
+			setCommons(this, vp);
+
 			vp.incoming = incoming;
 			return vp;
 		}
@@ -89,19 +109,22 @@ public class Info {
 		@Override
 		public Base getCopy() {
 			ValueInterface vi = new ValueInterface();
+			setCommons(this, vi);
+
 			vi.side = side;
+
 			return vi;
 		}
 	}
 	
 	public static class Actor extends Base {
 		private static final long serialVersionUID = -5569247045409511931L;
-		public String name;
 		
 		@Override
 		public Base getCopy() {
 			Actor va = new Actor();
-			va.name = name;
+			setCommons(this, va);
+			
 			return va;
 		}
 		
@@ -112,12 +135,12 @@ public class Info {
 
 	public static class MarketSegment extends Base {
 		private static final long serialVersionUID = 952747256997418957L;
-		public String name;
 		
 		@Override
 		public Base getCopy() {
 			MarketSegment va = new MarketSegment();
-			va.name = name;
+			setCommons(this, va);
+
 			return va;
 		}
 		
@@ -128,12 +151,12 @@ public class Info {
 
 	public static class ValueActivity extends Base {
 		private static final long serialVersionUID = 6344879576710522969L;
-		public String name;
 		
 		@Override
 		public Base getCopy() {
 			ValueActivity va = new ValueActivity();
-			va.name = name;
+			setCommons(this, va);
+
 			return va;
 		}
 		
@@ -154,7 +177,10 @@ public class Info {
 		@Override
 		public Base getCopy() {
 			Dot dot = new Dot();
+			setCommons(this, dot);
+			
 			dot.isUnit = isUnit;
+
 			return dot;
 		}
 	}
@@ -167,9 +193,36 @@ public class Info {
 		@Override
 		public Base getCopy() {
 			LogicBase lb = new LogicBase();
+			setCommons(this, lb);
+
 			lb.isOr = isOr;
 			lb.direction = direction;
+
 			return lb;
+		}
+	}
+	
+	public static class ValueExchange extends Base {
+		private static final long serialVersionUID = -7607653966138790703L;
+		public String valueObject = null;
+		public boolean labelHidden = false;
+
+		@Override
+		public Base getCopy() {
+			ValueExchange copy = new ValueExchange();
+			setCommons(this, copy);
+			
+			copy.valueObject = valueObject;
+			copy.labelHidden = labelHidden;
+
+			return copy;
+		}
+		
+		@Override
+		public String toString() {
+			if (labelHidden) return "";
+			else if (valueObject == null) return "";
+			else return valueObject;
 		}
 	}
 }

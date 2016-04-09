@@ -213,7 +213,7 @@ class E3Graph extends mxGraph {
 		
 		Info.ValueInterface viInfo = (ValueInterface) graph.getModel().getValue(vi);
 		
-		mxGeometry viGm = vi.getGeometry();
+		mxGeometry viGm = Utils.geometry(graph, vi);
 		mxGeometry parentGm = vi.getParent().getGeometry();
 		if (parentGm != null) {
 			double left, top, right, bottom;
@@ -268,7 +268,7 @@ class E3Graph extends mxGraph {
 		float d = 1 / ((float) (valuePorts.size()));
 		int i = 0;
 		for (mxICell valuePort : valuePorts) {
-			mxGeometry valuePortGm = valuePort.getGeometry();
+			mxGeometry valuePortGm = Utils.geometry(graph, valuePort);
 
 			if (viGm.getWidth() > viGm.getHeight()) {
 				valuePortGm.setY(0.5);
@@ -278,13 +278,15 @@ class E3Graph extends mxGraph {
 				valuePortGm.setY((i + 0.5) * d);
 			}
 			
+			graph.getModel().setGeometry(valuePort, valuePortGm);
+			
 			rotateValuePort(graph, vi, valuePort);
 
 			i++;
 		}
 		
 		if (dot == null) return;
-		mxGeometry dotGm = dot.getGeometry();
+		mxGeometry dotGm = Utils.geometry(graph, dot);
 		if (viInfo.side == Side.TOP) {
 			dotGm.setX(viGm.getWidth() / 2 - E3Style.DOTRADIUS);
 			dotGm.setY(viGm.getHeight() - 2 * E3Style.DOTRADIUS);
@@ -298,7 +300,9 @@ class E3Graph extends mxGraph {
 			dotGm.setX(viGm.getWidth() - 2 * E3Style.DOTRADIUS);
 			dotGm.setY(viGm.getHeight() / 2 - E3Style.DOTRADIUS);
 		}
+		graph.getModel().setGeometry(dot, dotGm);
 		
+		graph.getModel().setGeometry(vi, viGm);
 	}
 
 	/**
@@ -321,9 +325,10 @@ class E3Graph extends mxGraph {
 			mxCell valuePort = (mxCell) graph.insertVertex(vi, null, vpInfo, 0.5, 0.5, 8.66, 10);
 			valuePort.setStyle("ValuePort" + vpInfo.getDirection(viInfo));
 
-			mxGeometry vpGm = valuePort.getGeometry();
+			mxGeometry vpGm = Utils.geometry(graph, valuePort);
 			vpGm.setRelative(true);
 			vpGm.setOffset(new mxPoint(-vpGm.getCenterX(), -vpGm.getCenterY()));
+			graph.getModel().setGeometry(valuePort, vpGm);
 			
 			straightenValueInterface(graph, vi);
 		} finally {
@@ -340,11 +345,15 @@ class E3Graph extends mxGraph {
 	 * @param vp
 	 */
 	public static void rotateValuePort(mxGraph graph, mxICell vi, mxICell vp) {
-		mxGeometry viGm = vi.getGeometry();
-		ValueInterface viInfo = (ValueInterface) vi.getValue();
-		ValuePort vpInfo = (ValuePort) vp.getValue();
-		
-		graph.getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
+		graph.getModel().beginUpdate();
+		try {
+			ValueInterface viInfo = (ValueInterface) vi.getValue();
+			ValuePort vpInfo = (ValuePort) vp.getValue();
+			
+			graph.getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
+		} finally {
+			graph.getModel().endUpdate();
+		}
 	}
 	
 	/**
@@ -404,8 +413,8 @@ class E3Graph extends mxGraph {
 						&& !style.equals("Dot")
 						&& !style.equals("Bar")
 						&& !style.equals("EastTriangle")
-						&& !style.equals("LogicBase");
-						
+						&& !style.equals("LogicBase")
+						&& !style.equals("ValueExchange");
 			}
 		}
 		

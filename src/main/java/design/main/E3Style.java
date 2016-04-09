@@ -94,6 +94,7 @@ public class E3Style {
 		style.put(mxConstants.STYLE_STROKEWIDTH, 3);
 		style.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
 		style.put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
+		style.put(mxConstants.STYLE_FONTCOLOR, "#444444");
 		stylesheet.putCellStyle("ValueExchange", style);
 		
 		style = new Hashtable<>();

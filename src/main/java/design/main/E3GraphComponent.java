@@ -8,8 +8,11 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -23,28 +26,33 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
+import design.main.Info.Base;
 import design.main.Info.Dot;
 import design.main.Info.LogicBase;
+import design.main.Info.ValueExchange;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
-
 import design.main.listeners.ProxySelection;
 
 public class E3GraphComponent extends mxGraphComponent {
-	JMenuBar menuBar;
-
 	// Make pop-up menu
 	JPopupMenu defaultMenu = new JPopupMenu();
 	JPopupMenu logicMenu = new JPopupMenu();
 	JPopupMenu partDotMenu = new JPopupMenu();
 	JPopupMenu valueInterfaceMenu = new JPopupMenu();
 	JPopupMenu valuePortMenu = new JPopupMenu();
+	JPopupMenu valueExchangeMenu = new JPopupMenu();
 	Object contextTarget = null;
 	
-	public E3GraphComponent(mxGraph graph, JMenuBar menuBar_) {
+	@Override
+	public boolean isPanningEvent(MouseEvent event) {
+		return true;
+	}
+	
+	public E3GraphComponent(mxGraph graph) {
 		super(graph);
 		
-		menuBar = menuBar_;
+		setPanning(false);
 		
 		// Construct context menus
 		JMenu addMenu = new JMenu("Add");
@@ -117,7 +125,36 @@ public class E3GraphComponent extends mxGraphComponent {
 			}
 		}));
 		
-		valueInterfaceMenu.add(new JMenuItem("Add port"));
+		valueInterfaceMenu.add(new JMenuItem(new AbstractAction("Add incoming port") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.getModel().beginUpdate();
+				try {
+					E3Graph.addValuePort(graph, (mxICell) contextTarget, true);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
+		
+		valueInterfaceMenu.add(new JMenuItem(new AbstractAction("Add outgoing port") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.getModel().beginUpdate();
+				try {
+					E3Graph.addValuePort(graph, (mxICell) contextTarget, false);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
+		
+		valueInterfaceMenu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new Main.E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(contextTarget));
+			}
+		}));
 		
 		valuePortMenu.add(new JMenuItem(new AbstractAction("Flip direction") {
 			@Override
@@ -137,6 +174,78 @@ public class E3GraphComponent extends mxGraphComponent {
 				}
 			}
 		}));
+		
+		JMenu attachValueObjectMenu = new JMenu("Attach ValueObject");
+		attachValueObjectMenu.addMenuListener(new MenuListener() {
+			@Override
+			public void menuCanceled(MenuEvent arg0) { }
+
+			@Override
+			public void menuDeselected(MenuEvent e) { }
+
+			@Override
+			public void menuSelected(MenuEvent e) {
+				attachValueObjectMenu.removeAll();
+				for (String valueObject : Main.valueObjects) {
+					attachValueObjectMenu.add(new JMenuItem(new AbstractAction(valueObject) {
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+							graph.getModel().beginUpdate();
+							try {
+								ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
+								ve.valueObject = valueObject;
+								graph.getModel().setValue(contextTarget, ve);
+							} finally {
+								graph.getModel().endUpdate();
+							}
+						}
+					}));
+				}
+				
+			}
+		});
+		valueExchangeMenu.add(attachValueObjectMenu);
+		JMenuItem removeValueObjectMenu = new JMenuItem(new AbstractAction("Remove ValueObject") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.getModel().beginUpdate();
+				try {
+					ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
+					ve.valueObject = null;
+					graph.getModel().setValue(contextTarget, ve);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		});
+		valueExchangeMenu.add(removeValueObjectMenu);
+		valueExchangeMenu.add(new JMenuItem(new AbstractAction("Show/hide ValueObject") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.getModel().beginUpdate();
+				try {
+					ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
+					ve.labelHidden ^= true;
+					graph.getModel().setValue(contextTarget, ve);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
+		// This is to make the "Remove ValueObject" button grey out when there's no ValueObject
+		valueExchangeMenu.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent arg0) { }
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) { }
+
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
+				ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
+				removeValueObjectMenu.setEnabled(ve.valueObject != null);
+			}
+		});
 
 		// Enable delete key et. al.
 		// TODO: Only allow useful keybindings to be added
@@ -146,7 +255,6 @@ public class E3GraphComponent extends mxGraphComponent {
 		graph.setAllowDanglingEdges(false);
 		graph.setPortsEnabled(false);
 		graph.setCellsDisconnectable(false);
-		graph.setEdgeLabelsMovable(false);
 		getGraphHandler().setRemoveCellsFromParent(true);
 		// This makes drag and drop behave properly
 		// If you turn these on a drag-shadow that is sometimes offset improperly
@@ -214,8 +322,6 @@ public class E3GraphComponent extends mxGraphComponent {
 							}
 						}
 					} else if (sourceStyle.startsWith("ValuePort") && targetStyle.startsWith("ValuePort")) {
-						graph.getModel().setStyle(cell, "ValueExchange");
-						
 						boolean sourceIncoming = ((ValuePort) source.getValue()).incoming;
 						boolean targetIncoming = ((ValuePort) target.getValue()).incoming;
 						
@@ -229,6 +335,13 @@ public class E3GraphComponent extends mxGraphComponent {
 						// But only if they are both top-level
 						graph.getModel().beginUpdate();
 						try {
+							graph.getModel().setStyle(cell, new String("ValueExchange"));
+							graph.getModel().setValue(cell, new ValueExchange());
+							mxGeometry gm = Utils.geometry(graph, cell);
+							gm.setRelative(true);
+							gm.setY(-30);
+							graph.getModel().setGeometry(cell, gm);
+							
 							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
 								graph.getModel().remove(cell);
 							}
@@ -321,6 +434,7 @@ public class E3GraphComponent extends mxGraphComponent {
 			if (style.equals("LogicBase")) menu = logicMenu;
 			if (style.equals("ValueInterface")) menu = valueInterfaceMenu;
 			if (style.startsWith("ValuePort")) menu = valuePortMenu;
+			if (style.startsWith("ValueExchange")) menu = valueExchangeMenu;
 			if (style.equals("Dot")) {
 				Dot valueObj = (Dot) graph.getModel().getValue(obj);
 				if (valueObj != null) {
