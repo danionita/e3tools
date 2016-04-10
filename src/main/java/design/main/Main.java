@@ -50,10 +50,9 @@ public class Main {
 	
 	public static class E3PropertiesEditor {
 		public E3PropertiesEditor(JFrame owner, Info.Base object) {
-			// Change this whole thing to gridbaglayout?
-			JDialog dialog = new JDialog(owner, "Edit object");
-			Container contentPane = dialog.getContentPane();
-			contentPane.setLayout(new GridBagLayout());
+			// Container topPane = dialog.getContentPane();
+			JPanel topPanel = new JPanel();
+			topPanel.setLayout(new GridBagLayout());
 			
 			JLabel idLabel = new JLabel(""+object.SUID);
 			JTextField nameField = new JTextField(object.name);
@@ -76,17 +75,13 @@ public class Main {
 			buttonPane.add(new JButton("New"));
 			buttonPane.add(new JButton("Delete"));
 
-			JTextArea editArea = new JTextArea();
-			JScrollPane editPane = new JScrollPane(editArea);
-			editPane.setPreferredSize(new Dimension(1, 1));
-			
-			List<String> labels = new ArrayList<>(Arrays.asList("ID:", "Name:", "Formulas:", "", "Edit:"));
+			List<String> labels = new ArrayList<>(Arrays.asList("ID:", "Name:", "Formulas:", ""));
 			List<Component> labelComponents = new ArrayList<>();
 			for (String label : labels) {
 				labelComponents.add(new JLabel(label));
 			}
 			
-			List<Component> components = new ArrayList<>(Arrays.asList(idLabel, nameField, formulaPane, buttonPane, editPane));
+			List<Component> components = new ArrayList<>(Arrays.asList(idLabel, nameField, formulaPane, buttonPane));
 			
 			for (int i = 0; i < labelComponents.size(); i++) {
 				Component label = labelComponents.get(i);
@@ -98,7 +93,7 @@ public class Main {
 				c.anchor = GridBagConstraints.FIRST_LINE_START;
 				c.weightx = 0;
 				c.insets = new Insets(5, 5, 5, 5);
-				contentPane.add(label, c);
+				topPanel.add(label, c);
 				
 				c = new GridBagConstraints();
 				c.fill = GridBagConstraints.HORIZONTAL;
@@ -108,17 +103,47 @@ public class Main {
 				c.weightx = 1;
 				c.insets = new Insets(5, 5, 5, 5);
 				
-				if (i == 2 || i == 4) {
+				if (i == 2) {
 					c.weighty = 1;
 					c.fill = GridBagConstraints.BOTH;
 				}
-				if (i == 4) c.weighty = 0.5;
 				
-				contentPane.add(comp, c);
+				topPanel.add(comp, c);
 			}
 			
+			JPanel bottomPanel = new JPanel();
+			bottomPanel.setLayout(new GridBagLayout());
+			
+			JLabel editLabel = new JLabel("Edit:");
+			JTextArea editArea = new JTextArea();
+			JScrollPane editPane = new JScrollPane(editArea);
+			
+			GridBagConstraints c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			c.anchor = GridBagConstraints.FIRST_LINE_START;
+			c.weightx = 0;
+			c.insets = new Insets(5, 5, 5, 5);
+			bottomPanel.add(editLabel, c);
+
+			c = new GridBagConstraints();
+			c.fill = GridBagConstraints.BOTH;
+			c.gridx = 1;
+			c.gridy = 0;
+			c.anchor = GridBagConstraints.FIRST_LINE_START;
+			c.weightx = 1;
+			c.weighty = 1;
+			c.insets = new Insets(5, 5, 5, 5);
+			bottomPanel.add(editPane, c);
+
+			JDialog dialog = new JDialog(owner, "Edit object");
+			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topPanel, bottomPanel);
+			splitPane.setResizeWeight(0.8);
+			
+			dialog.add(splitPane);
+			
 			dialog.pack();
-			// dialog.setSize(640, 480);
+			dialog.setSize(640, 480);
 			dialog.setVisible(true);
 		}
 	}
