@@ -1,9 +1,17 @@
 package design.main;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
+
+import design.main.Info.Base;
+import design.main.Info.ValueExchange;
 
 public class Utils {
 	public static boolean overlap(mxRectangle a, mxRectangle b) {
@@ -84,5 +92,46 @@ public class Utils {
 	
 	public static mxGeometry geometry(mxGraph graph, Object obj) {
 		return (mxGeometry) graph.getCellGeometry(obj).clone();
+	}
+	
+	public static List<Object> getAllCells(mxGraph graph) {
+		return getAllCells(graph, graph.getDefaultParent());
+	}
+	
+	public static List<Object> getAllCells(mxGraph graph, Object parent) {
+		List<Object> result = new ArrayList<>(Arrays.asList(mxGraphModel.getChildCells(graph.getModel(), parent, true, true)));
+		List<Object> aggr = new ArrayList<>();
+		
+		for (Object cell : result) {
+			aggr.addAll(getAllCells(graph, cell));
+		}
+		
+		result.addAll(aggr);
+		
+		return result;
+	}
+	
+	/**
+	 * Returns a copy of the Info.ValueExchange value of cell
+	 * @param cell The cell of which to get the value
+	 * @return
+	 */
+	public static ValueExchange getValueExchange(Object cell) {
+		return getValueExchange(cell, true);
+	}
+	
+	/**
+	 * Returns the Info.ValueExchange value of the cell.
+	 * @param cell The cell of which to get the value
+	 * @param clone If true, a copy of the value is returned.
+	 * @return
+	 */
+	public static ValueExchange getValueExchange(Object cell, boolean clone) {
+		mxICell actualCell = (mxICell) cell;
+		ValueExchange value = (ValueExchange) (actualCell.getValue());
+		if (clone) {
+			value = (ValueExchange) value.getCopy();
+		}
+		return value;
 	}
 }

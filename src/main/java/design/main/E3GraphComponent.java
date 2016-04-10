@@ -43,6 +43,7 @@ public class E3GraphComponent extends mxGraphComponent {
 	JPopupMenu valueInterfaceMenu = new JPopupMenu();
 	JPopupMenu valuePortMenu = new JPopupMenu();
 	JPopupMenu valueExchangeMenu = new JPopupMenu();
+	JPopupMenu actorMenu = new JPopupMenu();
 	Object contextTarget = null;
 	
 	public E3GraphComponent(mxGraph graph) {
@@ -235,7 +236,11 @@ public class E3GraphComponent extends mxGraphComponent {
 				attachValueObjectMenu.add(new JMenuItem(new AbstractAction("Add new ValueObject to ValueExchange") {
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
-						String newName = JOptionPane.showInputDialog("Enter the name of the new ValueObject");
+						String newName = JOptionPane.showInputDialog(
+								Main.mainFrame,
+								"Enter the name of the new ValueObject",
+								"New ValueObject",
+								JOptionPane.QUESTION_MESSAGE);
 						if (newName == null || newName.trim().length() == 0) return;
 
 						Main.valueObjects.add(newName);
@@ -289,6 +294,13 @@ public class E3GraphComponent extends mxGraphComponent {
 				removeValueObjectMenu.setEnabled(ve.valueObject != null);
 			}
 		});
+		
+		actorMenu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new Main.E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(contextTarget)); 
+			}
+		}));
 
 		// Enable delete key et. al.
 		// TODO: Only allow useful keybindings to be added
@@ -479,6 +491,7 @@ public class E3GraphComponent extends mxGraphComponent {
 			if (style.equals("ValueInterface")) menu = valueInterfaceMenu;
 			if (style.startsWith("ValuePort")) menu = valuePortMenu;
 			if (style.startsWith("ValueExchange")) menu = valueExchangeMenu;
+			if (style.equals("Actor")) menu = actorMenu;
 			if (style.equals("Dot")) {
 				Dot valueObj = (Dot) graph.getModel().getValue(obj);
 				if (valueObj != null) {

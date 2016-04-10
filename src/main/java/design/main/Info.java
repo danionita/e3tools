@@ -13,6 +13,12 @@ public class Info {
 	public static abstract class Base implements Serializable {
 		private static final long serialVersionUID = -566615792608025058L;
 		
+		public Base() {
+			formulas.put("VALUATION", "0");
+			formulas.put("INVESTMENT", "0");
+			formulas.put("EXPENSES", "0");
+		}
+		
 		public int SUID = getSUID();
 		public final HashMap<String, String> formulas = new LinkedHashMap<>();
 		public String name;
