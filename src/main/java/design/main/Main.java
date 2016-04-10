@@ -139,7 +139,6 @@ public class Main {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						int index = valueObjectsList.getSelectedIndex();
-						System.out.println(index);
 						if (index == -1) return;
 						listModel.remove(valueObjectsList.getSelectedIndex());
 						valueObjects.remove(index);

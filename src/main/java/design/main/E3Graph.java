@@ -549,8 +549,6 @@ class E3Graph extends mxGraph {
 				}
 			}
 			
-			System.out.println(graph.getModel().getStyle(bar));
-
 			graph.getModel().setGeometry(unitDot, gm);
 			graph.getModel().setGeometry(bar, barGm);
 		} finally {

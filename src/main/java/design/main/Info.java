@@ -92,9 +92,7 @@ public class Info {
 				} else {
 					return "West";
 				}
-			} else {
-				System.out.println("No match! It is: " + side);
-			}
+			} 
 
 			return null;
 		}

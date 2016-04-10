@@ -169,6 +169,42 @@ public class E3GraphComponent extends mxGraphComponent {
 			}
 		}));
 		
+		valuePortMenu.addSeparator();
+		
+		valuePortMenu.add(new JMenuItem(new AbstractAction("Add incoming port") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.getModel().beginUpdate();
+				try {
+					Object parent = graph.getModel().getParent(contextTarget);
+					E3Graph.addValuePort(graph, (mxICell) parent, true);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
+		
+		valuePortMenu.add(new JMenuItem(new AbstractAction("Add outgoing port") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.getModel().beginUpdate();
+				try {
+					Object parent = graph.getModel().getParent(contextTarget);
+					E3Graph.addValuePort(graph, (mxICell) parent, false);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
+		
+		valuePortMenu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Object parent = graph.getModel().getParent(contextTarget);
+				new Main.E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(parent));
+			}
+		}));
+		
 		JMenu attachValueObjectMenu = new JMenu("Attach ValueObject");
 		attachValueObjectMenu.addMenuListener(new MenuListener() {
 			@Override
@@ -196,11 +232,12 @@ public class E3GraphComponent extends mxGraphComponent {
 					}));
 				}
 				attachValueObjectMenu.addSeparator();
-				attachValueObjectMenu.add(new JMenuItem(new AbstractAction("Add ValueObject and atach...") {
+				attachValueObjectMenu.add(new JMenuItem(new AbstractAction("Add new ValueObject to ValueExchange") {
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
 						String newName = JOptionPane.showInputDialog("Enter the name of the new ValueObject");
 						if (newName == null || newName.trim().length() == 0) return;
+
 						Main.valueObjects.add(newName);
 						
 						ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
@@ -449,6 +486,14 @@ public class E3GraphComponent extends mxGraphComponent {
 						menu = partDotMenu;
 					}
 				}
+			}
+			if (style.endsWith("Triangle")) {
+				contextTarget = graph.getModel().getParent(contextTarget);
+				menu = logicMenu;
+			}
+			if (style.equals("Bar")) {
+				contextTarget = graph.getModel().getParent(contextTarget);
+				menu = logicMenu;
 			}
 		}
 		
