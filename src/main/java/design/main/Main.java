@@ -85,7 +85,6 @@ public class Main {
 	public static final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "SERVICE")
 			);
-	// public static final ArrayList<String> transactionObjects = new ArrayList<>();
 	
 	public Main() {
 		// Set LaF to system

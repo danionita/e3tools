@@ -8,6 +8,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
@@ -201,7 +202,19 @@ public class E3GraphComponent extends mxGraphComponent {
 						}
 					}));
 				}
-				
+				attachValueObjectMenu.addSeparator();
+				attachValueObjectMenu.add(new JMenuItem(new AbstractAction("Add ValueObject and atach...") {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						String newName = JOptionPane.showInputDialog("Enter the name of the new ValueObject");
+						if (newName == null || newName.trim().length() == 0) return;
+						Main.valueObjects.add(newName);
+						
+						ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
+						ve.valueObject = newName;
+						graph.getModel().setValue(contextTarget, ve);
+					}
+				}));
 			}
 		});
 		valueExchangeMenu.add(attachValueObjectMenu);
