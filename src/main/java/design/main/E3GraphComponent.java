@@ -45,15 +45,8 @@ public class E3GraphComponent extends mxGraphComponent {
 	JPopupMenu valueExchangeMenu = new JPopupMenu();
 	Object contextTarget = null;
 	
-	@Override
-	public boolean isPanningEvent(MouseEvent event) {
-		return true;
-	}
-	
 	public E3GraphComponent(mxGraph graph) {
 		super(graph);
-		
-		setPanning(false);
 		
 		// Construct context menus
 		JMenu addMenu = new JMenu("Add");
@@ -276,6 +269,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		getGraphHandler().setCenterPreview(false);
 //		getGraphHandler().setCloneEnabled(false);
 		graph.getSelectionModel().setSingleSelection(true);
+		setConnectable(true);
 		
 		// Set styling of nodes, background color, etc.
 		E3Style.styleGraphComponent(this);
