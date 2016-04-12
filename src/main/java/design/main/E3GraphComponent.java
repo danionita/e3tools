@@ -34,6 +34,7 @@ import design.main.Info.ValueExchange;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.listeners.ProxySelection;
+import design.main.properties.E3PropertiesEditor;
 
 public class E3GraphComponent extends mxGraphComponent {
 	// Make pop-up menu
@@ -147,7 +148,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		valueInterfaceMenu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new Main.E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(contextTarget));
+				new E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(contextTarget));
 			}
 		}));
 		
@@ -202,7 +203,7 @@ public class E3GraphComponent extends mxGraphComponent {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Object parent = graph.getModel().getParent(contextTarget);
-				new Main.E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(parent));
+				new E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(parent));
 			}
 		}));
 		
@@ -298,7 +299,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		actorMenu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new Main.E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(contextTarget)); 
+				new E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(contextTarget)); 
 			}
 		}));
 

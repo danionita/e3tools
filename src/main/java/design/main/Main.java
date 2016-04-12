@@ -1,12 +1,6 @@
 package design.main;
 
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +14,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -29,9 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
@@ -47,106 +37,6 @@ public class Main {
 	public static final JFrame mainFrame = new JFrame("E3fraud editor");
 	public static mxGraph graph = null;
 	public static E3GraphComponent graphComponent = null;
-	
-	public static class E3PropertiesEditor {
-		public E3PropertiesEditor(JFrame owner, Info.Base object) {
-			// Container topPane = dialog.getContentPane();
-			JPanel topPanel = new JPanel();
-			topPanel.setLayout(new GridBagLayout());
-			
-			JLabel idLabel = new JLabel(""+object.SUID);
-			JTextField nameField = new JTextField(object.name);
-
-			Object[][] data = new Object[object.formulas.size()][2];
-			{
-				int i = 0; // To limit the scope of i (I'm also using it 40+ lines down)
-				for (String key : object.formulas.keySet()) {
-					data[i][0] =  key;
-					data[i][1] = object.formulas.get(key);
-					
-					i++;
-				}
-			}
-			JTable formulaTable = new JTable(data, new Object[]{"Name", "Formula"});
-			JScrollPane formulaPane = new JScrollPane(formulaTable);
-			formulaPane.setPreferredSize(new Dimension(1, 1));
-			
-			JPanel buttonPane = new JPanel();
-			buttonPane.add(new JButton("New"));
-			buttonPane.add(new JButton("Delete"));
-
-			List<String> labels = new ArrayList<>(Arrays.asList("ID:", "Name:", "Formulas:", ""));
-			List<Component> labelComponents = new ArrayList<>();
-			for (String label : labels) {
-				labelComponents.add(new JLabel(label));
-			}
-			
-			List<Component> components = new ArrayList<>(Arrays.asList(idLabel, nameField, formulaPane, buttonPane));
-			
-			for (int i = 0; i < labelComponents.size(); i++) {
-				Component label = labelComponents.get(i);
-				Component comp = components.get(i);
-				
-				GridBagConstraints c = new GridBagConstraints();
-				c.gridx = 0;
-				c.gridy = i;
-				c.anchor = GridBagConstraints.FIRST_LINE_START;
-				c.weightx = 0;
-				c.insets = new Insets(5, 5, 5, 5);
-				topPanel.add(label, c);
-				
-				c = new GridBagConstraints();
-				c.fill = GridBagConstraints.HORIZONTAL;
-				c.gridx = 1;
-				c.gridy = i;
-				c.anchor = GridBagConstraints.FIRST_LINE_START;
-				c.weightx = 1;
-				c.insets = new Insets(5, 5, 5, 5);
-				
-				if (i == 2) {
-					c.weighty = 1;
-					c.fill = GridBagConstraints.BOTH;
-				}
-				
-				topPanel.add(comp, c);
-			}
-			
-			JPanel bottomPanel = new JPanel();
-			bottomPanel.setLayout(new GridBagLayout());
-			
-			JLabel editLabel = new JLabel("Edit:");
-			JTextArea editArea = new JTextArea();
-			JScrollPane editPane = new JScrollPane(editArea);
-			
-			GridBagConstraints c = new GridBagConstraints();
-			c.gridx = 0;
-			c.gridy = 0;
-			c.anchor = GridBagConstraints.FIRST_LINE_START;
-			c.weightx = 0;
-			c.insets = new Insets(5, 5, 5, 5);
-			bottomPanel.add(editLabel, c);
-
-			c = new GridBagConstraints();
-			c.fill = GridBagConstraints.BOTH;
-			c.gridx = 1;
-			c.gridy = 0;
-			c.anchor = GridBagConstraints.FIRST_LINE_START;
-			c.weightx = 1;
-			c.weighty = 1;
-			c.insets = new Insets(5, 5, 5, 5);
-			bottomPanel.add(editPane, c);
-
-			JDialog dialog = new JDialog(owner, "Edit object");
-			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topPanel, bottomPanel);
-			splitPane.setResizeWeight(0.8);
-			
-			dialog.add(splitPane);
-			
-			dialog.pack();
-			dialog.setSize(640, 480);
-			dialog.setVisible(true);
-		}
-	}
 	
 	public static final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "SERVICE")
