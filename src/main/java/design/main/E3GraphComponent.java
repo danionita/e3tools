@@ -35,9 +35,10 @@ import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.listeners.ProxySelection;
 import design.main.properties.E3PropertiesEditor;
+import design.main.properties.E3PropertiesEvent;
+import design.main.properties.E3PropertiesEventListener;
 
 public class E3GraphComponent extends mxGraphComponent {
-	// Make pop-up menu
 	JPopupMenu defaultMenu = new JPopupMenu();
 	JPopupMenu logicMenu = new JPopupMenu();
 	JPopupMenu partDotMenu = new JPopupMenu();
@@ -45,264 +46,20 @@ public class E3GraphComponent extends mxGraphComponent {
 	JPopupMenu valuePortMenu = new JPopupMenu();
 	JPopupMenu valueExchangeMenu = new JPopupMenu();
 	JPopupMenu actorMenu = new JPopupMenu();
-	Object contextTarget = null;
-	
+
 	public E3GraphComponent(mxGraph graph) {
 		super(graph);
 		
-		// Construct context menus
-		JMenu addMenu = new JMenu("Add");
-		addMenu.add(new JMenuItem("ValueActivity"));
-		addMenu.add(new JMenuItem("Actor"));
-		addMenu.add(new JMenuItem("MarketSegment"));
-		defaultMenu.add(addMenu);
+		ContextMenus.addDefaultMenu(defaultMenu, graph);
+		ContextMenus.addLogicMenus(logicMenu, graph);
+		ContextMenus.addPartDotMenu(partDotMenu, graph);
+		ContextMenus.addValueInterfaceMenu(valueInterfaceMenu, graph);
+		ContextMenus.addValuePortMenu(valuePortMenu, graph);
+		ContextMenus.addValueExchangeMenu(valueExchangeMenu, graph);
 		
-		logicMenu.add(new JMenuItem(new AbstractAction("Add port") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				E3Graph.addDot(graph, (mxCell) contextTarget);
-			}
-		}));
-		logicMenu.add(new JMenuItem(new AbstractAction("Rotate right") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				LogicBase lb = (LogicBase) graph.getModel().getValue(contextTarget);
-				lb.direction = lb.direction.rotateRight();
-
-				mxGeometry gm = (mxGeometry) graph.getCellGeometry(contextTarget).clone();
-				double width = gm.getWidth();
-				double height = gm.getHeight();
-				gm.setWidth(height);
-				gm.setHeight(width);
-				graph.getModel().beginUpdate();
-				try {
-					graph.getModel().setGeometry(contextTarget, gm);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-
-				E3Graph.straightenLogicUnit(graph, (mxCell) contextTarget);
-			}
-		}));
-		logicMenu.add(new JMenuItem(new AbstractAction("Rotate left") {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				LogicBase lb = (LogicBase) graph.getModel().getValue(contextTarget);
-				lb.direction = lb.direction.rotateLeft();
-
-				mxGeometry gm = (mxGeometry) graph.getCellGeometry(contextTarget).clone();
-				double width = gm.getWidth();
-				double height = gm.getHeight();
-				gm.setWidth(height);
-				gm.setHeight(width);
-				graph.getModel().beginUpdate();
-				try {
-					graph.getModel().setGeometry(contextTarget, gm);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-
-				E3Graph.straightenLogicUnit(graph, (mxCell) contextTarget);
-			}
-		}));
+		ContextMenus.addE3PropertiesMenu(actorMenu, graph);
+		ContextMenus.addActorMenu(actorMenu, graph);
 		
-		partDotMenu.add(new JMenuItem(new AbstractAction("Remove port") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				graph.getModel().beginUpdate();
-				try {
-					mxCell logicUnit = (mxCell) graph.getModel().getParent(contextTarget);
-					graph.getModel().remove(contextTarget);
-					E3Graph.straightenLogicUnit(graph, logicUnit);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			}
-		}));
-		
-		valueInterfaceMenu.add(new JMenuItem(new AbstractAction("Add incoming port") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				graph.getModel().beginUpdate();
-				try {
-					E3Graph.addValuePort(graph, (mxICell) contextTarget, true);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			}
-		}));
-		
-		valueInterfaceMenu.add(new JMenuItem(new AbstractAction("Add outgoing port") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				graph.getModel().beginUpdate();
-				try {
-					E3Graph.addValuePort(graph, (mxICell) contextTarget, false);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			}
-		}));
-		
-		valueInterfaceMenu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				new E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(contextTarget));
-			}
-		}));
-		
-		valuePortMenu.add(new JMenuItem(new AbstractAction("Flip direction") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mxICell vp = (mxICell) contextTarget;
-				mxICell vi = (mxICell) vp.getParent();
-				ValuePort vpInfo = (ValuePort) vp.getValue();
-				ValueInterface viInfo = (ValueInterface) vi.getValue();
-	
-				vpInfo.incoming ^= true;
-				
-				graph.getModel().beginUpdate();
-				try {
-					graph.getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			}
-		}));
-		
-		valuePortMenu.addSeparator();
-		
-		valuePortMenu.add(new JMenuItem(new AbstractAction("Add incoming port") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				graph.getModel().beginUpdate();
-				try {
-					Object parent = graph.getModel().getParent(contextTarget);
-					E3Graph.addValuePort(graph, (mxICell) parent, true);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			}
-		}));
-		
-		valuePortMenu.add(new JMenuItem(new AbstractAction("Add outgoing port") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				graph.getModel().beginUpdate();
-				try {
-					Object parent = graph.getModel().getParent(contextTarget);
-					E3Graph.addValuePort(graph, (mxICell) parent, false);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			}
-		}));
-		
-		valuePortMenu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Object parent = graph.getModel().getParent(contextTarget);
-				new E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(parent));
-			}
-		}));
-		
-		JMenu attachValueObjectMenu = new JMenu("Attach ValueObject");
-		attachValueObjectMenu.addMenuListener(new MenuListener() {
-			@Override
-			public void menuCanceled(MenuEvent arg0) { }
-
-			@Override
-			public void menuDeselected(MenuEvent e) { }
-
-			@Override
-			public void menuSelected(MenuEvent e) {
-				attachValueObjectMenu.removeAll();
-				for (String valueObject : Main.valueObjects) {
-					attachValueObjectMenu.add(new JMenuItem(new AbstractAction(valueObject) {
-						@Override
-						public void actionPerformed(ActionEvent arg0) {
-							graph.getModel().beginUpdate();
-							try {
-								ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
-								ve.valueObject = valueObject;
-								graph.getModel().setValue(contextTarget, ve);
-							} finally {
-								graph.getModel().endUpdate();
-							}
-						}
-					}));
-				}
-				attachValueObjectMenu.addSeparator();
-				attachValueObjectMenu.add(new JMenuItem(new AbstractAction("Add new ValueObject to ValueExchange") {
-					@Override
-					public void actionPerformed(ActionEvent arg0) {
-						String newName = JOptionPane.showInputDialog(
-								Main.mainFrame,
-								"Enter the name of the new ValueObject",
-								"New ValueObject",
-								JOptionPane.QUESTION_MESSAGE);
-						if (newName == null || newName.trim().length() == 0) return;
-
-						Main.valueObjects.add(newName);
-						
-						ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
-						ve.valueObject = newName;
-						graph.getModel().setValue(contextTarget, ve);
-					}
-				}));
-			}
-		});
-		valueExchangeMenu.add(attachValueObjectMenu);
-		JMenuItem removeValueObjectMenu = new JMenuItem(new AbstractAction("Remove ValueObject") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				graph.getModel().beginUpdate();
-				try {
-					ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
-					ve.valueObject = null;
-					graph.getModel().setValue(contextTarget, ve);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			}
-		});
-		valueExchangeMenu.add(removeValueObjectMenu);
-		valueExchangeMenu.add(new JMenuItem(new AbstractAction("Show/hide ValueObject") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				graph.getModel().beginUpdate();
-				try {
-					ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
-					ve.labelHidden ^= true;
-					graph.getModel().setValue(contextTarget, ve);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			}
-		}));
-		// This is to make the "Remove ValueObject" button grey out when there's no ValueObject
-		valueExchangeMenu.addPopupMenuListener(new PopupMenuListener() {
-			@Override
-			public void popupMenuCanceled(PopupMenuEvent arg0) { }
-
-			@Override
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) { }
-
-			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-				ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(contextTarget)).getCopy());
-				removeValueObjectMenu.setEnabled(ve.valueObject != null);
-			}
-		});
-		
-		actorMenu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(contextTarget)); 
-			}
-		}));
-
 		// Enable delete key et. al.
 		// TODO: Only allow useful keybindings to be added
 		new mxKeyboardHandler(this);
@@ -482,11 +239,11 @@ public class E3GraphComponent extends mxGraphComponent {
 		String style = graph.getModel().getStyle(obj);
 		JPopupMenu menu = null;
 		
-		contextTarget = obj;
+		Main.contextTarget = obj;
 		
 		if (obj == null) {
 			menu = defaultMenu;
-			contextTarget = new mxPoint(e.getX(), e.getY());
+			Main.contextTarget = new mxPoint(e.getX(), e.getY());
 		} else if (style != null) {
 			if (style.equals("LogicBase")) menu = logicMenu;
 			if (style.equals("ValueInterface")) menu = valueInterfaceMenu;
@@ -502,11 +259,11 @@ public class E3GraphComponent extends mxGraphComponent {
 				}
 			}
 			if (style.endsWith("Triangle")) {
-				contextTarget = graph.getModel().getParent(contextTarget);
+				Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
 				menu = logicMenu;
 			}
 			if (style.equals("Bar")) {
-				contextTarget = graph.getModel().getParent(contextTarget);
+				Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
 				menu = logicMenu;
 			}
 		}

@@ -31,7 +31,8 @@ public class Info {
 	
 	public static final void setCommons(Base source, Base target) {
 		target.SUID = source.SUID;
-		target.name = source.name;
+		// If non-null, copy it
+		target.name = source.name == null ? null : new String(source.name);
 		target.formulas.putAll(source.formulas);
 	}
 

@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +55,19 @@ public class E3PropertiesEditor {
 	private boolean changingCell = false;
 	private JDialog dialog;
 	
+	private Info.Base object;
 	
+	public final List<E3PropertiesEventListener> listeners = new ArrayList<>();
+	
+	public void addE3PropertiesListener(E3PropertiesEventListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void fireEvent(E3PropertiesEvent event) {
+		for (E3PropertiesEventListener listener : listeners) {
+			listener.invoke(event);
+		}
+	}
 	
 	private void setEditingField(int row, int col) {
 		editingRow = row;
@@ -67,7 +80,9 @@ public class E3PropertiesEditor {
 		changingTextArea = false;
 	}
 
-	public E3PropertiesEditor(JFrame owner, Info.Base object) {
+	public E3PropertiesEditor(JFrame owner, Info.Base object_) {
+		object = object_.getCopy();
+		
 		topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
 		
@@ -307,7 +322,22 @@ public class E3PropertiesEditor {
 		dialog.add(splitPane);
 		
 		dialog.addWindowListener(new WindowAdapter() {
-			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (formulaTable.getCellEditor() != null) {
+					formulaTable.getCellEditor().stopCellEditing();
+				}
+				
+				object.name = nameField.getText();
+				object.formulas.clear();
+				for (int i = 0; i < formulaTable.getModel().getRowCount(); i++) {
+					String name = (String) formulaTable.getModel().getValueAt(i, 0);
+					String formula = (String) formulaTable.getModel().getValueAt(i, 1);
+					object.formulas.put(name, formula);
+				}
+				
+				fireEvent(new E3PropertiesEvent(this, object));
+			}
 		});
 	}
 	

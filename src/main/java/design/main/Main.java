@@ -37,6 +37,7 @@ public class Main {
 	public static final JFrame mainFrame = new JFrame("E3fraud editor");
 	public static mxGraph graph = null;
 	public static E3GraphComponent graphComponent = null;
+	public static Object contextTarget = null;
 	
 	public static final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "SERVICE")
