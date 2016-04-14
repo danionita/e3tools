@@ -409,7 +409,8 @@ class E3Graph extends mxGraph {
 						&& !style.equals("Bar")
 						&& !style.equals("EastTriangle")
 						&& !style.equals("LogicBase")
-						&& !style.equals("ValueExchange");
+						&& !style.equals("ValueExchange")
+						&& !style.equals("ConnectionElement");
 			}
 		}
 		

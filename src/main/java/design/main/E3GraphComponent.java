@@ -17,9 +17,16 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
+import design.main.Info.Actor;
 import design.main.Info.Base;
+import design.main.Info.EndSignal;
+import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
+import design.main.Info.MarketSegment;
+import design.main.Info.StartSignal;
+import design.main.Info.ValueActivity;
 import design.main.Info.ValueExchange;
+import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.listeners.ProxySelection;
 
@@ -27,25 +34,36 @@ public class E3GraphComponent extends mxGraphComponent {
 	JPopupMenu defaultMenu = new JPopupMenu();
 	JPopupMenu logicMenu = new JPopupMenu();
 	JPopupMenu partDotMenu = new JPopupMenu();
+	JPopupMenu unitDotMenu = new JPopupMenu();
 	JPopupMenu valueInterfaceMenu = new JPopupMenu();
 	JPopupMenu valuePortMenu = new JPopupMenu();
 	JPopupMenu valueExchangeMenu = new JPopupMenu();
 	JPopupMenu actorMenu = new JPopupMenu();
+	JPopupMenu valueActivityMenu = new JPopupMenu();
+	JPopupMenu marketSegmentMenu = new JPopupMenu();
+	JPopupMenu startSignalMenu = new JPopupMenu();
+	JPopupMenu endSignalMenu = new JPopupMenu();
 
 	public E3GraphComponent(mxGraph graph) {
 		super(graph);
 		
 		ContextMenus.addDefaultMenu(defaultMenu, graph);
 		ContextMenus.addLogicMenus(logicMenu, graph);
-		
 		ContextMenus.addPartDotMenu(partDotMenu, graph);
-		
+		ContextMenus.addProportionMenu(unitDotMenu, graph);
 		ContextMenus.addValueInterfaceMenu(valueInterfaceMenu, graph);
 		ContextMenus.addValuePortMenu(valuePortMenu, graph);
+		
+		ContextMenus.addE3PropertiesMenu(valueExchangeMenu, graph);
 		ContextMenus.addValueExchangeMenu(valueExchangeMenu, graph);
 		
 		ContextMenus.addE3PropertiesMenu(actorMenu, graph);
 		ContextMenus.addActorMenu(actorMenu, graph);
+		
+		ContextMenus.addE3PropertiesMenu(valueActivityMenu, graph);
+		ContextMenus.addE3PropertiesMenu(marketSegmentMenu, graph);
+		ContextMenus.addE3PropertiesMenu(startSignalMenu, graph);
+		ContextMenus.addE3PropertiesMenu(endSignalMenu, graph);
 		
 		// Enable delete key et. al.
 		// TODO: Only allow useful keybindings to be added
@@ -234,29 +252,34 @@ public class E3GraphComponent extends mxGraphComponent {
 			menu = defaultMenu;
 			Main.contextTarget = new mxPoint(e.getX(), e.getY());
 		} else if (style != null) {
-			if (style.equals("LogicBase")) menu = logicMenu;
-			if (style.equals("ValueInterface")) menu = valueInterfaceMenu;
-			if (style.startsWith("ValuePort")) menu = valuePortMenu;
-			if (style.startsWith("ValueExchange")) menu = valueExchangeMenu;
-			if (style.equals("Actor")) menu = actorMenu;
-			if (style.equals("Dot")) {
-				Base valueObj = (Base) graph.getModel().getValue(obj);
-				if (valueObj instanceof LogicDot) {
-					if (!((LogicDot) valueObj).isUnit) {
-						menu = partDotMenu;
-					}
-				}
-			}
 			if (style.endsWith("Triangle")) {
 				Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
-				menu = logicMenu;
 			}
 			if (style.equals("Bar")) {
 				Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
-				menu = logicMenu;
+			}
+			
+			Object val = graph.getModel().getValue(Main.contextTarget);
+			// If it does not have a base object as value
+			// there's probably no use in checking for a right click menu
+			if (!(val instanceof Base)) return;
+			Base value = (Base) val;
+			
+			if (value instanceof LogicBase) menu = logicMenu;
+			if (value instanceof ValueInterface) menu = valueInterfaceMenu;
+			if (value instanceof ValuePort) menu = valuePortMenu;
+			if (value instanceof ValueExchange) menu = valueExchangeMenu;
+			if (value instanceof Actor) menu = actorMenu;
+			if (value instanceof MarketSegment) menu = marketSegmentMenu;
+			if (value instanceof ValueActivity) menu = valueActivityMenu;
+			if (value instanceof StartSignal) menu = startSignalMenu;
+			if (value instanceof EndSignal) menu = endSignalMenu;
+			if (value instanceof LogicDot) {
+				if (((LogicDot) value).isUnit) menu = unitDotMenu;
+				else menu = partDotMenu;
 			}
 		}
-		
+			
 		if (e.isPopupTrigger() && menu != null) {
 			menu.show(e.getComponent(), e.getX(), e.getY());
 		}

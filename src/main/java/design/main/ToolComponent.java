@@ -10,11 +10,13 @@ import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
 import design.main.Info.Base;
+import design.main.Info.EndSignal;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
 import design.main.Info.MarketSegment;
 import design.main.Info.Side;
 import design.main.Info.SignalDot;
+import design.main.Info.StartSignal;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueInterface;
 import design.main.listeners.ProxySelection;
@@ -125,7 +127,7 @@ public class ToolComponent extends mxGraphComponent {
 					"Dot");
 			
 			// Start signal
-			startSignal = graph.insertVertex(root, null, null, 70, 380, 30, 30, "StartSignal");
+			startSignal = graph.insertVertex(root, null, new StartSignal(), 70, 380, 30, 30, "StartSignal");
 			// TODO: Is this next line needed?
 			((mxCell) startSignal).setConnectable(false);
 			mxICell dot = (mxICell) graph.insertVertex(startSignal, null, null, 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
@@ -133,7 +135,7 @@ public class ToolComponent extends mxGraphComponent {
 			dot.getGeometry().setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
 			
 			// End signal
-			endSignal = (mxCell) graph.insertVertex(root, null, null, 55, 420, 45, 45, "EndSignal");
+			endSignal = (mxCell) graph.insertVertex(root, null, new EndSignal(), 55, 420, 45, 45, "EndSignal");
 			((mxCell) endSignal).setConnectable(false);
 			mxCell dot2 = (mxCell) graph.insertVertex(endSignal, null, null, 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 			dot2.getGeometry().setRelative(true);

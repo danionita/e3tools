@@ -13,12 +13,6 @@ public class Info {
 	public static abstract class Base implements Serializable {
 		private static final long serialVersionUID = -566615792608025058L;
 		
-		public Base() {
-			formulas.put("VALUATION", "0");
-			formulas.put("INVESTMENT", "0");
-			formulas.put("EXPENSES", "0");
-		}
-		
 		public int SUID = getSUID();
 		public final HashMap<String, String> formulas = new LinkedHashMap<>();
 		public String name;
@@ -33,6 +27,7 @@ public class Info {
 		target.SUID = source.SUID;
 		// If non-null, copy it
 		target.name = source.name == null ? null : new String(source.name);
+		target.formulas.clear();
 		target.formulas.putAll(source.formulas);
 	}
 
@@ -125,6 +120,12 @@ public class Info {
 	public static class Actor extends Base {
 		private static final long serialVersionUID = -5569247045409511931L;
 		
+		public Actor() {
+			formulas.put("INVESTMENT", "0");
+			formulas.put("EXPENSES", "0");
+			formulas.put("INTEREST", "");
+		}
+		
 		@Override
 		public Base getCopy() {
 			Actor va = new Actor();
@@ -141,6 +142,14 @@ public class Info {
 	public static class MarketSegment extends Base {
 		private static final long serialVersionUID = 952747256997418957L;
 		
+		public MarketSegment() {
+			formulas.put("COUNT", "1");
+			formulas.put("INVESTMENT", "0");
+			formulas.put("EXPENSES", "0");
+			formulas.put("INTEREST", "");
+			formulas.put("MS_TYPE", "");
+		}
+		
 		@Override
 		public Base getCopy() {
 			MarketSegment va = new MarketSegment();
@@ -156,6 +165,12 @@ public class Info {
 
 	public static class ValueActivity extends Base {
 		private static final long serialVersionUID = 6344879576710522969L;
+		
+		public ValueActivity() {
+			formulas.put("TOTAL_VARIABLE_EXPENSES", "");
+			formulas.put("INVESTMENT", "0");
+			formulas.put("EXPENSES", "0");
+		}
 		
 		@Override
 		public Base getCopy() {
@@ -221,6 +236,11 @@ public class Info {
 		private static final long serialVersionUID = -7607653966138790703L;
 		public String valueObject = null;
 		public boolean labelHidden = false;
+		
+		public ValueExchange() {
+			formulas.put("CARDINALITY", "1");
+			formulas.put("VALUATION", "");
+		}
 
 		@Override
 		public Base getCopy() {
@@ -238,6 +258,34 @@ public class Info {
 			if (labelHidden) return "";
 			else if (valueObject == null) return "";
 			else return valueObject;
+		}
+	}
+	
+	public static class StartSignal extends Base {
+		private static final long serialVersionUID = -3440018877858008513L;
+		
+		public StartSignal() {
+			formulas.put("COUNT", "1");
+		}
+
+		@Override
+		public Base getCopy() {
+			StartSignal copy = new StartSignal();
+			setCommons(this, copy);
+
+			return copy;
+		}
+	}
+	
+	public static class EndSignal extends Base {
+		private static final long serialVersionUID = -6483661636370237656L;
+
+		@Override
+		public Base getCopy() {
+			EndSignal copy = new EndSignal();
+			setCommons(this, copy);
+			
+			return copy;
 		}
 	}
 }
