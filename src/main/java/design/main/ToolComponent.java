@@ -10,10 +10,11 @@ import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
 import design.main.Info.Base;
-import design.main.Info.Dot;
 import design.main.Info.LogicBase;
+import design.main.Info.LogicDot;
 import design.main.Info.MarketSegment;
 import design.main.Info.Side;
+import design.main.Info.SignalDot;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueInterface;
 import design.main.listeners.ProxySelection;
@@ -117,7 +118,7 @@ public class ToolComponent extends mxGraphComponent {
 			E3Graph.addValuePort(graph, (mxICell) valueInterface, true);
 			E3Graph.addValuePort(graph, (mxICell) valueInterface, false);
 			mxGeometry viGm = Utils.geometry(graph, valueInterface);
-			graph.insertVertex(valueInterface, null, null,
+			graph.insertVertex(valueInterface, null, new SignalDot(),
 					viGm.getWidth() - 2 * E3Style.DOTRADIUS,
 					viGm.getHeight() / 2 - E3Style.DOTRADIUS,
 					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2,
@@ -147,7 +148,7 @@ public class ToolComponent extends mxGraphComponent {
 			barGm.setRelative(true);
 			graph.getModel().setGeometry(bar, barGm);
 			
-			Object mainDot = graph.insertVertex(orGate, null, new Dot(true), 0.75, 0.5,
+			Object mainDot = graph.insertVertex(orGate, null, new LogicDot(true), 0.75, 0.5,
 					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
 			mxGeometry dotGm = (mxGeometry) graph.getCellGeometry(mainDot).clone();
 			dotGm.setRelative(true);
@@ -165,7 +166,7 @@ public class ToolComponent extends mxGraphComponent {
 			triangleGm.setRelative(true);
 			graph.getModel().setGeometry(triangle, triangleGm);
 			
-			mainDot = graph.insertVertex(andGate, null, new Dot(true), 0.75, 0.5, 
+			mainDot = graph.insertVertex(andGate, null, new LogicDot(true), 0.75, 0.5, 
 					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
 			dotGm = (mxGeometry) graph.getCellGeometry(mainDot).clone();
 			dotGm.setRelative(true);

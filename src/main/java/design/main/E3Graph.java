@@ -2,24 +2,19 @@ package design.main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
-import com.mxgraph.util.mxEvent;
-import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxGraphSelectionModel;
 
 import design.main.Info.Base;
-import design.main.Info.Dot;
 import design.main.Info.LogicBase;
+import design.main.Info.LogicDot;
 import design.main.Info.Side;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
@@ -459,7 +454,7 @@ class E3Graph extends mxGraph {
 		mxICell bar = null;
 		for (int i = 0; i < logicUnit.getChildCount(); i++) {
 			mxICell child = logicUnit.getChildAt(i);
-			Dot dotInfo = (Dot) child.getValue();
+			LogicDot dotInfo = (LogicDot) child.getValue();
 			if (dotInfo == null) {
 				bar = child;
 				continue;
@@ -559,7 +554,7 @@ class E3Graph extends mxGraph {
 	public static void addDot(mxGraph graph, mxCell logicUnit) {
 		graph.getModel().beginUpdate();
 		try {
-			Object obj = graph.insertVertex(logicUnit, null, new Dot(), 0, 0, 
+			Object obj = graph.insertVertex(logicUnit, null, new LogicDot(false), 0, 0, 
 					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
 			mxGeometry gm = (mxGeometry) graph.getCellGeometry(obj).clone();
 			gm.setRelative(true);

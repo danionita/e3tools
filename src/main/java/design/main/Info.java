@@ -171,20 +171,30 @@ public class Info {
 		}
 	}
 	
-	public static class Dot extends Base {
-		private static final long serialVersionUID = 6736897501245007019L;
-		// Unit dot is dot that is alone on one side of the logic unit
-		public boolean isUnit = false;
-		
-		public Dot() {}
-		public Dot(boolean isUnit_) {isUnit = isUnit_;}
+	public static class SignalDot extends Base {
+		private static final long serialVersionUID = 7829429718862402191L;
 
 		@Override
 		public Base getCopy() {
-			Dot dot = new Dot();
+			return new SignalDot();
+		}
+	}
+	
+	public static class LogicDot extends Base {
+		private static final long serialVersionUID = 6736897501245007019L;
+		// Unit dot is dot that is alone on one side of the logic unit
+		public boolean isUnit = false;
+		public int proportion = 1;
+		
+		public LogicDot(boolean isUnit_) {isUnit = isUnit_;}
+
+		@Override
+		public Base getCopy() {
+			LogicDot dot = new LogicDot(false);
 			setCommons(this, dot);
 			
 			dot.isUnit = isUnit;
+			dot.proportion = proportion;
 
 			return dot;
 		}

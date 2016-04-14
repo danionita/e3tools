@@ -1,19 +1,9 @@
 package design.main;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -28,15 +18,10 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
-import design.main.Info.Dot;
-import design.main.Info.LogicBase;
+import design.main.Info.LogicDot;
 import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.listeners.ProxySelection;
-import design.main.properties.E3PropertiesEditor;
-import design.main.properties.E3PropertiesEvent;
-import design.main.properties.E3PropertiesEventListener;
 
 public class E3GraphComponent extends mxGraphComponent {
 	JPopupMenu defaultMenu = new JPopupMenu();
@@ -52,7 +37,9 @@ public class E3GraphComponent extends mxGraphComponent {
 		
 		ContextMenus.addDefaultMenu(defaultMenu, graph);
 		ContextMenus.addLogicMenus(logicMenu, graph);
+		
 		ContextMenus.addPartDotMenu(partDotMenu, graph);
+		
 		ContextMenus.addValueInterfaceMenu(valueInterfaceMenu, graph);
 		ContextMenus.addValuePortMenu(valuePortMenu, graph);
 		ContextMenus.addValueExchangeMenu(valueExchangeMenu, graph);
@@ -240,8 +227,10 @@ public class E3GraphComponent extends mxGraphComponent {
 		JPopupMenu menu = null;
 		
 		Main.contextTarget = obj;
+		Main.contextPos = new mxPoint(e.getX(), e.getY());
 		
 		if (obj == null) {
+			obj = graph.getDefaultParent();
 			menu = defaultMenu;
 			Main.contextTarget = new mxPoint(e.getX(), e.getY());
 		} else if (style != null) {
@@ -251,9 +240,9 @@ public class E3GraphComponent extends mxGraphComponent {
 			if (style.startsWith("ValueExchange")) menu = valueExchangeMenu;
 			if (style.equals("Actor")) menu = actorMenu;
 			if (style.equals("Dot")) {
-				Dot valueObj = (Dot) graph.getModel().getValue(obj);
-				if (valueObj != null) {
-					if (!valueObj.isUnit) {
+				Base valueObj = (Base) graph.getModel().getValue(obj);
+				if (valueObj instanceof LogicDot) {
+					if (!((LogicDot) valueObj).isUnit) {
 						menu = partDotMenu;
 					}
 				}

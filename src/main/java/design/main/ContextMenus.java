@@ -1,6 +1,8 @@
 package design.main;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
@@ -11,6 +13,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.plaf.basic.BasicOptionPaneUI;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -19,6 +22,7 @@ import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
 import design.main.Info.LogicBase;
+import design.main.Info.LogicDot;
 import design.main.Info.ValueExchange;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
@@ -30,9 +34,33 @@ public class ContextMenus {
 	public static void addDefaultMenu(JPopupMenu menu, mxGraph graph) {
 		// Construct context menus
 		JMenu addMenu = new JMenu("Add");
-		addMenu.add(new JMenuItem("ValueActivity"));
-		addMenu.add(new JMenuItem("Actor"));
-		addMenu.add(new JMenuItem("MarketSegment"));
+		addMenu.add(new JMenuItem(new AbstractAction("ValueActivity") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mxCell va = (mxCell) Main.tools.clone(Main.tools.valueActivity);
+				va.getGeometry().setX(Main.contextPos.getX());
+				va.getGeometry().setY(Main.contextPos.getY());
+				Main.graph.addCell(va);
+			}
+		}));
+		addMenu.add(new JMenuItem(new AbstractAction("Actor") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mxCell va = (mxCell) Main.tools.clone(Main.tools.actor);
+				va.getGeometry().setX(Main.contextPos.getX());
+				va.getGeometry().setY(Main.contextPos.getY());
+				Main.graph.addCell(va);
+			}
+		}));
+		addMenu.add(new JMenuItem(new AbstractAction("MarketSegment") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mxCell va = (mxCell) Main.tools.clone(Main.tools.marketSegment);
+				va.getGeometry().setX(Main.contextPos.getX());
+				va.getGeometry().setY(Main.contextPos.getY());
+				Main.graph.addCell(va);
+			}
+		}));
 		menu.add(addMenu);
 	}
 	
@@ -63,20 +91,98 @@ public class ContextMenus {
 			public void actionPerformed(ActionEvent e) {
 				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
 				
-				if (value instanceof Info.Dot) {
+				if (value instanceof Info.LogicDot) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
 				}
 				
 				E3Graph.addDot(graph, (mxCell) Main.contextTarget);
 			}
 		}));
+		
+		class SetPortsAction extends AbstractAction {
+			final int n;
+			
+			public SetPortsAction(int n_) {
+				super(n_ + "");
+				n = n_;
+			}
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
+				
+				if (value instanceof Info.LogicDot) {
+					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
+				}
+				
+				List<Object> dots = new ArrayList<>();
+				for (int j = 0; j < graph.getModel().getChildCount(Main.contextTarget); j++) {
+					Base childValue = (Base) graph.getModel().getValue(graph.getModel().getChildAt(
+							Main.contextTarget, j));
+					if (childValue instanceof LogicDot) {
+						if (!((LogicDot) childValue).isUnit) {
+							dots.add(graph.getModel().getChildAt(Main.contextTarget, j));
+						}
+					}
+				}
+				
+				if (n < dots.size()) {
+					graph.getModel().beginUpdate();
+					try {
+						for (int j = n; j < dots.size(); j++) {
+							graph.getModel().remove(dots.get(j));
+						}
+						E3Graph.straightenLogicUnit(graph, (mxCell) Main.contextTarget);
+					} finally {
+						graph.getModel().endUpdate();
+					}
+				} else if (dots.size() < n) {
+					graph.getModel().beginUpdate();
+					try {
+						for (int j = dots.size(); j < n; j++) {
+							E3Graph.addDot(graph, (mxCell) Main.contextTarget);
+						}
+					} finally {
+						graph.getModel().endUpdate();
+					}
+				}
+			}
+		}
+		
+		JMenu setPortsMenu = new JMenu("Set ports");
+		for (int i = 0; i < 7; i++) {
+			final int targetAmount = i;
+			setPortsMenu.add(new JMenuItem(new SetPortsAction(i)));
+		}
+		setPortsMenu.addSeparator();
+		setPortsMenu.add(new AbstractAction("Other amount") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String amountStr = JOptionPane.showInputDialog(
+						Main.mainFrame,
+						"Enter the desired amount of ValuePorts",
+						"Available ValuePorts",
+						JOptionPane.QUESTION_MESSAGE);
+				
+				int amount = 0;
+				try {
+					amount = Integer.parseInt(amountStr);
+					if (amount < 0) return;
+				} catch (Exception ex){
+					return;
+				}
+				
+				new SetPortsAction(amount).actionPerformed(e);
+			}
+		});
+		menu.add(setPortsMenu);
 
 		menu.add(new JMenuItem(new AbstractAction("Rotate right") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
 				
-				if (value instanceof Info.Dot) {
+				if (value instanceof Info.LogicDot) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
 				}
 
@@ -105,7 +211,7 @@ public class ContextMenus {
 			public void actionPerformed(ActionEvent e) {
 				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
 				
-				if (value instanceof Info.Dot) {
+				if (value instanceof Info.LogicDot) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
 				}
 
@@ -130,6 +236,8 @@ public class ContextMenus {
 	}
 	
 	public static void addPartDotMenu(JPopupMenu menu, mxGraph graph) {
+		addProportionMenu(menu, graph);
+		
 		menu.add(new JMenuItem(new AbstractAction("Remove port") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -144,9 +252,42 @@ public class ContextMenus {
 			}
 		}));
 		
-		menu.addSeparator();
-		
 		addLogicMenus(menu, graph);
+	}
+	
+	public static void addProportionMenu(JPopupMenu menu, mxGraph graph) {
+		menu.add(new JMenuItem(new AbstractAction("Set proportion") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LogicDot logicDot = (LogicDot) ((Base) graph.getModel().getValue(Main.contextTarget)).getCopy();
+				
+				String amountStr = (String) JOptionPane.showInputDialog(
+						Main.mainFrame,
+						"Set the desired proportion for the selected ValuePort",
+						"ValuePort proportion",
+						JOptionPane.INFORMATION_MESSAGE,
+						null,
+						null,
+						logicDot.proportion + "");
+				
+				int amount = 0;
+				
+				try {
+					amount = Integer.parseInt(amountStr);
+					if (amount < 0) return;
+				} catch (Exception e2) {
+					return;
+				}
+				
+				logicDot.proportion = amount;
+				graph.getModel().beginUpdate();
+				try {
+					graph.getModel().setValue(Main.contextTarget, logicDot);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
 	}
 	
 	public static void addValueInterfaceMenu(JPopupMenu menu, mxGraph graph) {

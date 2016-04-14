@@ -27,7 +27,9 @@ import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
-import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
+import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.ValueExchange;
@@ -38,6 +40,8 @@ public class Main {
 	public static mxGraph graph = null;
 	public static E3GraphComponent graphComponent = null;
 	public static Object contextTarget = null;
+	public static mxPoint contextPos = new mxPoint(-1, -1);
+	public static ToolComponent tools = null;
 	
 	public static final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "SERVICE")
@@ -183,8 +187,7 @@ public class Main {
 			graph.getModel().endUpdate();
 		}
 
-		// Create tool pane
-		mxGraphComponent tools = new ToolComponent();
+		tools = new ToolComponent();
 		
 		JTabbedPane valueProperties = new JTabbedPane();	
 		
