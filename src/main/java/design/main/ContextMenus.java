@@ -69,7 +69,7 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				E3PropertiesEditor editor = new E3PropertiesEditor(Main.mainFrame, (Base) graph.getModel().getValue(Main.contextTarget));
+				E3PropertiesEditor editor = new E3PropertiesEditor(Main.mainFrame, Utils.base(graph, Main.contextTarget));
 				editor.addE3PropertiesListener(new E3PropertiesEventListener() {
 					@Override
 					public void invoke(E3PropertiesEvent event) {
@@ -90,7 +90,7 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Add port") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
+				Base value = Utils.base(graph, Main.contextTarget);
 				
 				if (value instanceof Info.LogicDot) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
@@ -110,7 +110,7 @@ public class ContextMenus {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
+				Base value = Utils.base(graph, Main.contextTarget);
 				
 				if (value instanceof Info.LogicDot) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
@@ -118,8 +118,7 @@ public class ContextMenus {
 				
 				List<Object> dots = new ArrayList<>();
 				for (int j = 0; j < graph.getModel().getChildCount(Main.contextTarget); j++) {
-					Base childValue = (Base) graph.getModel().getValue(graph.getModel().getChildAt(
-							Main.contextTarget, j));
+					Base childValue = Utils.base(graph, graph.getModel().getChildAt(Main.contextTarget, j));
 					if (childValue instanceof LogicDot) {
 						if (!((LogicDot) childValue).isUnit) {
 							dots.add(graph.getModel().getChildAt(Main.contextTarget, j));
@@ -181,13 +180,13 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Rotate right") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
+				Base value = Utils.base(graph, Main.contextTarget);
 				
 				if (value instanceof Info.LogicDot) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
 				}
 
-				LogicBase lb = (LogicBase) graph.getModel().getValue(Main.contextTarget);
+				LogicBase lb = (LogicBase) Utils.base(graph, Main.contextTarget);
 				lb.direction = lb.direction.rotateRight();
 
 				mxGeometry gm = (mxGeometry) graph.getCellGeometry(Main.contextTarget).clone();
@@ -198,6 +197,7 @@ public class ContextMenus {
 				graph.getModel().beginUpdate();
 				try {
 					graph.getModel().setGeometry(Main.contextTarget, gm);
+					graph.getModel().setValue(Main.contextTarget, lb);
 				} finally {
 					graph.getModel().endUpdate();
 				}
@@ -210,13 +210,13 @@ public class ContextMenus {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
+				Base value = Utils.base(graph, Main.contextTarget);
 				
 				if (value instanceof Info.LogicDot) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
 				}
 
-				LogicBase lb = (LogicBase) graph.getModel().getValue(Main.contextTarget);
+				LogicBase lb = (LogicBase) Utils.base(graph, Main.contextTarget);
 				lb.direction = lb.direction.rotateLeft();
 
 				mxGeometry gm = (mxGeometry) graph.getCellGeometry(Main.contextTarget).clone();
@@ -227,6 +227,7 @@ public class ContextMenus {
 				graph.getModel().beginUpdate();
 				try {
 					graph.getModel().setGeometry(Main.contextTarget, gm);
+					graph.getModel().setValue(Main.contextTarget, lb);
 				} finally {
 					graph.getModel().endUpdate();
 				}
@@ -260,7 +261,7 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Set proportion") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				LogicDot logicDot = (LogicDot) ((Base) graph.getModel().getValue(Main.contextTarget)).getCopy();
+				LogicDot logicDot = (LogicDot) Utils.base(graph, Main.contextTarget);
 				
 				String amountStr = (String) JOptionPane.showInputDialog(
 						Main.mainFrame,
@@ -295,7 +296,7 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Add incoming port") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
+				Base value = Utils.base(graph, Main.contextTarget);
 				
 				if (value instanceof ValuePort) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
@@ -313,7 +314,7 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Add outgoing port") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
+				Base value = Utils.base(graph, Main.contextTarget);
 				
 				if (value instanceof ValuePort) {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
@@ -335,8 +336,8 @@ public class ContextMenus {
 			public void actionPerformed(ActionEvent e) {
 				mxICell vp = (mxICell) Main.contextTarget;
 				mxICell vi = (mxICell) vp.getParent();
-				ValuePort vpInfo = (ValuePort) vp.getValue();
-				ValueInterface viInfo = (ValueInterface) vi.getValue();
+				ValuePort vpInfo = (ValuePort) Utils.base(graph, vp);
+				ValueInterface viInfo = (ValueInterface) Utils.base(graph, vi);
 	
 				vpInfo.incoming ^= true;
 				
@@ -372,7 +373,7 @@ public class ContextMenus {
 						public void actionPerformed(ActionEvent arg0) {
 							graph.getModel().beginUpdate();
 							try {
-								ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(Main.contextTarget)).getCopy());
+								ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 
 								ve.valueObject = valueObject;
 								graph.getModel().setValue(Main.contextTarget, ve);
 							} finally {
@@ -394,7 +395,7 @@ public class ContextMenus {
 
 						Main.valueObjects.add(newName);
 						
-						ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(Main.contextTarget)).getCopy());
+						ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 						ve.valueObject = newName;
 						graph.getModel().setValue(Main.contextTarget, ve);
 					}
@@ -408,7 +409,7 @@ public class ContextMenus {
 			public void actionPerformed(ActionEvent e) {
 				graph.getModel().beginUpdate();
 				try {
-					ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(Main.contextTarget)).getCopy());
+					ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 					ve.valueObject = null;
 					graph.getModel().setValue(Main.contextTarget, ve);
 				} finally {
@@ -423,7 +424,7 @@ public class ContextMenus {
 			public void actionPerformed(ActionEvent e) {
 				graph.getModel().beginUpdate();
 				try {
-					ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(Main.contextTarget)).getCopy());
+					ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 					ve.labelHidden ^= true;
 					graph.getModel().setValue(Main.contextTarget, ve);
 				} finally {
@@ -442,7 +443,7 @@ public class ContextMenus {
 
 			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-				ValueExchange ve = (ValueExchange) (((Base) graph.getModel().getValue(Main.contextTarget)).getCopy());
+				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 				removeValueObjectMenu.setEnabled(ve.valueObject != null);
 			}
 		});
