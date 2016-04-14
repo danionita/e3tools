@@ -38,6 +38,7 @@ public class ContextMenus {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				mxCell va = (mxCell) Main.tools.clone(Main.tools.valueActivity);
+				// getGeometry is allowed here because at this point the cell is not a member of any graph in particular.
 				va.getGeometry().setX(Main.contextPos.getX());
 				va.getGeometry().setY(Main.contextPos.getY());
 				Main.graph.addCell(va);

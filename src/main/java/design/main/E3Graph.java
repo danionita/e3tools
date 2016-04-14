@@ -95,8 +95,8 @@ class E3Graph extends mxGraph {
 				return super.getCellContainmentArea(obj);
 			}
 			
-			mxGeometry parentGm = cell.getParent().getGeometry();
-			mxGeometry gm = cell.getGeometry();
+			mxGeometry parentGm = Utils.geometry(this, cell.getParent());
+			mxGeometry gm = Utils.geometry(this, cell);
 			
 			if (gm.getWidth() > gm.getHeight()) {
 				// Top or bottom
@@ -152,6 +152,9 @@ class E3Graph extends mxGraph {
 	 * 
 	 * Applies constrainment when the cell is out of bounds of the containment area. This seems to be
 	 * different from the default implemented behaviour, altough this seems more appropriate.
+	 * 
+	 * The geometry is not cloned because the function that is overridden does not either, and we
+	 * should not break the contract.
 	 */
 	@Override
 	public void constrainChild(Object cell) {
@@ -163,6 +166,7 @@ class E3Graph extends mxGraph {
 			// Align the cell properly with the side it's going to be attached on
 			mxRectangle area = (isConstrainChild(cell)) ? getCellContainmentArea(cell)
 					: getMaximumGraphBounds();
+			// Cloning is not needed here! See javadoc.
 			mxGeometry geo = model.getGeometry(cell);
 			
 			if (geo != null && area != null)
@@ -209,7 +213,7 @@ class E3Graph extends mxGraph {
 		Info.ValueInterface viInfo = (ValueInterface) graph.getModel().getValue(vi);
 		
 		mxGeometry viGm = Utils.geometry(graph, vi);
-		mxGeometry parentGm = vi.getParent().getGeometry();
+		mxGeometry parentGm = Utils.geometry(graph, vi.getParent());
 		if (parentGm != null) {
 			double left, top, right, bottom;
 			
@@ -493,11 +497,11 @@ class E3Graph extends mxGraph {
 				graph.getModel().setGeometry(dot,  gm);
 			}
 			
-			mxGeometry gm = (mxGeometry) unitDot.getGeometry().clone();
+			mxGeometry gm = Utils.geometry(graph, unitDot); 
 			gm.setX(0.5);
 			gm.setY(0.5);
 			
-			mxGeometry barGm = (mxGeometry) bar.getGeometry().clone();
+			mxGeometry barGm = Utils.geometry(graph, bar);
 			barGm.setX(0.5);
 			barGm.setY(0.5);
 			barGm.setWidth(1);

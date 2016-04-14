@@ -91,7 +91,15 @@ public class Utils {
 	}
 	
 	public static mxGeometry geometry(mxGraph graph, Object obj) {
-		return (mxGeometry) graph.getCellGeometry(obj).clone();
+		mxGeometry gm = (mxGeometry) graph.getCellGeometry(obj);
+		if (gm != null) return (mxGeometry) gm.clone();
+		else return null;
+	}
+	
+	public static Base base(mxGraph graph, Object obj) {
+		Object value = graph.getModel().getValue(obj);
+		if (value instanceof Base) return ((Base) value).getCopy();
+		return null;
 	}
 	
 	public static List<Object> getAllCells(mxGraph graph) {
