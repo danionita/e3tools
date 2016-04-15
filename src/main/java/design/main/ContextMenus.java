@@ -350,6 +350,20 @@ public class ContextMenus {
 			}
 		}));
 		
+		menu.add(new JMenuItem(new AbstractAction("Remove ValuePort") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.getModel().beginUpdate();
+				try {
+					Object parent = graph.getModel().getParent(Main.contextTarget);
+					graph.getModel().remove(Main.contextTarget);
+					E3Graph.straightenValueInterface(graph, (mxICell) parent);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
+		
 		menu.addSeparator();
 		
 		addValueInterfaceMenu(menu, graph);

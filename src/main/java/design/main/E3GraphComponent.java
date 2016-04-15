@@ -66,7 +66,6 @@ public class E3GraphComponent extends mxGraphComponent {
 		ContextMenus.addE3PropertiesMenu(endSignalMenu, graph);
 		
 		// Enable delete key et. al.
-		// TODO: Only allow useful keybindings to be added
 		new mxKeyboardHandler(this);
 		
 		getConnectionHandler().setCreateTarget(false);

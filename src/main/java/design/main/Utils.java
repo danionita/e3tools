@@ -90,12 +90,24 @@ public class Utils {
 		return false;
 	}
 	
+	/**
+	 * Gets the geometry object from a cell, copies it, and returns it.
+	 * @param graph The graph the cell resides in
+	 * @param obj The cell the geometry should be copied from
+	 * @return A copy of the geometry object
+	 */
 	public static mxGeometry geometry(mxGraph graph, Object obj) {
 		mxGeometry gm = (mxGeometry) graph.getCellGeometry(obj);
 		if (gm != null) return (mxGeometry) gm.clone();
 		else return null;
 	}
 	
+	/**
+	 * Gets the base object from a cell, copies it, and returns it.
+	 * @param graph The graph the cell resides in
+	 * @param obj The cell the Base should be copied from
+	 * @return A deep copy of the Base object
+	 */
 	public static Base base(mxGraph graph, Object obj) {
 		Object value = graph.getModel().getValue(obj);
 		if (value instanceof Base) return ((Base) value).getCopy();

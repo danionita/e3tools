@@ -73,10 +73,8 @@ public class ToolComponent extends mxGraphComponent {
 				Object[] clones = super.cloneCells(cells, allowInvalidEdges);
 				
 				for ( Object obj : clones) {
-					Object val = model.getValue(obj);
-					if (val instanceof Info.Base) {
-						Info.Base info = (Base) val;
-						model.setValue(obj, info.getCopy());
+					if (model.getValue(obj) instanceof Info.Base) {
+						model.setValue(obj, Utils.base(this, obj));
 					}
 				}
 				

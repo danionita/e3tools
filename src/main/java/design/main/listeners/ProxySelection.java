@@ -23,7 +23,7 @@ public class ProxySelection implements mxIEventListener {
 		// If there are no cells "added" we have no business here
 		if (evt.getProperty("removed") == null) return;
 
-		// TODO: Added and removed are switched in mxGraphSelection.mxSelectionChange.execute
+		// Added and removed are switched in mxGraphSelection.mxSelectionChange.execute
 		// When fixed, turn these back around
 		Collection<Object> added = new ArrayList<>((Collection<Object>) evt.getProperty("removed"));
 		// Collection<Object> removed = new ArrayList<>((Collection<Object>) evt.getProperty("added"));

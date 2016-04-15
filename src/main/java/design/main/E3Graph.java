@@ -19,8 +19,6 @@ import design.main.Info.Side;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 
-// TODO: Check all graph mutations for begin/end!
-
 class E3Graph extends mxGraph {
 	/**
 	 * Returns true if given cell is a fitting drop target for cells. This means the
@@ -52,7 +50,6 @@ class E3Graph extends mxGraph {
 
 	/**
 	 * To enable movement of relative cells within cells.
-	 * TODO: Consider value ports (the triangles in value interfaces here)
 	 */
 	@Override
 	public boolean isCellLocked(Object cell) {
@@ -206,102 +203,108 @@ class E3Graph extends mxGraph {
 	 * @param vi
 	 */
 	public static void straightenValueInterface(mxGraph graph, mxICell vi) {
-		// TODO: Do the mxGeometries properly here
 		if (vi.getStyle() == null || !vi.getStyle().equals("ValueInterface")) return;
 		if (vi.getParent() == null) return;
 		
-		Info.ValueInterface viInfo = (ValueInterface) graph.getModel().getValue(vi);
-		
-		mxGeometry viGm = Utils.geometry(graph, vi);
-		mxGeometry parentGm = Utils.geometry(graph, vi.getParent());
-		if (parentGm != null) {
-			double left, top, right, bottom;
+		graph.getModel().beginUpdate();
+		try {
+			Info.ValueInterface viInfo = (ValueInterface) Utils.base(graph, vi);
 			
-			left = viGm.getCenterX();
-			right = parentGm.getWidth() - viGm.getCenterX();
-			top = viGm.getCenterY();
-			bottom = parentGm.getHeight() - viGm.getCenterY();
-			
-			double min = Collections.min(Arrays.asList(left, top, right, bottom));
-			
-			if (min == top || min == bottom) {
-				viGm.setWidth(30);
-				viGm.setHeight(20);
+			mxGeometry viGm = Utils.geometry(graph, vi);
+			mxGeometry parentGm = Utils.geometry(graph, vi.getParent());
+			if (parentGm != null) {
+				double left, top, right, bottom;
 				
-				if (min == top) viInfo.side = Side.TOP;
-				if (min == bottom) viInfo.side = Side.BOTTOM;
-			} else {
-				viGm.setWidth(20);
-				viGm.setHeight(30);
+				left = viGm.getCenterX();
+				right = parentGm.getWidth() - viGm.getCenterX();
+				top = viGm.getCenterY();
+				bottom = parentGm.getHeight() - viGm.getCenterY();
 				
-				if (min == left) viInfo.side = Side.LEFT;
-				if (min == right) viInfo.side = Side.RIGHT;
-			}
-		}
-		
-		List<mxCell> valuePorts = new ArrayList<>();
-		mxCell dot = null;
-		for (int i = 0; i < vi.getChildCount(); i++) {
-			mxCell child = (mxCell) vi.getChildAt(i);
-			if (child.getStyle().startsWith("ValuePort")) {
-				valuePorts.add(child);
-			} else if (child.getStyle().equals("Dot")) {
-				dot = child;
-			}
-		}
-		
-		if (viInfo.side == Side.TOP || viInfo.side == Side.RIGHT) {
-			Collections.reverse(valuePorts);
-		}
-
-		if (viGm.getWidth() > viGm.getHeight() && valuePorts.size() > 0) {
-			viGm.setWidth(2 * 10
-					+ valuePorts.size() * 10 // I'd say the width/height of a port here but 10 works fine
-					+ (valuePorts.size() - 1) * 5);
-		} else if (valuePorts.size() > 0) {
-			viGm.setHeight(2 * 10
-					+ valuePorts.size() * 10
-					+ (valuePorts.size() - 1) * 5);
-		}
-
-		float d = 1 / ((float) (valuePorts.size()));
-		int i = 0;
-		for (mxICell valuePort : valuePorts) {
-			mxGeometry valuePortGm = Utils.geometry(graph, valuePort);
-
-			if (viGm.getWidth() > viGm.getHeight()) {
-				valuePortGm.setY(0.5);
-				valuePortGm.setX((i + 0.5) * d);
-			} else {
-				valuePortGm.setX(0.5);
-				valuePortGm.setY((i + 0.5) * d);
+				double min = Collections.min(Arrays.asList(left, top, right, bottom));
+				
+				if (min == top || min == bottom) {
+					viGm.setWidth(30);
+					viGm.setHeight(20);
+					
+					if (min == top) viInfo.side = Side.TOP;
+					if (min == bottom) viInfo.side = Side.BOTTOM;
+				} else {
+					viGm.setWidth(20);
+					viGm.setHeight(30);
+					
+					if (min == left) viInfo.side = Side.LEFT;
+					if (min == right) viInfo.side = Side.RIGHT;
+				}
 			}
 			
-			graph.getModel().setGeometry(valuePort, valuePortGm);
+			List<mxCell> valuePorts = new ArrayList<>();
+			mxCell dot = null;
+			for (int i = 0; i < vi.getChildCount(); i++) {
+				mxCell child = (mxCell) vi.getChildAt(i);
+				if (child.getStyle().startsWith("ValuePort")) {
+					valuePorts.add(child);
+				} else if (child.getStyle().equals("Dot")) {
+					dot = child;
+				}
+			}
 			
-			rotateValuePort(graph, vi, valuePort);
+			if (viInfo.side == Side.TOP || viInfo.side == Side.RIGHT) {
+				Collections.reverse(valuePorts);
+			}
 
-			i++;
+			if (viGm.getWidth() > viGm.getHeight() && valuePorts.size() > 0) {
+				viGm.setWidth(2 * 10
+						+ valuePorts.size() * 10 // I'd say the width/height of a port here but 10 works fine
+						+ (valuePorts.size() - 1) * 5);
+			} else if (valuePorts.size() > 0) {
+				viGm.setHeight(2 * 10
+						+ valuePorts.size() * 10
+						+ (valuePorts.size() - 1) * 5);
+			}
+
+			float d = 1 / ((float) (valuePorts.size()));
+			int i = 0;
+			for (mxICell valuePort : valuePorts) {
+				mxGeometry valuePortGm = Utils.geometry(graph, valuePort);
+
+				if (viGm.getWidth() > viGm.getHeight()) {
+					valuePortGm.setY(0.5);
+					valuePortGm.setX((i + 0.5) * d);
+				} else {
+					valuePortGm.setX(0.5);
+					valuePortGm.setY((i + 0.5) * d);
+				}
+				
+				graph.getModel().setGeometry(valuePort, valuePortGm);
+				
+				rotateValuePort(graph, vi, valuePort);
+
+				i++;
+			}
+			
+			if (dot != null) {
+				mxGeometry dotGm = Utils.geometry(graph, dot);
+				if (viInfo.side == Side.TOP) {
+					dotGm.setX(viGm.getWidth() / 2 - E3Style.DOTRADIUS);
+					dotGm.setY(viGm.getHeight() - 2 * E3Style.DOTRADIUS);
+				} else if (viInfo.side == Side.RIGHT) {
+					dotGm.setX(0);
+					dotGm.setY(viGm.getHeight() / 2 - E3Style.DOTRADIUS);
+				} else if (viInfo.side == Side.BOTTOM) {
+					dotGm.setX(viGm.getWidth() / 2 - E3Style.DOTRADIUS);
+					dotGm.setY(0);
+				} else { // viInfo.side == Side.LEFT || viInfo.side == null
+					dotGm.setX(viGm.getWidth() - 2 * E3Style.DOTRADIUS);
+					dotGm.setY(viGm.getHeight() / 2 - E3Style.DOTRADIUS);
+				}
+				graph.getModel().setGeometry(dot, dotGm);
+			}
+			
+			graph.getModel().setValue(vi, viInfo);
+			graph.getModel().setGeometry(vi, viGm);
+		} finally {
+			graph.getModel().endUpdate();
 		}
-		
-		if (dot == null) return;
-		mxGeometry dotGm = Utils.geometry(graph, dot);
-		if (viInfo.side == Side.TOP) {
-			dotGm.setX(viGm.getWidth() / 2 - E3Style.DOTRADIUS);
-			dotGm.setY(viGm.getHeight() - 2 * E3Style.DOTRADIUS);
-		} else if (viInfo.side == Side.RIGHT) {
-			dotGm.setX(0);
-			dotGm.setY(viGm.getHeight() / 2 - E3Style.DOTRADIUS);
-		} else if (viInfo.side == Side.BOTTOM) {
-			dotGm.setX(viGm.getWidth() / 2 - E3Style.DOTRADIUS);
-			dotGm.setY(0);
-		} else { // viInfo.side == Side.LEFT || viInfo.side == null
-			dotGm.setX(viGm.getWidth() - 2 * E3Style.DOTRADIUS);
-			dotGm.setY(viGm.getHeight() / 2 - E3Style.DOTRADIUS);
-		}
-		graph.getModel().setGeometry(dot, dotGm);
-		
-		graph.getModel().setGeometry(vi, viGm);
 	}
 
 	/**
@@ -372,7 +375,7 @@ class E3Graph extends mxGraph {
 	
 	@Override
 	public void cellLabelChanged(Object cell, Object newValue, boolean autoSize) {
-		Object oldValue = model.getValue(cell);
+		Object oldValue = Utils.base(this, cell);
 		if (oldValue instanceof Info.Base) {
 			if (newValue instanceof String) {
 				String name = (String) newValue;
@@ -386,10 +389,13 @@ class E3Graph extends mxGraph {
 					Info.ValueActivity valueActivity = (Info.ValueActivity) oldValue;
 					valueActivity.name = name;
 				}
-			}
-			
+			}			
+
 			newValue = oldValue;
+		} else {
+			return;
 		}
+
 		super.cellLabelChanged(cell, newValue, autoSize);
 	}
 	
@@ -411,7 +417,7 @@ class E3Graph extends mxGraph {
 						&& !style.equals("EndSignal")
 						&& !style.equals("Dot")
 						&& !style.equals("Bar")
-						&& !style.equals("EastTriangle")
+						&& !style.endsWith("Triangle")
 						&& !style.equals("LogicBase")
 						&& !style.equals("ValueExchange")
 						&& !style.equals("ConnectionElement");
@@ -426,10 +432,8 @@ class E3Graph extends mxGraph {
 		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
 		
 		for ( Object obj : clones) {
-			Object val = model.getValue(obj);
-			if (val instanceof Info.Base) {
-				Info.Base info = (Base) val;
-				model.setValue(obj, info.getCopy());
+			if (model.getValue(obj) instanceof Info.Base) {
+				model.setValue(obj, Utils.base(this, obj));
 			}
 		}
 		
@@ -459,7 +463,7 @@ class E3Graph extends mxGraph {
 		mxICell bar = null;
 		for (int i = 0; i < logicUnit.getChildCount(); i++) {
 			mxICell child = logicUnit.getChildAt(i);
-			LogicDot dotInfo = (LogicDot) child.getValue();
+			LogicDot dotInfo = (LogicDot) Utils.base(graph, child);
 			if (dotInfo == null) {
 				bar = child;
 				continue;
@@ -471,7 +475,7 @@ class E3Graph extends mxGraph {
 			}
 		}
 		
-		Side side = ((LogicBase) logicUnit.getValue()).direction;
+		Side side = ((LogicBase) Utils.base(graph, logicUnit)).direction;
 		
 		graph.getModel().beginUpdate();
 		try {

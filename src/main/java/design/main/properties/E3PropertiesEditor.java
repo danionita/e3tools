@@ -120,16 +120,10 @@ public class E3PropertiesEditor {
 			}
 			
 			@Override
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void mouseExited(MouseEvent e) { }
 			
 			@Override
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void mouseEntered(MouseEvent e) { }
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -153,28 +147,16 @@ public class E3PropertiesEditor {
 			}
 
 			@Override
-			public void columnAdded(TableColumnModelEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void columnAdded(TableColumnModelEvent e) { }
 
 			@Override
-			public void columnMarginChanged(ChangeEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void columnMarginChanged(ChangeEvent e) { }
 
 			@Override
-			public void columnMoved(TableColumnModelEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void columnMoved(TableColumnModelEvent e) { }
 
 			@Override
-			public void columnRemoved(TableColumnModelEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void columnRemoved(TableColumnModelEvent e) { }
 		});
 		
 		formulaTable.getModel().addTableModelListener(new TableModelListener() {
