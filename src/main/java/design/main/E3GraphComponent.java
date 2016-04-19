@@ -52,6 +52,8 @@ public class E3GraphComponent extends mxGraphComponent {
 		ContextMenus.addPartDotMenu(partDotMenu, graph);
 		ContextMenus.addProportionMenu(unitDotMenu, graph);
 		ContextMenus.addValueInterfaceMenu(valueInterfaceMenu, graph);
+		
+		ContextMenus.addE3PropertiesMenu(valuePortMenu, graph);
 		ContextMenus.addValuePortMenu(valuePortMenu, graph);
 		
 		ContextMenus.addE3PropertiesMenu(valueExchangeMenu, graph);

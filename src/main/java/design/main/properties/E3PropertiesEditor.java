@@ -12,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -55,7 +56,7 @@ public class E3PropertiesEditor {
 	private boolean changingCell = false;
 	private JDialog dialog;
 	
-	private Info.Base object;
+	private Info.Base value;
 	
 	public final List<E3PropertiesEventListener> listeners = new ArrayList<>();
 	
@@ -80,27 +81,50 @@ public class E3PropertiesEditor {
 		changingTextArea = false;
 	}
 
-	public E3PropertiesEditor(JFrame owner, Info.Base object_) {
-		object = object_.getCopy();
+	public E3PropertiesEditor(JFrame owner, Info.Base value_) {
+		value = value_.getCopy();
 		
 		topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
 		
-		idLabel = new JLabel(""+object.SUID);
-		nameField = new JTextField(object.name);
+		idLabel = new JLabel(""+value.SUID);
+		nameField = new JTextField(value.name);
 
-		Object[][] data = new Object[object.formulas.size()][2];
+		Object[][] data = new Object[value.formulas.size()][2];
 		{
 			int i = 0; // To limit the scope of i (I'm also using it 40+ lines down)
-			for (String key : object.formulas.keySet()) {
-				data[i][0] =  key;
-				data[i][1] = object.formulas.get(key);
+			for (String key : value.formulas.keySet()) {
+				data[i][0] = key;
+				data[i][1] = value.formulas.get(key);
 				
 				i++;
 			}
 		}
 
-		formulaTable = new JTable(new DefaultTableModel(data, new Object[]{"Name", "Formula"}));
+		formulaTable = new JTable(new DefaultTableModel(data, new Object[]{"Name", "Formula"}) {
+			/**
+			 * Makes cells only editable if the E3Properties base info object allows it
+			 * @param row
+			 * @param column
+			 * @return
+			 */
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return !value.getImmutableProperties().contains(formulaTable.getValueAt(row, 0));
+			}
+			
+			/**
+			 * Only sets a value if the cell is editable
+			 * @param aValue
+			 * @param row
+			 * @param column
+			 */
+			@Override
+			public void setValueAt(Object aValue, int row, int column) {
+				if (!isCellEditable(row, column)) return;
+				super.setValueAt(aValue, row, column);
+			}
+		});
 		formulaTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		formulaTable.setCellSelectionEnabled(true);
 		formulaTable.getTableHeader().setReorderingAllowed(false);
@@ -257,6 +281,8 @@ public class E3PropertiesEditor {
 		editArea.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent e) {
+				if (editingRow == -1) return;
+				
 				if (!changingTextArea) {
 					changingCell = true;
 					formulaTable.getModel().setValueAt(editArea.getText(), editingRow, editingCol);
@@ -266,6 +292,8 @@ public class E3PropertiesEditor {
 			
 			@Override
 			public void insertUpdate(DocumentEvent e) {
+				if (editingRow == -1) return;
+
 				if (!changingTextArea) {
 					changingCell = true;
 					formulaTable.getModel().setValueAt(editArea.getText(), editingRow, editingCol);
@@ -310,15 +338,15 @@ public class E3PropertiesEditor {
 					formulaTable.getCellEditor().stopCellEditing();
 				}
 				
-				object.name = nameField.getText();
-				object.formulas.clear();
+				value.name = nameField.getText();
+				value.formulas.clear();
 				for (int i = 0; i < formulaTable.getModel().getRowCount(); i++) {
 					String name = (String) formulaTable.getModel().getValueAt(i, 0);
 					String formula = (String) formulaTable.getModel().getValueAt(i, 1);
-					object.formulas.put(name, formula);
+					value.formulas.put(name, formula);
 				}
 				
-				fireEvent(new E3PropertiesEvent(this, object));
+				fireEvent(new E3PropertiesEvent(this, value));
 			}
 		});
 	}

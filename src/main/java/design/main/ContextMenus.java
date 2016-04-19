@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -17,6 +18,7 @@ import javax.swing.plaf.basic.BasicOptionPaneUI;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
@@ -150,7 +152,7 @@ public class ContextMenus {
 		}
 		
 		JMenu setPortsMenu = new JMenu("Set ports");
-		for (int i = 0; i < 7; i++) {
+		for (int i = 1; i < 7; i++) {
 			final int targetAmount = i;
 			setPortsMenu.add(new JMenuItem(new SetPortsAction(i)));
 		}
@@ -331,7 +333,7 @@ public class ContextMenus {
 	}
 	
 	public static void addValuePortMenu(JPopupMenu menu, mxGraph graph) {
-		menu.add(new JMenuItem(new AbstractAction("Flip direction") {
+		JMenuItem flipPortMenu = new JMenuItem(new AbstractAction("Flip port") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				mxICell vp = (mxICell) Main.contextTarget;
@@ -344,11 +346,29 @@ public class ContextMenus {
 				graph.getModel().beginUpdate();
 				try {
 					graph.getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
+					graph.getModel().setValue(vp, vpInfo);
 				} finally {
 					graph.getModel().endUpdate();
 				}
 			}
-		}));
+		});
+		menu.add(flipPortMenu);
+		
+		// Should grey out the "Flip port" menu item if the valueport has a valueexchange attached to it
+		menu.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
+				Object[] edges = mxGraphModel.getEdges(graph.getModel(), Main.contextTarget);
+				if (edges.length == 0) flipPortMenu.setEnabled(true);
+				else flipPortMenu.setEnabled(false);
+			}
+			
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) { }
+			
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent arg0) { }
+		});
 		
 		menu.add(new JMenuItem(new AbstractAction("Remove ValuePort") {
 			@Override
@@ -370,7 +390,7 @@ public class ContextMenus {
 	}
 	
 	public static void addValueExchangeMenu(JPopupMenu menu, mxGraph graph) {
-		JMenu attachValueObjectMenu = new JMenu("Attach ValueObject");
+		JMenu attachValueObjectMenu = new JMenu("ValueObject");
 		attachValueObjectMenu.addMenuListener(new MenuListener() {
 			@Override
 			public void menuCanceled(MenuEvent arg0) { }
@@ -381,23 +401,45 @@ public class ContextMenus {
 			@Override
 			public void menuSelected(MenuEvent e) {
 				attachValueObjectMenu.removeAll();
+				
+				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
+				
 				for (String valueObject : Main.valueObjects) {
-					attachValueObjectMenu.add(new JMenuItem(new AbstractAction(valueObject) {
-						@Override
-						public void actionPerformed(ActionEvent arg0) {
-							graph.getModel().beginUpdate();
-							try {
-								ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 
-								ve.valueObject = valueObject;
-								graph.getModel().setValue(Main.contextTarget, ve);
-							} finally {
-								graph.getModel().endUpdate();
+					if (valueObject.equals(ve.valueObject)) {
+						JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new AbstractAction(valueObject) {
+							@Override
+							public void actionPerformed(ActionEvent arg0) {
+								graph.getModel().beginUpdate();
+								try {
+									ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 
+									ve.valueObject = null;
+									graph.getModel().setValue(Main.contextTarget, ve);
+								} finally {
+									graph.getModel().endUpdate();
+								}
 							}
-						}
-					}));
+						});
+						menuItem.setSelected(true);
+						attachValueObjectMenu.add(menuItem);
+					} else {
+						attachValueObjectMenu.add(new JMenuItem(new AbstractAction(valueObject) {
+							@Override
+							public void actionPerformed(ActionEvent arg0) {
+								graph.getModel().beginUpdate();
+								try {
+									ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 
+									ve.valueObject = valueObject;
+									graph.getModel().setValue(Main.contextTarget, ve);
+								} finally {
+									graph.getModel().endUpdate();
+								}
+							}
+						}));
+					}
+					
 				}
 				attachValueObjectMenu.addSeparator();
-				attachValueObjectMenu.add(new JMenuItem(new AbstractAction("Add new ValueObject to ValueExchange") {
+				attachValueObjectMenu.add(new JMenuItem(new AbstractAction("New value object...") {
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
 						String newName = JOptionPane.showInputDialog(
@@ -433,7 +475,7 @@ public class ContextMenus {
 		});
 		menu.add(removeValueObjectMenu);
 
-		menu.add(new JMenuItem(new AbstractAction("Show/hide ValueObject") {
+		JMenuItem hideValueObjectMenu = new JMenuItem(new AbstractAction("Show/hide ValueObject") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				graph.getModel().beginUpdate();
@@ -445,7 +487,8 @@ public class ContextMenus {
 					graph.getModel().endUpdate();
 				}
 			}
-		}));
+		});
+		menu.add(hideValueObjectMenu);
 
 		// This is to make the "Remove ValueObject" button grey out when there's no ValueObject
 		menu.addPopupMenuListener(new PopupMenuListener() {
@@ -459,6 +502,7 @@ public class ContextMenus {
 			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
 				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 				removeValueObjectMenu.setEnabled(ve.valueObject != null);
+				hideValueObjectMenu.setEnabled(ve.valueObject != null);
 			}
 		});
 	}

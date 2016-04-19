@@ -1,8 +1,12 @@
 package design.main;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class Info {
 	public static int nextSUID = 0;
@@ -18,6 +22,11 @@ public class Info {
 		public String name;
 		
 		public abstract Base getCopy();
+		
+		public List<String> getImmutableProperties() {
+			return Collections.unmodifiableList(new ArrayList<>());
+		}
+		
 		public String toString() {
 			return "";
 		}
@@ -55,6 +64,10 @@ public class Info {
 		
 		ValuePort(boolean incoming_) {
 			incoming = incoming_;
+			
+			formulas.put("VALUATION", "");
+			formulas.put("CADINALITY", "");
+			formulas.put("EXPENSES", "");
 		}
 		
 		@Override
@@ -102,7 +115,6 @@ public class Info {
 	
 	public static class ValueInterface extends Base {
 		private static final long serialVersionUID = -4820088710010430783L;
-
 		
 		public Side side;
 		
@@ -286,6 +298,13 @@ public class Info {
 			setCommons(this, copy);
 			
 			return copy;
+		}
+		
+		@Override
+		public List<String> getImmutableProperties() {
+			return Collections.unmodifiableList(new ArrayList<>(Arrays.asList(
+					"OCCURRENCES"
+			)));
 		}
 	}
 }

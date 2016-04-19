@@ -2,6 +2,9 @@ package design.main;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,14 +27,16 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
+import design.main.Info.Base;
 import design.main.Info.ValueExchange;
 
 public class Main { 
@@ -94,6 +99,32 @@ public class Main {
 				
 				JList valueObjectsList = new JList(listModel);
 				valueObjectsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				valueObjectsList.addListSelectionListener(new ListSelectionListener() {
+					@Override
+					public void valueChanged(ListSelectionEvent e) {
+						if (e.getValueIsAdjusting()) return; // We only do something if the event is final, i.e. if the event is the last one
+
+						// TODO: If cell recognition is no longer done with styles, refactor this
+						// such that only the explicit style of a cell is changed.
+						// I don't like messing with this state thing
+						// (Altough it worked almost immediately. Maybe this is the right way?)
+						String valueObject = valueObjects.get(valueObjectsList.getSelectedIndex());
+						for (Object obj : Utils.getAllCells(graph)) {
+							Base val = Utils.base(graph, obj);
+							if (val instanceof ValueExchange) {
+								ValueExchange ve = (ValueExchange) val;
+								if (ve.valueObject.equals(valueObject)) {
+									graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#00FF00");
+								} else {
+									graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
+								}
+							}
+						}
+						
+						graph.repaint();
+					}
+				});
+
 				JScrollPane listScroller = new JScrollPane(valueObjectsList);
 				dialog.add(listScroller);
 				
@@ -162,6 +193,23 @@ public class Main {
 				});
 				
 				valueObjectsMenu.setSelected(false);
+				
+				// Makes all edges in the graph blue again in case they've been highlighted
+				dialog.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosing(WindowEvent e) {
+						for (Object obj : Utils.getAllCells(graph)) {
+							Base val = Utils.base(graph, obj);
+							if (val instanceof ValueExchange) {
+								ValueExchange ve = (ValueExchange) val;
+								graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
+							}
+						}
+						
+						graph.repaint();
+					}
+				});
+				
 				dialog.setSize(300, 320);
 				dialog.setVisible(true);
 			}
