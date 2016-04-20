@@ -271,6 +271,14 @@ public class Info {
 			else if (valueObject == null) return "";
 			else return valueObject;
 		}
+		
+		@Override
+		public List<String> getImmutableProperties() {
+			return Arrays.asList(
+					"dotted",
+					"dashed"
+			);
+		}
 	}
 	
 	public static class StartSignal extends Base {
@@ -291,6 +299,10 @@ public class Info {
 	
 	public static class EndSignal extends Base {
 		private static final long serialVersionUID = -6483661636370237656L;
+		
+		public EndSignal() {
+			formulas.put("OCCURRENCES", "");
+		}
 
 		@Override
 		public Base getCopy() {
@@ -302,9 +314,9 @@ public class Info {
 		
 		@Override
 		public List<String> getImmutableProperties() {
-			return Collections.unmodifiableList(new ArrayList<>(Arrays.asList(
+			return Arrays.asList(
 					"OCCURRENCES"
-			)));
+			);
 		}
 	}
 }

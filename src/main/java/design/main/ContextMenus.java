@@ -3,6 +3,7 @@ package design.main;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
@@ -14,12 +15,12 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.plaf.basic.BasicOptionPaneUI;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
@@ -390,8 +391,8 @@ public class ContextMenus {
 	}
 	
 	public static void addValueExchangeMenu(JPopupMenu menu, mxGraph graph) {
-		JMenu attachValueObjectMenu = new JMenu("ValueObject");
-		attachValueObjectMenu.addMenuListener(new MenuListener() {
+		JMenu valueObjectMenu = new JMenu("ValueObject");
+		valueObjectMenu.addMenuListener(new MenuListener() {
 			@Override
 			public void menuCanceled(MenuEvent arg0) { }
 
@@ -400,7 +401,7 @@ public class ContextMenus {
 
 			@Override
 			public void menuSelected(MenuEvent e) {
-				attachValueObjectMenu.removeAll();
+				valueObjectMenu.removeAll();
 				
 				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 				
@@ -420,9 +421,9 @@ public class ContextMenus {
 							}
 						});
 						menuItem.setSelected(true);
-						attachValueObjectMenu.add(menuItem);
+						valueObjectMenu.add(menuItem);
 					} else {
-						attachValueObjectMenu.add(new JMenuItem(new AbstractAction(valueObject) {
+						valueObjectMenu.add(new JMenuItem(new AbstractAction(valueObject) {
 							@Override
 							public void actionPerformed(ActionEvent arg0) {
 								graph.getModel().beginUpdate();
@@ -438,8 +439,8 @@ public class ContextMenus {
 					}
 					
 				}
-				attachValueObjectMenu.addSeparator();
-				attachValueObjectMenu.add(new JMenuItem(new AbstractAction("New value object...") {
+				valueObjectMenu.addSeparator();
+				valueObjectMenu.add(new JMenuItem(new AbstractAction("New value object...") {
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
 						String newName = JOptionPane.showInputDialog(
@@ -458,8 +459,8 @@ public class ContextMenus {
 				}));
 			}
 		});
-		menu.add(attachValueObjectMenu);
-
+		menu.add(valueObjectMenu);
+		
 		JMenuItem removeValueObjectMenu = new JMenuItem(new AbstractAction("Remove ValueObject") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -474,6 +475,86 @@ public class ContextMenus {
 			}
 		});
 		menu.add(removeValueObjectMenu);
+		
+		JMenu fraudMenu = new JMenu("Fraud");
+		fraudMenu.addMenuListener(new MenuListener() {
+			@Override
+			public void menuSelected(MenuEvent e) {
+				fraudMenu.removeAll();
+				
+				JCheckBoxMenuItem nonOccurringMenu = new JCheckBoxMenuItem(new AbstractAction("Non-occurring") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
+						ve.formulas.put("dashed", "1");
+						ve.formulas.remove("dotted");
+						
+						graph.getModel().beginUpdate();
+						try {
+							graph.getModel().setValue(Main.contextTarget, ve);
+							graph.getModel().setStyle(Main.contextTarget, new String("NonOccurringValueExchange"));
+						} finally {
+							graph.getModel().endUpdate();
+						}
+					}
+				});
+				
+				JCheckBoxMenuItem hiddenMenu = new JCheckBoxMenuItem(new AbstractAction("Hidden") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
+						ve.formulas.put("dotted", "1");
+						ve.formulas.remove("dashed");
+						
+						graph.getModel().beginUpdate();
+						try {
+							graph.getModel().setValue(Main.contextTarget, ve);
+							graph.getModel().setStyle(Main.contextTarget, new String("HiddenValueExchange"));
+						} finally {
+							graph.getModel().endUpdate();
+						}
+					}
+				});
+				
+				JCheckBoxMenuItem noneMenu = new JCheckBoxMenuItem(new AbstractAction("No fraud") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
+						ve.formulas.remove("dotted");
+						ve.formulas.remove("dashed");
+						
+						graph.getModel().beginUpdate();
+						try {
+							graph.getModel().setValue(Main.contextTarget, ve);
+							graph.getModel().setStyle(Main.contextTarget, new String("ValueExchange"));
+						} finally {
+							graph.getModel().endUpdate();
+						}
+					}
+				});
+				
+				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
+				if (ve.formulas.containsKey("dashed")) {
+					nonOccurringMenu.setSelected(true);
+				} else if (ve.formulas.containsKey("dotted")) {
+					hiddenMenu.setSelected(true);
+				} else {
+					noneMenu.setSelected(true);
+				}
+				
+				fraudMenu.add(nonOccurringMenu);
+				fraudMenu.add(hiddenMenu);
+				fraudMenu.addSeparator();
+				fraudMenu.add(noneMenu);
+			}
+			
+			@Override
+			public void menuDeselected(MenuEvent e) { }
+			
+			@Override
+			public void menuCanceled(MenuEvent e) { }
+		});
+		menu.add(fraudMenu);
 
 		JMenuItem hideValueObjectMenu = new JMenuItem(new AbstractAction("Show/hide ValueObject") {
 			@Override

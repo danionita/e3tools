@@ -108,6 +108,7 @@ public class Main {
 						// such that only the explicit style of a cell is changed.
 						// I don't like messing with this state thing
 						// (Altough it worked almost immediately. Maybe this is the right way?)
+						// A benefit of this method is that it does not affect undo history (but is that actually true?).
 						String valueObject = valueObjects.get(valueObjectsList.getSelectedIndex());
 						for (Object obj : Utils.getAllCells(graph)) {
 							Base val = Utils.base(graph, obj);

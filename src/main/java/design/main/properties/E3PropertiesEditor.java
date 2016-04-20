@@ -1,5 +1,6 @@
 package design.main.properties;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -37,6 +38,7 @@ import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import design.main.Info;
@@ -125,6 +127,28 @@ public class E3PropertiesEditor {
 				super.setValueAt(aValue, row, column);
 			}
 		});
+		
+		formulaTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+					int row, int col) {
+				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+				
+				if (!table.getModel().isCellEditable(row, col)) {
+					setBackground(new Color(180, 180, 180));
+					setForeground(new Color(0, 0, 0));
+				} else {
+					if (isSelected) {
+						setBackground(table.getSelectionBackground());
+					} else {
+						setBackground(table.getBackground());
+					}
+				}
+
+				return this;
+			}
+		});
+
 		formulaTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		formulaTable.setCellSelectionEnabled(true);
 		formulaTable.getTableHeader().setReorderingAllowed(false);

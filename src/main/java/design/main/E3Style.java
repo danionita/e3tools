@@ -97,6 +97,14 @@ public class E3Style {
 		style.put(mxConstants.STYLE_FONTCOLOR, "#444444");
 		stylesheet.putCellStyle("ValueExchange", style);
 		
+		style = new Hashtable<>(style);
+		style.put(mxConstants.STYLE_DASHED, true);
+		stylesheet.putCellStyle("NonOccurringValueExchange", style);
+		
+		style = new Hashtable<>(style);
+		style.put(mxConstants.STYLE_DASH_PATTERN, "1 1"); // Wtf mxGraph won't allow me to just pass in a plain old float[] wtf wtf
+		stylesheet.putCellStyle("HiddenValueExchange", style);
+		
 		style = new Hashtable<>();
 		style.put(mxConstants.STYLE_STROKEWIDTH, 3);
 		style.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
