@@ -99,7 +99,7 @@ public class ContextMenus {
 					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
 				}
 				
-				E3Graph.addDot(graph, (mxCell) Main.contextTarget);
+				E3Graph.addLogicDot(graph, (mxCell) Main.contextTarget);
 			}
 		}));
 		
@@ -143,7 +143,7 @@ public class ContextMenus {
 					graph.getModel().beginUpdate();
 					try {
 						for (int j = dots.size(); j < n; j++) {
-							E3Graph.addDot(graph, (mxCell) Main.contextTarget);
+							E3Graph.addLogicDot(graph, (mxCell) Main.contextTarget);
 						}
 					} finally {
 						graph.getModel().endUpdate();

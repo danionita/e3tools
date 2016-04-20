@@ -12,10 +12,16 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
+import design.main.Info.Actor;
 import design.main.Info.Base;
+import design.main.Info.EndSignal;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
+import design.main.Info.MarketSegment;
 import design.main.Info.Side;
+import design.main.Info.SignalDot;
+import design.main.Info.StartSignal;
+import design.main.Info.ValueActivity;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 
@@ -28,23 +34,18 @@ class E3Graph extends mxGraph {
 	@Override
 	public boolean isValidDropTarget(Object cell, Object[] cells) {
 		if (!(cell instanceof mxCell)) return false;
+
+		Base value = Utils.base(this, cell);
 		
-		mxCell graphCell = (mxCell) cell;
-		String style = graphCell.getStyle();
+		Base droppeeValue = Utils.base(this, cells[0]);
 		
-		mxICell dropee = (mxICell) cells[0];
-		String droppeeStyle = dropee.getStyle();
-		
-		if (style == null) return false;
-		if (droppeeStyle == null)  return false;
-		
-		if (droppeeStyle.equals("ValueInterface")
-				|| droppeeStyle.equals("StartSignal")
-				|| droppeeStyle.equals("EndSignal")
-				|| droppeeStyle.equals("LogicBase")) {
-			return style.equals("Actor") || style.equals("ValueActivity") || style.equals("MarketSegment");
+		if (droppeeValue instanceof ValueInterface
+				|| droppeeValue instanceof StartSignal
+				|| droppeeValue instanceof EndSignal
+				|| droppeeValue instanceof LogicBase) {
+			return value instanceof Actor || value instanceof ValueActivity || value instanceof MarketSegment;
 		} else {
-			return style.equals("Actor") || style.equals("ValueActivity");
+			return value instanceof Actor || value instanceof ValueActivity;
 		}
 	}
 
@@ -62,14 +63,8 @@ class E3Graph extends mxGraph {
 	 */
 	@Override
 	public boolean isConstrainChild(Object obj) {
-		if (obj instanceof mxICell) {
-			String style = ((mxICell) obj).getStyle();
-			if (style == null) return false;
-
-			return style.equals("ValueInterface") || super.isConstrainChild(obj);
-		}
-		
-		return super.isConstrainChild(obj);
+		Base value = Utils.base(this, obj);
+		return (value instanceof ValueInterface) || super.isConstrainChild(obj);
 	}
 
 	/**
@@ -86,11 +81,8 @@ class E3Graph extends mxGraph {
 				return super.getCellContainmentArea(obj);
 			}
 			
-			String style = cell.getStyle();
-			
-			if (style != null && !style.equals("ValueInterface")) {
-				return super.getCellContainmentArea(obj);
-			}
+			Base value = Utils.base(this, obj);
+			if (!(value instanceof ValueInterface)) return super.getCellContainmentArea(obj);
 			
 			mxGeometry parentGm = Utils.geometry(this, cell.getParent());
 			mxGeometry gm = Utils.geometry(this, cell);
@@ -203,7 +195,7 @@ class E3Graph extends mxGraph {
 	 * @param vi
 	 */
 	public static void straightenValueInterface(mxGraph graph, mxICell vi) {
-		if (vi.getStyle() == null || !vi.getStyle().equals("ValueInterface")) return;
+		if (!(Utils.base(graph, vi) instanceof ValueInterface)) return;
 		if (vi.getParent() == null) return;
 		
 		graph.getModel().beginUpdate();
@@ -241,9 +233,10 @@ class E3Graph extends mxGraph {
 			mxCell dot = null;
 			for (int i = 0; i < vi.getChildCount(); i++) {
 				mxCell child = (mxCell) vi.getChildAt(i);
-				if (child.getStyle().startsWith("ValuePort")) {
+				Base value = Utils.base(graph, child);
+				if (value instanceof ValuePort) {
 					valuePorts.add(child);
-				} else if (child.getStyle().equals("Dot")) {
+				} else if (value instanceof SignalDot) {
 					dot = child;
 				}
 			}
@@ -277,7 +270,9 @@ class E3Graph extends mxGraph {
 				
 				graph.getModel().setGeometry(valuePort, valuePortGm);
 				
-				rotateValuePort(graph, vi, valuePort);
+				// Rotate valueport in the proper (visual) direction
+				ValuePort vpInfo = (ValuePort) Utils.base(graph, valuePort);
+				graph.getModel().setStyle(valuePort, "ValuePort" + vpInfo.getDirection(viInfo));
 
 				i++;
 			}
@@ -316,8 +311,7 @@ class E3Graph extends mxGraph {
 	 * @param vi
 	 */
 	public static void addValuePort(mxGraph graph, mxICell vi, boolean incoming) {
-		assert(vi.getStyle().equals("ValueInterface"));
-		assert(vi.getValue() instanceof Info.ValueInterface);
+		assert(Utils.base(graph, vi) instanceof ValueInterface);
 		
 		graph.getModel().beginUpdate();
 
@@ -333,26 +327,6 @@ class E3Graph extends mxGraph {
 			graph.getModel().setGeometry(valuePort, vpGm);
 			
 			straightenValueInterface(graph, vi);
-		} finally {
-			graph.getModel().endUpdate();
-		}
-	}
-	
-	/**
-	 * Rotates a valueport in the right direction (visually) according to the constrainment
-	 * area of the valueinterface it is in and whether or not it is incoming
-	 * or outgoing (as stored in the user object).
-	 * @param graph
-	 * @param vi
-	 * @param vp
-	 */
-	public static void rotateValuePort(mxGraph graph, mxICell vi, mxICell vp) {
-		graph.getModel().beginUpdate();
-		try {
-			ValueInterface viInfo = (ValueInterface) vi.getValue();
-			ValuePort vpInfo = (ValuePort) vp.getValue();
-			
-			graph.getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
 		} finally {
 			graph.getModel().endUpdate();
 		}
@@ -404,27 +378,12 @@ class E3Graph extends mxGraph {
 	 */
 	@Override
 	public boolean isCellEditable(Object obj) {
-		if (obj instanceof mxICell) {
-			mxICell cell = (mxICell) obj;
-			
-			// TODO: Convert this to checking the user objects if
-			// we need the style to be more fine-grained
-			String style = cell.getStyle();
-			if (style != null) {
-				return !style.startsWith("ValuePort")
-						&& !style.equals("ValueInterface")
-						&& !style.equals("StartSignal")
-						&& !style.equals("EndSignal")
-						&& !style.equals("Dot")
-						&& !style.equals("Bar")
-						&& !style.endsWith("Triangle")
-						&& !style.equals("LogicBase")
-						&& !style.equals("ValueExchange")
-						&& !style.equals("ConnectionElement");
-			}
-		}
+		Base value = Utils.base(this, obj);
 		
-		return super.isCellEditable(obj);
+		return value instanceof Actor
+				|| value instanceof MarketSegment
+				|| value instanceof ValueActivity
+				;
 	}
 
 	@Override
@@ -442,19 +401,13 @@ class E3Graph extends mxGraph {
 	
 	@Override
 	public boolean isPort(Object obj) {
-		String style = model.getStyle(obj);
-			
-		if (style == null) return false;
-		
-		return style.equals("Dot");
+		return Utils.isDotValue(Utils.base(this, obj));
 	}
 	
 	@Override
 	public boolean isCellConnectable(Object cell) {
-		String style = model.getStyle(cell);
-		if (style == null) return false;
-		return style.equals("Dot")
-				|| style.startsWith("ValuePort");
+		return Utils.isDotValue(Utils.base(this, cell))
+				|| Utils.base(this, cell) instanceof ValuePort;
 	}
 	
 	public static void straightenLogicUnit(mxGraph graph, mxCell logicUnit) {
@@ -511,6 +464,9 @@ class E3Graph extends mxGraph {
 			barGm.setWidth(1);
 			barGm.setHeight(1);
 
+			// TODO: Strictly speaking this should also be a Base instanceof Triangle test of some sort
+			// But since it's only a graphical element I'm not sure if we should also give it a value
+			// And do an instanceof check here; after all, this one element really depends on its style
 			boolean isTriangle = graph.getModel().getStyle(bar).endsWith("Triangle");
 			double width = logicUnit.getGeometry().getWidth();
 			double height = logicUnit.getGeometry().getHeight();
@@ -560,7 +516,7 @@ class E3Graph extends mxGraph {
 		}
 	}
 	
-	public static void addDot(mxGraph graph, mxCell logicUnit) {
+	public static void addLogicDot(mxGraph graph, mxCell logicUnit) {
 		graph.getModel().beginUpdate();
 		try {
 			Object obj = graph.insertVertex(logicUnit, null, new LogicDot(false), 0, 0, 

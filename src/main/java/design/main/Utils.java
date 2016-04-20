@@ -11,7 +11,11 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
+import design.main.Info.LogicDot;
+import design.main.Info.SignalDot;
 import design.main.Info.ValueExchange;
+import design.main.Info.ValueInterface;
+import design.main.Info.ValuePort;
 
 public class Utils {
 	public static boolean overlap(mxRectangle a, mxRectangle b) {
@@ -73,13 +77,11 @@ public class Utils {
 	 * @return
 	 */
 	public static boolean isToplevelValueInterface(mxGraph graph, mxICell cell) {
-		if (cell == null) return false;
-		if (cell.isEdge()) return false;
-		
-		String style = cell.getStyle();
-		if (style.startsWith("ValuePort")) {
+		Base value = Utils.base(graph, cell);
+
+		if (value instanceof ValuePort) {
 			return isToplevelValueInterface(graph, cell.getParent());
-		} else if (style.equals("ValueInterface")) {
+		} else if (value instanceof ValueInterface) {
 			mxICell parent = cell.getParent();
 
 			if (parent == null) return false;
@@ -153,5 +155,9 @@ public class Utils {
 			value = (ValueExchange) value.getCopy();
 		}
 		return value;
+	}
+	
+	public static boolean isDotValue(Base value) {
+		return value instanceof SignalDot || value instanceof LogicDot;
 	}
 }

@@ -93,28 +93,25 @@ public class E3GraphComponent extends mxGraphComponent {
 				Object[] cells = ((Object[]) evt.getProperty("cells"));
 				mxCell cell = (mxCell) cells[0];
 				
-				String style = cell.getStyle();
-
 				graph.getModel().beginUpdate();
 				try {
-					if (style != null) {
-						if (style.equals("ValueInterface")) {
-							mxICell parent = (mxICell) cell.getParent();
-							if (parent == graph.getDefaultParent()) {
-								graph.getModel().remove(cell);
-							}
-							
-							graph.constrainChild(cell);
-						} else if (style.equals("StartSignal") || style.equals("EndSignal")) {
-							Object parent = graph.getModel().getParent(cell);
-							if (parent == graph.getDefaultParent()) {
-								graph.getModel().remove(cell);
-							}
-						} else if (style.equals("LogicBase")) {
-							Object parent = graph.getModel().getParent(cell);
-							if (parent == graph.getDefaultParent()) {
-								graph.getModel().remove(cell);
-							}
+					Base value = Utils.base(graph, cell);
+					if (value instanceof ValueInterface) {
+						mxICell parent = (mxICell) cell.getParent();
+						if (parent == graph.getDefaultParent()) {
+							graph.getModel().remove(cell);
+						}
+						
+						graph.constrainChild(cell);
+					} else if (value instanceof StartSignal || value instanceof EndSignal) {
+						Object parent = graph.getModel().getParent(cell);
+						if (parent == graph.getDefaultParent()) {
+							graph.getModel().remove(cell);
+						}
+					} else if (value instanceof LogicBase) {
+						Object parent = graph.getModel().getParent(cell);
+						if (parent == graph.getDefaultParent()) {
+							graph.getModel().remove(cell);
 						}
 					}
 				} finally {
@@ -126,10 +123,10 @@ public class E3GraphComponent extends mxGraphComponent {
 				mxICell target = (mxICell) evt.getProperty("target");
 				
 				if (source != null && target != null) {
-					String sourceStyle = source.getStyle();
-					String targetStyle = target.getStyle();
+					Base sourceValue = Utils.base(graph, source);
+					Base targetValue = Utils.base(graph, target);
 					
-					if (sourceStyle.equals("Dot") && sourceStyle.equals(targetStyle)) {
+					if (Utils.isDotValue(sourceValue) && Utils.isDotValue(targetValue)) {
 						graph.getModel().setStyle(cell, "ConnectionElement");
 						Object[] sourceEdges = graph.getEdges(source);
 						Object[] targetEdges = graph.getEdges(target);
@@ -141,9 +138,9 @@ public class E3GraphComponent extends mxGraphComponent {
 								graph.getModel().endUpdate();
 							}
 						}
-					} else if (sourceStyle.startsWith("ValuePort") && targetStyle.startsWith("ValuePort")) {
-						boolean sourceIncoming = ((ValuePort) source.getValue()).incoming;
-						boolean targetIncoming = ((ValuePort) target.getValue()).incoming;
+					} else if (sourceValue instanceof ValuePort && targetValue instanceof ValuePort) {
+						boolean sourceIncoming = ((ValuePort) sourceValue).incoming;
+						boolean targetIncoming = ((ValuePort) targetValue).incoming;
 						
 						// Reverse engineered from the original editor:
 						// For two top level actors, one should be incoming and one
@@ -186,10 +183,7 @@ public class E3GraphComponent extends mxGraphComponent {
 				Object[] cells = ((Object[]) evt.getProperty("cells"));
 				mxCell cell = (mxCell) cells[0];
 				
-				String style = graph.getModel().getStyle(cell);
-				if (style == null) return;
-				
-				if (style.equals("LogicBase")) {
+				if (Utils.base(graph, cell) instanceof LogicBase) {
 					E3Graph.straightenLogicUnit(graph, cell);
 				} else {
 					graph.getModel().beginUpdate();
@@ -294,14 +288,11 @@ public class E3GraphComponent extends mxGraphComponent {
 		return new mxGraphHandler(this) {
 			@Override
 			protected boolean shouldRemoveCellFromParent(Object parent, Object[] cells, MouseEvent e) {
-				Object obj = cells[0];
-				String style = graph.getModel().getStyle(obj);
+				Base value = Utils.base(graph, cells[0]);
 				
-				if (style != null && (
-						style.equals("Actor")
-							|| style.equals("ValueActivity")
-							|| style.equals("MarketSegment")
-						)) {
+				if (value instanceof Actor
+						|| value instanceof ValueActivity
+						|| value instanceof MarketSegment) {
 					return super.shouldRemoveCellFromParent(parent, cells, e);
 				}
 				

@@ -131,7 +131,7 @@ public class ToolComponent extends mxGraphComponent {
 			// Start signal
 			{
 				startSignal = graph.insertVertex(root, null, new StartSignal(), 70, 380, 30, 30, "StartSignal");
-				mxICell dot = (mxICell) graph.insertVertex(startSignal, null, null, 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
+				mxICell dot = (mxICell) graph.insertVertex(startSignal, null, new SignalDot(), 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 				mxGeometry gm = Utils.geometry(graph, dot);
 				gm.setRelative(true);
 				gm.setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
@@ -141,11 +141,11 @@ public class ToolComponent extends mxGraphComponent {
 			// End signal
 			{
 				endSignal = (mxCell) graph.insertVertex(root, null, new EndSignal(), 55, 420, 45, 45, "EndSignal");
-				mxCell dot2 = (mxCell) graph.insertVertex(endSignal, null, null, 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
-				mxGeometry gm = Utils.geometry(graph, dot2);
+				mxCell dot = (mxCell) graph.insertVertex(endSignal, null, new SignalDot(), 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
+				mxGeometry gm = Utils.geometry(graph, dot);
 				gm.setRelative(true);
 				gm.setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
-				graph.getModel().setGeometry(dot2, gm);
+				graph.getModel().setGeometry(dot, gm);
 			}
 			
 			// Or component
@@ -166,7 +166,7 @@ public class ToolComponent extends mxGraphComponent {
 				graph.getModel().setGeometry(mainDot, dotGm);
 				
 				for (int i = 0; i < 3; i++) {
-					E3Graph.addDot(graph, (mxCell) orGate);
+					E3Graph.addLogicDot(graph, (mxCell) orGate);
 				}
 			}
 			
@@ -186,7 +186,7 @@ public class ToolComponent extends mxGraphComponent {
 				graph.getModel().setGeometry(mainDot, dotGm);
 				
 				for (int i = 0; i < 3; i++) {
-					E3Graph.addDot(graph, (mxCell) andGate);
+					E3Graph.addLogicDot(graph, (mxCell) andGate);
 				}
 			}
 			
