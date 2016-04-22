@@ -4,7 +4,9 @@ import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,12 +34,21 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
 import design.main.Info.ValueExchange;
+import design.vocabulary.E3value;
 
 public class Main { 
 	
@@ -53,6 +64,9 @@ public class Main {
 			);
 	
 	public Main() {
+		// Silly log4j
+		Logger.getRootLogger().setLevel(Level.OFF);
+		
 		// Set LaF to system
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -253,5 +267,31 @@ public class Main {
 	
 	public static void main(String[] args) {
 		Main t = new Main();
+		
+		// Import test
+        //Load file
+        InputStream inputStream = null;
+        String file = "Scenario1.rdf";
+        try {
+            inputStream = new FileInputStream(file);
+        } catch (FileNotFoundException ex) {
+        	System.out.println("Whoops, file " + file + "  not found");
+        	return;
+        }
+
+        //First, replace undeline (_) with dashes(-)
+        //This is because e3valuetoolkit does a bad job at exporting RDF and outputs _ instead of -
+        SearchAndReplaceInputStream fixedInputStream = new SearchAndReplaceInputStream(inputStream, "_", "-");
+
+        //creating THE JENA MODEL
+        Model model = ModelFactory.createDefaultModel();
+        model.read(fixedInputStream, null);
+        
+        // Now for some probing
+        ResIterator it = model.listSubjectsWithProperty(RDF.type, E3value.start_stimulus);
+        while (it.hasNext()) {
+        	Resource res = it.next();
+        	System.out.println(res.toString());
+        }
 	}
 }
