@@ -175,6 +175,7 @@ public class E3Style {
 		style.put(mxConstants.STYLE_OPACITY, 0);
 		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
 		style.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_LEFT);
+		// style.put(mxConstants.STYLE_RESIZABLE, 0);
 		stylesheet.putCellStyle("NameText", style);
 		
 		// Aw yeah '90

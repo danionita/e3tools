@@ -3,7 +3,6 @@ package design.main;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
@@ -20,13 +19,13 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
 import design.main.Info.ValueExchange;
+import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.properties.E3PropertiesEditor;
@@ -79,6 +78,35 @@ public class ContextMenus {
 						graph.getModel().beginUpdate();
 						try {
 							graph.getModel().setValue(Main.contextTarget, event.resultObject);
+							
+							// If a value exchange was edited, update its name & valueobject labels
+							if (event.resultObject instanceof ValueExchange) {
+//								Object labelCell = Utils.getValueExchangeNameLabel(graph, Main.contextTarget);
+////								Object valueObjectCell = Utils.getValueExchangeValueObjectLabel(graph, Main.contextTarget);
+//								
+//								// Assure that they have been found
+//								assert(labelCell != null);
+////								assert(valueObjectCell != null);
+//								
+//								// Collect copies of all the values
+//								ValueExchange veValue = (ValueExchange) event.resultObject; 
+//								ValueExchangeLabel labelValue = (ValueExchangeLabel) Utils.base(graph, labelCell);
+////								ValueExchangeLabel valueObjectValue = (ValueExchangeLabel) Utils.base(graph, valueObjectCell);
+//								
+//								// Set the names
+//								labelValue.name = veValue.name;
+////								valueObjectValue.name = veValue.valueObject;
+//								
+//								// Set the values again
+//								graph.getModel().setValue(labelCell, labelValue);
+////								graph.getModel().setValue(valueObjectCell, valueObjectValue);
+//								
+//								Utils.setValueExchangeNameLabelVisibility(graph, Main.contextTarget);
+//								Utils.setValueExchangeValueObjectLabelVisibility(graph, Main.contextTarget);
+								// Done
+								
+								Utils.updateValueExchangeNameLabel(graph, Main.contextTarget);
+							}
 						} finally {
 							graph.getModel().endUpdate();
 						}
@@ -415,6 +443,8 @@ public class ContextMenus {
 									ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 
 									ve.valueObject = null;
 									graph.getModel().setValue(Main.contextTarget, ve);
+									
+									Utils.updateValueExchangeValueObjectLabel(graph, Main.contextTarget);
 								} finally {
 									graph.getModel().endUpdate();
 								}
@@ -431,6 +461,8 @@ public class ContextMenus {
 									ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 
 									ve.valueObject = valueObject;
 									graph.getModel().setValue(Main.contextTarget, ve);
+									
+									Utils.updateValueExchangeValueObjectLabel(graph, Main.contextTarget);
 								} finally {
 									graph.getModel().endUpdate();
 								}
@@ -562,15 +594,34 @@ public class ContextMenus {
 				graph.getModel().beginUpdate();
 				try {
 					ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
-					ve.labelHidden ^= true;
+					ve.valueObjectHidden ^= true;
 					graph.getModel().setValue(Main.contextTarget, ve);
+					
+					Utils.setValueExchangeValueObjectLabelVisibility(graph, Main.contextTarget);
 				} finally {
 					graph.getModel().endUpdate();
 				}
 			}
 		});
 		menu.add(hideValueObjectMenu);
-
+		
+		JMenuItem hideNameMenu = new JMenuItem(new AbstractAction("Show/hide name") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.getModel().beginUpdate();
+				try {
+					ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
+					ve.labelHidden ^= true;
+					graph.getModel().setValue(Main.contextTarget, ve);
+					
+					Utils.setValueExchangeNameLabelVisibility(graph, Main.contextTarget);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		});
+		menu.add(hideNameMenu);
+		
 		// This is to make the "Remove ValueObject" button grey out when there's no ValueObject
 		menu.addPopupMenuListener(new PopupMenuListener() {
 			@Override
@@ -584,6 +635,7 @@ public class ContextMenus {
 				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 				removeValueObjectMenu.setEnabled(ve.valueObject != null);
 				hideValueObjectMenu.setEnabled(ve.valueObject != null);
+				hideNameMenu.setEnabled(ve.name != null && !ve.name.trim().isEmpty());
 			}
 		});
 	}

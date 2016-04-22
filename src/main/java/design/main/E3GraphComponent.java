@@ -26,6 +26,7 @@ import design.main.Info.MarketSegment;
 import design.main.Info.StartSignal;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueExchange;
+import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.listeners.ProxySelection;
@@ -152,12 +153,26 @@ public class E3GraphComponent extends mxGraphComponent {
 						// But only if they are both top-level
 						graph.getModel().beginUpdate();
 						try {
+							// Set ValueExchange edge properties
 							graph.getModel().setStyle(cell, new String("ValueExchange"));
 							graph.getModel().setValue(cell, new ValueExchange());
-							mxGeometry gm = Utils.geometry(graph, cell);
-							gm.setRelative(true);
-							gm.setY(-30);
-							graph.getModel().setGeometry(cell, gm);
+							
+							// Add two labels with values properly set
+							ValueExchangeLabel valueObjectLabelValue = new ValueExchangeLabel();
+							valueObjectLabelValue.isValueObjectLabel = true;
+							ValueExchangeLabel nameLabelValue = new ValueExchangeLabel();
+
+							mxCell nameLabel = new mxCell(nameLabelValue, new mxGeometry(0, -60, 0, 0), "NameText");
+							nameLabel.getGeometry().setRelative(true);
+							nameLabel.setVertex(true);
+							nameLabel.setVisible(false);
+							graph.addCell(nameLabel, cell);
+
+							mxCell valueObjectLabel = new mxCell(valueObjectLabelValue, new mxGeometry(0, 30, 0, 0), "NameText");
+							valueObjectLabel.getGeometry().setRelative(true);
+							valueObjectLabel.setVertex(true);
+							valueObjectLabel.setVisible(false);
+							graph.addCell(valueObjectLabel, cell);
 							
 							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
 								graph.getModel().remove(cell);

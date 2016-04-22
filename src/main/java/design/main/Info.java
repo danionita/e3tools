@@ -203,7 +203,9 @@ public class Info {
 
 		@Override
 		public Base getCopy() {
-			return new SignalDot();
+			SignalDot copy = new SignalDot();
+			setCommons(this, copy);
+			return copy;
 		}
 	}
 	
@@ -247,6 +249,7 @@ public class Info {
 	public static class ValueExchange extends Base {
 		private static final long serialVersionUID = -7607653966138790703L;
 		public String valueObject = null;
+		public boolean valueObjectHidden = false;
 		public boolean labelHidden = false;
 		
 		public ValueExchange() {
@@ -261,15 +264,17 @@ public class Info {
 			
 			copy.valueObject = valueObject;
 			copy.labelHidden = labelHidden;
+			copy.valueObjectHidden = valueObjectHidden;
 
 			return copy;
 		}
 		
+		/**
+		 * Labels are managed manually by opening/closing E3Properties etc.
+		 */
 		@Override
 		public String toString() {
-			if (labelHidden) return "";
-			else if (valueObject == null) return "";
-			else return valueObject;
+			return "";
 		}
 		
 		@Override
@@ -278,6 +283,26 @@ public class Info {
 					"dotted",
 					"dashed"
 			);
+		}
+	}
+	
+	public static class ValueExchangeLabel extends Base {
+		private static final long serialVersionUID = -8263020130640344457L;
+
+		public boolean isValueObjectLabel = false;
+
+		@Override
+		public Base getCopy() {
+			ValueExchangeLabel copy = new ValueExchangeLabel();
+			setCommons(this, copy);
+
+			copy.isValueObjectLabel = isValueObjectLabel;
+
+			return copy;
+		}
+		
+		public String toString() {
+			return name;
 		}
 	}
 	
