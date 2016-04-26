@@ -309,8 +309,9 @@ class E3Graph extends mxGraph {
 	 * It could be refactored just fine though.
 	 * @param graph
 	 * @param vi
+	 * @return The added ValuePort 
 	 */
-	public static void addValuePort(mxGraph graph, mxICell vi, boolean incoming) {
+	public static Object addValuePort(mxGraph graph, mxICell vi, boolean incoming) {
 		assert(Utils.base(graph, vi) instanceof ValueInterface);
 		
 		graph.getModel().beginUpdate();
@@ -327,6 +328,8 @@ class E3Graph extends mxGraph {
 			graph.getModel().setGeometry(valuePort, vpGm);
 			
 			straightenValueInterface(graph, vi);
+			
+			return valuePort;
 		} finally {
 			graph.getModel().endUpdate();
 		}

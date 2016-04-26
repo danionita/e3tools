@@ -17,7 +17,7 @@ public class Info {
 	public static abstract class Base implements Serializable {
 		private static final long serialVersionUID = -566615792608025058L;
 		
-		public int SUID = getSUID();
+		private int SUID = getSUID();
 		public final HashMap<String, String> formulas = new LinkedHashMap<>();
 		public String name;
 		
@@ -29,6 +29,16 @@ public class Info {
 		
 		public String toString() {
 			return "";
+		}
+		
+		public void setSUID(int newSUID) {
+			if (nextSUID <= newSUID) nextSUID = newSUID + 1;
+
+			SUID = newSUID;
+		}
+		
+		public int getSUID() {
+			return SUID;
 		}
 	}
 	

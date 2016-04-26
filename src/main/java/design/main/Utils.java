@@ -303,4 +303,12 @@ public class Utils {
 			graph.getModel().endUpdate();
 		}
 	}
+	
+	public static String concatTail(String[] strings) {
+		String result = "";
+		for (int i = 1; i < strings.length; i++) {
+			result += strings[i];
+		}
+		return result;
+	}
 }
