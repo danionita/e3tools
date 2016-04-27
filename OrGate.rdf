@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY a 'http://www.cs.vu.nl/~gordijn/e3value#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:a="&a;">
+<a:value_object rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#0"
+	 a:e3_has_name="MONEY"
+	 a:e3_has_uid="0">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+</a:value_object>
+<a:start_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#10"
+	 a:e3_has_formula="OCCURRENCES=1"
+	 a:e3_has_name="top"
+	 a:e3_has_uid="10">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#12"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+</a:start_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#12"
+	 a:down_fraction="100"
+	 a:e3_has_name="ce12"
+	 a:e3_has_uid="12"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#10"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#3"/>
+</a:connection_element>
+<a:start_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#13"
+	 a:e3_has_formula="OCCURRENCES=1"
+	 a:e3_has_name="bottom"
+	 a:e3_has_uid="13">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#15"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+</a:start_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#15"
+	 a:down_fraction="10"
+	 a:e3_has_name="ce15"
+	 a:e3_has_uid="15"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#13"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#3"/>
+</a:connection_element>
+<a:model rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#16"
+	 a:e3_has_name="model16"
+	 a:e3_has_uid="16">
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#0"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#10"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#12"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#13"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#15"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#2"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#3"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#7"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#9"/>
+</a:model>
+<a:diagram rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#17"
+	 a:e3_has_name="Untitled1"
+	 a:e3_has_uid="17">
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#0"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#10"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#12"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#13"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#15"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#2"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#3"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#7"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#9"/>
+</a:diagram>
+<a:elementary_actor rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#2"
+	 a:e3_has_name="ac2"
+	 a:e3_has_uid="2">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+	<a:e3_has_formula>EXPENSES=0</a:e3_has_formula>
+	<a:e3_has_formula>INVESTMENT=0</a:e3_has_formula>
+</a:elementary_actor>
+<a:e3value_OR rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#3"
+	 a:e3_has_name="or gate"
+	 a:e3_has_uid="3">
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#12"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#15"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#9"/>
+</a:e3value_OR>
+<a:end_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#7"
+	 a:e3_has_name="end"
+	 a:e3_has_uid="7">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#9"/>
+</a:end_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/OrGate#9"
+	 a:down_fraction="1"
+	 a:e3_has_name="ce9"
+	 a:e3_has_uid="9"
+	 a:up_fraction="1">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#16"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#17"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#3"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/OrGate#7"/>
+</a:connection_element>
+</rdf:RDF>

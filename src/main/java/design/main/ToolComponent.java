@@ -148,37 +148,15 @@ public class ToolComponent extends mxGraphComponent {
 				graph.getModel().setGeometry(dot, gm);
 			}
 			
-			// Or component
+			// And component
 			{
-				LogicBase lb = new LogicBase();
-				lb.isOr = true;
-				orGate = graph.insertVertex(root, null, lb, 70, 475, 30, 50, "LogicBase");
-				Object bar = graph.insertVertex(orGate, null, null, 0.5, 0, 1, 50, "Bar");
+				andGate = graph.insertVertex(root, null, new LogicBase(), 70, 475, 30, 50, "LogicBase");
+				Object bar = graph.insertVertex(andGate, null, null, 0.5, 0, 1, 50, "Bar");
 				mxGeometry barGm = (mxGeometry) graph.getCellGeometry(bar).clone();
 				barGm.setRelative(true);
 				graph.getModel().setGeometry(bar, barGm);
 				
-				Object mainDot = graph.insertVertex(orGate, null, new LogicDot(true), 0.75, 0.5,
-						E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
-				mxGeometry dotGm = (mxGeometry) graph.getCellGeometry(mainDot).clone();
-				dotGm.setRelative(true);
-				dotGm.setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
-				graph.getModel().setGeometry(mainDot, dotGm);
-				
-				for (int i = 0; i < 3; i++) {
-					E3Graph.addLogicDot(graph, (mxCell) orGate);
-				}
-			}
-			
-			// And component
-			{
-				andGate = graph.insertVertex(root, null, new LogicBase(), 70, 535, 30, 50, "LogicBase");
-				Object triangle = graph.insertVertex(andGate, null, null, 0.5, 0, 15, 30, "EastTriangle");
-				mxGeometry triangleGm = (mxGeometry) graph.getCellGeometry(triangle).clone();
-				triangleGm.setRelative(true);
-				graph.getModel().setGeometry(triangle, triangleGm);
-				
-				Object mainDot = graph.insertVertex(andGate, null, new LogicDot(true), 0.75, 0.5, 
+				Object mainDot = graph.insertVertex(andGate, null, new LogicDot(true), 0.75, 0.5,
 						E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
 				mxGeometry dotGm = (mxGeometry) graph.getCellGeometry(mainDot).clone();
 				dotGm.setRelative(true);
@@ -190,6 +168,28 @@ public class ToolComponent extends mxGraphComponent {
 				}
 			}
 			
+			// Or component
+			{
+				LogicBase lb = new LogicBase();
+				lb.isOr = true;
+				orGate = graph.insertVertex(root, null, lb, 70, 535, 30, 50, "LogicBase");
+				Object triangle = graph.insertVertex(orGate, null, null, 0.5, 0, 15, 30, "EastTriangle");
+				mxGeometry triangleGm = (mxGeometry) graph.getCellGeometry(triangle).clone();
+				triangleGm.setRelative(true);
+				graph.getModel().setGeometry(triangle, triangleGm);
+				
+				Object mainDot = graph.insertVertex(orGate, null, new LogicDot(true), 0.75, 0.5, 
+						E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
+				mxGeometry dotGm = (mxGeometry) graph.getCellGeometry(mainDot).clone();
+				dotGm.setRelative(true);
+				dotGm.setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
+				graph.getModel().setGeometry(mainDot, dotGm);
+				
+				for (int i = 0; i < 3; i++) {
+					E3Graph.addLogicDot(graph, (mxCell) orGate);
+				}
+			}
+			
 			// Add some fancy labels
 			graph.insertVertex(root, null, "Value Activity", 120, 20, 100, 100, "NameText");
 			graph.insertVertex(root, null, "Actor", 120, 120, 100, 100, "NameText");
@@ -197,8 +197,8 @@ public class ToolComponent extends mxGraphComponent {
 			graph.insertVertex(root, null, "Value interface", 120, 320, 100, 50, "NameText");
 			graph.insertVertex(root, null, "Start signal", 120, 380, 100, 33, "NameText");
 			graph.insertVertex(root, null, "End signal", 120, 420, 100, 45, "NameText");
-			graph.insertVertex(root, null, "Or gate", 120, 475, 100, 50, "NameText");
-			graph.insertVertex(root, null, "And gate", 120, 535, 100, 50, "NameText");
+			graph.insertVertex(root, null, "And gate", 120, 475, 100, 50, "NameText");
+			graph.insertVertex(root, null, "Or gate", 120, 535, 100, 50, "NameText");
 
 		} finally {
 			graph.getModel().endUpdate();

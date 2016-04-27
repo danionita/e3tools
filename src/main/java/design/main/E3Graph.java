@@ -395,7 +395,9 @@ class E3Graph extends mxGraph {
 		
 		for ( Object obj : clones) {
 			if (model.getValue(obj) instanceof Info.Base) {
-				model.setValue(obj, Utils.base(this, obj));
+				Base value = Utils.base(this,  obj);
+				value.setSUID(Info.getSUID());
+				model.setValue(obj, value);
 			}
 		}
 		

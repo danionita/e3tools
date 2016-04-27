@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY a 'http://www.cs.vu.nl/~gordijn/e3value#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:a="&a;">
+<a:value_object rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#0"
+	 a:e3_has_name="MONEY"
+	 a:e3_has_uid="0">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+</a:value_object>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#11"
+	 a:e3_has_name="vi11"
+	 a:e3_has_uid="11">
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#16"/>
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#23"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#24"/>
+</a:value_interface>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#13"
+	 a:e3_has_name="vp10"
+	 a:e3_has_uid="13"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#24"/>
+</a:value_port>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#14"
+	 a:e3_has_name="vp11"
+	 a:e3_has_uid="14"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#23"/>
+</a:value_port>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#15"
+	 a:down_fraction="100"
+	 a:e3_has_name="ce15"
+	 a:e3_has_uid="15"
+	 a:up_fraction="1">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#3"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#7"/>
+</a:connection_element>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#16"
+	 a:down_fraction="1"
+	 a:e3_has_name="ce16"
+	 a:e3_has_uid="16"
+	 a:up_fraction="1">
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#11"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#3"/>
+</a:connection_element>
+<a:elementary_actor rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#2"
+	 a:e3_has_name="ac2"
+	 a:e3_has_uid="2">
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#11"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+	<a:e3_has_formula>EXPENSES=0</a:e3_has_formula>
+	<a:e3_has_formula>INVESTMENT=0</a:e3_has_formula>
+</a:elementary_actor>
+<a:model rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"
+	 a:e3_has_name="model21"
+	 a:e3_has_uid="21">
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#0"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#11"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#13"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#14"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#15"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#16"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#2"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#23"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#24"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#3"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#7"/>
+</a:model>
+<a:diagram rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"
+	 a:e3_has_name="Untitled2"
+	 a:e3_has_uid="22">
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#0"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#11"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#13"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#14"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#15"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#16"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#2"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#23"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#24"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#3"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#7"/>
+</a:diagram>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#23"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="23">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#11"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#14"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#24"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="24">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#11"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#13"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+</a:value_offering>
+<a:e3value_OR rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#3"
+	 a:e3_has_name="or3"
+	 a:e3_has_uid="3">
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#15"/>
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#16"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+</a:e3value_OR>
+<a:start_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/SimpleOr100#7"
+	 a:e3_has_formula="OCCURRENCES=1"
+	 a:e3_has_name="ss7"
+	 a:e3_has_uid="7">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#15"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#21"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/SimpleOr100#22"/>
+</a:start_stimulus>
+</rdf:RDF>

@@ -9,17 +9,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Info {
-	public static int nextSUID = 0;
-	public static int getSUID() {
+	public static long nextSUID = 0;
+	public static long getSUID() {
 		return nextSUID++;
 	}
 	
 	public static abstract class Base implements Serializable {
 		private static final long serialVersionUID = -566615792608025058L;
 		
-		private int SUID = getSUID();
+		private long SUID = Info.getSUID();
 		public final HashMap<String, String> formulas = new LinkedHashMap<>();
-		public String name;
+		public String name = "";
 		
 		public abstract Base getCopy();
 		
@@ -31,13 +31,13 @@ public class Info {
 			return "";
 		}
 		
-		public void setSUID(int newSUID) {
+		public void setSUID(long newSUID) {
 			if (nextSUID <= newSUID) nextSUID = newSUID + 1;
 
 			SUID = newSUID;
 		}
 		
-		public int getSUID() {
+		public long getSUID() {
 			return SUID;
 		}
 	}
