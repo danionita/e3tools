@@ -117,6 +117,9 @@ public class RDFExport {
 		StringWriter out = new StringWriter();
 		model.write(out, "RDF/XML");
 		result = out.toString();
+		
+		
+		// TODO
 	}
 	
 	@Override
