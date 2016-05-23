@@ -1,0 +1,793 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE rdf:RDF [
+	 <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+	 <!ENTITY a 'http://www.cs.vu.nl/~gordijn/e3value#'>
+]>
+<rdf:RDF xmlns:rdf="&rdf;"
+	 xmlns:a="&a;">
+<a:value_object rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#0"
+	 a:e3_has_name="MONEY"
+	 a:e3_has_uid="0">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_object>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#104"
+	 a:e3_has_name="vi104"
+	 a:e3_has_uid="104">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#114"/>
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#280"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#281"/>
+</a:value_interface>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#106"
+	 a:e3_has_name="vp103"
+	 a:e3_has_uid="106"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#281"/>
+</a:value_port>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#107"
+	 a:e3_has_name="vp104"
+	 a:e3_has_uid="107"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#280"/>
+</a:value_port>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#11"
+	 a:e3_has_name="vi11-down-ce"
+	 a:e3_has_uid="11">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#15"/>
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#274"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#275"/>
+</a:value_interface>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#110"
+	 a:e3_has_name="vi110"
+	 a:e3_has_uid="110">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#115"/>
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#282"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#283"/>
+</a:value_interface>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#112"
+	 a:e3_has_name="vp109"
+	 a:e3_has_uid="112"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#283"/>
+</a:value_port>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#113"
+	 a:e3_has_name="vp110"
+	 a:e3_has_uid="113"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#282"/>
+</a:value_port>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#114"
+	 a:e3_has_name="vi-logic-dot"
+	 a:e3_has_uid="114"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#104"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#115"
+	 a:e3_has_name="logic-dot-vi"
+	 a:e3_has_uid="115"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#110"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#13"
+	 a:e3_has_name="vp10"
+	 a:e3_has_uid="13"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#275"/>
+</a:value_port>
+<a:e3value_OR rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#130"
+	 a:e3_has_name="or130"
+	 a:e3_has_uid="130">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:e3value_OR>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#136"
+	 a:e3_has_name="vi136"
+	 a:e3_has_uid="136">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#147"/>
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#284"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#285"/>
+</a:value_interface>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#138"
+	 a:e3_has_name="vp135"
+	 a:e3_has_uid="138"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#285"/>
+</a:value_port>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#139"
+	 a:e3_has_name="vp136"
+	 a:e3_has_uid="139"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#284"/>
+</a:value_port>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#14"
+	 a:e3_has_name="vp11"
+	 a:e3_has_uid="14"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#274"/>
+</a:value_port>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#142"
+	 a:e3_has_name="vi142"
+	 a:e3_has_uid="142">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#146"/>
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#286"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#287"/>
+</a:value_interface>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#144"
+	 a:e3_has_name="vp141"
+	 a:e3_has_uid="144"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#287"/>
+</a:value_port>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#145"
+	 a:e3_has_name="vp142"
+	 a:e3_has_uid="145"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#286"/>
+</a:value_port>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#146"
+	 a:e3_has_name="ce146"
+	 a:e3_has_uid="146"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#142"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#147"
+	 a:e3_has_name="ce147"
+	 a:e3_has_uid="147"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#136"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#15"
+	 a:e3_has_name="vi-vi"
+	 a:e3_has_uid="15"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#11"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:e3value_AND rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#166"
+	 a:e3_has_name="converge"
+	 a:e3_has_uid="166">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#261"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#266"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:e3value_AND>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#18"
+	 a:e3_has_name="vi18-up-ce"
+	 a:e3_has_uid="18">
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#276"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#277"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#33"/>
+</a:value_interface>
+<a:e3value_AND rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#197"
+	 a:e3_has_name="first-and"
+	 a:e3_has_uid="197">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#214"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#215"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:e3value_AND>
+<a:elementary_actor rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#2"
+	 a:e3_has_name="ac2"
+	 a:e3_has_uid="2">
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#104"/>
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#11"/>
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#110"/>
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#136"/>
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#142"/>
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#18"/>
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#26"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:ac_has_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#5"/>
+	<a:e3_has_formula>EXPENSES=0</a:e3_has_formula>
+	<a:e3_has_formula>INVESTMENT=0</a:e3_has_formula>
+</a:elementary_actor>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#20"
+	 a:e3_has_name="vp17"
+	 a:e3_has_uid="20"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#277"/>
+</a:value_port>
+<a:e3value_AND rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#203"
+	 a:e3_has_name="second-and"
+	 a:e3_has_uid="203">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#213"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#214"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#236"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:e3value_AND>
+<a:start_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#209"
+	 a:e3_has_formula="OCCURRENCES=1"
+	 a:e3_has_name="ss-double"
+	 a:e3_has_uid="209">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#215"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:start_stimulus>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#21"
+	 a:e3_has_name="vp18"
+	 a:e3_has_uid="21"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#276"/>
+</a:value_port>
+<a:end_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#211"
+	 a:e3_has_name="es-double"
+	 a:e3_has_uid="211">
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#213"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:end_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#213"
+	 a:down_fraction="1"
+	 a:e3_has_name="second-end-to-es-double"
+	 a:e3_has_uid="213"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#203"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#211"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#214"
+	 a:down_fraction="1"
+	 a:e3_has_name="first-and-second-and"
+	 a:e3_has_uid="214"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#197"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#203"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#215"
+	 a:down_fraction="1"
+	 a:e3_has_name="ss-double-to-first-and"
+	 a:e3_has_uid="215"
+	 a:up_fraction="1">
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#197"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#209"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:start_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#22"
+	 a:e3_has_formula="OCCURRENCES=1"
+	 a:e3_has_name="ss22"
+	 a:e3_has_uid="22">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#33"/>
+</a:start_stimulus>
+<a:start_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#234"
+	 a:e3_has_formula="OCCURRENCES=1"
+	 a:e3_has_name="ss234"
+	 a:e3_has_uid="234">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#236"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:start_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#236"
+	 a:down_fraction="1"
+	 a:e3_has_name="weird-start"
+	 a:e3_has_uid="236"
+	 a:up_fraction="1">
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#203"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#234"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:e3value_AND rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#255"
+	 a:e3_has_name="diverge"
+	 a:e3_has_uid="255">
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#261"/>
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#267"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:e3value_AND>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#26"
+	 a:e3_has_name="vi26-down-ce"
+	 a:e3_has_uid="26">
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#278"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#279"/>
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#32"/>
+</a:value_interface>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#261"
+	 a:down_fraction="1"
+	 a:e3_has_name="converge-to-diverge"
+	 a:e3_has_uid="261"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#166"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#255"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:start_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#262"
+	 a:e3_has_formula="OCCURRENCES=1"
+	 a:e3_has_name="splode-start"
+	 a:e3_has_uid="262">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#266"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:start_stimulus>
+<a:end_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#264"
+	 a:e3_has_name="splode-end"
+	 a:e3_has_uid="264">
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#267"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:end_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#266"
+	 a:down_fraction="1"
+	 a:e3_has_name="splode-to-converge"
+	 a:e3_has_uid="266"
+	 a:up_fraction="1">
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#166"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#262"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#267"
+	 a:down_fraction="1"
+	 a:e3_has_name="diverge-to-end"
+	 a:e3_has_uid="267"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#255"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#264"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:model rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#270"
+	 a:e3_has_name="model270"
+	 a:e3_has_uid="270">
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#0"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#104"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#106"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#107"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#11"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#110"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#112"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#113"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#114"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#115"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#13"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#130"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#136"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#138"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#139"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#14"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#142"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#144"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#145"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#146"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#147"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#15"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#166"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#18"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#197"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#20"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#203"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#209"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#21"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#211"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#213"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#214"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#215"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#22"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#234"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#236"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#255"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#26"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#261"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#262"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#264"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#266"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#267"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#272"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#273"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#274"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#275"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#276"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#277"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#278"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#279"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#28"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#280"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#281"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#282"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#283"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#284"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#285"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#286"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#287"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#29"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#30"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#32"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#33"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#44"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#5"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#50"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#52"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#53"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#55"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#7"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#8"/>
+	<a:mo_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#96"/>
+</a:model>
+<a:diagram rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#271"
+	 a:e3_has_name="Untitled1"
+	 a:e3_has_uid="271">
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#0"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#104"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#106"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#107"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#11"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#110"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#112"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#113"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#114"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#115"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#13"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#130"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#136"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#138"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#139"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#14"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#142"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#144"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#145"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#146"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#147"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#15"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#166"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#18"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#197"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#20"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#203"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#209"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#21"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#211"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#213"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#214"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#215"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#22"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#234"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#236"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#255"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#26"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#261"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#262"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#264"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#266"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#267"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#272"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#273"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#274"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#275"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#276"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#277"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#278"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#279"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#28"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#280"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#281"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#282"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#283"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#284"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#285"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#286"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#287"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#29"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#30"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#32"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#33"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#44"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#5"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#50"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#52"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#53"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#55"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#7"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#8"/>
+	<a:di_has_mc rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#96"/>
+</a:diagram>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#272"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="272">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#5"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#8"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#273"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="273">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#5"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#7"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#274"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="274">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#11"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#14"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#275"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="275">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#11"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#13"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#276"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="276">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#18"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#21"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#277"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="277">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#18"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#20"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#278"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="278">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#26"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#29"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#279"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="279">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#26"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#28"/>
+</a:value_offering>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#28"
+	 a:e3_has_name="vp25"
+	 a:e3_has_uid="28"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#279"/>
+</a:value_port>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#280"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="280">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#104"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#107"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#281"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="281">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#104"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#106"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#282"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="282">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#110"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#113"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#283"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="283">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#110"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#112"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#284"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="284">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#136"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#139"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#285"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="285">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#136"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#138"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#286"
+	 a:e3_has_name="out"
+	 a:e3_has_uid="286">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#142"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#145"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_offering rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#287"
+	 a:e3_has_name="in"
+	 a:e3_has_uid="287">
+	<a:vo_in_vi rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#142"/>
+	<a:vo_consists_of_vp rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#144"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:value_offering>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#29"
+	 a:e3_has_name="vp26"
+	 a:e3_has_uid="29"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#278"/>
+</a:value_port>
+<a:end_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#30"
+	 a:e3_has_name="es30"
+	 a:e3_has_uid="30">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#32"/>
+</a:end_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#32"
+	 a:down_fraction="1"
+	 a:e3_has_name="vi-es"
+	 a:e3_has_uid="32"
+	 a:up_fraction="1">
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#26"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#30"/>
+</a:connection_element>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#33"
+	 a:down_fraction="1"
+	 a:e3_has_name="vi-ss"
+	 a:e3_has_uid="33"
+	 a:up_fraction="1">
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#18"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#22"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:connection_element>
+<a:e3value_AND rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#44"
+	 a:e3_has_name="and44"
+	 a:e3_has_uid="44">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#52"/>
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#55"/>
+</a:e3value_AND>
+<a:value_interface rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#5"
+	 a:e3_has_name="vi5-down-ce"
+	 a:e3_has_uid="5">
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#15"/>
+	<a:vi_assigned_to_ac rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#2"/>
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#272"/>
+	<a:vi_consists_of_of rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#273"/>
+</a:value_interface>
+<a:start_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#50"
+	 a:e3_has_formula="OCCURRENCES=1"
+	 a:e3_has_name="ss50"
+	 a:e3_has_uid="50">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:de_down_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#52"/>
+</a:start_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#52"
+	 a:down_fraction="10"
+	 a:e3_has_name="se-logic-dot"
+	 a:e3_has_uid="52"
+	 a:up_fraction="1">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#44"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#50"/>
+</a:connection_element>
+<a:end_stimulus rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#53"
+	 a:e3_has_name="es53"
+	 a:e3_has_uid="53">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:de_up_ce rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#55"/>
+</a:end_stimulus>
+<a:connection_element rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#55"
+	 a:down_fraction="1"
+	 a:e3_has_name="logic-dot-es"
+	 a:e3_has_uid="55"
+	 a:up_fraction="20">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:ce_with_up_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#44"/>
+	<a:ce_with_down_de rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#53"/>
+</a:connection_element>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#7"
+	 a:e3_has_name="vp4"
+	 a:e3_has_uid="7"
+	 a:vp_has_dir="false">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#273"/>
+</a:value_port>
+<a:value_port rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#8"
+	 a:e3_has_name="vp5"
+	 a:e3_has_uid="8"
+	 a:vp_has_dir="true">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+	<a:vp_in_vo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#272"/>
+</a:value_port>
+<a:e3value_AND rdf:about="http://www.cs.vu.nl/~gordijn/connectionelements#96"
+	 a:e3_has_name="and96"
+	 a:e3_has_uid="96">
+	<a:mc_in_mo rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#270"/>
+	<a:mc_in_di rdf:resource="http://www.cs.vu.nl/~gordijn/connectionelements#271"/>
+</a:e3value_AND>
+</rdf:RDF>

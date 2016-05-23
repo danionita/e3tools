@@ -37,6 +37,7 @@ import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
 import design.main.Info.Base;
+import design.main.Info.ConnectionElement;
 import design.main.Info.EndSignal;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
@@ -133,6 +134,39 @@ public class E3GraphComponent extends mxGraphComponent {
 							graph.getModel().remove(cell);
 						}
 					}
+//					else if (value instanceof Actor) {
+//						Object parent = graph.getModel().getParent(cell);
+//						if (parent != graph.getDefaultParent()) {
+//							graph.getModel().remove(cell);
+//						}
+//					} else if (value instanceof MarketSegment) {
+//						Object parent = graph.getModel().getParent(cell);
+//						
+//						if (parent != graph.getDefaultParent()) {
+//							Object parentValue = graph.getModel().getValue(parent);
+//							if (parentValue instanceof Base) {
+//								if (!(parentValue instanceof Actor)) {
+//									graph.getModel().remove(cell);
+//								}
+//							} else {
+//								graph.getModel().remove(cell);
+//							}
+//						}
+//					} else if (value instanceof ValueActivity) {
+//						Object parent = graph.getModel().getParent(cell);
+//						
+//						if (parent != graph.getDefaultParent()) {
+//							Object parentValue = graph.getModel().getValue(parent);
+//							if (parentValue instanceof Base) {
+//								if (!(parentValue instanceof Actor)
+//										&& !(parentValue instanceof MarketSegment)) {
+//									graph.getModel().remove(cell);
+//								}
+//							} else {
+//								graph.getModel().remove(cell);
+//							}
+//						}
+//					}
 				} finally {
 					graph.getModel().endUpdate();
 				}
@@ -147,8 +181,11 @@ public class E3GraphComponent extends mxGraphComponent {
 					
 					if (Utils.isDotValue(sourceValue) && Utils.isDotValue(targetValue)) {
 						graph.getModel().setStyle(cell, "ConnectionElement");
+						graph.getModel().setValue(cell, new ConnectionElement());
+
 						Object[] sourceEdges = graph.getEdges(source);
 						Object[] targetEdges = graph.getEdges(target);
+
 						if (sourceEdges.length + targetEdges.length > 2) {
 							graph.getModel().beginUpdate();
 							try {

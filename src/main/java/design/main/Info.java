@@ -372,4 +372,16 @@ public class Info {
 			);
 		}
 	}
+	
+	public static class ConnectionElement extends Base {
+		private static final long serialVersionUID = -6449976397261432365L;
+
+		@Override
+		public Base getCopy() {
+			ConnectionElement ce = new ConnectionElement();
+			setCommons(this, ce);
+			
+			return ce;
+		}
+	}
 }

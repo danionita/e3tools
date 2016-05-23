@@ -62,6 +62,12 @@ class E3Graph extends mxGraph {
 				|| droppeeValue instanceof EndSignal
 				|| droppeeValue instanceof LogicBase) {
 			return value instanceof Actor || value instanceof ValueActivity || value instanceof MarketSegment;
+		} else if (droppeeValue instanceof MarketSegment){
+			return value instanceof Actor;
+		} else if (droppeeValue instanceof Actor) {
+			return false;
+		} else if (droppeeValue instanceof ValueActivity) {
+			return value instanceof Actor || value instanceof MarketSegment;
 		} else {
 			return value instanceof Actor || value instanceof ValueActivity;
 		}

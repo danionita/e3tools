@@ -21,6 +21,7 @@ package design.main;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
@@ -29,8 +30,10 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
+import design.main.Info.EndSignal;
 import design.main.Info.LogicDot;
 import design.main.Info.SignalDot;
+import design.main.Info.StartSignal;
 import design.main.Info.ValueExchange;
 import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
@@ -328,5 +331,100 @@ public class Utils {
 			result += strings[i];
 		}
 		return result;
+	}
+	
+	public static Object getOpposite(mxGraph graph, Object edge, Object terminal) {
+		Object source = graph.getModel().getTerminal(edge, true);
+		Object target = graph.getModel().getTerminal(edge, false);
+		if (source == terminal) return target;
+		else return source;
+	}
+	
+	/**
+	 * StartSignals will be placed in left, endsignals will be placed in right.
+	 * 
+	 * @author Bobe
+	 *
+	 */
+	public static class EdgeAndSides {
+		private EdgeAndSides() {}
+		
+		public static EdgeAndSides fromEdge(mxGraph graph, Object edge) {
+			EdgeAndSides eas = new EdgeAndSides();
+			
+			eas.edge = edge;
+			eas.edgeValue = (Base) graph.getModel().getValue(edge);
+			
+			eas.left = graph.getModel().getTerminal(edge, false);
+			eas.left = graph.getModel().getParent(eas.left);
+			eas.leftValue = (Base) graph.getModel().getValue(eas.left);
+
+			eas.right = graph.getModel().getTerminal(edge, true);
+			eas.right = graph.getModel().getParent(eas.right);
+			eas.rightValue = (Base) graph.getModel().getValue(eas.right);
+			
+			if ((eas.rightValue instanceof StartSignal)
+					|| (eas.leftValue instanceof EndSignal)) {
+				Object t1;
+				Base t2;
+				
+				t1 = eas.left;
+				t2 = eas.leftValue;
+				
+				eas.left = eas.right;
+				eas.leftValue = eas.rightValue;
+				
+				eas.right = t1;
+				eas.rightValue = t2;
+			}
+			
+			return eas;
+		}
+		
+		public static EdgeAndSides fromParentSide(mxGraph graph, Object parent) {
+			Object child = graph.getModel().getChildAt(parent, 0);
+			Object edge = graph.getModel().getEdgeAt(child, 0);
+			
+			return EdgeAndSides.fromEdge(graph, edge);
+		}
+		
+		public static EdgeAndSides fromDotSide(mxGraph graph, Object dot) {
+			Object edge = graph.getModel().getEdgeAt(dot, 0);
+			
+			return EdgeAndSides.fromEdge(graph, edge);
+		}
+		
+		/**
+		 * Checks if the first child of a node has an edge (corresponds to a
+		 * StartSignal having a connection-element.
+		 * @param graph
+		 * @param obj
+		 * @return
+		 */
+		public static boolean hasDotChildEdge(mxGraph graph, Object obj) {
+			Object child = graph.getModel().getChildAt(obj, 0);
+			assert(graph.getModel().getEdgeCount(child) < 2);
+			return graph.getModel().getEdgeCount(child) == 1;
+		}
+		
+		Object edge;
+		Base edgeValue;
+
+		Object left;
+		Base leftValue;
+		
+		Object right;
+		Base rightValue;
+	}
+	
+	public static List<Object> getChildrenWithValue(mxGraph graph, Object parent, Class<?> c) {
+		ArrayList<Object> children = new ArrayList<>();
+		for (int i = 0; i < graph.getModel().getChildCount(parent); i++) {
+			Object child = graph.getModel().getChildAt(parent, i);
+			if (c.isInstance(graph.getModel().getValue(child))) {
+				children.add(child);
+			}
+		}
+		return children;
 	}
 }
