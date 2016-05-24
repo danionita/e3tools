@@ -226,6 +226,11 @@ public class Info {
 		}
 	}
 	
+	/**
+	 * Dot for value interfaces & start/end signals
+	 * @author Bobe
+	 *
+	 */
 	public static class SignalDot extends Base {
 		private static final long serialVersionUID = 7829429718862402191L;
 
@@ -237,6 +242,11 @@ public class Info {
 		}
 	}
 	
+	/**
+	 * Dot for on logic units.
+	 * @author Bobe
+	 *
+	 */
 	public static class LogicDot extends Base {
 		private static final long serialVersionUID = 6736897501245007019L;
 		// Unit dot is dot that is alone on one side of the logic unit
