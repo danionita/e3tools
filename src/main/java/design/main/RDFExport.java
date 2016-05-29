@@ -55,6 +55,7 @@ public class RDFExport {
 	Map<Long, Resource> offeringIn = new HashMap<>();
 	Map<Long, Resource> offeringOut = new HashMap<>();
 	Map<String, Resource> valueObject = new HashMap<>();
+	public Model model;
 	
 	public RDFExport(mxGraph graph) {
 		this.graph = graph;
@@ -171,6 +172,9 @@ public class RDFExport {
 			setReceive(oppositeChild);
 			
 			if (oppositeValue instanceof ValueInterface) {
+				Resource viRes = getResource.apply(oppositeValue.getSUID());
+				viRes.addProperty(E3value.de_up_ce, ceRes);
+				
 				List<Object> ports = Utils.getChildrenWithValue(graph, opposite, ValuePort.class);
 				for (Object port : ports) {
 					if (model.getEdgeCount(port) > 0) {
@@ -188,6 +192,11 @@ public class RDFExport {
 							if (model.getEdgeCount(otherDot) == 1) {
 								Object edge = model.getEdgeAt(otherDot, 0);
 								ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
+
+								Base viInfo = (Base) model.getValue(valueInterface);
+								Resource otherViRes = getResource.apply(viInfo.getSUID());
+								otherViRes.addProperty(E3value.de_down_ce, getResource.apply(edgeInfo.getSUID()));
+								
 								visit(otherDot, edge, edgeInfo);
 							}
 						}
@@ -284,7 +293,7 @@ public class RDFExport {
 	}
 	
 	private void convertToRdf() {
-		Model model = ModelFactory.createDefaultModel();
+		model = ModelFactory.createDefaultModel();
 		model.setNsPrefix("a", E3value.getURI());
 		String base = "http://www.cs.vu.nl/~gordijn/TestModel#";
 		
@@ -441,6 +450,7 @@ public class RDFExport {
 				}
 				
 				List<Object> valuePorts = Utils.getChildrenWithValue(graph, cell, ValuePort.class);
+
 				for (Object valuePort : valuePorts) {
 					ValuePort vpInfo = (ValuePort) graph.getModel().getValue(valuePort);
 					Resource vpRes = getResource.apply(vpInfo.getSUID());
@@ -499,7 +509,7 @@ public class RDFExport {
 					System.out.println("Malformed flow! Cause: " + e.subject);
 					e.printStackTrace();
 				}
-//				
+				
 //				Base connectionElementValue = null;
 //				Object edgeObject = null;
 //				Object edgeSource = null;
@@ -654,6 +664,8 @@ public class RDFExport {
 		StringWriter out = new StringWriter();
 		model.write(out, "RDF/XML");
 		result = out.toString();
+		
+		System.out.println(result);
 	}
 	
 	@Override

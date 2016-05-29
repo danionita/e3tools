@@ -348,6 +348,7 @@ public class Info {
 		private static final long serialVersionUID = -3440018877858008513L;
 		
 		public StartSignal() {
+			name = "StartSignal" + getSUID();
 			formulas.put("COUNT", "1");
 		}
 
@@ -358,12 +359,18 @@ public class Info {
 
 			return copy;
 		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 	
 	public static class EndSignal extends Base {
 		private static final long serialVersionUID = -6483661636370237656L;
 		
 		public EndSignal() {
+			name = "EndSignal" + getSUID();
 			formulas.put("OCCURRENCES", "");
 		}
 
@@ -385,6 +392,10 @@ public class Info {
 	
 	public static class ConnectionElement extends Base {
 		private static final long serialVersionUID = -6449976397261432365L;
+		
+		public ConnectionElement() {
+			name = "ConnectionElement" + getSUID();
+		}
 
 		@Override
 		public Base getCopy() {

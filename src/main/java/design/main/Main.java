@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -60,10 +61,12 @@ import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
 import design.main.Info.ValueExchange;
+import e3fraud.gui.MainWindow;
+import e3fraud.model.E3Model;
 
 public class Main { 
 	
-	public static final JFrame mainFrame = new JFrame("E3fraud editor");
+	public static final JFrame mainFrame = new JFrame("e3tools editor");
 	public static mxGraph graph = null;
 	public static E3GraphComponent graphComponent = null;
 	public static Object contextTarget = null;
@@ -73,6 +76,8 @@ public class Main {
 	public static final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "SERVICE")
 			);
+
+	private JTabbedPane views;
 	
 	public Main() {
 		// Silly log4j
@@ -103,7 +108,26 @@ public class Main {
 			}
 		}));
 		menuBar.add(fileMenu);
-		menuBar.add(new JMenu("Graph"));
+		
+		JMenu graphMenu = new JMenu("Graph");
+		graphMenu.add(new JMenuItem(new AbstractAction("Perform e3fraud analysis") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MainWindow main = new MainWindow();
+				
+				views.addTab("e3fraud", main);
+				
+				RDFExport rdfExporter = new RDFExport(Main.graph);
+				main.baseModel = new E3Model(rdfExporter.model);
+				main.log.append(e3fraud.tools.currentTime.currentTime() + " Loaded graph \"Such graph\"\n");
+
+				views.setSelectedIndex(1);
+				
+//				ActionEvent ae = new ActionEvent(main.generateButton, 0, null);
+//				main.actionPerformed(ae);
+			}
+		}));
+		menuBar.add(graphMenu);
 		
 		JMenu valueObjectsMenu = new JMenu("ValueObjects");
 		valueObjectsMenu.addMenuListener(new MenuListener() {
@@ -277,12 +301,15 @@ public class Main {
 
 		tools = new ToolComponent();
 		
-		JTabbedPane valueProperties = new JTabbedPane();	
+		views = new JTabbedPane();	
 		
 		// Create split view
 		JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tools, graphComponent);
 		mainPane.setResizeWeight(0.025);
-		mainFrame.getContentPane().add(mainPane);
+		
+		views.add("Such graph", mainPane);
+		
+		mainFrame.getContentPane().add(views);
 		
 		// Show main screen
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

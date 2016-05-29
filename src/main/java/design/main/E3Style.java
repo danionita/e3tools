@@ -135,6 +135,12 @@ public class E3Style {
 		style.put(mxConstants.STYLE_SHAPE, "StartSignalStencil");
 		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
 		style.put(mxConstants.STYLE_RESIZABLE, 0);
+		// There is also STYLE_VERTICAL_POSTION_ALIGN or something
+		// Which is supposed to put a label on top of the cell's border
+		// But I think it's broken therefore it's hacked like this
+		style.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_TOP);
+		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
+		style.put(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, "#FAFAD2");
 		stylesheet.putCellStyle("StartSignal", style);
 		
 		style = new Hashtable<>();

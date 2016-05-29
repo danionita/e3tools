@@ -76,7 +76,10 @@ public class ToolComponent extends mxGraphComponent {
 			public String convertValueToString(Object obj) {
 				mxICell cell = (mxICell) obj;
 				
-				if (cell.getValue() instanceof Info.Base) {
+				// TODO: Special-case this per type
+				if (cell.getValue() instanceof StartSignal) {
+					return "";
+				} else if (cell.getValue() instanceof Info.Base) {
 					return ((Info.Base) cell.getValue()).toString();
 				}
 
@@ -115,6 +118,7 @@ public class ToolComponent extends mxGraphComponent {
 		Object root = graph.getDefaultParent();
 		
 		graph.getModel().beginUpdate();
+		Object ess;
 		try {
 			// Simple blocks
 			{
@@ -149,6 +153,10 @@ public class ToolComponent extends mxGraphComponent {
 			// Start signal
 			{
 				startSignal = graph.insertVertex(root, null, new StartSignal(), 70, 380, 30, 30, "StartSignal");
+				mxGeometry sgm = graph.getModel().getGeometry(startSignal);
+				// Magic number to get the label to float nicely above
+				sgm.setOffset(new mxPoint(0, -21));
+				
 				mxICell dot = (mxICell) graph.insertVertex(startSignal, null, new SignalDot(), 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 				mxGeometry gm = Utils.geometry(graph, dot);
 				gm.setRelative(true);
@@ -159,6 +167,7 @@ public class ToolComponent extends mxGraphComponent {
 			// End signal
 			{
 				endSignal = (mxCell) graph.insertVertex(root, null, new EndSignal(), 55, 420, 45, 45, "EndSignal");
+				ess = endSignal;
 				mxCell dot = (mxCell) graph.insertVertex(endSignal, null, new SignalDot(), 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 				mxGeometry gm = Utils.geometry(graph, dot);
 				gm.setRelative(true);
@@ -221,6 +230,8 @@ public class ToolComponent extends mxGraphComponent {
 		} finally {
 			graph.getModel().endUpdate();
 		}
+		
+		System.out.println(graph.getView().getState(ess).getLabelBounds());
 
 		// This enables clicking on the easttriangle as well (and gate)
 		graph.getSelectionModel().addListener(mxEvent.CHANGE, new ProxySelection(graph));
