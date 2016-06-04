@@ -18,9 +18,11 @@
  *******************************************************************************/
 package design.main;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ActionMap;
 import javax.swing.JPopupMenu;
 
 import com.mxgraph.model.mxCell;
@@ -29,6 +31,7 @@ import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.handler.mxGraphHandler;
 import com.mxgraph.swing.handler.mxKeyboardHandler;
+import com.mxgraph.swing.util.mxGraphActions;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
@@ -88,7 +91,48 @@ public class E3GraphComponent extends mxGraphComponent {
 		ContextMenus.addE3PropertiesMenu(endSignalMenu, graph);
 		
 		// Enable delete key et. al.
-		new mxKeyboardHandler(this);
+		// Changed to make sure value transaction labels can't be deleted, only hidden
+		new mxKeyboardHandler(this) {
+			@Override
+			protected ActionMap createActionMap() {
+				ActionMap map = super.createActionMap();
+				
+				map.put("delete", new mxGraphActions.DeleteAction("Delete") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						mxGraph graph = mxGraphActions.getGraph(e);
+						
+						if (graph != null) {
+							Object selectedCell = graph.getSelectionCell();
+							Object value = graph.getModel().getValue(selectedCell);
+							if (value instanceof ValueExchangeLabel) {
+								graph.getModel().beginUpdate();
+								try {
+									ValueExchangeLabel veLabelInfo = (ValueExchangeLabel) Utils.base(graph, selectedCell);
+									ValueExchange veInfo = (ValueExchange) Utils.base(graph, graph.getModel().getParent(selectedCell));
+									
+									if (veLabelInfo.isValueObjectLabel) {
+										veInfo.valueObjectHidden ^= true;
+									} else {
+										veInfo.labelHidden ^= true;
+									}
+									
+									graph.getModel().setValue(Main.contextTarget, veInfo);
+									Utils.setValueExchangeValueObjectLabelVisibility(graph, graph.getModel().getParent(selectedCell));
+									Utils.setValueExchangeNameLabelVisibility(graph, graph.getModel().getParent(selectedCell));
+								} finally {
+									graph.getModel().endUpdate();
+								}
+							} else {
+								graph.removeCells();
+							}
+						}
+					}
+				});
+				
+				return map;
+			}
+		};
 		
 		getConnectionHandler().setCreateTarget(false);
 		graph.setAllowDanglingEdges(false);
@@ -134,39 +178,6 @@ public class E3GraphComponent extends mxGraphComponent {
 							graph.getModel().remove(cell);
 						}
 					}
-//					else if (value instanceof Actor) {
-//						Object parent = graph.getModel().getParent(cell);
-//						if (parent != graph.getDefaultParent()) {
-//							graph.getModel().remove(cell);
-//						}
-//					} else if (value instanceof MarketSegment) {
-//						Object parent = graph.getModel().getParent(cell);
-//						
-//						if (parent != graph.getDefaultParent()) {
-//							Object parentValue = graph.getModel().getValue(parent);
-//							if (parentValue instanceof Base) {
-//								if (!(parentValue instanceof Actor)) {
-//									graph.getModel().remove(cell);
-//								}
-//							} else {
-//								graph.getModel().remove(cell);
-//							}
-//						}
-//					} else if (value instanceof ValueActivity) {
-//						Object parent = graph.getModel().getParent(cell);
-//						
-//						if (parent != graph.getDefaultParent()) {
-//							Object parentValue = graph.getModel().getValue(parent);
-//							if (parentValue instanceof Base) {
-//								if (!(parentValue instanceof Actor)
-//										&& !(parentValue instanceof MarketSegment)) {
-//									graph.getModel().remove(cell);
-//								}
-//							} else {
-//								graph.getModel().remove(cell);
-//							}
-//						}
-//					}
 				} finally {
 					graph.getModel().endUpdate();
 				}
@@ -185,10 +196,11 @@ public class E3GraphComponent extends mxGraphComponent {
 
 						Object[] sourceEdges = graph.getEdges(source);
 						Object[] targetEdges = graph.getEdges(target);
-
+						
 						if (sourceEdges.length + targetEdges.length > 2) {
 							graph.getModel().beginUpdate();
 							try {
+								// TODO: If this ever gives problems, change to graph.removeCells
 								graph.getModel().remove(cell);
 							} finally {
 								graph.getModel().endUpdate();

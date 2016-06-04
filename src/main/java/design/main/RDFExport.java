@@ -328,7 +328,7 @@ public class RDFExport {
 				of.addProperty(E3value.e3_has_name, "in");
 				of.addProperty(RDF.type, E3value.value_offering);
 
-				of.addProperty(E3value.vo_consists_of_vp, getResource.apply(suid));
+				of.addProperty(E3value.vo_in_vi, getResource.apply(suid));
 				getResource.apply(suid).addProperty(E3value.vi_consists_of_of, of);
 			}
 			
@@ -342,7 +342,7 @@ public class RDFExport {
 				of.addProperty(E3value.e3_has_name, "out");
 				of.addProperty(RDF.type, E3value.value_offering);
 
-				of.addProperty(E3value.vo_consists_of_vp, getResource.apply(suid));
+				of.addProperty(E3value.vo_in_vi, getResource.apply(suid));
 				getResource.apply(suid).addProperty(E3value.vi_consists_of_of, of);
 			}
 			

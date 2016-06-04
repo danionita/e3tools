@@ -18,10 +18,23 @@
  *******************************************************************************/
 package design.main;
 
+import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
@@ -228,7 +241,7 @@ public class Utils {
 	 * exchange's value.labelHidden. If the name label is empty it is not visible,
 	 * and otherwise if it is hidden it is not visible.
 	 * @param graph
-	 * @param valueExchangeEdge
+	 * @param valueExchangeEdge The edge of which the name label needs to be shown/hidden
 	 */
 	public static void setValueExchangeNameLabelVisibility(mxGraph graph, Object valueExchangeEdge) {
 		Object nameCell = getValueExchangeNameLabel(graph, valueExchangeEdge);
@@ -253,7 +266,7 @@ public class Utils {
 	 * exchange's value.valueObjectHidden. If the valueObject label is empty it is not visible,
 	 * and otherwise if it is hidden it is not visible.
 	 * @param graph
-	 * @param valueExchangeEdge
+	 * @param valueExchangeEdge The edge of which the value object label needs to be shown/hidden
 	 */
 	public static void setValueExchangeValueObjectLabelVisibility(mxGraph graph, Object valueExchangeEdge) {
 		Object valueObjectCell = getValueExchangeValueObjectLabel(graph, valueExchangeEdge);
@@ -426,5 +439,80 @@ public class Utils {
 			}
 		}
 		return children;
+	}
+	
+	public static class ClosableTabHeading extends JPanel {
+		public final String title;
+		
+		ClosableTabHeading(String title) {
+			this.title = title;
+		}
+	}
+	
+	public static Component addClosableTab(JTabbedPane panes, String title, Component component) {
+		Component thisTab = panes.add(component);
+
+		JPanel heading = new ClosableTabHeading(title);
+		heading.setOpaque(false);
+		heading.setLayout(new BoxLayout(heading, BoxLayout.X_AXIS));
+		
+		JLabel label = new JLabel(title);
+		heading.add(label);
+		
+		JLabel close = new JLabel("✖");
+		Border border = close.getBorder();
+		Border insideMargin = new EmptyBorder(2, 2, 2, 2);
+		Border outsideMargin = new EmptyBorder(2, 6, 2, 0);
+		Border noLineBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+		Border lowerLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		Border raisedLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+
+		Border normalBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(noLineBorder, insideMargin)));
+		Border hoverBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(raisedLineBorder, insideMargin)));
+		Border pressBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(lowerLineBorder, insideMargin)));
+		
+		close.setBorder(normalBorder);
+		
+		close.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				panes.remove(thisTab);
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				close.setBorder(pressBorder);
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				close.setBorder(normalBorder);
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				close.setBorder(hoverBorder);
+			}
+		});
+
+		heading.add(close);
+		
+		panes.setTabComponentAt(panes.indexOfComponent(thisTab), heading);
+		
+		return thisTab;
+	}
+
+	public static E3Graph cloneGraph(E3Graph original) {
+		E3Graph clone = new E3Graph();
+
+		clone.getModel().beginUpdate();
+		try {
+			clone.addCells(original.cloneCells(original.getChildCells(original.getDefaultParent())));
+			clone.valueObjects.addAll(original.valueObjects);
+		} finally {
+			clone.getModel().endUpdate();
+		}
+		
+		return clone;
 	}
 }

@@ -93,9 +93,9 @@ public class Info {
 		ValuePort(boolean incoming_) {
 			incoming = incoming_;
 			
-			formulas.put("VALUATION", "");
-			formulas.put("CADINALITY", "");
-			formulas.put("EXPENSES", "");
+			formulas.put("VALUATION", "0");
+			formulas.put("CADINALITY", "0");
+			formulas.put("EXPENSES", "0");
 		}
 		
 		@Override
@@ -163,7 +163,7 @@ public class Info {
 		public Actor() {
 			formulas.put("INVESTMENT", "0");
 			formulas.put("EXPENSES", "0");
-			formulas.put("INTEREST", "");
+			formulas.put("INTEREST", "0");
 		}
 		
 		@Override
@@ -186,8 +186,8 @@ public class Info {
 			formulas.put("COUNT", "1");
 			formulas.put("INVESTMENT", "0");
 			formulas.put("EXPENSES", "0");
-			formulas.put("INTEREST", "");
-			formulas.put("MS_TYPE", "");
+			formulas.put("INTEREST", "0");
+			formulas.put("MS_TYPE", "0");
 		}
 		
 		@Override
@@ -207,7 +207,7 @@ public class Info {
 		private static final long serialVersionUID = 6344879576710522969L;
 		
 		public ValueActivity() {
-			formulas.put("TOTAL_VARIABLE_EXPENSES", "");
+			formulas.put("TOTAL_VARIABLE_EXPENSES", "0");
 			formulas.put("INVESTMENT", "0");
 			formulas.put("EXPENSES", "0");
 		}
@@ -292,7 +292,7 @@ public class Info {
 		
 		public ValueExchange() {
 			formulas.put("CARDINALITY", "1");
-			formulas.put("VALUATION", "");
+			formulas.put("VALUATION", "0");
 		}
 
 		@Override
@@ -371,7 +371,7 @@ public class Info {
 		
 		public EndSignal() {
 			name = "EndSignal" + getSUID();
-			formulas.put("OCCURRENCES", "");
+			formulas.put("OCCURRENCES", "0");
 		}
 
 		@Override

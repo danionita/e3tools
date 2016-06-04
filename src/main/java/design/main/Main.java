@@ -18,12 +18,12 @@
  *******************************************************************************/
 package design.main;
 
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -54,85 +53,158 @@ import javax.swing.event.MenuListener;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
-import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Base;
 import design.main.Info.ValueExchange;
+import design.main.Utils.ClosableTabHeading;
 import e3fraud.gui.MainWindow;
 import e3fraud.model.E3Model;
 
 public class Main { 
 	
 	public static final JFrame mainFrame = new JFrame("e3tools editor");
-	public static mxGraph graph = null;
-	public static E3GraphComponent graphComponent = null;
 	public static Object contextTarget = null;
 	public static mxPoint contextPos = new mxPoint(-1, -1);
-	public static ToolComponent tools = null;
-	
-	public static final ArrayList<String> valueObjects = new ArrayList<>(
-			Arrays.asList("MONEY", "SERVICE")
-			);
+	public static int newGraphCounter = 1;
+	public static ToolComponent globalTools;
+	public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = false;
 
-	private JTabbedPane views;
+	public JTabbedPane views;
+	
+	public E3Graph getCurrentGraph() {
+		JSplitPane pane = (JSplitPane) views.getComponentAt(views.getSelectedIndex());
+		E3GraphComponent graphComponent = (E3GraphComponent) pane.getRightComponent();
+		return (E3Graph) graphComponent.getGraph();
+	}
+	
+	public String getCurrentGraphName() {
+		return ((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex())).title;
+	}
+	
+	public void addNewTabAndSwitch() {
+		addNewTabAndSwitch(new E3Graph());
+	}
+	
+	public void addNewTabAndSwitch(E3Graph graph) {
+		E3GraphComponent graphComponent = new E3GraphComponent(graph);
+		
+		graph.getModel().beginUpdate();
+		try {
+			// Playground for custom shapes
+		} finally {
+			graph.getModel().endUpdate();
+		}
+
+		graphComponent.refresh();
+
+		// Create split view
+		JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(), graphComponent);
+		mainpane.setResizeWeight(0.025);
+
+		Utils.addClosableTab(views, "Such Model " + newGraphCounter++, mainpane);
+		views.setSelectedIndex(views.getTabCount() - 1);
+	}
 	
 	public Main() {
 		// Silly log4j
 		Logger.getRootLogger().setLevel(Level.OFF);
 		
-		// Set LaF to system
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch(Exception e){
-			System.out.println("Couldn't set Look and Feel to system");
+		if (mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll) {
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			}
+			catch(Exception e){
+				System.out.println("Couldn't set Look and Feel to system");
+			}
 		}
 
 		// Add menubar
 		JMenuBar menuBar = new JMenuBar();
 		
 		JMenu fileMenu = new JMenu("File");
-		fileMenu.add(new JMenuItem(new AbstractAction("Save as...") {
+		fileMenu.add(new JMenuItem(new AbstractAction("New e3graph") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addNewTabAndSwitch();
+			}
+		}));
+		JMenuItem duplicateGraph = new JMenuItem(new AbstractAction("Duplicate current graph") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addNewTabAndSwitch(Utils.cloneGraph(getCurrentGraph()));
+			}
+		});
+		fileMenu.add(duplicateGraph);
+		JMenuItem saveAs = new JMenuItem(new AbstractAction("Save as...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(mainFrame, "Save functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
 			}
-		}));
-		fileMenu.add(new JMenuItem(new AbstractAction("Export to RDF...") {
+		});
+		fileMenu.add(saveAs);
+		JMenuItem exportRDF = new JMenuItem(new AbstractAction("Export to RDF...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(new RDFExport(graph).toString());
+				System.out.println(new RDFExport(getCurrentGraph()).toString());
 			}
-		}));
+		});
+		fileMenu.add(exportRDF);
+		fileMenu.addMenuListener(new MenuListener() {
+			@Override
+			public void menuSelected(MenuEvent e) {
+				boolean enabled = views.getTabCount() > 0;
+				duplicateGraph.setEnabled(enabled);
+				saveAs.setEnabled(enabled);
+				exportRDF.setEnabled(enabled);
+			}
+			
+			@Override
+			public void menuDeselected(MenuEvent e) { }
+			
+			@Override
+			public void menuCanceled(MenuEvent e) { }
+		});
 		menuBar.add(fileMenu);
 		
-		JMenu graphMenu = new JMenu("Graph");
+		JMenu graphMenu = new JMenu("Model");
 		graphMenu.add(new JMenuItem(new AbstractAction("Perform e3fraud analysis") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MainWindow main = new MainWindow();
+				// TODO: Convert this option to something greyed out, just like in the file menu?
+				if (views.getTabCount() == 0) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame, 
+							"A model must be opened to analyze. Click File ➡ New model to open a new model.",
+							"No model available",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				
-				views.addTab("e3fraud", main);
-				
-				RDFExport rdfExporter = new RDFExport(Main.graph);
-				main.baseModel = new E3Model(rdfExporter.model);
-				main.log.append(e3fraud.tools.currentTime.currentTime() + " Loaded graph \"Such graph\"\n");
+				RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+				MainWindow main = new MainWindow(new E3Model(rdfExporter.model), getCurrentGraphName());
+				main.showGraph(getCurrentGraph());
 
-				views.setSelectedIndex(1);
-				
-//				ActionEvent ae = new ActionEvent(main.generateButton, 0, null);
-//				main.actionPerformed(ae);
+				Component analysis = Utils.addClosableTab(views, "Fraud analysis of \"" + getCurrentGraphName() + "\"", main);
+
+				views.setSelectedIndex(views.indexOfComponent(analysis));
 			}
 		}));
-		menuBar.add(graphMenu);
 		
-		JMenu valueObjectsMenu = new JMenu("ValueObjects");
-		valueObjectsMenu.addMenuListener(new MenuListener() {
+		graphMenu.add(new JMenuItem(new AbstractAction("Show ValueObjects") {
 			@Override
-			public void menuSelected(MenuEvent e) {
+			public void actionPerformed(ActionEvent e) {
+				// TODO: Maybe prefer greyed out menu item?
+				if (views.getTabCount() == 0) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame, 
+							"A model must be opened to display its ValueObjects. Click File ➡ New model to open a new model.",
+							"No model available",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				JDialog dialog = new JDialog(mainFrame, "ValueObjects", Dialog.ModalityType.DOCUMENT_MODAL);
 				dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.Y_AXIS));
 				
@@ -145,6 +217,7 @@ public class Main {
 				dialog.add(buttonPanel);
 
 				Map<String, Integer> count = new HashMap<>();
+				E3Graph graph = getCurrentGraph();
 				for (Object cell : Utils.getAllCells(graph)) {
 					Object val = graph.getModel().getValue(cell);
 					if (val instanceof ValueExchange) {
@@ -155,6 +228,7 @@ public class Main {
 					}
 				}
 				
+				List<String> valueObjects = graph.valueObjects;
 				DefaultListModel<String> listModel = new DefaultListModel<>();
 				for (String valueObject : valueObjects) {
 					listModel.addElement(valueObject + " (" + count.getOrDefault(valueObject, 0) + "x)");
@@ -172,7 +246,10 @@ public class Main {
 						// I don't like messing with this state thing
 						// (Altough it worked almost immediately. Maybe this is the right way?)
 						// A benefit of this method is that it does not affect undo history (but is that actually true?).
-						String valueObject = valueObjects.get(valueObjectsList.getSelectedIndex());
+						int selectedIndex = valueObjectsList.getSelectedIndex();
+						if (selectedIndex == -1) return;
+
+						String valueObject = valueObjects.get(selectedIndex);
 						for (Object obj : Utils.getAllCells(graph)) {
 							Base val = Utils.base(graph, obj);
 							if (val instanceof ValueExchange) {
@@ -256,8 +333,6 @@ public class Main {
 					}
 				});
 				
-				valueObjectsMenu.setSelected(false);
-				
 				// Makes all edges in the graph blue again in case they've been highlighted
 				dialog.addWindowListener(new WindowAdapter() {
 					@Override
@@ -277,37 +352,17 @@ public class Main {
 				dialog.setSize(300, 320);
 				dialog.setVisible(true);
 			}
-			
-			@Override
-			public void menuDeselected(MenuEvent e) { }
-			
-			@Override
-			public void menuCanceled(MenuEvent e) { }
-		});
-		menuBar.add(valueObjectsMenu);
+		}));
+		
+		menuBar.add(graphMenu);
 		
 		mainFrame.setJMenuBar(menuBar);
 		
-		graph = new E3Graph();
-		Object root = graph.getDefaultParent();
-		graphComponent = new E3GraphComponent(graph);
-		
-		graph.getModel().beginUpdate();
-		try {
-			// Playground for custom shapes
-		} finally {
-			graph.getModel().endUpdate();
-		}
-
-		tools = new ToolComponent();
+		globalTools = new ToolComponent();
 		
 		views = new JTabbedPane();	
 		
-		// Create split view
-		JSplitPane mainPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tools, graphComponent);
-		mainPane.setResizeWeight(0.025);
-		
-		views.add("Such graph", mainPane);
+		addNewTabAndSwitch();
 		
 		mainFrame.getContentPane().add(views);
 		

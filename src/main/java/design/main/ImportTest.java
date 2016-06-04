@@ -49,11 +49,11 @@ import design.vocabulary.E3value;
 
 public class ImportTest {
 
-	@SuppressWarnings("static-access")
+	// @SuppressWarnings("static-access")
 	public static void main(String[] args) {
 		Main t = new Main();
 		
-		t.graphComponent.setEnabled(false);
+		// t.graphComponent.setEnabled(false);
 		
 		// Import test
         //Load file
@@ -74,17 +74,18 @@ public class ImportTest {
         Model model = ModelFactory.createDefaultModel();
         model.read(fixedInputStream, null);
 
-        t.graph.getModel().beginUpdate();
+        t.getCurrentGraph().getModel().beginUpdate();
         try {
 			// Import ValueObjects
 			{
-				Main.valueObjects.clear();
+				List<String> valueObjects = t.getCurrentGraph().valueObjects;
+				valueObjects.clear();
 				
 				ResIterator it = model.listSubjectsWithProperty(RDF.type, E3value.value_object);
 				while (it.hasNext()) {
 					Resource res = it.next();
 					String valueObject = res.getProperty(E3value.e3_has_name).getString();
-					if (!Main.valueObjects.contains(valueObject)) Main.valueObjects.add(valueObject);
+					if (!valueObjects.contains(valueObject)) valueObjects.add(valueObject);
 				}
 			}
 			
@@ -99,7 +100,7 @@ public class ImportTest {
 					int UID = res.getProperty(E3value.e3_has_uid).getInt();
 					StmtIterator formulas = res.listProperties(E3value.e3_has_formula);
 					
-					mxCell actor = (mxCell) Main.tools.clone(Main.tools.actor);
+					mxCell actor = (mxCell) Main.globalTools.clone(Main.globalTools.actor);
 					Actor actorValue = (Actor) actor.getValue();
 					actorValue.formulas.clear();
 
@@ -114,7 +115,7 @@ public class ImportTest {
 						actorValue.formulas.put(formulaName, value);
 					}
 					
-					t.graph.addCell(actor);
+					t.getCurrentGraph().addCell(actor);
 					
 					resourceToCell.put(res, actor);
 				}
@@ -129,7 +130,7 @@ public class ImportTest {
 					int UID = res.getProperty(E3value.e3_has_uid).getInt();
 					StmtIterator formulas = res.listProperties(E3value.e3_has_formula);
 					
-					mxCell marketSegment = (mxCell) Main.tools.clone(Main.tools.marketSegment);
+					mxCell marketSegment = (mxCell) Main.globalTools.clone(Main.globalTools.marketSegment);
 					MarketSegment marketSegmentValue = (MarketSegment) marketSegment.getValue();
 					marketSegmentValue.formulas.clear();
 
@@ -146,7 +147,7 @@ public class ImportTest {
 						System.out.println("Formula: " + formula);
 					}
 					
-					t.graph.addCell(marketSegment);
+					t.getCurrentGraph().addCell(marketSegment);
 
 					resourceToCell.put(res, marketSegment);
 				}
@@ -161,7 +162,7 @@ public class ImportTest {
 					int UID = res.getProperty(E3value.e3_has_uid).getInt();
 					StmtIterator formulas = res.listProperties(E3value.e3_has_formula);
 					
-					mxCell valueActivity = (mxCell) Main.tools.clone(Main.tools.valueActivity);
+					mxCell valueActivity = (mxCell) Main.globalTools.clone(Main.globalTools.valueActivity);
 					ValueActivity valueActivityValue = (ValueActivity) valueActivity.getValue();
 					valueActivityValue.formulas.clear();
 
@@ -176,7 +177,7 @@ public class ImportTest {
 						valueActivityValue.formulas.put(formulaName, value);
 					}
 					
-					t.graph.addCell(valueActivity);
+					t.getCurrentGraph().addCell(valueActivity);
 					
 					resourceToCell.put(res, valueActivity);
 				}
@@ -190,7 +191,7 @@ public class ImportTest {
 
 					Consumer<Statement> printCellName = p -> {
 						Object parent = resourceToCell.get(p.getResource());
-						mxCell valueInterface = (mxCell) t.tools.clone(t.tools.valueInterface);
+						mxCell valueInterface = (mxCell) t.globalTools.clone(t.globalTools.valueInterface);
 						
 						String name = res.getProperty(E3value.e3_has_name).getString();
 						int UID = res.getProperty(E3value.e3_has_uid).getInt();
@@ -202,17 +203,17 @@ public class ImportTest {
 						valueInterface.getGeometry().setX(0);
 						valueInterface.getGeometry().setY(0);
 						
-						t.graph.addCell(valueInterface, parent);
+						t.getCurrentGraph().addCell(valueInterface, parent);
 						
 						List<Object> toRemove = new ArrayList<Object>();
 						for (int i = 0; i < valueInterface.getChildCount(); i++) {
 							Object child = valueInterface.getChildAt(i);
-							Base childValue = (Base) t.graph.getModel().getValue(child);
+							Base childValue = (Base) t.getCurrentGraph().getModel().getValue(child);
 							if (childValue instanceof ValuePort) toRemove.add(child);
 						}
-						toRemove.forEach(o -> t.graph.getModel().remove(o));
+						toRemove.forEach(o -> t.getCurrentGraph().getModel().remove(o));
 						
-						E3Graph.straightenValueInterface(t.graph, valueInterface);
+						E3Graph.straightenValueInterface(t.getCurrentGraph(), valueInterface);
 						
 						resourceToCell.put(res, valueInterface);
 					};
@@ -239,16 +240,16 @@ public class ImportTest {
 					Object parent = resourceToCell.get(res.getProperty(E3value.vo_in_vi).getResource());
 					boolean incoming = res.getProperty(E3value.e3_has_name).getString().equals("in");
 					
-					mxCell valuePort = (mxCell) E3Graph.addValuePort(t.graph, (mxICell) parent, incoming);
+					mxCell valuePort = (mxCell) E3Graph.addValuePort(t.getCurrentGraph(), (mxICell) parent, incoming);
 					
 					Resource valuePortRes = res.getProperty(E3value.vo_consists_of_vp).getResource();
 					String name = valuePortRes.getProperty(E3value.e3_has_name).getString();
 					int UID = valuePortRes.getProperty(E3value.e3_has_uid).getInt();
 					
-					Base valuePortValue = Utils.base(t.graph, valuePort);
+					Base valuePortValue = Utils.base(t.getCurrentGraph(), valuePort);
 					valuePortValue.name = name;
 					valuePortValue.setSUID(UID);
-					t.graph.getModel().setValue(valuePort, valuePortValue);
+					t.getCurrentGraph().getModel().setValue(valuePort, valuePortValue);
 					
 					resourceToCell.put(res, valuePort);
 					resourceToCell.put(valuePortRes, valuePort);
@@ -285,9 +286,9 @@ public class ImportTest {
 					Object left = resourceToCell.get(res.getProperty(E3value.ve_has_in_po).getResource());
 					Object right = resourceToCell.get(res.getProperty(E3value.ve_has_out_po).getResource());
 					
-					Object valueExchange = t.graph.insertEdge(t.graph.getDefaultParent(), null, null, left, right);
+					Object valueExchange = t.getCurrentGraph().insertEdge(t.getCurrentGraph().getDefaultParent(), null, null, left, right);
 					// Have to set value here manually, the value parameter o the insertEdge method doesn't seem to work
-					t.graph.getModel().setValue(valueExchange, veValue);
+					t.getCurrentGraph().getModel().setValue(valueExchange, veValue);
 					
 					resourceToCell.put(res, valueExchange);
 				}
@@ -295,21 +296,21 @@ public class ImportTest {
 			
 			// This was to enable editing again, so the state can't be altered while
 			// a model is loaded. I'm not sure if it works though
-			t.graphComponent.setEnabled(true);
+			// t.graphComponent.setEnabled(true);
 
 			// Layout the graph nicely
-			mxIGraphLayout layout = new mxOrganicLayout(t.graph);
+			mxIGraphLayout layout = new mxOrganicLayout(t.getCurrentGraph());
 //			mxIGraphLayout layout = new mxHierarchicalLayout(t.graph);
 //			mxIGraphLayout layout = new mxOrthogonalLayout(t.graph);
 //			mxIGraphLayout layout = new mxPartitionLayout(t.graph);
 //			mxIGraphLayout layout = new mxStackLayout(t.graph);
 //			mxIGraphLayout layout = new mxCompactTreeLayout(t.graph);
 			
-			layout.execute(t.graph.getDefaultParent());
+			layout.execute(t.getCurrentGraph());
 			
 			// TODO: Recursively layout all actors/marketsegments/valueactivities
         } finally {
-        	t.graph.getModel().endUpdate();
+        	t.getCurrentGraph().getModel().endUpdate();
         }
 	}
 }

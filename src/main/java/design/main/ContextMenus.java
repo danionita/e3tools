@@ -57,29 +57,29 @@ public class ContextMenus {
 		addMenu.add(new JMenuItem(new AbstractAction("ValueActivity") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mxCell va = (mxCell) Main.tools.clone(Main.tools.valueActivity);
+				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.valueActivity);
 				// getGeometry is allowed here because at this point the cell is not a member of any graph in particular.
 				va.getGeometry().setX(Main.contextPos.getX());
 				va.getGeometry().setY(Main.contextPos.getY());
-				Main.graph.addCell(va);
+				graph.addCell(va);
 			}
 		}));
 		addMenu.add(new JMenuItem(new AbstractAction("Actor") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mxCell va = (mxCell) Main.tools.clone(Main.tools.actor);
+				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.actor);
 				va.getGeometry().setX(Main.contextPos.getX());
 				va.getGeometry().setY(Main.contextPos.getY());
-				Main.graph.addCell(va);
+				graph.addCell(va);
 			}
 		}));
 		addMenu.add(new JMenuItem(new AbstractAction("MarketSegment") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mxCell va = (mxCell) Main.tools.clone(Main.tools.marketSegment);
+				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.marketSegment);
 				va.getGeometry().setX(Main.contextPos.getX());
 				va.getGeometry().setY(Main.contextPos.getY());
-				Main.graph.addCell(va);
+				graph.addCell(va);
 			}
 		}));
 		menu.add(addMenu);
@@ -99,30 +99,6 @@ public class ContextMenus {
 							
 							// If a value exchange was edited, update its name & valueobject labels
 							if (event.resultObject instanceof ValueExchange) {
-//								Object labelCell = Utils.getValueExchangeNameLabel(graph, Main.contextTarget);
-////								Object valueObjectCell = Utils.getValueExchangeValueObjectLabel(graph, Main.contextTarget);
-//								
-//								// Assure that they have been found
-//								assert(labelCell != null);
-////								assert(valueObjectCell != null);
-//								
-//								// Collect copies of all the values
-//								ValueExchange veValue = (ValueExchange) event.resultObject; 
-//								ValueExchangeLabel labelValue = (ValueExchangeLabel) Utils.base(graph, labelCell);
-////								ValueExchangeLabel valueObjectValue = (ValueExchangeLabel) Utils.base(graph, valueObjectCell);
-//								
-//								// Set the names
-//								labelValue.name = veValue.name;
-////								valueObjectValue.name = veValue.valueObject;
-//								
-//								// Set the values again
-//								graph.getModel().setValue(labelCell, labelValue);
-////								graph.getModel().setValue(valueObjectCell, valueObjectValue);
-//								
-//								Utils.setValueExchangeNameLabelVisibility(graph, Main.contextTarget);
-//								Utils.setValueExchangeValueObjectLabelVisibility(graph, Main.contextTarget);
-								// Done
-								
 								Utils.updateValueExchangeNameLabel(graph, Main.contextTarget);
 							}
 						} finally {
@@ -179,7 +155,7 @@ public class ContextMenus {
 					graph.getModel().beginUpdate();
 					try {
 						for (int j = n; j < dots.size(); j++) {
-							graph.getModel().remove(dots.get(j));
+							graph.removeCells(new Object[]{dots.get(j)});
 						}
 						E3Graph.straightenLogicUnit(graph, (mxCell) Main.contextTarget);
 					} finally {
@@ -325,8 +301,20 @@ public class ContextMenus {
 				
 				try {
 					amount = Integer.parseInt(amountStr);
-					if (amount < 0) return;
-				} catch (Exception e2) {
+					if (amount < 0) {
+						JOptionPane.showMessageDialog(
+								Main.mainFrame,
+								"Proportion can only be more than or equal to 0",
+								"Proportion out of bounds",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame,
+							"\"" + amountStr + "\" is not a valid proportion",
+							"Invalid proportion",
+							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				
@@ -437,6 +425,8 @@ public class ContextMenus {
 	}
 	
 	public static void addValueExchangeMenu(JPopupMenu menu, mxGraph graph) {
+		E3Graph e3graph = (E3Graph) graph;
+
 		JMenu valueObjectMenu = new JMenu("ValueObject");
 		valueObjectMenu.addMenuListener(new MenuListener() {
 			@Override
@@ -451,7 +441,8 @@ public class ContextMenus {
 				
 				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 				
-				for (String valueObject : Main.valueObjects) {
+				
+				for (String valueObject : e3graph.valueObjects) {
 					if (valueObject.equals(ve.valueObject)) {
 						JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new AbstractAction(valueObject) {
 							@Override
@@ -500,7 +491,7 @@ public class ContextMenus {
 								JOptionPane.QUESTION_MESSAGE);
 						if (newName == null || newName.trim().length() == 0) return;
 
-						Main.valueObjects.add(newName);
+						e3graph.valueObjects.add(newName);
 						
 						ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 						ve.valueObject = newName;

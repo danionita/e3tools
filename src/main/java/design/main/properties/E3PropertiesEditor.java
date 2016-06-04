@@ -385,6 +385,11 @@ public class E3PropertiesEditor {
 				for (int i = 0; i < formulaTable.getModel().getRowCount(); i++) {
 					String name = (String) formulaTable.getModel().getValueAt(i, 0);
 					String formula = (String) formulaTable.getModel().getValueAt(i, 1);
+					
+					if (formula.trim().isEmpty()) {
+						formula = "0";
+					}
+					
 					value.formulas.put(name, formula);
 				}
 				

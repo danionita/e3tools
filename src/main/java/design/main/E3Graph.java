@@ -43,7 +43,11 @@ import design.main.Info.ValueActivity;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 
-class E3Graph extends mxGraph {
+public class E3Graph extends mxGraph {
+	public final ArrayList<String> valueObjects = new ArrayList<>(
+			Arrays.asList("MONEY", "SERVICE")
+			);
+	
 	/**
 	 * Returns true if given cell is a fitting drop target for cells. This means the
 	 * drop target should be an actor or a value activity.

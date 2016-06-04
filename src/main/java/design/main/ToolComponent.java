@@ -231,8 +231,6 @@ public class ToolComponent extends mxGraphComponent {
 			graph.getModel().endUpdate();
 		}
 		
-		System.out.println(graph.getView().getState(ess).getLabelBounds());
-
 		// This enables clicking on the easttriangle as well (and gate)
 		graph.getSelectionModel().addListener(mxEvent.CHANGE, new ProxySelection(graph));
 	}
