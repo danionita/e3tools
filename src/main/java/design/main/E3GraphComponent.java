@@ -87,7 +87,10 @@ public class E3GraphComponent extends mxGraphComponent {
 		
 		ContextMenus.addE3PropertiesMenu(valueActivityMenu, graph);
 		ContextMenus.addE3PropertiesMenu(marketSegmentMenu, graph);
+		
 		ContextMenus.addE3PropertiesMenu(startSignalMenu, graph);
+		ContextMenus.addStartSignalMenu(startSignalMenu, graph);
+		
 		ContextMenus.addE3PropertiesMenu(endSignalMenu, graph);
 		
 		// Enable delete key et. al.
@@ -160,6 +163,12 @@ public class E3GraphComponent extends mxGraphComponent {
 				graph.getModel().beginUpdate();
 				try {
 					Base value = Utils.base(graph, cell);
+					
+					if (value != null && !(value instanceof ValueExchangeLabel)) {
+						value.name = value.getClass().getSimpleName() + value.getSUID();
+						graph.getModel().setValue(cell, value);
+					}
+					
 					if (value instanceof ValueInterface) {
 						mxICell parent = (mxICell) cell.getParent();
 						if (parent == graph.getDefaultParent()) {
@@ -189,10 +198,12 @@ public class E3GraphComponent extends mxGraphComponent {
 				if (source != null && target != null) {
 					Base sourceValue = Utils.base(graph, source);
 					Base targetValue = Utils.base(graph, target);
-					
+
 					if (Utils.isDotValue(sourceValue) && Utils.isDotValue(targetValue)) {
 						graph.getModel().setStyle(cell, "ConnectionElement");
-						graph.getModel().setValue(cell, new ConnectionElement());
+						ConnectionElement value = new ConnectionElement();
+						value.name = "ConnectionElement" + value.getSUID();
+						graph.getModel().setValue(cell, value);
 
 						Object[] sourceEdges = graph.getEdges(source);
 						Object[] targetEdges = graph.getEdges(target);
@@ -222,13 +233,15 @@ public class E3GraphComponent extends mxGraphComponent {
 						try {
 							// Set ValueExchange edge properties
 							graph.getModel().setStyle(cell, new String("ValueExchange"));
-							graph.getModel().setValue(cell, new ValueExchange());
+							ValueExchange value = new ValueExchange();
+							value.name = "ValueExchange" + value.getSUID();
+							graph.getModel().setValue(cell, value);
 							
 							// Add two labels with values properly set
 							ValueExchangeLabel valueObjectLabelValue = new ValueExchangeLabel();
 							valueObjectLabelValue.isValueObjectLabel = true;
 							ValueExchangeLabel nameLabelValue = new ValueExchangeLabel();
-
+							
 							mxCell nameLabel = new mxCell(nameLabelValue, new mxGeometry(0, -60, 0, 0), "NameText");
 							nameLabel.getGeometry().setRelative(true);
 							nameLabel.setVertex(true);
@@ -244,6 +257,8 @@ public class E3GraphComponent extends mxGraphComponent {
 							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
 								graph.getModel().remove(cell);
 							}
+							
+							Utils.updateValueExchangeNameLabel(graph, cell);
 						} finally {
 							graph.getModel().endUpdate();
 						}

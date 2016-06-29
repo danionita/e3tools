@@ -288,7 +288,7 @@ public class Info {
 		private static final long serialVersionUID = -7607653966138790703L;
 		public String valueObject = null;
 		public boolean valueObjectHidden = false;
-		public boolean labelHidden = false;
+		public boolean labelHidden = true;
 		
 		public ValueExchange() {
 			formulas.put("CARDINALITY", "1");
@@ -347,6 +347,8 @@ public class Info {
 	public static class StartSignal extends Base {
 		private static final long serialVersionUID = -3440018877858008513L;
 		
+		public boolean showLabel = false;
+		
 		public StartSignal() {
 			name = "StartSignal" + getSUID();
 			formulas.put("COUNT", "1");
@@ -356,18 +358,21 @@ public class Info {
 		public Base getCopy() {
 			StartSignal copy = new StartSignal();
 			setCommons(this, copy);
+			copy.showLabel = showLabel;
 
 			return copy;
 		}
 		
 		@Override
 		public String toString() {
-			return name;
+			return showLabel ? name : "";
 		}
 	}
 	
 	public static class EndSignal extends Base {
 		private static final long serialVersionUID = -6483661636370237656L;
+		
+		public boolean showLabel = false;
 		
 		public EndSignal() {
 			name = "EndSignal" + getSUID();
@@ -379,7 +384,14 @@ public class Info {
 			EndSignal copy = new EndSignal();
 			setCommons(this, copy);
 			
+			copy.showLabel = showLabel;
+			
 			return copy;
+		}
+		
+		@Override
+		public String toString() {
+			return showLabel ? name : "";
 		}
 		
 		@Override

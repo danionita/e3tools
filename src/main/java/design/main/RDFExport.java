@@ -158,8 +158,8 @@ public class RDFExport {
 			
 			Resource ceRes = getResource.apply(ceInfo.getSUID());
 			
-			Object oppositeChild = Utils.getOpposite(graph, ce, upDot);
-			Object opposite = model.getParent(oppositeChild);
+			Object downDot = Utils.getOpposite(graph, ce, upDot);
+			Object opposite = model.getParent(downDot);
 			Base oppositeValue = (Base) model.getValue(opposite);
 			
 			Object up = model.getParent(upDot);
@@ -169,12 +169,13 @@ public class RDFExport {
 			ceRes.addProperty(E3value.ce_with_down_de, getResource.apply(oppositeValue.getSUID()));
 			
 			setSend(upDot);
-			setReceive(oppositeChild);
+			setReceive(downDot);
 			
 			if (oppositeValue instanceof ValueInterface) {
 				Resource viRes = getResource.apply(oppositeValue.getSUID());
 				viRes.addProperty(E3value.de_up_ce, ceRes);
 				
+				// TODO: This can be moved to its own function
 				List<Object> ports = Utils.getChildrenWithValue(graph, opposite, ValuePort.class);
 				for (Object port : ports) {
 					if (model.getEdgeCount(port) > 0) {
@@ -204,7 +205,7 @@ public class RDFExport {
 				}
 			} else if (oppositeValue instanceof LogicBase) {
 				LogicBase lbInfo = (LogicBase) model.getValue(opposite);
-				visit(oppositeChild, opposite, lbInfo);
+				visit(downDot, opposite, lbInfo);
 			} else if (oppositeValue instanceof EndSignal) {
 				EndSignal esInfo = (EndSignal) model.getValue(opposite);
 				visit(opposite, esInfo);
@@ -509,147 +510,10 @@ public class RDFExport {
 					System.out.println("Malformed flow! Cause: " + e.subject);
 					e.printStackTrace();
 				}
-				
-//				Base connectionElementValue = null;
-//				Object edgeObject = null;
-//				Object edgeSource = null;
-//
-//				for (Object child : graph.getChildCells(cell)) {
-//					if (graph.getModel().getValue(child) instanceof Info.SignalDot) {
-//						Object[] edges = graph.getEdges(child);
-//						
-//						for (Object edge : edges) {
-//							Object edgeValue = graph.getModel().getValue(edge);
-//							
-//							if (edgeValue instanceof Base) {
-//								edgeSource = child;
-//								connectionElementValue = (Base) edgeValue;
-//								edgeObject = edge;
-//								break;
-//							}
-//						}
-//						
-//						if (connectionElementValue instanceof Base) break;
-//					}
-//				}
-//				
-//				if (!(connectionElementValue instanceof Base)) continue;
-//				
-//				res.addProperty(E3value.de_down_ce, getResource.apply(connectionElementValue.getSUID()));
-//				
-//				// Set the ce_with_down_de and ce_with_up_de for the connection element
-//				Resource ceRes = getResource.apply(connectionElementValue.getSUID());
-//				ceRes.addProperty(E3value.ce_with_up_de, res);
-//				
-//				Object otherSide = Utils.getOpposite(graph, edgeObject, edgeSource);
-//				// It's a dot, so get it's parent for the resource to connect to
-//				Object otherSideParent = graph.getModel().getParent(otherSide); 
-//				Base otherSideParentValue = (Base) graph.getModel().getValue(otherSideParent);
-//				Resource otherSideRes = getResource.apply(otherSideParentValue.getSUID());
-//				ceRes.addProperty(E3value.ce_with_down_de, otherSideRes);
-//				otherSideRes.addProperty(E3value.de_up_ce, ceRes);
-				
-//				if (!EdgeAndSides.hasDotChildEdge(graph, cell)) continue;
-//				
-//				EdgeAndSides eas = EdgeAndSides.fromParentSide(graph, cell);
-//				
-//				Resource startRes = getResource.apply(eas.leftValue.getSUID());
-//				Resource ceRes = getResource.apply(eas.edgeValue.getSUID());
-//				Resource otherRes = getResource.apply(eas.rightValue.getSUID());
-//
-//				startRes.addProperty(E3value.de_down_ce, ceRes);
-//				ceRes.addProperty(E3value.ce_with_up_de, startRes);
-//				ceRes.addProperty(E3value.ce_with_down_de, otherRes);
-//				otherRes.addProperty(E3value.de_up_ce, ceRes);
 			} else if (value instanceof EndSignal) {
 				res.addProperty(RDF.type, E3value.end_stimulus);
-//
-//				if (!EdgeAndSides.hasDotChildEdge(graph, cell)) continue;
-//				
-//				EdgeAndSides eas = EdgeAndSides.fromParentSide(graph, cell);
-//				
-//				Resource endRes = getResource.apply(eas.rightValue.getSUID());
-//				Resource ceRes = getResource.apply(eas.edgeValue.getSUID());
-//				Resource otherRes = getResource.apply(eas.leftValue.getSUID());
-//				
-//				otherRes.addProperty(E3value.de_down_ce, ceRes);
-//				ceRes.addProperty(E3value.ce_with_up_de, otherRes);
-//				ceRes.addProperty(E3value.ce_with_down_de, endRes);
-//				endRes.addProperty(E3value.de_up_ce, ceRes);
-//				
-//				Base connectionElementValue = null;
-//				Object edgeObject = null;
-//				Object edgeSource = null;
-//
-//				for (Object child : graph.getChildCells(cell)) {
-//					if (graph.getModel().getValue(child) instanceof Info.SignalDot) {
-//						Object[] edges = graph.getEdges(child);
-//						
-//						for (Object edge : edges) {
-//							Object edgeValue = graph.getModel().getValue(edge);
-//							
-//							if (edgeValue instanceof Base) {
-//								edgeSource = child;
-//								connectionElementValue = (Base) edgeValue;
-//								edgeObject = edge;
-//								break;
-//							}
-//						}
-//						
-//						if (connectionElementValue instanceof Base) break;
-//					}
-//				}
-//				
-//				if (!(connectionElementValue instanceof Base)) continue;
-//				
-//				res.addProperty(E3value.de_up_ce, getResource.apply(connectionElementValue.getSUID()));
-//				
-//				// Set the ce_with_down_de and ce_with_up_de for the connection element
-//				Resource ceRes = getResource.apply(connectionElementValue.getSUID());
-//				ceRes.addProperty(E3value.ce_with_down_de, res);
-//				
-//				Object otherSide = Utils.getOpposite(graph, edgeObject, edgeSource);
-//				// It's a dot, so get it's parent for the resource to connect to
-//				Object otherSideParent = graph.getModel().getParent(otherSide); 
-//				Base otherSideParentValue = (Base) graph.getModel().getValue(otherSideParent);
-//				Resource otherSideRes = getResource.apply(otherSideParentValue.getSUID());
-//				ceRes.addProperty(E3value.ce_with_up_de, otherSideRes);
-//				otherSideRes.addProperty(E3value.de_down_ce, ceRes);
 			} else if (value instanceof ConnectionElement) {
 				res.addProperty(RDF.type, E3value.connection_element);
-//				// Rest setting of ce_with_up_de and ce_with_down_ce will be down by
-//				// start and end signals, value interfaces, etc.
-//				// fractions will be set by default. logic gates can change them
-//				
-//				// Cases:
-//				// ss -> vi
-//				// es -> vi
-//				// ss -> ld
-//				// es -> ld
-//				// vi -> vi
-//				// ld -> ld
-//				// ld -> vi
-//
-//				res.addProperty(E3value.down_fraction, "1");
-//				res.addProperty(E3value.up_fraction, "1");
-//				
-//				EdgeAndSides eas = EdgeAndSides.fromEdge(graph, cell);
-//				
-//				if ((eas.leftValue instanceof StartSignal) ||
-//						(eas.rightValue instanceof EndSignal)) {
-//					continue;
-//				}
-//				
-//				// Now it's either a random pair of interfaces or logic dots
-//				
-//				Resource startRes = getResource.apply(eas.leftValue.getSUID());
-//				Resource ceRes = getResource.apply(eas.edgeValue.getSUID());
-//				Resource endRes = getResource.apply(eas.rightValue.getSUID());
-//				
-//				startRes.addProperty(E3value.de_down_ce, ceRes);
-//				ceRes.addProperty(E3value.ce_with_up_de, startRes);
-//				ceRes.addProperty(E3value.ce_with_down_de, endRes);
-//				endRes.addProperty(E3value.de_up_ce, ceRes);
 			} else if (value instanceof LogicBase) {
 				LogicBase lbInfo = (LogicBase) value;
 				if (((LogicBase) value).isOr) {

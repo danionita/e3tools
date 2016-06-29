@@ -42,8 +42,8 @@ import com.mxgraph.view.mxGraph;
 import design.main.Info.Base;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
+import design.main.Info.StartSignal;
 import design.main.Info.ValueExchange;
-import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.properties.E3PropertiesEditor;
@@ -651,5 +651,23 @@ public class ContextMenus {
 	
 	public static void addActorMenu(JPopupMenu menu, mxGraph graph) {
 
+	}
+
+	public static void addStartSignalMenu(JPopupMenu menu, mxGraph graph) {
+		menu.add(new JMenuItem(new AbstractAction("Toggle label visibility") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				StartSignal value = (StartSignal) Utils.base(graph, Main.contextTarget);
+				
+				value.showLabel ^= true;
+				
+				graph.getModel().beginUpdate();
+				try {
+					graph.getModel().setValue(Main.contextTarget, value);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
 	}
 }

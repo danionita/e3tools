@@ -126,8 +126,10 @@ public class E3Model {
      * @param occurences the occurrence rate of nextElement
      */
     private void traverse(Resource nextElement, double occurences) {
+    	System.out.println("Traverse called");
         //While this is not the last element (i.e. an end stimulus)
         while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {            
+        	System.out.println("While instance");
             //System.out.println("\t\t...moved to element: " + nextElement.getProperty(E3value.e3_has_name).getString());
             //if it is a ValueInterface
             if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {

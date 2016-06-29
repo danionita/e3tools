@@ -69,17 +69,13 @@ public class ToolComponent extends mxGraphComponent {
 			}
 			
 			/**
-			 * Valueports should not have a label, so they are silenced (by returning
-			 * an empty string). Anything else should just excert default behaviour.
+			 *  Label text behaviour is defined by Info objects and their toString functions.
 			 */
 			@Override
 			public String convertValueToString(Object obj) {
 				mxICell cell = (mxICell) obj;
 				
-				// TODO: Special-case this per type
-				if (cell.getValue() instanceof StartSignal) {
-					return "";
-				} else if (cell.getValue() instanceof Info.Base) {
+				if (cell.getValue() instanceof Info.Base) {
 					return ((Info.Base) cell.getValue()).toString();
 				}
 
