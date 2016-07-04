@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -196,6 +197,8 @@ public class Main {
 				Component analysis = Utils.addClosableTab(views, "Fraud analysis of \"" + getCurrentGraphName() + "\"", main);
 
 				views.setSelectedIndex(views.indexOfComponent(analysis));
+				
+				main.fit();
 			}
 		}));
 		

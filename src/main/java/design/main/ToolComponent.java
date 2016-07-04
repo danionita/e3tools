@@ -53,7 +53,7 @@ public class ToolComponent extends mxGraphComponent {
 	public final Object andGate;
 	
 	public Object clone(Object cell) {
-		return graph.getModel().cloneCells(new Object[]{cell}, true)[0];
+		return graph.cloneCells(new Object[]{cell}, true)[0];
 	}
 
 	public ToolComponent() {
@@ -89,24 +89,7 @@ public class ToolComponent extends mxGraphComponent {
 			@Override
 			public Object[] cloneCells(Object[] cells, boolean allowInvalidEdges) {
 				Object[] clones = super.cloneCells(cells, allowInvalidEdges);
-				
-				for ( Object obj : clones) {
-					if (model.getValue(obj) instanceof Info.Base) {
-						((mxCell) obj).setValue(Utils.base(this, obj));
-						// TODO: Set new ID for the base thing above
-						// Utils.assignNewSUIDs(obj);
-					}
-				}
-				
-				return clones;
-			}
-		});
-		
-		graph.setModel(new mxGraphModel() {
-			@Override
-			public Object[] cloneCells(Object[] cells, boolean includeChildren) {
-				Object[] clones = super.cloneCells(cells, includeChildren);
-				
+
 				class H {
 					public void renewBasesAndIncreaseSUIDS(mxCell cell) {
 						if (cell.getValue() instanceof Base) {
@@ -118,12 +101,15 @@ public class ToolComponent extends mxGraphComponent {
 							renewBasesAndIncreaseSUIDS((mxCell) cell.getChildAt(i));
 						}
 						
-						System.out.println("Cloning! " + cell.getValue().getClass().getSimpleName());
+						System.out.println("Renewing! " + cell.getValue().getClass().getSimpleName());
 					}
 				} H h = new H();
 				
-				for (Object clone : clones) {
-					h.renewBasesAndIncreaseSUIDS((mxCell) clone);
+				for ( Object obj : clones) {
+					if (model.getValue(obj) instanceof Info.Base) {
+						mxCell cell = (mxCell) obj;
+						h.renewBasesAndIncreaseSUIDS(cell);
+					}
 				}
 				
 				return clones;

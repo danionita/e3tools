@@ -508,10 +508,7 @@ public class Utils {
 		
 		clone.getModel().beginUpdate();
 		try {
-			// Not recursive!
 			clone.addCells(original.cloneCells(original.getChildCells(original.getDefaultParent())));
-			// This should be (testing)
-//			clone.addCells(original.getModel().cloneCells(original.getChildCells(original.getDefaultParent()), true));
 			clone.valueObjects.addAll(original.valueObjects);
 		} finally {
 			clone.getModel().endUpdate();

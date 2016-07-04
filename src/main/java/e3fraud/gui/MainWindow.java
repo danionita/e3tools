@@ -67,10 +67,15 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.mxgraph.model.mxGeometry;
 import com.mxgraph.view.mxGraphView;
 
 import design.main.E3Graph;
 import design.main.E3GraphComponent;
+import design.main.Info.Actor;
+import design.main.Info.MarketSegment;
+import design.main.Info.ValueActivity;
+import design.main.Main;
 import design.main.Utils;
 import e3fraud.model.E3Model;
 import e3fraud.parser.FileParser;
@@ -293,20 +298,55 @@ public class MainWindow extends JPanel
     }
     
     public void showGraph(E3Graph graph) {
-    	E3Graph myGraph = Utils.cloneGraph(graph);
+    	analyzedGraph = Utils.cloneGraph(graph);
     	
-    	E3GraphComponent graphComponent = new E3GraphComponent(myGraph);
+    	graphComponent = new E3GraphComponent(analyzedGraph);
     	graphComponent.setEnabled(false);
-        graphComponent.setPreferredSize(new Dimension(settingsPanel.getSize().width, progressBar.getPreferredSize().height));
+    	graphComponent.setPreferredSize(new Dimension(0, 0));
 
     	settingsPanel.add(graphComponent);
-    	// TODO: Why does settingsPanel.getWidth() == 0? Then I can't calculate scaling
     	
+//    	SwingUtilities.invokeLater(new Runnable() {
+//			@Override
+//			public void run() {
+//				mxGraphView view = graphComponent.getGraph().getView();
+//				
+//				System.out.println(graphComponent.getVisibleRect().getWidth());
+//				System.out.println(view.getGraphBounds().getWidth());
+//
+//				double scale = view.getGraphBounds().getWidth() / graphComponent.getVisibleRect().getWidth(); 
+//
+//				System.out.println("Scale: " + scale);
+//
+//				view.setScale(scale);
+//				
+//				graphComponent.refresh();
+//			}
+//    	});
+    }
+    
+    public void fit() {
+		Main.mainFrame.pack();
+
 		mxGraphView view = graphComponent.getGraph().getView();
-		int compLen = 130; // graphComponent.getWidth();
-		int viewLen = (int)view.getGraphBounds().getWidth();
-//		view.setScale(compLen/(double) viewLen * view.getScale()); 	
-		view.setScale(compLen/(double) viewLen); 	
+		
+		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
+		
+		for (Object obj : analyzedGraph.getChildCells(analyzedGraph.getDefaultParent())) {
+			// Only look at the positions from top-level elements
+			if (!(analyzedGraph.getModel().getValue(obj) instanceof ValueActivity
+					|| analyzedGraph.getModel().getValue(obj) instanceof MarketSegment
+					|| analyzedGraph.getModel().getValue(obj) instanceof Actor)) continue;
+			
+			mxGeometry gm = analyzedGraph.getCellGeometry(obj);
+			minX = Math.min(minX, gm.getX());
+			minY = Math.min(minY, gm.getY());
+			
+		}
+
+		double scale = graphComponent.getVisibleRect().getWidth() / view.getGraphBounds().getWidth();
+
+		view.scaleAndTranslate(scale, -minX, -minY);
 		
 		graphComponent.refresh();
     }
@@ -582,5 +622,6 @@ public class MainWindow extends JPanel
     }
     
     public static MainWindow mainWindowInstance;
-
+	private E3Graph analyzedGraph;
+	private E3GraphComponent graphComponent;
 }
