@@ -45,7 +45,7 @@ import design.main.Info.ValuePort;
 
 public class E3Graph extends mxGraph {
 	public final ArrayList<String> valueObjects = new ArrayList<>(
-			Arrays.asList("MONEY", "SERVICE")
+			Arrays.asList("MONEY", "MONEY-SECURED", "SERVICE")
 			);
 	
 	/**
