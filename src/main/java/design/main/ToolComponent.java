@@ -91,7 +91,10 @@ public class ToolComponent extends mxGraphComponent {
 				
 				for ( Object obj : clones) {
 					if (model.getValue(obj) instanceof Info.Base) {
-						model.setValue(obj, Utils.base(this, obj));
+						Base newInfo = Utils.base(this, obj);
+						// Make sure the clone has a unique SUID
+						newInfo.setSUID(Info.getSUID());
+						model.setValue(obj, newInfo);
 					}
 				}
 				

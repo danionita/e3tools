@@ -564,4 +564,96 @@ public class E3Graph extends mxGraph {
 			graph.getModel().endUpdate();
 		}
 	}
+	public Object addActor(double x, double y) {
+		Object ac = addCell(Main.globalTools.clone(Main.globalTools.actor));
+		mxGeometry geom = Utils.geometry(this, ac);
+		geom.setX(x);
+		geom.setY(y);
+		model.setGeometry(ac, geom);
+		
+		return ac;
+	}
+	
+	public Object addValueInterface(Object parent, double x, double y) {
+		Object vi = Main.globalTools.clone(Main.globalTools.valueInterface);
+		mxGeometry gm = ((mxCell) vi).getGeometry();
+		gm.setX(x);
+		gm.setY(y);
+		this.addCell(vi, parent);
+		
+		return vi;
+	}
+	
+	public Object addStartSignal(Object parent, double x, double y) {
+		Object ss = Main.globalTools.clone(Main.globalTools.startSignal);
+		mxGeometry gm = ((mxCell) ss).getGeometry();
+		gm.setX(x);
+		gm.setY(y);
+		this.addCell(ss, parent);
+		
+		return ss;
+	}
+	
+	public Object addEndSignal(Object parent, double x, double y) {
+		Object es = Main.globalTools.clone(Main.globalTools.endSignal);
+		mxGeometry gm = ((mxCell) es).getGeometry();
+		gm.setX(x);
+		gm.setY(y);
+		this.addCell(es, parent);
+		
+		return es;
+	}
+	
+	public Object connectVE(Object start, Object end) {
+		Base startInfo = Utils.base(this, start);
+		Base endInfo = Utils.base(this, end);
+		
+		if (startInfo instanceof ValueInterface 
+				&& endInfo instanceof ValueInterface) {
+			List<Object> valuePortsStart = Utils.getChildrenWithValue(this, start, ValuePort.class);
+			List<Object> valuePortsEnd = Utils.getChildrenWithValue(this, end, ValuePort.class);
+			
+			Object portStart = null;
+			Object portEnd = null;
+			
+			for (Object port : valuePortsStart) {
+				ValuePort vpInfo = (ValuePort) Utils.base(this, port);
+				if (model.getEdgeCount(port) == 0 && !vpInfo.incoming) {
+					portStart = port;
+					break;
+				}
+			}
+			
+			for (Object port : valuePortsEnd) {
+				ValuePort vpInfo = (ValuePort) Utils.base(this, port);
+				if (model.getEdgeCount(port) == 0 && vpInfo.incoming) {
+					portEnd = port;
+					break;
+				}
+			}
+			
+			assert (portStart != null);
+			assert (portEnd != null);
+			
+			return this.insertEdge(
+					getDefaultParent(),
+					null,
+					"",
+					portEnd,
+					portStart
+					);
+		}
+
+		return null;
+	}
+
+	public Object connectCE(Object start, Object end) {
+		Base startInfo = Utils.base(this, start);
+		Base endInfo = Utils.base(this, end);
+		
+		Object startDot = Utils.getChildrenWithValue(this, start, SignalDot.class).get(0);
+		Object endDot = Utils.getChildrenWithValue(this, end, SignalDot.class).get(0);
+		
+		return this.insertEdge(getDefaultParent(), null, "", startDot, endDot);
+	}	
 }

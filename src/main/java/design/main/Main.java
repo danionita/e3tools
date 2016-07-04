@@ -53,11 +53,17 @@ import javax.swing.event.MenuListener;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 
 import design.main.Info.Base;
+import design.main.Info.SignalDot;
 import design.main.Info.ValueExchange;
+import design.main.Info.ValueInterface;
+import design.main.Info.ValuePort;
 import design.main.Utils.ClosableTabHeading;
 import e3fraud.gui.MainWindow;
 import e3fraud.model.E3Model;
@@ -355,6 +361,80 @@ public class Main {
 		}));
 		
 		menuBar.add(graphMenu);
+
+		JMenu exampleMenu = new JMenu("Examples");
+
+		exampleMenu.add(new JMenuItem(new AbstractAction("Small tricky graph") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				E3Graph graph = getCurrentGraph();
+				mxGraphModel model = (mxGraphModel) graph.getModel();
+				
+				ToolComponent tc = Main.globalTools;
+				
+				Object root = graph.getDefaultParent();
+				
+				model.beginUpdate();
+				try {
+					Object tl = graph.addActor(100, 100);
+					Object bl = graph.addActor(100, 250);
+					
+					Object tlBottom = graph.addValueInterface(tl, 30, 50);
+					Object blTop = graph.addValueInterface(bl, 30, 0);
+					
+					graph.connectVE(tlBottom, blTop);
+					graph.connectVE(blTop, tlBottom);
+					
+					Object ss = graph.addStartSignal(bl, 20, 20);
+					Object es =  graph.addEndSignal(tl, 20, 20);
+					
+					graph.connectCE(ss, blTop);
+					graph.connectCE(tlBottom, es);
+				} finally {
+					model.endUpdate();
+				}
+			}
+		}));
+
+		exampleMenu.add(new JMenuItem(new AbstractAction("Medium tricky graph") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				E3Graph graph = getCurrentGraph();
+				mxGraphModel model = (mxGraphModel) graph.getModel();
+				
+				ToolComponent tc = Main.globalTools;
+				
+				Object root = graph.getDefaultParent();
+				
+				model.beginUpdate();
+				try {
+					Object tl = graph.addActor(100, 100);
+					Object bl = graph.addActor(100, 250);
+					Object tr = graph.addActor(250, 100);
+					
+					Object tlBottom = graph.addValueInterface(tl, 30, 50);
+					Object blTop = graph.addValueInterface(bl, 30, 0);
+					Object tlRight = graph.addValueInterface(tl, 50, 30);
+					Object trLeft = graph.addValueInterface(tr, 0, 30);
+					
+					graph.connectVE(tlBottom, blTop);
+					graph.connectVE(blTop, tlBottom);
+					graph.connectVE(tlRight, trLeft);
+					graph.connectVE(trLeft, tlRight);
+					
+					Object ss = graph.addStartSignal(bl, 20, 20);
+					Object es =  graph.addEndSignal(tr, 20, 20);
+					
+					graph.connectCE(ss, blTop);
+					graph.connectCE(tlBottom, tlRight);
+					graph.connectCE(trLeft, es);
+				} finally {
+					model.endUpdate();
+				}
+			}
+		}));
+		
+		menuBar.add(exampleMenu);
 		
 		mainFrame.setJMenuBar(menuBar);
 		
