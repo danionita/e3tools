@@ -36,6 +36,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
+import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
@@ -504,10 +505,13 @@ public class Utils {
 
 	public static E3Graph cloneGraph(E3Graph original) {
 		E3Graph clone = new E3Graph();
-
+		
 		clone.getModel().beginUpdate();
 		try {
+			// Not recursive!
 			clone.addCells(original.cloneCells(original.getChildCells(original.getDefaultParent())));
+			// This should be (testing)
+//			clone.addCells(original.getModel().cloneCells(original.getChildCells(original.getDefaultParent()), true));
 			clone.valueObjects.addAll(original.valueObjects);
 		} finally {
 			clone.getModel().endUpdate();
@@ -515,4 +519,16 @@ public class Utils {
 		
 		return clone;
 	}
+	
+//	public static void assignNewSUIDs(Object cell_) {
+//		mxCell cell = (mxCell) cell_;
+//		((Base) cell.getValue()).setSUID(Info.getSUID());
+//		
+////		System.out.println("Obj: " + cell.getValue().getClass().getSimpleName());
+////		System.out.println("New SUID: " + ((Base) cell.getValue()).getSUID());
+//
+//		for (int i = 0; i < cell.getChildCount(); i++) {
+//			assignNewSUIDs((mxCell) cell.getChildAt(i));
+//		}
+//	}
 }

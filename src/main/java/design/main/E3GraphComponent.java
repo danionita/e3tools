@@ -93,6 +93,11 @@ public class E3GraphComponent extends mxGraphComponent {
 		
 		ContextMenus.addE3PropertiesMenu(endSignalMenu, graph);
 		
+		// Some debug menus
+		if (Main.DEBUG) {
+			ContextMenus.addE3PropertiesMenu(valueInterfaceMenu, graph);
+		}
+		
 		// Enable delete key et. al.
 		// Changed to make sure value transaction labels can't be deleted, only hidden
 		new mxKeyboardHandler(this) {

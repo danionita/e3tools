@@ -423,9 +423,25 @@ public class E3Graph extends mxGraph {
 		
 		for ( Object obj : clones) {
 			if (model.getValue(obj) instanceof Info.Base) {
-				Base value = Utils.base(this,  obj);
-				value.setSUID(Info.getSUID());
-				model.setValue(obj, value);
+				((mxCell) obj).setValue(Utils.base(this, obj));
+				// TODO: Use the "right" clone here (cloneCells in Model)
+				// Utils.assignNewSUIDs(obj);
+			}
+		}
+		
+		return clones;
+	}
+	
+	public Object[] cloneCellsRecursive(Object[] cells) {
+		Object[] clones = new Object[cells.length];
+		
+		for (int i = 0; i < clones.length; i++) {
+			clones[i] = cloneCells(new Object[]{cells[i]})[0];
+			
+			mxCell cell = (mxCell) clones[i];
+			List<Object> children =  Utils.getChildrenWithValue(this, cell, Object.class);
+			for (int j = 0; j < children.size(); j++) {
+				children.set(j, cloneCellsRecursive(new Object[]{children.get(j)})[0]);
 			}
 		}
 		
@@ -575,11 +591,18 @@ public class E3Graph extends mxGraph {
 	}
 	
 	public Object addValueInterface(Object parent, double x, double y) {
+		System.out.println("Adding ValueInterface");
 		Object vi = Main.globalTools.clone(Main.globalTools.valueInterface);
 		mxGeometry gm = ((mxCell) vi).getGeometry();
 		gm.setX(x);
 		gm.setY(y);
 		this.addCell(vi, parent);
+		
+		System.out.println("Added:");
+		for (int i = 0; i < 2; i++) {
+			Base info = (Base) ((mxCell) getModel().getChildAt(vi, i)).getValue();
+			System.out.println("SUID of ValuePort " + i + ": " + info.getSUID());
+		}
 		
 		return vi;
 	}

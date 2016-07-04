@@ -20,6 +20,7 @@ package design.main;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxEvent;
@@ -52,7 +53,7 @@ public class ToolComponent extends mxGraphComponent {
 	public final Object andGate;
 	
 	public Object clone(Object cell) {
-		return graph.cloneCells(new Object[]{cell})[0];
+		return graph.getModel().cloneCells(new Object[]{cell}, true)[0];
 	}
 
 	public ToolComponent() {
@@ -91,11 +92,38 @@ public class ToolComponent extends mxGraphComponent {
 				
 				for ( Object obj : clones) {
 					if (model.getValue(obj) instanceof Info.Base) {
-						Base newInfo = Utils.base(this, obj);
-						// Make sure the clone has a unique SUID
-						newInfo.setSUID(Info.getSUID());
-						model.setValue(obj, newInfo);
+						((mxCell) obj).setValue(Utils.base(this, obj));
+						// TODO: Set new ID for the base thing above
+						// Utils.assignNewSUIDs(obj);
 					}
+				}
+				
+				return clones;
+			}
+		});
+		
+		graph.setModel(new mxGraphModel() {
+			@Override
+			public Object[] cloneCells(Object[] cells, boolean includeChildren) {
+				Object[] clones = super.cloneCells(cells, includeChildren);
+				
+				class H {
+					public void renewBasesAndIncreaseSUIDS(mxCell cell) {
+						if (cell.getValue() instanceof Base) {
+							cell.setValue(((Base) cell.getValue()).getCopy()); 
+							((Base) cell.getValue()).setSUID(Info.getSUID());
+						}
+						
+						for (int i = 0; i < cell.getChildCount(); i++) {
+							renewBasesAndIncreaseSUIDS((mxCell) cell.getChildAt(i));
+						}
+						
+						System.out.println("Cloning! " + cell.getValue().getClass().getSimpleName());
+					}
+				} H h = new H();
+				
+				for (Object clone : clones) {
+					h.renewBasesAndIncreaseSUIDS((mxCell) clone);
 				}
 				
 				return clones;

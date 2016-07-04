@@ -76,6 +76,7 @@ public class Main {
 	public static int newGraphCounter = 1;
 	public static ToolComponent globalTools;
 	public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = false;
+	public static final boolean DEBUG = true;
 
 	public JTabbedPane views;
 	
@@ -374,25 +375,49 @@ public class Main {
 				
 				Object root = graph.getDefaultParent();
 				
+				Object tlBottom, blTop;
+				
 				model.beginUpdate();
 				try {
+					System.out.println("Adding small tricky graph");
 					Object tl = graph.addActor(100, 100);
 					Object bl = graph.addActor(100, 250);
 					
-					Object tlBottom = graph.addValueInterface(tl, 30, 50);
-					Object blTop = graph.addValueInterface(bl, 30, 0);
+					tlBottom = graph.addValueInterface(tl, 30, 50);
+					blTop = graph.addValueInterface(bl, 30, 0);
 					
 					graph.connectVE(tlBottom, blTop);
 					graph.connectVE(blTop, tlBottom);
 					
 					Object ss = graph.addStartSignal(bl, 20, 20);
-					Object es =  graph.addEndSignal(tl, 20, 20);
+					Object es = graph.addEndSignal(tl, 20, 20);
 					
 					graph.connectCE(ss, blTop);
 					graph.connectCE(tlBottom, es);
+
+					System.out.println("Pre-commit: ");
+					Base info = (Base) ((mxCell) model.getChildAt(tlBottom, 0)).getValue();
+					System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
+					info = (Base) ((mxCell) model.getChildAt(tlBottom, 1)).getValue();
+					System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
+					info = (Base) ((mxCell) model.getChildAt(blTop, 0)).getValue();
+					System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
+					info = (Base) ((mxCell) model.getChildAt(blTop, 1)).getValue();
+					System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
 				} finally {
 					model.endUpdate();
 				}
+				
+				
+//				System.out.println("Finished: ");
+//				Base info = (Base) ((mxCell) model.getChildAt(tlBottom, 0)).getValue();
+//				System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
+//				info = (Base) ((mxCell) model.getChildAt(tlBottom, 1)).getValue();
+//				System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
+//				info = (Base) ((mxCell) model.getChildAt(blTop, 0)).getValue();
+//				System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
+//				info = (Base) ((mxCell) model.getChildAt(blTop, 1)).getValue();
+//				System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
 			}
 		}));
 
