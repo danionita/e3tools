@@ -51,6 +51,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.TreeSelectionEvent;
@@ -81,11 +82,6 @@ import e3fraud.model.E3Model;
 import e3fraud.parser.FileParser;
 import e3fraud.tools.currentTime;
 
-/*
- * FileChooserDemo.java uses these files:
- *   images/Open16.gif
- *   images/Save16.gif
- */
 public class MainWindow extends JPanel
         implements ActionListener {
 
@@ -297,35 +293,19 @@ public class MainWindow extends JPanel
         }
     }
     
-    public void showGraph(E3Graph graph) {
+    public void addMiniGraph(E3Graph graph) {
     	analyzedGraph = Utils.cloneGraph(graph);
     	
     	graphComponent = new E3GraphComponent(analyzedGraph);
     	graphComponent.setEnabled(false);
     	graphComponent.setPreferredSize(new Dimension(0, 0));
+    	graphComponent.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    	graphComponent.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
     	settingsPanel.add(graphComponent);
-    	
-//    	SwingUtilities.invokeLater(new Runnable() {
-//			@Override
-//			public void run() {
-//				mxGraphView view = graphComponent.getGraph().getView();
-//				
-//				System.out.println(graphComponent.getVisibleRect().getWidth());
-//				System.out.println(view.getGraphBounds().getWidth());
-//
-//				double scale = view.getGraphBounds().getWidth() / graphComponent.getVisibleRect().getWidth(); 
-//
-//				System.out.println("Scale: " + scale);
-//
-//				view.setScale(scale);
-//				
-//				graphComponent.refresh();
-//			}
-//    	});
     }
     
-    public void fit() {
+    public void fitMiniGraph() {
 		Main.mainFrame.pack();
 
 		mxGraphView view = graphComponent.getGraph().getView();

@@ -925,6 +925,7 @@ return description;
         port1.addProperty(E3value.vp_has_dir, "true");
         port1.addProperty(E3value.mc_in_mo, modelResource);
         modelResource.addProperty(E3value.mo_has_mc, port1);
+        System.out.println("MONEY RESOURCE: " + moneyResource);
         port1.addProperty(E3value.vp_requests_offers_vo, moneyResource);
         moneyResource.addProperty(E3value.vo_offered_requested_by_vp, port1);
         port1.addProperty(E3value.mc_in_di, diagramResource);

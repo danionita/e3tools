@@ -192,13 +192,13 @@ public class Main {
 				
 				RDFExport rdfExporter = new RDFExport(getCurrentGraph());
 				MainWindow main = new MainWindow(new E3Model(rdfExporter.model), getCurrentGraphName());
-				main.showGraph(getCurrentGraph());
+				main.addMiniGraph(getCurrentGraph());
 
 				Component analysis = Utils.addClosableTab(views, "Fraud analysis of \"" + getCurrentGraphName() + "\"", main);
 
 				views.setSelectedIndex(views.indexOfComponent(analysis));
 				
-				main.fit();
+				main.fitMiniGraph();
 			}
 		}));
 		

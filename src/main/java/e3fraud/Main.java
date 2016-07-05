@@ -7,6 +7,10 @@ package e3fraud
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import e3fraud.gui.MainWindow;
 
 /**

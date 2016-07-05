@@ -355,7 +355,7 @@ public class RDFExport {
 				valueObject.put(obj, getResource.apply(Info.getSUID()));
 				Resource reObj = valueObject.get(obj);
 				reObj.addProperty(E3value.e3_has_name, obj);
-				reObj.addProperty(RDF.type, E3value.value_offering);
+				reObj.addProperty(RDF.type, E3value.value_object);
 			}
 			
 			return valueObject.get(obj);
@@ -375,6 +375,7 @@ public class RDFExport {
 					|| cellValue instanceof EndSignal
 					|| cellValue instanceof ConnectionElement
 					|| cellValue instanceof ValueActivity
+					|| cellValue instanceof ValuePort
 			)) continue;
 			
 			Base value = (Base) cellValue;
@@ -473,6 +474,7 @@ public class RDFExport {
 					
 					assert(graph.getModel().getEdgeCount(valuePort) < 2);
 					System.out.println("Checking edges for cell...");
+					System.out.println("TESTING");
 					if (graph.getModel().getEdgeCount(valuePort) == 1) {
 						System.out.println("One!");
 						Object valueExchange = graph.getModel().getEdgeAt(valuePort, 0);
@@ -490,7 +492,9 @@ public class RDFExport {
 						// TODO: Value objects are currently only exported if they are attached
 						// to a value exchange. Easy fix: call getValueObject for each
 						// valueObject before at the beginning
+						System.out.println("Checking ValueObject: " + veInfo.valueObject);
 						if (veInfo.valueObject != null) {
+							System.out.println("Exporting ValueObject: " + veInfo.valueObject);
 							Resource valueObjectRes = getValueObject.apply(veInfo.valueObject);
 							vpRes.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
 							valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, vpRes);
