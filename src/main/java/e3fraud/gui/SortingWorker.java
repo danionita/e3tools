@@ -23,24 +23,17 @@ package e3fraud.gui;
 import com.hp.hpl.jena.rdf.model.Resource;
 import e3fraud.model.E3Model;
 import e3fraud.model.ModelRanker;
-import e3fraud.model.SubIdealModelGenerator;
 import e3fraud.tools.currentTime;
 import e3fraud.vocabulary.E3value;
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JCheckBox;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
 
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class GenerationWorker extends SwingWorker<DefaultMutableTreeNode, String> {
+public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
 
     static private final String newline = "\n";
     private final E3Model baseModel;
@@ -51,15 +44,16 @@ public class GenerationWorker extends SwingWorker<DefaultMutableTreeNode, String
     private final int startValue;
     private final int endValue;
     private final int sortCriteria;
-    private final int collusions;
     private final int groupingCriteria;
     private java.util.List<E3Model> sortedSubIdealModels;
     private final java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
+    private final Set<E3Model> subIdealModels;
     private final DefaultMutableTreeNode root;
     private int numberOfSubIdealModels;
     int i;
     /**
      * 
+     * @param groupedSubIdealModels the ranked and grouped sub-ideal models
      * @param baseModel the model to analyze
      * @param selectedActorString the main actor's name
      * @param selectedActor the main actor's RDF resource
@@ -69,9 +63,8 @@ public class GenerationWorker extends SwingWorker<DefaultMutableTreeNode, String
      * @param endValue the max occurrence rate of need
      * @param sortCriteria 0 - do not sort, 1 - sort by loss first, 2- sort by gain first
      * @param groupingCriteria 0 - do not group, 1 - group based on generated collusion groups
-     * @param collusions maximum number of actors which can be part of a single colluded actor
      */
-    public GenerationWorker(E3Model baseModel, String selectedActorString, Resource selectedActor, Resource selectedNeed, String selectedNeedString, int startValue, int endValue, int sortCriteria, int groupingCriteria, int collusions) {
+    public SortingWorker(java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels, E3Model baseModel, String selectedActorString, Resource selectedActor, Resource selectedNeed, String selectedNeedString, int startValue, int endValue, int sortCriteria, int groupingCriteria) {
         this.baseModel = baseModel;
         this.selectedActorString = selectedActorString;
         this.selectedActor = selectedActor;
@@ -79,65 +72,26 @@ public class GenerationWorker extends SwingWorker<DefaultMutableTreeNode, String
         this.selectedNeedString = selectedNeedString;
         this.startValue = startValue;
         this.endValue = endValue;
-        this.collusions = collusions;
         this.sortCriteria = sortCriteria;
         this.groupingCriteria = groupingCriteria;
         this.sortedSubIdealModels = null;
         this.root = new DefaultMutableTreeNode("root");
-        this.groupedSubIdealModels = new HashMap<>();      
-        
+        this.groupedSubIdealModels = groupedSubIdealModels;   
+        this.subIdealModels = new HashSet<>();
     }
 
     @Override
     protected DefaultMutableTreeNode doInBackground() throws Exception {
-DecimalFormat df = new DecimalFormat("#.##");             
+    DecimalFormat df = new DecimalFormat("#.##");             
     // Start generation
-        System.out.println(currentTime.currentTime() + " Generating sub-ideal models...." + newline);
-        SubIdealModelGenerator subIdealModelGenerator = new SubIdealModelGenerator();
+        publish(currentTime.currentTime() + " Generating sub-ideal models...." + newline);
 
         //grouped case
         if (groupingCriteria==1) {
-            int size = 0;
-
-            //generate colluded models            
-            Set<E3Model> colludedAndNonColludedModels = subIdealModelGenerator.generateCollusions(baseModel, selectedActor, collusions);
-            //use base model as a basis for the non-collusion group
-            colludedAndNonColludedModels.add(baseModel);
-
-            //for each type of collusion
-            for (E3Model model : colludedAndNonColludedModels) {
-                Set<E3Model> hiddenAndNonOccuringModels = new HashSet<>();
-                Set<E3Model> intermediaryModels = new HashSet<>();
-                Set<E3Model> subIdealModels = new HashSet<>();
-                String category;
-                //create a category for it
-                if (model.getDescription().equals("Base Model")) {
-                    category = "No collusion";
-                } else {
-                    category = model.getDescription().substring(25);
-                    //and add the colluded models to the result 
-                    subIdealModels.add(model);
-                }
-                //then generate
-                intermediaryModels.addAll(subIdealModelGenerator.generateNonoccurringTransactions(model));
-                subIdealModels.addAll(intermediaryModels);
-                intermediaryModels.add(model);
-                int i = 1;
-                for (E3Model intermediaryModel : intermediaryModels) {
-                    subIdealModels.addAll(subIdealModelGenerator.generateHiddenTransactions(intermediaryModel, selectedActor));
-                }
-                size += subIdealModels.size();
-                System.out.println("\nGenerated " + subIdealModels.size() + " sub-ideal models for category " + category + ":");
-                groupedSubIdealModels.put(category, subIdealModels);
-            }
-            // generation done
-            System.out.println(currentTime.currentTime() + " Generated : " + size + " sub-ideal models (" + colludedAndNonColludedModels.size() + " groups)!" + newline);
-
-            //now rank
                  if (sortCriteria==2) {
                //sort by gain only
                 firePropertyChange("phase", "whatever","ranking...");
-                System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                publish(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 i=0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
@@ -153,7 +107,7 @@ DecimalFormat df = new DecimalFormat("#.##");
             } else if (sortCriteria==1) {
                 //sort by loss first
                 firePropertyChange("phase", "whatever","ranking...");
-                System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                publish(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                                 i=0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
@@ -178,24 +132,25 @@ DecimalFormat df = new DecimalFormat("#.##");
                 }
             }
             
-
+                 
         //ungrouped case
         } else {
-            //generate
-            Set<E3Model> subIdealModels = subIdealModelGenerator.generateAll(baseModel, selectedActor, collusions);
-            // generation done
-            System.out.println(currentTime.currentTime() + " Generated : " + subIdealModels.size() + " sub-ideal models!" + newline);
-            // start ranking       
+            //ungroup
+            for (Set<E3Model> subSetOfSubIdealModels: groupedSubIdealModels.values())
+            {
+            subIdealModels.addAll(subSetOfSubIdealModels);
+            }
+            //then rank
             if (sortCriteria==2) {
                 firePropertyChange("phase", "whatever","ranking...");
-                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                publish(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 sortedSubIdealModels = ModelRanker.sortByGain(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     root.add(new DefaultMutableTreeNode(subIdealModel));
                 }
             } else if (sortCriteria==1) {
                 firePropertyChange("phase", "whatever","ranking...");
-                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                publish(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 sortedSubIdealModels = ModelRanker.sortByLossandGain(this,baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     subIdealModel.setDescription(
@@ -214,7 +169,6 @@ DecimalFormat df = new DecimalFormat("#.##");
         }
 
         //ranking done
-        System.out.println(currentTime.currentTime() + " Ranking complete! " + newline);
         return root;
     }
 

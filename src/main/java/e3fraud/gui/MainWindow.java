@@ -117,7 +117,7 @@ public class MainWindow extends JPanel
     Resource selectedNeed;
     Resource selectedActor;
     ChartPanel chartPanel;
-    int startValue = 0, endValue = 0;
+    int needStartValue = 0, needEndValue = 0;
     boolean extended;
 
     private JProgressBar progressBar;
@@ -393,14 +393,14 @@ public class MainWindow extends JPanel
                         if (result == JOptionPane.CANCEL_OPTION) {
                             log.append("Attack generation cancelled!" + newline);
                         } else if (result == JOptionPane.OK_OPTION) {
-                            startValue = Integer.parseInt(xField.getText());
-                            endValue = Integer.parseInt(yField.getText());
+                            needStartValue = Integer.parseInt(xField.getText());
+                            needEndValue = Integer.parseInt(yField.getText());
 
                             selectedNeed = needsMap.get(selectedNeedString);
                             selectedActor = actorsMap.get(selectedActorString);
 
                             //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-                            GenerationWorker generationWorker = new GenerationWorker(baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, startValue, endValue, log, lossButton, gainButton, lossGainButton, gainLossButton, groupingButton, collusionsButton) {
+                            GenerationWorker generationWorker = new GenerationWorker(baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, 1,1,1) {
                                 //make it so that when Worker is done
                                 @Override
                                 protected void done() {
@@ -456,7 +456,7 @@ public class MainWindow extends JPanel
                 selectedActor = actorsMap.get(lastSelectedActorString);
 
                 //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-                GenerationWorker generationWorker = new GenerationWorker(baseModel, lastSelectedActorString, selectedActor, selectedNeed, lastSelectedNeedString, startValue, endValue, log, lossButton, gainButton, lossGainButton, gainLossButton, groupingButton, collusionsButton) {
+                GenerationWorker generationWorker = new GenerationWorker(baseModel, lastSelectedActorString, selectedActor, selectedNeed, lastSelectedNeedString, needStartValue, needEndValue,1,1,1) {
                     //make it so that when Worker is done
                     @Override
                     protected void done() {
@@ -503,7 +503,7 @@ public class MainWindow extends JPanel
         } //handle show ideal graph button
         else if (e.getSource() == idealGraphButton) {
             if (this.baseModel != null) {
-                graph1 = GraphingTool.generateGraph(baseModel, selectedNeed, startValue, endValue, true);//expected graph 
+                graph1 = GraphingTool.generateGraph(baseModel, selectedNeed, needStartValue, needEndValue, true);//expected graph 
                 ChartFrame chartframe1 = new ChartFrame("Ideal results", graph1);
                 chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
                 chartframe1.pack();
@@ -557,7 +557,7 @@ public class MainWindow extends JPanel
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
                 if (node.getUserObject() instanceof E3Model) {
                     //update current sub-ideal graph
-                    graph2 = GraphingTool.generateGraph((E3Model) node.getUserObject(), selectedNeed, startValue, endValue, false);//real graph 
+                    graph2 = GraphingTool.generateGraph((E3Model) node.getUserObject(), selectedNeed, needStartValue, needEndValue, false);//real graph 
                     // and if the chartPanel is expanded, update that too
                     if (chartPanel != null) {
                         chartPanel.setChart(graph2);

@@ -225,7 +225,9 @@ public class E3Style {
 	
 	public static void addStencil(String filename) {
 		try {
-			String nodeXml = mxUtils.readInputStream(E3Style.class.getResourceAsStream("/design/resources/" + filename));
+                    
+			String nodeXml = mxUtils.readInputStream(
+                                E3Style.class.getResourceAsStream("/design/resources/" + filename));
 			
 			// Find first occurrence of < to avoid unicode BOM
 			int lessThanIndex = nodeXml.indexOf("<");

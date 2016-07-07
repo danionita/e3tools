@@ -111,7 +111,7 @@ public class Main {
 		JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(), graphComponent);
 		mainpane.setResizeWeight(0.025);
 
-		Utils.addClosableTab(views, "Such Model " + newGraphCounter++, mainpane);
+		Utils.addClosableTab(views, "New model" + newGraphCounter++, mainpane);
 		views.setSelectedIndex(views.getTabCount() - 1);
 	}
 	
