@@ -1,23 +1,22 @@
+package e3fraudTests;
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package e3fraud
-;
+
 
 import javax.swing.SwingUtilities;
+import e3fraud.gui.MainWindowV2;
+import e3fraud.parser.FileParser;
+import java.io.File;
 import javax.swing.UIManager;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import e3fraud.gui.MainWindow;
 
 /**
  *
  * @author IonitaD
  */
-public class Main {
+public class MainV2 {
 
     public static void main(String[] args) {
         //Schedule a job for the event dispatch thread:
@@ -26,7 +25,7 @@ public class Main {
             @Override
             public void run() {
                 //Turn off metal's use of bold fonts
-//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+                UIManager.put("swing.boldMetal", Boolean.FALSE);
             	
 //		try {
 //			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -35,7 +34,7 @@ public class Main {
 //			System.out.println("Couldn't set Look and Feel to system");
 //		}
             	
-                MainWindow.createAndShowGUI();
+                MainWindowV2.createAndShowGUI(FileParser.parseFile(new File("C:\\Users\\Dan\\Documents\\Scenario 1.rdf")));
             }
         });
     }

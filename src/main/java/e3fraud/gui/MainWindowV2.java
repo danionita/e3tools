@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -43,6 +44,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
     private Map<String, Resource> needsMap;
     private java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
     ChartPanel chartPanel;
+    public static MainWindowV2 mainWindowInstance;
 
     /**
      * Creates new form MainWindowV2
@@ -113,10 +115,10 @@ public class MainWindowV2 extends javax.swing.JPanel {
         treeModel = new DefaultTreeModel(root);
         tree = new javax.swing.JTree(treeModel);
         bottomPane = new javax.swing.JLayeredPane();
-        placeholderLabel = new javax.swing.JLabel();
         visualizationPane = new javax.swing.JSplitPane();
         chartPane = new javax.swing.JPanel();
         modelPane = new javax.swing.JPanel();
+        placeholderLabel = new javax.swing.JLabel();
 
         mainPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         mainPane.setResizeWeight(0.5);
@@ -134,7 +136,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
 
         needComboBox.setModel(new DefaultComboBoxModel(needsMap.keySet().toArray()));
 
-        occuringLabel.setText("occuring");
+        occuringLabel.setText("occurs");
         occuringLabel.setToolTipText("The range of the x-axis");
 
         needToLabel.setText("to");
@@ -152,20 +154,22 @@ public class MainWindowV2 extends javax.swing.JPanel {
         resultCountLabel.setFont(new java.awt.Font("Tahoma", 2, 12)); // NOI18N
         resultCountLabel.setForeground(new java.awt.Color(102, 102, 102));
         resultCountLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        resultCountLabel.setText("999 fraud models generated");
+        resultCountLabel.setText("0 fraud(s) generated");
         resultCountLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        generationSettingsLabel.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
-        generationSettingsLabel.setText("Generation");
+        generationSettingsLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        generationSettingsLabel.setText("Fraud generation");
 
-        generateButton.setBackground(new java.awt.Color(0, 153, 0));
         generateButton.setForeground(new java.awt.Color(0, 153, 0));
         generateButton.setText("Generate");
+        generateButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 51)));
         generateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 generateButtonActionPerformed(evt);
             }
         });
+
+        progressBar.setStringPainted(true);
 
         generationLayeredPane.setLayer(generateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
         generationLayeredPane.setLayer(progressBar, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -186,10 +190,16 @@ public class MainWindowV2 extends javax.swing.JPanel {
         );
 
         needStartField.setText("1");
-        needStartField.setPreferredSize(new java.awt.Dimension(45, 22));
+        needStartField.setPreferredSize(new java.awt.Dimension(25, 22));
+        needStartField.setRequestFocusEnabled(false);
 
-        needEndField.setText("100");
-        needEndField.setPreferredSize(new java.awt.Dimension(45, 22));
+        needEndField.setText("500");
+        needEndField.setPreferredSize(new java.awt.Dimension(25, 22));
+        needEndField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                needEndFieldActionPerformed(evt);
+            }
+        });
 
         collusionLabel.setText("Max. colluding actors");
 
@@ -214,26 +224,27 @@ public class MainWindowV2 extends javax.swing.JPanel {
                                 .addComponent(needLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(needComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
-                                .addComponent(occuringLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(needStartField, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(needToLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(needEndField, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(timesLabel))
                             .addComponent(generationSettingsSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(advancedSettingsLabel))
                             .addComponent(resultCountLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(generationLayeredPane)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
                                 .addComponent(collusionLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(collusionsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE)))
+                                .addComponent(collusionsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
+                                .addGap(2, 2, 2)
+                                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
+                                        .addComponent(occuringLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(needStartField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(needToLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(needEndField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(timesLabel))
+                                    .addComponent(advancedSettingsLabel, javax.swing.GroupLayout.Alignment.TRAILING))))
                         .addContainerGap())))
         );
         generationSettingsPanelLayout.setVerticalGroup(
@@ -268,7 +279,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
                 .addComponent(generationLayeredPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultCountLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
                 .addComponent(advancedSettingsLabel)
                 .addContainerGap())
         );
@@ -311,7 +322,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
         nonOccurringCheckBox.setText("Non-occuring transfers");
         nonOccurringCheckBox.setEnabled(false);
 
-        refreshButton.setText("refresh");
+        refreshButton.setText("Apply");
         refreshButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 refreshButtonActionPerformed(evt);
@@ -344,42 +355,37 @@ public class MainWindowV2 extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(listSettingsPanelLayout.createSequentialGroup()
-                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(refreshButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(listSettingsSeparator, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(fraudTypeLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
-                                .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
-                                        .addComponent(rankingSettingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(sortComboBox, 0, 1, Short.MAX_VALUE))
-                                    .addComponent(nonOccurringCheckBox, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(hiddenCheckBox, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lossLabel, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(gainLabel, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(collusionCheckBox, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
-                                        .addComponent(groupSettingLabel)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(groupComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addGap(5, 5, 5)))
-                        .addGap(35, 35, 35))
+                        .addComponent(gainStartField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(gainToLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(gainEndField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listSettingsPanelLayout.createSequentialGroup()
+                        .addComponent(lossStartField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lossToLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lossEndField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(refreshButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(listSettingsSeparator)
+                    .addComponent(fraudTypeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(listSettingsPanelLayout.createSequentialGroup()
-                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(listSettingsPanelLayout.createSequentialGroup()
-                                .addComponent(lossStartField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(lossToLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(lossEndField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(listSettingsPanelLayout.createSequentialGroup()
-                                .addComponent(gainStartField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(gainToLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(gainEndField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addComponent(rankingSettingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(sortComboBox, 0, 1, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listSettingsPanelLayout.createSequentialGroup()
+                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(nonOccurringCheckBox, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(hiddenCheckBox, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lossLabel, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(gainLabel, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(collusionCheckBox, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listSettingsPanelLayout.createSequentialGroup()
+                        .addComponent(groupSettingLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(groupComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(6, 6, 6))
         );
         listSettingsPanelLayout.setVerticalGroup(
             listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -418,13 +424,13 @@ public class MainWindowV2 extends javax.swing.JPanel {
                 .addComponent(nonOccurringCheckBox)
                 .addGap(18, 18, 18)
                 .addComponent(refreshButton)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         listPane.setRightComponent(listSettingsPanel);
 
-        resultScrollPane.setMinimumSize(new java.awt.Dimension(50, 250));
         resultScrollPane.setName("resultScrollPane"); // NOI18N
+        resultScrollPane.setPreferredSize(new java.awt.Dimension(400, 322));
 
         tree.setMaximumSize(new java.awt.Dimension(9999, 9999));
         tree.setCellRenderer(new CustomTreeCellRenderer(tree));
@@ -443,72 +449,51 @@ public class MainWindowV2 extends javax.swing.JPanel {
 
         mainPane.setLeftComponent(topPane);
 
-        placeholderLabel.setForeground(new java.awt.Color(102, 102, 102));
-        placeholderLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        placeholderLabel.setText("< Select a scenario above to see its model and profitability graph >");
-        placeholderLabel.setPreferredSize(visualizationPane.getPreferredSize());
-
         visualizationPane.setResizeWeight(0.5);
 
-        chartPane.setPreferredSize(new java.awt.Dimension(100, 100));
-
-        javax.swing.GroupLayout chartPaneLayout = new javax.swing.GroupLayout(chartPane);
-        chartPane.setLayout(chartPaneLayout);
-        chartPaneLayout.setHorizontalGroup(
-            chartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 391, Short.MAX_VALUE)
-        );
-        chartPaneLayout.setVerticalGroup(
-            chartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
+        chartPane.setPreferredSize(new java.awt.Dimension(500, 400));
+        chartPane.setLayout(new java.awt.BorderLayout());
         visualizationPane.setRightComponent(chartPane);
         chartPane.getAccessibleContext().setAccessibleDescription("");
 
-        modelPane.setPreferredSize(new java.awt.Dimension(100, 100));
+        modelPane.setPreferredSize(new java.awt.Dimension(500, 400));
 
         javax.swing.GroupLayout modelPaneLayout = new javax.swing.GroupLayout(modelPane);
         modelPane.setLayout(modelPaneLayout);
         modelPaneLayout.setHorizontalGroup(
             modelPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 381, Short.MAX_VALUE)
+            .addGap(0, 500, Short.MAX_VALUE)
         );
         modelPaneLayout.setVerticalGroup(
             modelPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+            .addGap(0, 400, Short.MAX_VALUE)
         );
 
         visualizationPane.setLeftComponent(modelPane);
 
-        bottomPane.setLayer(placeholderLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        placeholderLabel.setForeground(new java.awt.Color(102, 102, 102));
+        placeholderLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        placeholderLabel.setText("< Select a scenario above to see its model and profitability graph here>");
+        placeholderLabel.setPreferredSize(visualizationPane.getPreferredSize());
+
         bottomPane.setLayer(visualizationPane, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        bottomPane.setLayer(placeholderLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout bottomPaneLayout = new javax.swing.GroupLayout(bottomPane);
         bottomPane.setLayout(bottomPaneLayout);
         bottomPaneLayout.setHorizontalGroup(
             bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(bottomPaneLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(visualizationPane, javax.swing.GroupLayout.DEFAULT_SIZE, 779, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(visualizationPane)
             .addGroup(bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(bottomPaneLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(placeholderLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 779, Short.MAX_VALUE)
-                    .addContainerGap()))
+                .addComponent(placeholderLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         bottomPaneLayout.setVerticalGroup(
             bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(bottomPaneLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(visualizationPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addComponent(visualizationPane)
             .addGroup(bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(bottomPaneLayout.createSequentialGroup()
-                    .addContainerGap()
                     .addComponent(placeholderLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
 
         visualizationPane.setVisible(false);
@@ -528,7 +513,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(mainPane, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE)
+                .addComponent(mainPane)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -543,8 +528,8 @@ public class MainWindowV2 extends javax.swing.JPanel {
         sortCriteria = sortComboBox.getSelectedIndex();
         groupingCriteria = groupComboBox.getSelectedIndex();
         collusions = (Integer) collusionsButton.getValue();
-        generate();
-        sortAndDisplay();
+        generateSortAndDisplay();
+        //sortAndDisplay();
     }//GEN-LAST:event_generateButtonActionPerformed
 
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
@@ -565,22 +550,35 @@ public class MainWindowV2 extends javax.swing.JPanel {
     }//GEN-LAST:event_advancedSettingsLabelMouseClicked
 
     private void treeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_treeValueChanged
-            JTree tree = (JTree) evt.getSource();        
+
+        JTree tree = (JTree) evt.getSource();        
             //on selection
             if (!tree.isSelectionEmpty()) {
+                        //enable visualization is enabled
+         visualizationPane.setVisible(true);
+                    placeholderLabel.setVisible(false);
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
                 if (node.getUserObject() instanceof E3Model) {
                     //update current sub-ideal graph
                     graph2 = GraphingTool.generateGraph((E3Model) node.getUserObject(), selectedNeed, needStartValue, needEndValue, false);//real graph 
-                    // and if the chartPanel is expanded, update that too
+                    // and if ae chartPanel exists, update that too
                     if (chartPanel != null) {
                         chartPanel.setChart(graph2);
+                    }//otherwise create one and add it the window
+                    else{                                           
+                        chartPanel = new ChartPanel(graph2);
+                        chartPane.add(chartPanel);
+                        chartPanel.setVisible(true);                        
                     }
                 }
             }
     }//GEN-LAST:event_treeValueChanged
 
-    private void generate(){
+    private void needEndFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_needEndFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_needEndFieldActionPerformed
+
+    private void generateSortAndDisplay(){
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
         GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, sortCriteria, groupingCriteria, collusions) {
             //make it so that when Worker is done
@@ -589,17 +587,17 @@ public class MainWindowV2 extends javax.swing.JPanel {
                 try {
                     //the Worker's result is retrieved
                     groupedSubIdealModels=get();
-                    //Progress bar is hidden
-                    progressBar.setVisible(false);
+                    //Progress bar is replaced with button
+                    progressBar.setVisible(false);                           
                     //and the cursor goes back to normal
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    //and the visualization is enabled
-                    visualizationPane.setVisible(true);
-                    placeholderLabel.setVisible(false);
+                    //now sort and display
+                    sortAndDisplay();
                     //catch all in case something goes wrong
                 } catch (InterruptedException | ExecutionException ex) {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    System.err.println("Out of memory! (or some other exception during generation");
+                    generateButton.setVisible(true);
+                    System.err.println("Exception encountered during generation: \n"+ex);
                     PopUps.infoBox("Encountered an error. Most likely out of memory; try increasing the heap size of JVM", "Error");
                 }
             }
@@ -635,14 +633,15 @@ public class MainWindowV2 extends javax.swing.JPanel {
                     progressBar.setVisible(false);
                     generateButton.setVisible(true);
                     //and the result label appears
-                    resultCountLabel.setText(Integer.toString(root.getLeafCount()));
+                    resultCountLabel.setText(Integer.toString(root.getLeafCount()) + "fraud(s) generated");
                     resultCountLabel.setVisible(true);
                     //and the cursor goes back to normal
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     //catch all in case something goes wrong
                 } catch (InterruptedException | ExecutionException ex) {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    System.err.println("Out of memory! (or some other exception during generation");
+                    System.err.println(ex.getMessage()+ "exception encountered during generation: \n");
+                    ex.printStackTrace();
                     PopUps.infoBox("Encountered an error. Most likely out of memory; try increasing the heap size of JVM", "Error");
                 }
             }
@@ -659,12 +658,31 @@ public class MainWindowV2 extends javax.swing.JPanel {
         //replace generate button with progress bar
         generateButton.setVisible(false);
         progressBar.setVisible(true);
-        progressBar.setIndeterminate(true);
-        progressBar.setString("generating...");
+        progressBar.setIndeterminate(false);
+        progressBar.setString("sorting...");
         //change mouse cursor 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         //and run the worker
         rankingWorker.execute();
+    }
+        
+        
+            /**
+     * Create the GUI and show it. For thread safety, this method should be
+     * invoked from the event dispatch thread.
+     */
+    public static void createAndShowGUI(E3Model model) {
+        //Create and set up the window.
+        JFrame frame = new JFrame("e3fraud");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        //Add content to the window.
+        mainWindowInstance = new MainWindowV2(model);
+        frame.setContentPane(mainWindowInstance);
+
+        //Display the window.
+        frame.pack();
+        frame.setVisible(true);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

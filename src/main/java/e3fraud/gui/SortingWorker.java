@@ -2,7 +2,7 @@
  * Copyright (C) 2015 Dan
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU General Public License as System.out.printlned by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -84,14 +84,15 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
     protected DefaultMutableTreeNode doInBackground() throws Exception {
     DecimalFormat df = new DecimalFormat("#.##");             
     // Start generation
-        publish(currentTime.currentTime() + " Generating sub-ideal models...." + newline);
+        System.out.println(currentTime.currentTime() + " Sorting sub-ideal models...." + newline + "sortCriteria ="+sortCriteria + "groupingCtieria ="+groupingCriteria);
+        
 
         //grouped case
         if (groupingCriteria==1) {
-                 if (sortCriteria==2) {
+                 if (sortCriteria==1) {
                //sort by gain only
                 firePropertyChange("phase", "whatever","ranking...");
-                publish(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 i=0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
@@ -104,10 +105,10 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
                     setProgress(100*i/numberOfSubIdealModels);
                     i++;
                 }
-            } else if (sortCriteria==1) {
+            } else if (sortCriteria==0) {
                 //sort by loss first
                 firePropertyChange("phase", "whatever","ranking...");
-                publish(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                                 i=0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
@@ -134,23 +135,23 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
             
                  
         //ungrouped case
-        } else {
+        } else if (groupingCriteria==0){
             //ungroup
             for (Set<E3Model> subSetOfSubIdealModels: groupedSubIdealModels.values())
             {
             subIdealModels.addAll(subSetOfSubIdealModels);
             }
             //then rank
-            if (sortCriteria==2) {
+            if (sortCriteria==1) {
                 firePropertyChange("phase", "whatever","ranking...");
-                publish(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 sortedSubIdealModels = ModelRanker.sortByGain(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     root.add(new DefaultMutableTreeNode(subIdealModel));
                 }
-            } else if (sortCriteria==1) {
+            } else if (sortCriteria==0) {
                 firePropertyChange("phase", "whatever","ranking...");
-                publish(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 sortedSubIdealModels = ModelRanker.sortByLossandGain(this,baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     subIdealModel.setDescription(

@@ -400,7 +400,7 @@ public class MainWindow extends JPanel
                             selectedActor = actorsMap.get(selectedActorString);
 
                             //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-                            GenerationWorker generationWorker = new GenerationWorker(baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, 1,1,1) {
+                            GenerationWorker generationWorker = new GenerationWorker(baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, 1,1,0) {
                                 //make it so that when Worker is done
                                 @Override
                                 protected void done() {
