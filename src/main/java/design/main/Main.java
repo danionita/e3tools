@@ -97,10 +97,11 @@ public class Main {
 		mainpane.setResizeWeight(0.025);
 
 		if (graph.isFraud) {
-			Utils.addClosableTab(views, "Fraud Model " + newGraphCounter++, mainpane, Main.e3f);
+			Utils.addClosableTab(views, "New fraud model " + newGraphCounter++, mainpane, Main.e3f);
 		} else {
-			Utils.addClosableTab(views, "Value Model " + newGraphCounter++, mainpane, Main.e3v);
+			Utils.addClosableTab(views, "New value model " + newGraphCounter++, mainpane, Main.e3v);
 		}
+
 		views.setSelectedIndex(views.getTabCount() - 1);
 	}
 	

@@ -19,7 +19,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>nl.utwente.e3fraud</groupId>
-  <artifactId>design</artifactId>
+  <artifactId>e3tools</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <dependencies>
   <dependency>
@@ -51,6 +51,11 @@
   </dependency>
   </dependencies>
   <build>
+   <resources>
+     <resource>
+       <directory>src/main/java</directory>
+     </resource>
+   </resources>
   <pluginManagement>
    <plugins>
     <plugin>

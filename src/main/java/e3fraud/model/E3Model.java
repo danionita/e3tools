@@ -126,7 +126,6 @@ public class E3Model {
      * @param occurences the occurrence rate of nextElement
      */
     private void traverse(Resource nextElement, double occurences) {
-    	System.out.println("Traverse called");
         //While this is not the last element (i.e. an end stimulus)
         while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {            
             //System.out.println("\t\t...moved to element: " + nextElement.getProperty(E3value.e3_has_name).getString());
@@ -925,7 +924,7 @@ return description;
         port1.addProperty(E3value.vp_has_dir, "true");
         port1.addProperty(E3value.mc_in_mo, modelResource);
         modelResource.addProperty(E3value.mo_has_mc, port1);
-        System.out.println("MONEY RESOURCE: " + moneyResource);
+        //System.out.println("MONEY RESOURCE: " + moneyResource);
         port1.addProperty(E3value.vp_requests_offers_vo, moneyResource);
         moneyResource.addProperty(E3value.vo_offered_requested_by_vp, port1);
         port1.addProperty(E3value.mc_in_di, diagramResource);
