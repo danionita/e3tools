@@ -18,53 +18,32 @@
  *******************************************************************************/
 package design.main;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dialog;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JList;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import javax.swing.JToolBar;
 import javax.swing.UIManager;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxGraphModel;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 
-import design.main.Info.Base;
-import design.main.Info.SignalDot;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
 import design.main.Utils.ClosableTabHeading;
 import e3fraud.gui.MainWindow;
 import e3fraud.model.E3Model;
@@ -78,21 +57,27 @@ public class Main {
 	public static ToolComponent globalTools;
 	public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = false;
 	public static final boolean DEBUG = true;
+	
+	public static ImageIcon e3f, e3v;
+	public static ImageIcon newIcon, copyIcon, zoomInIcon, zoomOutIcon;
 
 	public JTabbedPane views;
 	
-	public E3Graph getCurrentGraph() {
+	public E3GraphComponent getCurrentGraphComponent() {
 		JSplitPane pane = (JSplitPane) views.getComponentAt(views.getSelectedIndex());
-		E3GraphComponent graphComponent = (E3GraphComponent) pane.getRightComponent();
-		return (E3Graph) graphComponent.getGraph();
+		return (E3GraphComponent) pane.getRightComponent();
+	}
+
+	public E3Graph getCurrentGraph() {
+		return (E3Graph) getCurrentGraphComponent().getGraph();
 	}
 	
 	public String getCurrentGraphName() {
 		return ((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex())).title;
 	}
 	
-	public void addNewTabAndSwitch() {
-		addNewTabAndSwitch(new E3Graph());
+	public void addNewTabAndSwitch(boolean isFraud) {
+		addNewTabAndSwitch(new E3Graph(isFraud));
 	}
 	
 	public void addNewTabAndSwitch(E3Graph graph) {
@@ -111,7 +96,11 @@ public class Main {
 		JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(), graphComponent);
 		mainpane.setResizeWeight(0.025);
 
-		Utils.addClosableTab(views, "Such Model " + newGraphCounter++, mainpane);
+		if (graph.isFraud) {
+			Utils.addClosableTab(views, "Fraud Model " + newGraphCounter++, mainpane, Main.e3f);
+		} else {
+			Utils.addClosableTab(views, "Value Model " + newGraphCounter++, mainpane, Main.e3v);
+		}
 		views.setSelectedIndex(views.getTabCount() - 1);
 	}
 	
@@ -127,24 +116,68 @@ public class Main {
 				System.out.println("Couldn't set Look and Feel to system");
 			}
 		}
+		
+		try {
+			e3v = new ImageIcon(
+					ImageIO.read(Main.class.getResourceAsStream("/design/resources/e3v.png"))
+					.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+			e3f = new ImageIcon(
+					ImageIO.read(Main.class.getResourceAsStream("/design/resources/e3f.png"))
+					.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+			
+			newIcon = new ImageIcon(
+					ImageIO.read(Main.class.getResourceAsStream("/design/resources/icons/page_white.png")));
+			
+			copyIcon = new ImageIcon(
+					ImageIO.read(Main.class.getResourceAsStream("/design/resources/icons/page_white_copy.png")));
+
+			zoomInIcon = new ImageIcon(
+					ImageIO.read(Main.class.getResourceAsStream("/design/resources/icons/magnifier_zoom_in.png")));
+
+			zoomOutIcon = new ImageIcon(
+					ImageIO.read(Main.class.getResourceAsStream("/design/resources/icons/magnifier_zoom_out.png")));
+		} catch (IOException e) {
+			System.out.println("Tab pictures have failed to load.");
+			e.printStackTrace();
+		}
 
 		// Add menubar
 		JMenuBar menuBar = new JMenuBar();
 		
+		// File menu
 		JMenu fileMenu = new JMenu("File");
-		fileMenu.add(new JMenuItem(new AbstractAction("New e3graph") {
+		// TODO: Implement keyboard shortcut
+		fileMenu.add(new JMenuItem(new AbstractAction("New e3value model (ctrl+n)") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				addNewTabAndSwitch();
+				addNewTabAndSwitch(false);
+			}
+		}));  
+		// TODO: Implement keyboard shortcut
+		// TODO: Implement e3fraud model
+		fileMenu.add(new JMenuItem(new AbstractAction("New e3fraud model (ctrl+m)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addNewTabAndSwitch(true);
 			}
 		}));
-		JMenuItem duplicateGraph = new JMenuItem(new AbstractAction("Duplicate current graph") {
+		fileMenu.addSeparator();
+		// TODO: Implement open functionality
+		fileMenu.add(new JMenuItem(new AbstractAction("Open...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				addNewTabAndSwitch(Utils.cloneGraph(getCurrentGraph()));
+				
 			}
-		});
-		fileMenu.add(duplicateGraph);
+		}));
+		// TODO: Implement save functionality
+		// TODO: Implement save shortcut
+		fileMenu.add(new JMenuItem(new AbstractAction("Save (ctrl+s)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		// TODO: Implement save functionality
 		JMenuItem saveAs = new JMenuItem(new AbstractAction("Save as...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -152,32 +185,222 @@ public class Main {
 			}
 		});
 		fileMenu.add(saveAs);
-		JMenuItem exportRDF = new JMenuItem(new AbstractAction("Export to RDF...") {
+		fileMenu.addSeparator();
+		
+		// TODO: Implement export functionality
+		JMenu exportMenu = new JMenu("Export...");
+
+		JMenuItem exportRDF = new JMenuItem(new AbstractAction("RDF") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println(new RDFExport(getCurrentGraph()).toString());
 			}
 		});
-		fileMenu.add(exportRDF);
-		fileMenu.addMenuListener(new MenuListener() {
+		exportMenu.add(exportRDF);
+		JMenuItem exportImage = new JMenuItem(new AbstractAction("Image") {
 			@Override
-			public void menuSelected(MenuEvent e) {
-				boolean enabled = views.getTabCount() > 0;
-				duplicateGraph.setEnabled(enabled);
-				saveAs.setEnabled(enabled);
-				exportRDF.setEnabled(enabled);
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
-			
-			@Override
-			public void menuDeselected(MenuEvent e) { }
-			
-			@Override
-			public void menuCanceled(MenuEvent e) { }
 		});
+		exportMenu.add(exportImage);
+		
+		fileMenu.add(exportMenu);
+		
+		JMenu importMenu = new JMenu("Import...");
+		
+		importMenu.add(new JMenuItem(new AbstractAction("RDF") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		importMenu.add(new JMenuItem(new AbstractAction("XSVG") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		fileMenu.add(importMenu);
+		
+		fileMenu.add(new JMenuItem(new AbstractAction("Print...") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+
 		menuBar.add(fileMenu);
 		
-		JMenu graphMenu = new JMenu("Model");
-		graphMenu.add(new JMenuItem(new AbstractAction("Perform e3fraud analysis") {
+		JMenu editMenu = new JMenu("Edit");
+		
+		// TODO: Implement functinonality
+		editMenu.add(new JMenuItem(new AbstractAction("Cut (ctrl+x)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		// TODO: Implement functinonality
+		editMenu.add(new JMenuItem(new AbstractAction("Copy (ctrl+c)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		// TODO: Implement functinonality
+		editMenu.add(new JMenuItem(new AbstractAction("Paste (ctrl+v)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		// TODO: Implement functinonality
+		editMenu.add(new JMenuItem(new AbstractAction("Delete (delete)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		// TODO: Implement functinonality
+		editMenu.add(new JMenuItem(new AbstractAction("Select all (ctrl+a)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		editMenu.addSeparator();
+		
+		editMenu.add(new JMenuItem(new AbstractAction("Undo (ctrl+z)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				getCurrentGraphComponent().undoManager.undo();
+			}
+		}));
+
+		editMenu.add(new JMenuItem(new AbstractAction("Undo (ctrl+y)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				getCurrentGraphComponent().undoManager.redo();
+			}
+		}));
+		
+		editMenu.addSeparator();
+		
+		editMenu.add(new JMenuItem("Find"));
+		
+		menuBar.add(editMenu);
+		
+		JMenu viewMenu = new JMenu("View");
+		
+		viewMenu.add(new JMenuItem(new AbstractAction("Zoom in (ctrl+numpad plus)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				getCurrentGraphComponent().zoomIn();
+			}
+		}));
+		
+		viewMenu.add(new JMenuItem(new AbstractAction("Zoom out (ctrl+numpad minus)") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				getCurrentGraphComponent().zoomOut();
+			}
+		}));
+		
+		viewMenu.addSeparator();
+		
+		// TODO: Implement grid
+		viewMenu.add(new JMenuItem(new AbstractAction("Toggle grid") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		viewMenu.addSeparator();
+		
+		// TODO: Implement functionality
+		viewMenu.add(new JMenuItem("Show all labels"));
+		viewMenu.add(new JMenuItem("Hide all labels"));
+		viewMenu.add(new JMenuItem("Show all ValueObjects"));
+		viewMenu.add(new JMenuItem("Hide all ValueObjects"));
+		
+		menuBar.add(viewMenu);
+		
+		// TODO: Disable model menu when there's no model
+		JMenu modelMenu = new JMenu("Model");
+		JMenuItem duplicateGraph = new JMenuItem(new AbstractAction("Create duplicate") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addNewTabAndSwitch(new E3Graph(getCurrentGraph()));
+			}
+		});
+		modelMenu.add(duplicateGraph);
+		JMenuItem changeType = new JMenuItem(new AbstractAction("Change type") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		modelMenu.add(changeType);
+		modelMenu.addSeparator();
+		modelMenu.add(new JMenuItem(new AbstractAction("ValueObjects...") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO: Maybe prefer greyed out menu item?
+				if (views.getTabCount() == 0) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame, 
+							"A model must be opened to display its ValueObjects. Click File ➡ New model to open a new model.",
+							"No model available",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				new ValueObjectDialog(getCurrentGraph()).show();;
+			}
+		}));
+		// TODO: Implement ValueTransactions
+		modelMenu.add(new JMenuItem(new AbstractAction("ValueTransactions...") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+
+		menuBar.add(modelMenu);
+		
+		JMenu toolMenu = new JMenu("Tools");
+
+		// TODO: Implement keyboard shortcut
+		// TODO: Implement net value flow
+		toolMenu.add(new JMenuItem(new AbstractAction("Net value flow (ctrl+f)...") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		// TODO: Implement keyboard shortcut
+		toolMenu.add(new JMenuItem(new AbstractAction("Analyze transactions (ctrl+h)...") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		}));
+		
+		toolMenu.addSeparator();
+		
+		toolMenu.add(new JMenuItem(new AbstractAction("Fraud assessment...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO: Convert this option to something greyed out, just like in the file menu?
@@ -194,7 +417,8 @@ public class Main {
 				MainWindow main = new MainWindow(new E3Model(rdfExporter.model), getCurrentGraphName());
 				main.addMiniGraph(getCurrentGraph());
 
-				Component analysis = Utils.addClosableTab(views, "Fraud analysis of \"" + getCurrentGraphName() + "\"", main);
+				// TODO: Maybe add icons for fraud analysis as well?
+				Component analysis = Utils.addClosableTab(views, "Fraud analysis of \"" + getCurrentGraphName() + "\"", main, null);
 
 				views.setSelectedIndex(views.indexOfComponent(analysis));
 				
@@ -202,295 +426,74 @@ public class Main {
 			}
 		}));
 		
-		graphMenu.add(new JMenuItem(new AbstractAction("Show ValueObjects") {
+		// TODO: Implement profitability chart
+		toolMenu.add(new JMenuItem(new AbstractAction("Profitability chart...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO: Maybe prefer greyed out menu item?
-				if (views.getTabCount() == 0) {
-					JOptionPane.showMessageDialog(
-							Main.mainFrame, 
-							"A model must be opened to display its ValueObjects. Click File ➡ New model to open a new model.",
-							"No model available",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
 				
-				JDialog dialog = new JDialog(mainFrame, "ValueObjects", Dialog.ModalityType.DOCUMENT_MODAL);
-				dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.Y_AXIS));
-				
-				JPanel buttonPanel = new JPanel();
-				buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-				JButton newButton = new JButton();
-				buttonPanel.add(newButton);
-				JButton deleteButton = new JButton();
-				buttonPanel.add(deleteButton);
-				dialog.add(buttonPanel);
-
-				Map<String, Integer> count = new HashMap<>();
-				E3Graph graph = getCurrentGraph();
-				for (Object cell : Utils.getAllCells(graph)) {
-					Object val = graph.getModel().getValue(cell);
-					if (val instanceof ValueExchange) {
-						ValueExchange ve = (ValueExchange) val;
-						if (ve.valueObject != null) {
-							count.put(ve.valueObject, count.getOrDefault(ve.valueObject, 0) + 1);
-						}
-					}
-				}
-				
-				List<String> valueObjects = graph.valueObjects;
-				DefaultListModel<String> listModel = new DefaultListModel<>();
-				for (String valueObject : valueObjects) {
-					listModel.addElement(valueObject + " (" + count.getOrDefault(valueObject, 0) + "x)");
-				}
-				
-				JList valueObjectsList = new JList(listModel);
-				valueObjectsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				valueObjectsList.addListSelectionListener(new ListSelectionListener() {
-					@Override
-					public void valueChanged(ListSelectionEvent e) {
-						if (e.getValueIsAdjusting()) return; // We only do something if the event is final, i.e. if the event is the last one
-
-						// TODO: If cell recognition is no longer done with styles, refactor this
-						// such that only the explicit style of a cell is changed.
-						// I don't like messing with this state thing
-						// (Altough it worked almost immediately. Maybe this is the right way?)
-						// A benefit of this method is that it does not affect undo history (but is that actually true?).
-						int selectedIndex = valueObjectsList.getSelectedIndex();
-						if (selectedIndex == -1) return;
-
-						String valueObject = valueObjects.get(selectedIndex);
-						for (Object obj : Utils.getAllCells(graph)) {
-							Base val = Utils.base(graph, obj);
-							if (val instanceof ValueExchange) {
-								ValueExchange ve = (ValueExchange) val;
-								if (ve.valueObject.equals(valueObject)) {
-									graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#00FF00");
-								} else {
-									graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
-								}
-							}
-						}
-						
-						graph.repaint();
-					}
-				});
-
-				JScrollPane listScroller = new JScrollPane(valueObjectsList);
-				dialog.add(listScroller);
-				
-				newButton.setAction(new AbstractAction("New") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						String newName = JOptionPane.showInputDialog(
-								mainFrame,
-								"Enter the name of the new ValueObject",
-								"New ValueObject",
-								JOptionPane.QUESTION_MESSAGE);
-						if (newName == null || newName.trim().length() == 0) return;
-						if (valueObjects.indexOf(newName) != -1) return;
-
-						listModel.addElement(newName + " (0x)");
-						valueObjects.add(newName);
-					}
-				});
-				
-				deleteButton.setAction(new AbstractAction("Delete") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						int index = valueObjectsList.getSelectedIndex();
-						if (index == -1) return;
-						String valueObjectName = valueObjects.get(index);
-
-						List<Object> usingCells = new ArrayList<>();
-						for (Object cell : Utils.getAllCells(graph)) {
-							Object val = graph.getModel().getValue(cell);
-							if (val instanceof ValueExchange) {
-								ValueExchange ve = (ValueExchange) val;
-								if (ve.valueObject != null && ve.valueObject.equals(valueObjectName)) {
-									usingCells.add(cell);
-								}
-							}
-						}
-						
-						int response = JOptionPane.showConfirmDialog(
-								mainFrame,
-								"You are about to delete the ValueObject \""
-										+ valueObjectName 
-										+ "\". This ValueObject is used "
-										+ usingCells.size()
-										+ " times in this model. Would you like to proceed?",
-								"Deletion confirmation",
-								JOptionPane.OK_CANCEL_OPTION,
-								JOptionPane.WARNING_MESSAGE
-								);
-						
-						if (response == JOptionPane.OK_OPTION) {
-							graph.getModel().beginUpdate();
-							try {
-								for (Object cell : usingCells) {
-									ValueExchange ve = Utils.getValueExchange(cell);
-									ve.valueObject = null;
-									graph.getModel().setValue(cell, ve);
-								}
-							} finally {
-								graph.getModel().endUpdate();
-							}
-
-							listModel.remove(valueObjectsList.getSelectedIndex());
-							valueObjects.remove(index);
-						}
-					}
-				});
-				
-				// Makes all edges in the graph blue again in case they've been highlighted
-				dialog.addWindowListener(new WindowAdapter() {
-					@Override
-					public void windowClosing(WindowEvent e) {
-						for (Object obj : Utils.getAllCells(graph)) {
-							Base val = Utils.base(graph, obj);
-							if (val instanceof ValueExchange) {
-								ValueExchange ve = (ValueExchange) val;
-								graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
-							}
-						}
-						
-						graph.repaint();
-					}
-				});
-				
-				dialog.setSize(300, 320);
-				dialog.setVisible(true);
 			}
 		}));
 		
-		menuBar.add(graphMenu);
-
+		menuBar.add(toolMenu);
+		
 		JMenu exampleMenu = new JMenu("Examples");
-
-		exampleMenu.add(new JMenuItem(new AbstractAction("Small tricky graph") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				E3Graph graph = getCurrentGraph();
-				mxGraphModel model = (mxGraphModel) graph.getModel();
-				
-				ToolComponent tc = Main.globalTools;
-				
-				Object root = graph.getDefaultParent();
-				
-				Object tlBottom, blTop;
-				
-				model.beginUpdate();
-				try {
-					System.out.println("Adding small tricky graph");
-					Object tl = graph.addActor(100, 100);
-					Object bl = graph.addActor(100, 250);
-					
-					tlBottom = graph.addValueInterface(tl, 30, 50);
-					blTop = graph.addValueInterface(bl, 30, 0);
-					
-					graph.connectVE(tlBottom, blTop);
-					graph.connectVE(blTop, tlBottom);
-					
-					Object ss = graph.addStartSignal(bl, 20, 20);
-					Object es = graph.addEndSignal(tl, 20, 20);
-					
-					graph.connectCE(ss, blTop);
-					graph.connectCE(tlBottom, es);
-
-					System.out.println("Pre-commit: ");
-					Base info = (Base) ((mxCell) model.getChildAt(tlBottom, 0)).getValue();
-					System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
-					info = (Base) ((mxCell) model.getChildAt(tlBottom, 1)).getValue();
-					System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
-					info = (Base) ((mxCell) model.getChildAt(blTop, 0)).getValue();
-					System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
-					info = (Base) ((mxCell) model.getChildAt(blTop, 1)).getValue();
-					System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
-				} finally {
-					model.endUpdate();
-				}
-				
-				
-//				System.out.println("Finished: ");
-//				Base info = (Base) ((mxCell) model.getChildAt(tlBottom, 0)).getValue();
-//				System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
-//				info = (Base) ((mxCell) model.getChildAt(tlBottom, 1)).getValue();
-//				System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
-//				info = (Base) ((mxCell) model.getChildAt(blTop, 0)).getValue();
-//				System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
-//				info = (Base) ((mxCell) model.getChildAt(blTop, 1)).getValue();
-//				System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
-			}
-		}));
-
-		exampleMenu.add(new JMenuItem(new AbstractAction("Medium tricky graph") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				E3Graph graph = getCurrentGraph();
-				mxGraphModel model = (mxGraphModel) graph.getModel();
-				
-				ToolComponent tc = Main.globalTools;
-				
-				Object root = graph.getDefaultParent();
-				
-				model.beginUpdate();
-				try {
-					Object tl = graph.addActor(100, 100);
-					Object bl = graph.addActor(100, 250);
-					Object tr = graph.addActor(250, 100);
-					
-					Object tlBottom = graph.addValueInterface(tl, 30, 50);
-					Object blTop = graph.addValueInterface(bl, 30, 0);
-					Object tlRight = graph.addValueInterface(tl, 50, 30);
-					Object trLeft = graph.addValueInterface(tr, 0, 30);
-					
-					graph.connectVE(tlBottom, blTop);
-					graph.connectVE(blTop, tlBottom);
-					graph.connectVE(tlRight, trLeft);
-					graph.connectVE(trLeft, tlRight);
-					
-					Object ss = graph.addStartSignal(bl, 20, 20);
-					Object es =  graph.addEndSignal(tr, 20, 20);
-					
-					graph.connectCE(ss, blTop);
-					graph.connectCE(tlBottom, tlRight);
-					graph.connectCE(trLeft, es);
-				} finally {
-					model.endUpdate();
-				}
-			}
-		}));
-		
+		exampleMenu.add(new JMenuItem(new ExampleModels.SmallTricky(this)));
+		exampleMenu.add(new JMenuItem(new ExampleModels.MediumTricky(this)));
 		menuBar.add(exampleMenu);
 		
+		JMenu helpMenu = new JMenu("Help");
+		
+		// TODO: Add shortcuts
+		// TODO: Add contents
+		// TODO: Add proper spelling
+		helpMenu.add(new JMenuItem("Help controsle (F1)"));
+		helpMenu.addSeparator();
+		helpMenu.add(new JMenuItem("e3value website"));
+		helpMenu.add(new JMenuItem("e3fraud website"));
+		helpMenu.addSeparator();
+		helpMenu.add(new JMenuItem("About..."));
+		
+		menuBar.add(helpMenu);
+		
 		mainFrame.setJMenuBar(menuBar);
+
+		JToolBar toolbar = new JToolBar();
+		toolbar.setFloatable(false);
+		JButton newButton = new JButton(newIcon);
+		newButton.setContentAreaFilled(false);
+		newButton.setFocusPainted(false);
+
+		JButton copyButton = new JButton(copyIcon);
+		copyButton.setContentAreaFilled(false);
+		copyButton.setFocusPainted(false);
+
+		JButton zoomInButton = new JButton(zoomInIcon);
+		zoomInButton.setContentAreaFilled(false);
+		zoomInButton.setFocusPainted(false);
+
+		JButton zoomOutButton = new JButton(zoomOutIcon);
+		zoomOutButton.setContentAreaFilled(false);
+		zoomOutButton.setFocusPainted(false);
+
+		toolbar.add(newButton);
+		toolbar.add(copyButton);
+		toolbar.addSeparator();
+		toolbar.add(zoomInButton);
+		toolbar.add(zoomOutButton);
+		mainFrame.getContentPane().add(toolbar, BorderLayout.PAGE_START);
 		
 		globalTools = new ToolComponent();
 		
 		views = new JTabbedPane();	
 		
-		addNewTabAndSwitch();
+		addNewTabAndSwitch(false);
 		
-		mainFrame.getContentPane().add(views);
+		mainFrame.getContentPane().add(views, BorderLayout.CENTER);
 		
 		// Show main screen
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setSize(1024, 768);
 		mainFrame.setVisible(true);
-		
-//		// Add default model
-//		mxCell marketSegment = (mxCell) tools.clone(tools.marketSegment);
-//		Base marketSegmentValue = (Base) marketSegment.getValue();
-//		marketSegmentValue.name = "Average User";
-//		graph.addCell(marketSegment);
-//		
-//		mxCell actor = (mxCell) tools.clone(tools.actor);
-//		Base actorValue = (Base) actor.getValue();
-//		actorValue.name = "Average company";
-//		graph.addCell(actor);
-//		
-//		mxCell topValueInterface = (mxCell) tools.clone(tools.valueInterface);
 	}
 	
 	public static void main(String[] args) {

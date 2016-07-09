@@ -294,7 +294,7 @@ public class MainWindow extends JPanel
     }
     
     public void addMiniGraph(E3Graph graph) {
-    	analyzedGraph = Utils.cloneGraph(graph);
+    	analyzedGraph = new E3Graph(graph);
     	
     	graphComponent = new E3GraphComponent(analyzedGraph);
     	graphComponent.setEnabled(false);

@@ -19,15 +19,19 @@
 package design.main;
 
 import java.awt.Component;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -36,7 +40,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
@@ -450,12 +453,26 @@ public class Utils {
 		}
 	}
 	
-	public static Component addClosableTab(JTabbedPane panes, String title, Component component) {
+	/**
+	 * 
+	 * @param panes
+	 * @param title
+	 * @param component
+	 * @param icon Null if no icon is desired
+	 * @return
+	 */
+	public static Component addClosableTab(JTabbedPane panes, String title, Component component, ImageIcon icon) {
 		Component thisTab = panes.add(component);
 
 		JPanel heading = new ClosableTabHeading(title);
 		heading.setOpaque(false);
 		heading.setLayout(new BoxLayout(heading, BoxLayout.X_AXIS));
+		
+		if (icon != null) {
+			heading.add(new JLabel(icon));
+		}
+		
+		heading.add(Box.createHorizontalStrut(5));
 		
 		JLabel label = new JLabel(title);
 		heading.add(label);
@@ -503,20 +520,6 @@ public class Utils {
 		return thisTab;
 	}
 
-	public static E3Graph cloneGraph(E3Graph original) {
-		E3Graph clone = new E3Graph();
-		
-		clone.getModel().beginUpdate();
-		try {
-			clone.addCells(original.cloneCells(original.getChildCells(original.getDefaultParent())));
-			clone.valueObjects.addAll(original.valueObjects);
-		} finally {
-			clone.getModel().endUpdate();
-		}
-		
-		return clone;
-	}
-	
 //	public static void assignNewSUIDs(Object cell_) {
 //		mxCell cell = (mxCell) cell_;
 //		((Base) cell.getValue()).setSUID(Info.getSUID());

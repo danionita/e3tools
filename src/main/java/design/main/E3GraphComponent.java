@@ -18,11 +18,10 @@
  *******************************************************************************/
 package design.main;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
-import javax.swing.ActionMap;
 import javax.swing.JPopupMenu;
 
 import com.mxgraph.model.mxCell;
@@ -30,12 +29,13 @@ import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.handler.mxGraphHandler;
-import com.mxgraph.swing.handler.mxKeyboardHandler;
-import com.mxgraph.swing.util.mxGraphActions;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxUndoManager;
+import com.mxgraph.util.mxUndoableEdit;
+import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
@@ -51,6 +51,7 @@ import design.main.Info.ValueExchange;
 import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
+import design.main.listeners.KeyboardHandler;
 import design.main.listeners.ProxySelection;
 
 public class E3GraphComponent extends mxGraphComponent {
@@ -66,6 +67,8 @@ public class E3GraphComponent extends mxGraphComponent {
 	JPopupMenu marketSegmentMenu = new JPopupMenu();
 	JPopupMenu startSignalMenu = new JPopupMenu();
 	JPopupMenu endSignalMenu = new JPopupMenu();
+
+	public mxUndoManager undoManager;
 
 	public E3GraphComponent(mxGraph graph) {
 		super(graph);
@@ -98,50 +101,6 @@ public class E3GraphComponent extends mxGraphComponent {
 			ContextMenus.addE3PropertiesMenu(valueInterfaceMenu, graph);
 		}
 		
-		// Enable delete key et. al.
-		// Changed to make sure value transaction labels can't be deleted, only hidden
-		new mxKeyboardHandler(this) {
-			@Override
-			protected ActionMap createActionMap() {
-				ActionMap map = super.createActionMap();
-				
-				map.put("delete", new mxGraphActions.DeleteAction("Delete") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						mxGraph graph = mxGraphActions.getGraph(e);
-						
-						if (graph != null) {
-							Object selectedCell = graph.getSelectionCell();
-							Object value = graph.getModel().getValue(selectedCell);
-							if (value instanceof ValueExchangeLabel) {
-								graph.getModel().beginUpdate();
-								try {
-									ValueExchangeLabel veLabelInfo = (ValueExchangeLabel) Utils.base(graph, selectedCell);
-									ValueExchange veInfo = (ValueExchange) Utils.base(graph, graph.getModel().getParent(selectedCell));
-									
-									if (veLabelInfo.isValueObjectLabel) {
-										veInfo.valueObjectHidden ^= true;
-									} else {
-										veInfo.labelHidden ^= true;
-									}
-									
-									graph.getModel().setValue(Main.contextTarget, veInfo);
-									Utils.setValueExchangeValueObjectLabelVisibility(graph, graph.getModel().getParent(selectedCell));
-									Utils.setValueExchangeNameLabelVisibility(graph, graph.getModel().getParent(selectedCell));
-								} finally {
-									graph.getModel().endUpdate();
-								}
-							} else {
-								graph.removeCells();
-							}
-						}
-					}
-				});
-				
-				return map;
-			}
-		};
-		
 		getConnectionHandler().setCreateTarget(false);
 		graph.setAllowDanglingEdges(false);
 		graph.setPortsEnabled(false);
@@ -155,6 +114,38 @@ public class E3GraphComponent extends mxGraphComponent {
 //		getGraphHandler().setCloneEnabled(false);
 		graph.getSelectionModel().setSingleSelection(true);
 		setConnectable(true);
+		
+		undoManager = new mxUndoManager();
+		
+		// This handler propagates all the edits to the undo manager
+		mxIEventListener undoHandler = new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				undoManager.undoableEditHappened((mxUndoableEdit) evt
+						.getProperty("edit"));
+			}
+		};
+		
+		// This handler should keep the selection in sync with the command history
+		// (Although I'm not sure if it actually does anything)
+		mxIEventListener undoSelectionHandler = new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				List<mxUndoableChange> changes = ((mxUndoableEdit) evt
+						.getProperty("edit")).getChanges();
+				graph.setSelectionCells(graph
+						.getSelectionCellsForChanges(changes));
+			}
+		};
+		
+		graph.getModel().addListener(mxEvent.UNDO, undoHandler);
+		graph.getView().addListener(mxEvent.UNDO, undoHandler);
+		undoManager.addListener(mxEvent.UNDO, undoSelectionHandler);
+		undoManager.addListener(mxEvent.REDO, undoSelectionHandler);
+
+		// Enable delete key et. al.
+		// Pass the undoManager as well so ctrl+z/ctrl+y can trigger edits
+		new KeyboardHandler(this, undoManager);
 		
 		// Set styling of nodes, background color, etc.
 		E3Style.styleGraphComponent(this);

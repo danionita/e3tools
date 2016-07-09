@@ -47,6 +47,23 @@ public class E3Graph extends mxGraph {
 	public final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "MONEY-SECURED", "SERVICE")
 			);
+	public boolean isFraud;
+	
+	public E3Graph(boolean isFraud) {
+		this.isFraud = isFraud;
+	}
+
+	public E3Graph(E3Graph original) {
+		isFraud = original.isFraud;
+		
+		getModel().beginUpdate();
+		try {
+			addCells(original.cloneCells(original.getChildCells(original.getDefaultParent())));
+			valueObjects.addAll(original.valueObjects);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
 	
 	/**
 	 * Returns true if given cell is a fitting drop target for cells. This means the
