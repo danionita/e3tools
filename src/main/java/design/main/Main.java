@@ -414,12 +414,14 @@ public class Main {
 				}
 				
 				RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-				MainWindowV2 main = new MainWindowV2(new E3Model(rdfExporter.model)); //, getCurrentGraphName());
+				MainWindowV2 main = new MainWindowV2(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model)); //, getCurrentGraphName());
 
 				// TODO: Maybe add icons for fraud analysis as well?
-				Component analysis = Utils.addClosableTab(views, "Fraud analysis of \"" + getCurrentGraphName() + "\"", main, null);
+				JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
+				frame.add(main);
+				frame.setSize(1024, 768);
+				frame.setVisible(true);
 
-				views.setSelectedIndex(views.indexOfComponent(analysis));
 			}
 		}));
 		

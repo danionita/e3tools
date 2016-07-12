@@ -520,15 +520,21 @@ public class Utils {
 		return thisTab;
 	}
 
-//	public static void assignNewSUIDs(Object cell_) {
-//		mxCell cell = (mxCell) cell_;
-//		((Base) cell.getValue()).setSUID(Info.getSUID());
-//		
-////		System.out.println("Obj: " + cell.getValue().getClass().getSimpleName());
-////		System.out.println("New SUID: " + ((Base) cell.getValue()).getSUID());
-//
-//		for (int i = 0; i < cell.getChildCount(); i++) {
-//			assignNewSUIDs((mxCell) cell.getChildAt(i));
-//		}
-//	}
+	class GraphDelta {
+		public List<Integer> nonOccurringTransactions = new ArrayList<>();
+		public List<int[]> hiddenTransactions = new ArrayList<>();
+		public List<Integer> colludedActors = new ArrayList<>();
+		
+		public void addNonOccurringTransaction(int id) {
+			nonOccurringTransactions.add(id);
+		}
+		
+		public void addHiddenTransaction(int from, int to) {
+			hiddenTransactions.add(new int[]{from, to});
+		}
+		
+		public void addColludedActor(int id) {
+			colludedActors.add(id);
+		}
+	}
 }
