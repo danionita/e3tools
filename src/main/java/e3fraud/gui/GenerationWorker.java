@@ -143,7 +143,7 @@ DecimalFormat df = new DecimalFormat("#.##");
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
                     DefaultMutableTreeNode category = new DefaultMutableTreeNode(cursor.getKey());
                     root.add(category);
-                    sortedSubIdealModels = ModelRanker.sortByGain(null, baseModel, cursor.getValue(), selectedActor, selectedNeed, startValue, endValue, false);
+                    sortedSubIdealModels = ModelRanker.sortByGainThenLoss(null, baseModel, cursor.getValue(), selectedActor, selectedNeed, startValue, endValue, false);
                     for (E3Model subIdealModel : sortedSubIdealModels) {
                         category.add(new DefaultMutableTreeNode(subIdealModel));
                     }                    
@@ -189,7 +189,7 @@ DecimalFormat df = new DecimalFormat("#.##");
             if (sortCriteria==2) {
                 firePropertyChange("phase", "whatever","ranking...");
                 System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
-                sortedSubIdealModels = ModelRanker.sortByGain(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
+                sortedSubIdealModels = ModelRanker.sortByGainThenLoss(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     root.add(new DefaultMutableTreeNode(subIdealModel));
                 }

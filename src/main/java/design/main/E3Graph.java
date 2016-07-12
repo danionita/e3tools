@@ -61,7 +61,7 @@ public class E3Graph extends mxGraph {
 		
 		getModel().beginUpdate();
 		try {
-			addCells(original.cloneCells(original.getChildCells(original.getDefaultParent())));
+			addCells(original.cloneCellsKeepSUIDs(original.getChildCells(original.getDefaultParent())));
 			valueObjects.addAll(original.valueObjects);
 		} finally {
 			getModel().endUpdate();
@@ -481,6 +481,31 @@ public class E3Graph extends mxGraph {
 				if (cell.getValue() instanceof Base) {
 					cell.setValue(((Base) cell.getValue()).getCopy()); 
 					((Base) cell.getValue()).setSUID(Info.getSUID());
+				}
+				
+				for (int i = 0; i < cell.getChildCount(); i++) {
+					renewBasesAndIncreaseSUIDS((mxCell) cell.getChildAt(i));
+				}
+			}
+		} H h = new H();
+		
+		for ( Object obj : clones) {
+			if (model.getValue(obj) instanceof Info.Base) {
+				mxCell cell = (mxCell) obj;
+				h.renewBasesAndIncreaseSUIDS(cell);
+			}
+		}
+		
+		return clones;
+	}
+	
+	public Object[] cloneCellsKeepSUIDs(Object[] cells) {
+		Object[] clones = super.cloneCells(cells, true);
+
+		class H {
+			public void renewBasesAndIncreaseSUIDS(mxCell cell) {
+				if (cell.getValue() instanceof Base) {
+					cell.setValue(((Base) cell.getValue()).getCopy()); 
 				}
 				
 				for (int i = 0; i < cell.getChildCount(); i++) {

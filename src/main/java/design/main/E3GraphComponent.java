@@ -71,6 +71,8 @@ public class E3GraphComponent extends mxGraphComponent {
 
 	public mxUndoManager undoManager;
 	
+	private boolean popupTriggerEnabled = true;
+	
 	public E3GraphComponent makeShowcase(E3Graph graph) {
 		E3GraphComponent component = new E3GraphComponent(graph);
 		
@@ -341,6 +343,14 @@ public class E3GraphComponent extends mxGraphComponent {
 			}
 		});
 	}
+	
+	public boolean isPopupTriggerEnabled() {
+		return popupTriggerEnabled;
+	}
+	
+	public void setPopupTriggerEnabled(boolean b) {
+		popupTriggerEnabled = b;
+	}
 		
 	public void triggerContextMenu(MouseEvent e) {
 		Object obj = getCellAt(e.getX(), e.getY());
@@ -383,7 +393,7 @@ public class E3GraphComponent extends mxGraphComponent {
 			}
 		}
 			
-		if (e.isPopupTrigger() && menu != null) {
+		if (e.isPopupTrigger() && menu != null && popupTriggerEnabled) {
 			menu.show(e.getComponent(), e.getX(), e.getY());
 		}
 	}
