@@ -521,19 +521,19 @@ public class Utils {
 	}
 
 	class GraphDelta {
-		public List<Integer> nonOccurringTransactions = new ArrayList<>();
-		public List<int[]> hiddenTransactions = new ArrayList<>();
-		public List<Integer> colludedActors = new ArrayList<>();
+		public List<Long> nonOccurringTransactions = new ArrayList<>();
+		public List<long[]> hiddenTransactions = new ArrayList<>();
+		public List<Long> colludedActors = new ArrayList<>();
 		
-		public void addNonOccurringTransaction(int id) {
+		public void addNonOccurringTransaction(long id) {
 			nonOccurringTransactions.add(id);
 		}
 		
-		public void addHiddenTransaction(int from, int to) {
-			hiddenTransactions.add(new int[]{from, to});
+		public void addHiddenTransaction(long from, long to) {
+			hiddenTransactions.add(new long[]{from, to});
 		}
 		
-		public void addColludedActor(int id) {
+		public void addColludedActor(long id) {
 			colludedActors.add(id);
 		}
 	}

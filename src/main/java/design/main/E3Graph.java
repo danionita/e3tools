@@ -40,6 +40,7 @@ import design.main.Info.Side;
 import design.main.Info.SignalDot;
 import design.main.Info.StartSignal;
 import design.main.Info.ValueActivity;
+import design.main.Info.ValueExchange;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.Utils.GraphDelta;
@@ -78,9 +79,27 @@ public class E3Graph extends mxGraph {
 		
 		// TODO: Apply changes from delta here
 		
-		for (int id : delta.colludedActors) {
-			// Object ac = getCellFromId(id));
-			setColludingActor(null, true);
+		for (long id : delta.nonOccurringTransactions) {
+			Object ve = getCellFromId(id);
+			setValueExchangeNonOcurring(ve, true);
+		}
+		
+		for (long[] valueInterfaces : delta.hiddenTransactions) {
+			Object leftValueInterface = getCellFromId(valueInterfaces[0]);
+			Object rightValueInterface = getCellFromId(valueInterfaces[1]);
+			
+			// TODO: Continue here
+			Object leftVP = addValuePort(this, (mxICell) leftValueInterface, false);
+			Object rightVP = addValuePort(this, (mxICell) rightValueInterface, true);
+			
+			Object newVE = connectVP(leftVP, rightVP);
+			
+			setValueExchangeHidden(newVE, true);
+		}
+		
+		for (long id : delta.colludedActors) {
+			Object ac = getCellFromId(id);
+			setColludingActor(ac, true);
 		}
 	}
 	
@@ -612,31 +631,33 @@ public class E3Graph extends mxGraph {
 			graph.getModel().endUpdate();
 		}
 	}
+
 	public Object addActor(double x, double y) {
-		Object ac = addCell(Main.globalTools.clone(Main.globalTools.actor));
-		mxGeometry geom = Utils.geometry(this, ac);
-		geom.setX(x);
-		geom.setY(y);
-		model.setGeometry(ac, geom);
-		
-		return ac;
+		getModel().beginUpdate();
+		try {
+			Object ac = addCell(Main.globalTools.clone(Main.globalTools.actor));
+			mxGeometry geom = Utils.geometry(this, ac);
+			geom.setX(x);
+			geom.setY(y);
+			model.setGeometry(ac, geom);
+			return ac;
+		} finally {
+			getModel().endUpdate();
+		}
 	}
 	
 	public Object addValueInterface(Object parent, double x, double y) {
-		System.out.println("Adding ValueInterface");
-		Object vi = Main.globalTools.clone(Main.globalTools.valueInterface);
-		mxGeometry gm = ((mxCell) vi).getGeometry();
-		gm.setX(x);
-		gm.setY(y);
-		this.addCell(vi, parent);
-		
-		System.out.println("Added:");
-		for (int i = 0; i < 2; i++) {
-			Base info = (Base) ((mxCell) getModel().getChildAt(vi, i)).getValue();
-			System.out.println("SUID of ValuePort " + i + ": " + info.getSUID());
+		getModel().beginUpdate();
+		try {
+			Object vi = Main.globalTools.clone(Main.globalTools.valueInterface);
+			mxGeometry gm = ((mxCell) vi).getGeometry();
+			gm.setX(x);
+			gm.setY(y);
+			this.addCell(vi, parent);
+			return vi;
+		} finally {
+			getModel().endUpdate();
 		}
-		
-		return vi;
 	}
 	
 	public Object addStartSignal(Object parent, double x, double y) {
@@ -644,7 +665,13 @@ public class E3Graph extends mxGraph {
 		mxGeometry gm = ((mxCell) ss).getGeometry();
 		gm.setX(x);
 		gm.setY(y);
-		this.addCell(ss, parent);
+
+		getModel().beginUpdate();
+		try {
+			this.addCell(ss, parent);
+		} finally {
+			getModel().endUpdate();
+		}
 		
 		return ss;
 	}
@@ -654,11 +681,24 @@ public class E3Graph extends mxGraph {
 		mxGeometry gm = ((mxCell) es).getGeometry();
 		gm.setX(x);
 		gm.setY(y);
-		this.addCell(es, parent);
+		
+		getModel().beginUpdate();
+		try {
+			this.addCell(es, parent);
+		} finally {
+			getModel().endUpdate();
+		}
 		
 		return es;
 	}
 	
+	/**
+	 * Connects the first outgoing valueport in start with the first incoming value port
+	 * on end.
+	 * @param start Start value interface
+	 * @param end End value interface
+	 * @return
+	 */
 	public Object connectVE(Object start, Object end) {
 		Base startInfo = Utils.base(this, start);
 		Base endInfo = Utils.base(this, end);
@@ -690,16 +730,31 @@ public class E3Graph extends mxGraph {
 			assert (portStart != null);
 			assert (portEnd != null);
 			
-			return this.insertEdge(
-					getDefaultParent(),
-					null,
-					"",
-					portEnd,
-					portStart
-					);
+			getModel().beginUpdate();
+			try {
+				return this.insertEdge(getDefaultParent(), null, "", portEnd, portStart);
+			} finally {
+				getModel().endUpdate();
+			}
 		}
 
-		return null;
+		throw new IllegalArgumentException("Start or end object is not a value interface");
+	}
+	
+	public Object connectVP(Object start, Object end) {
+		Base startInfo = Utils.base(this, start);
+		Base endInfo = Utils.base(this, end);
+		
+		if (startInfo instanceof ValuePort && endInfo instanceof ValuePort) {
+			getModel().beginUpdate();
+			try {
+				return this.insertEdge(getDefaultParent(), null, "", start, end);
+			} finally {
+				getModel().endUpdate();
+			}
+		}
+		
+		throw new IllegalArgumentException("Start or end cells are not value ports");
 	}
 
 	public Object connectCE(Object start, Object end) {
@@ -709,7 +764,12 @@ public class E3Graph extends mxGraph {
 		Object startDot = Utils.getChildrenWithValue(this, start, SignalDot.class).get(0);
 		Object endDot = Utils.getChildrenWithValue(this, end, SignalDot.class).get(0);
 		
-		return this.insertEdge(getDefaultParent(), null, "", startDot, endDot);
+		getModel().beginUpdate();
+		try {
+			return this.insertEdge(getDefaultParent(), null, "", startDot, endDot);
+		} finally {
+			getModel().endUpdate();
+		}
 	}	
 	
 	public void setColludingActor(Object ac, boolean b) {
@@ -728,5 +788,55 @@ public class E3Graph extends mxGraph {
 		} finally {
 			getModel().endUpdate();
 		}
+	}
+	
+	public void setValueExchangeNonOcurring(Object ve, boolean on) {
+		ValueExchange veInfo = (ValueExchange) Utils.base(this, ve);
+		veInfo.setNonOccurring(on);
+		
+		getModel().beginUpdate();
+		try {
+			getModel().setValue(Main.contextTarget, veInfo);
+			
+			if (on) {
+				getModel().setStyle(Main.contextTarget, new String("NonOccurringValueExchange"));
+			} else {
+				getModel().setStyle(Main.contextTarget, new String("ValueExchange"));
+			}
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+	
+	public void setValueExchangeHidden(Object ve, boolean on) {
+		ValueExchange veInfo = (ValueExchange) Utils.base(this, ve);
+		veInfo.setHidden(on);
+		
+		getModel().beginUpdate();
+		try {
+			getModel().setValue(ve, veInfo);
+			
+			if (on) {
+				getModel().setStyle(Main.contextTarget, new String("HiddenValueExchange"));
+			} else {
+				getModel().setStyle(Main.contextTarget, new String("ValueExchange"));
+			}
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+	
+	public Object getCellFromId(long id) {
+		for (Object cell : Utils.getAllCells(this)) {
+			Object val = getModel().getValue(cell);
+			if (val instanceof Base) {
+				Base info = (Base) val;
+				if (info.getSUID() == id) {
+					return cell;
+				}
+			}
+		}
+		
+		throw new IllegalArgumentException("Id " + id + " does not exist");
 	}
 }

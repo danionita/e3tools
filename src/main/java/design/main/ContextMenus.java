@@ -529,16 +529,8 @@ public class ContextMenus {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
-						ve.formulas.put("dashed", "1");
-						ve.formulas.remove("dotted");
 						
-						graph.getModel().beginUpdate();
-						try {
-							graph.getModel().setValue(Main.contextTarget, ve);
-							graph.getModel().setStyle(Main.contextTarget, new String("NonOccurringValueExchange"));
-						} finally {
-							graph.getModel().endUpdate();
-						}
+						((E3Graph) graph).setValueExchangeNonOcurring(Main.contextTarget, !ve.isNonOccurring());
 					}
 				});
 				
@@ -546,33 +538,8 @@ public class ContextMenus {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
-						ve.formulas.put("dotted", "1");
-						ve.formulas.remove("dashed");
 						
-						graph.getModel().beginUpdate();
-						try {
-							graph.getModel().setValue(Main.contextTarget, ve);
-							graph.getModel().setStyle(Main.contextTarget, new String("HiddenValueExchange"));
-						} finally {
-							graph.getModel().endUpdate();
-						}
-					}
-				});
-				
-				JCheckBoxMenuItem noneMenu = new JCheckBoxMenuItem(new AbstractAction("No fraud") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
-						ve.formulas.remove("dotted");
-						ve.formulas.remove("dashed");
-						
-						graph.getModel().beginUpdate();
-						try {
-							graph.getModel().setValue(Main.contextTarget, ve);
-							graph.getModel().setStyle(Main.contextTarget, new String("ValueExchange"));
-						} finally {
-							graph.getModel().endUpdate();
-						}
+						((E3Graph) graph).setValueExchangeHidden(Main.contextTarget, !ve.isHidden());
 					}
 				});
 				
@@ -581,14 +548,10 @@ public class ContextMenus {
 					nonOccurringMenu.setSelected(true);
 				} else if (ve.formulas.containsKey("dotted")) {
 					hiddenMenu.setSelected(true);
-				} else {
-					noneMenu.setSelected(true);
-				}
-				
+				} 				
+
 				fraudMenu.add(nonOccurringMenu);
 				fraudMenu.add(hiddenMenu);
-				fraudMenu.addSeparator();
-				fraudMenu.add(noneMenu);
 			}
 			
 			@Override
@@ -598,6 +561,7 @@ public class ContextMenus {
 			public void menuCanceled(MenuEvent e) { }
 		});
 		
+		// Disable the menu if the current graph is not a fraud graph
 		if (!((E3Graph) graph).isFraud) {
 			fraudMenu.setEnabled(false);
 		}

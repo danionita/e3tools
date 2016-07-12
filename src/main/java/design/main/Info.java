@@ -326,6 +326,32 @@ public class Info {
 					"dashed"
 			);
 		}
+
+		public boolean isNonOccurring() {
+			return formulas.getOrDefault("dashed", "0").equals("1");
+		}
+		
+		public boolean isHidden() {
+			return formulas.getOrDefault("dotted", "0").equals("1");
+		}
+		
+		public void setNonOccurring(boolean on) {
+			if (on) {
+				formulas.put("dashed", "1");
+				formulas.remove("dotted");
+			} else {
+				formulas.remove("dashed");
+			}
+		}
+		
+		public void setHidden(boolean on) {
+			if (on) {
+				formulas.put("dotted", "1");
+				formulas.remove("dashed");
+			} else {
+				formulas.remove("dotted");
+			}
+		}
 	}
 	
 	public static class ValueExchangeLabel extends Base {
