@@ -77,7 +77,6 @@ import design.main.Info.Actor;
 import design.main.Info.MarketSegment;
 import design.main.Info.ValueActivity;
 import design.main.Main;
-import design.main.Utils;
 import e3fraud.model.E3Model;
 import e3fraud.parser.FileParser;
 import e3fraud.tools.currentTime;
@@ -289,7 +288,7 @@ public class MainWindow extends JPanel
         setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
         
         if (name != null) {
-			log.append(e3fraud.tools.currentTime.currentTime() + " Loaded graph \"" + name + "\"\n");
+//			log.append(e3fraud.tools.currentTime.currentTime() + " Loaded graph \"" + name + "\"\n");
         }
     }
     

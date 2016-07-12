@@ -53,7 +53,7 @@
   <build>
    <resources>
      <resource>
-       <directory>src/main/java</directory>
+       <directory>src/main/resources</directory>
      </resource>
    </resources>
   <pluginManagement>
@@ -69,4 +69,7 @@
    </plugins>
   </pluginManagement>
  </build>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 </project>

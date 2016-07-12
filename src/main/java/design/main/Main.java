@@ -29,7 +29,6 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -45,7 +44,7 @@ import org.apache.log4j.Logger;
 import com.mxgraph.util.mxPoint;
 
 import design.main.Utils.ClosableTabHeading;
-import e3fraud.gui.MainWindow;
+import e3fraud.gui.MainWindowV2;
 import e3fraud.model.E3Model;
 
 public class Main { 
@@ -120,23 +119,23 @@ public class Main {
 		
 		try {
 			e3v = new ImageIcon(
-					ImageIO.read(Main.class.getResourceAsStream("/design/resources/e3v.png"))
+					ImageIO.read(Main.class.getResourceAsStream("/e3v.png"))
 					.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
 			e3f = new ImageIcon(
-					ImageIO.read(Main.class.getResourceAsStream("/design/resources/e3f.png"))
+					ImageIO.read(Main.class.getResourceAsStream("/e3f.png"))
 					.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
 			
 			newIcon = new ImageIcon(
-					ImageIO.read(Main.class.getResourceAsStream("/design/resources/icons/page_white.png")));
+					ImageIO.read(Main.class.getResourceAsStream("/icons/page_white.png")));
 			
 			copyIcon = new ImageIcon(
-					ImageIO.read(Main.class.getResourceAsStream("/design/resources/icons/page_white_copy.png")));
+					ImageIO.read(Main.class.getResourceAsStream("/icons/page_white_copy.png")));
 
 			zoomInIcon = new ImageIcon(
-					ImageIO.read(Main.class.getResourceAsStream("/design/resources/icons/magnifier_zoom_in.png")));
+					ImageIO.read(Main.class.getResourceAsStream("/icons/magnifier_zoom_in.png")));
 
 			zoomOutIcon = new ImageIcon(
-					ImageIO.read(Main.class.getResourceAsStream("/design/resources/icons/magnifier_zoom_out.png")));
+					ImageIO.read(Main.class.getResourceAsStream("/icons/magnifier_zoom_out.png")));
 		} catch (IOException e) {
 			System.out.println("Tab pictures have failed to load.");
 			e.printStackTrace();
@@ -415,15 +414,12 @@ public class Main {
 				}
 				
 				RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-				MainWindow main = new MainWindow(new E3Model(rdfExporter.model), getCurrentGraphName());
-				main.addMiniGraph(getCurrentGraph());
+				MainWindowV2 main = new MainWindowV2(new E3Model(rdfExporter.model)); //, getCurrentGraphName());
 
 				// TODO: Maybe add icons for fraud analysis as well?
 				Component analysis = Utils.addClosableTab(views, "Fraud analysis of \"" + getCurrentGraphName() + "\"", main, null);
 
 				views.setSelectedIndex(views.indexOfComponent(analysis));
-				
-				main.fitMiniGraph();
 			}
 		}));
 		

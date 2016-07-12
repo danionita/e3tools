@@ -227,7 +227,7 @@ public class E3Style {
 		try {
                     
 			String nodeXml = mxUtils.readInputStream(
-                                E3Style.class.getResourceAsStream("/design/resources/" + filename));
+                                E3Style.class.getResourceAsStream("/" + filename));
 			
 			// Find first occurrence of < to avoid unicode BOM
 			int lessThanIndex = nodeXml.indexOf("<");
