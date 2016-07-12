@@ -587,26 +587,48 @@ public class FraudWindow extends javax.swing.JPanel {
                     chartPanel.setVisible(true);
                 }
                 
-                // if the graphPanel exists, update it
-                if (graphPanel == null) {
-                    graphPanel = new E3GraphComponent(graph);
-                    graphPanel.setPopupTriggerEnabled(false);
-                    graphPanel.setEnabled(false);
-                    FraudWindow fw = this;
-                    graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
-                    	@Override
-                    	public void mouseClicked(MouseEvent e) {
-							if (e.getClickCount() == 2) {
-								fw.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
-							}
-                    	}
-                    });
-                    graphPane.add(graphPanel);  
-                    graphPanel.refresh();
-                    graphPanel.setVisible(true);
+                // Remove current e3graph if it's already there
+                if (graphPane.getComponentCount() > 0) {
+                	graphPane.removeAll();
                 }
                 
-                graphPanel.setGraph(graph);
+                // Then just create a graph panel from scratch
+				graphPanel = new E3GraphComponent(graph);
+				// Disable right mouse clicks
+				graphPanel.setPopupTriggerEnabled(false);
+				// Prevent other funny business
+				graphPanel.setEnabled(false);
+				// Reference this inside mouse adapter
+				FraudWindow fw = this;
+				// Apparently mxGraphControl takes care of mouse business of
+				// mxGraph (which is the parent of E3Graph)
+				graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						// On doubleclick
+						if (e.getClickCount() == 2) {
+							// Create a new tab with the current graph
+							fw.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
+							// Switch to the screen
+							fw.mainFrame.mainFrame.requestFocus();
+						}
+					}
+				});
+				// Refresh E3GraphComponent to make sure E3Style is used
+				graphPanel.refresh();
+				// Add it 
+				graphPane.add(graphPanel);  
+				// Apparently repaint + revalidate is needed to make sure
+				// e3graph is drawn in the case that the graphPane is reused
+				graphPane.repaint();
+				graphPane.revalidate();
+				// Set it visible if it isn't already
+				graphPanel.setVisible(true);
+				
+				// TODO: If you make a very big graph the graphpanel doesn't center nicely
+				// I already fixed this before (see MainWindow.java in the fitMiniGraph() method)
+				// But there is some bullshittery going on with the sizes and stuff
+				// I'd say we push this forward to the next sprint
             }
         }
     }//GEN-LAST:event_treeValueChanged
