@@ -23,6 +23,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
+import design.main.Utils;
 import e3fraud.vocabulary.E3value;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,8 +43,25 @@ public class E3Model {
 
     private final Model model;
     private String description;
-    
+    private boolean isFraud;
+    private Utils.GraphDelta fraudChanges;
     private String prefix;
+
+    public boolean isIsFraud() {
+        return isFraud;
+    }
+
+    public void setIsFraud(boolean isFraud) {
+        this.isFraud = isFraud;
+    }
+
+    public Utils.GraphDelta getFraudChanges() {
+        return fraudChanges;
+    }
+
+    public void setFraudChanges(Utils.GraphDelta fraudChanges) {
+        this.fraudChanges = fraudChanges;
+    }
 
     public String getPrefix() {
         return prefix;
@@ -52,12 +70,12 @@ public class E3Model {
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
-    
+
     public String colludedActorURI;
     public String newActorURI;
-    
+
     //the following are needed to save time on calcualting the averages and deltas everytime when sorting 
-    private double lastKnownAverage;    
+    private double lastKnownAverage;
     private Map<Resource, Double> lastKnownAverages;
     private double lastKnownTopDelta;
     private Resource topDeltaActor;
@@ -84,9 +102,9 @@ public class E3Model {
     }
 
     /**
-     * 
+     *
      * @param jenaModel the jena model to include
-     * @param baseModel the E3model to take description and collusion info from 
+     * @param baseModel the E3model to take description and collusion info from
      */
     public E3Model(Model jenaModel, E3Model baseModel) {
         this.model = jenaModel;
@@ -137,20 +155,20 @@ public class E3Model {
      */
     private void traverse(Resource nextElement, double occurences) {
         //While this is not the last element (i.e. an end stimulus)
-        while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {            
+        while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {
             //System.out.println("\t\t...moved to element: " + nextElement.getProperty(E3value.e3_has_name).getString());
             //if it is a ValueInterface
             if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {
                 //add the respective OCCURRENCE rate
-                if (nextElement.hasProperty(E3value.e3_has_formula)) {                   
+                if (nextElement.hasProperty(E3value.e3_has_formula)) {
                     nextElement.getProperty(E3value.e3_has_formula).changeObject("OCCURRENCES=" + occurences);
                     //System.out.println("\t\t\t...updated OCCURRENCES=" + occurences + " to " + nextElement.getProperty(E3value.e3_has_name).getString());
-                } else {                    
+                } else {
                     nextElement.addProperty(E3value.e3_has_formula, "OCCURRENCES=" + occurences);
                     //System.out.println("\t\t\t...added OCCURRENCES=" + occurences + " to " + nextElement.getProperty(E3value.e3_has_name).getString());
                 }
             }
-            
+
             //then move to next element, depending on the type of element the current one is:
             if (nextElement.hasProperty(RDF.type, E3value.OR_node)) { //if it's a OR node
                 StmtIterator nodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
@@ -198,8 +216,7 @@ public class E3Model {
                 if (nextElement.getProperty(E3value.vo_consists_of_vp) != null) {
                     //System.out.println("\t\tand it has outgoing ports");
                     nextElement = nextElement.getProperty(E3value.vo_consists_of_vp).getResource();//choose one of it's ports                    
-                } 
-                //otherwise, (this happens when the transaction is non-reciprocal so there are no out nodes)
+                } //otherwise, (this happens when the transaction is non-reciprocal so there are no out nodes)
                 else {
                     //System.out.println("\t\tand it does not have outgoing ports");
                     //go back to its respective Value Interface
@@ -236,8 +253,8 @@ public class E3Model {
     public Model getJenaModel() {
         return model;
     }
-    
-    public double getLastKnownAverage(){
+
+    public double getLastKnownAverage() {
         return lastKnownAverage;
     }
 
@@ -270,21 +287,19 @@ public class E3Model {
     public void setDescription(String newDescription) {
         description = newDescription;
     }
-    
+
     public void appendDescription(String newDescription) {
-        if(description.length()<5)
-        {
-        description =  newDescription;
-        }
-        else{
-            description += "<br>"+newDescription;
+        if (description.length() < 5) {
+            description = newDescription;
+        } else {
+            description += "<br>" + newDescription;
         }
     }
 
-
     /**
      * return a set of start-stimuli
-     * @return 
+     *
+     * @return
      */
     public Set<Resource> getNeeds() {
         // select all the resources with a E3value.elementary_actor property
@@ -405,8 +420,9 @@ public class E3Model {
 
     /**
      * For a given actor, calculates total profit for the dependency path
-     * corresponding to given valueInterface by taking into account  valuation of each individual (in/out) value port, as
-     * well as the cardinality of the respective (in/out) transactions
+     * corresponding to given valueInterface by taking into account valuation of
+     * each individual (in/out) value port, as well as the cardinality of the
+     * respective (in/out) transactions
      *
      * @param actor the actor to calculate the profit for
      * @param selectedValueInterface the ValueInterface that is used as filter
@@ -464,7 +480,6 @@ public class E3Model {
             }
         }
 
-
         //First, check if input is really an actor:
         if (!actor.hasProperty(RDF.type, E3value.elementary_actor)) {
             System.err.println("Not an actor!");
@@ -478,7 +493,7 @@ public class E3Model {
             while (actorFormulas.hasNext()) {
                 Statement formula = actorFormulas.next();
                 double value = Float.valueOf(formula.getString().split("=", 2)[1]);
-                result -= value;                
+                result -= value;
             }
         }
 
@@ -530,10 +545,9 @@ public class E3Model {
                                     if (isDashed(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dashed
                                         valuePortValuation = 0; //nullify it
                                     }
-                                } else {//If we want the real case
-                                    if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
-                                        valuePortValuation = 0; //nullify it
-                                    }
+                                } else//If we want the real case
+                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
+                                    valuePortValuation = 0; //nullify it
                                 }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                             } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
@@ -541,10 +555,9 @@ public class E3Model {
                                     if (isDashed(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dashed
                                         valuePortValuation = 0; //nullify it
                                     }
-                                } else {//If we want the real case
-                                    if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
-                                        valuePortValuation = 0; //nullify it
-                                    }
+                                } else//If we want the real case
+                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
+                                    valuePortValuation = 0; //nullify it
                                 }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                             }
@@ -567,7 +580,7 @@ public class E3Model {
                 }
             }
         }
-        
+
         return result;
     }
 
@@ -650,10 +663,9 @@ public class E3Model {
                                 if (isDashed(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dashed
                                     valuePortValuation = 0; //nullify it
                                 }
-                            } else {//If we want the real case
-                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
-                                    valuePortValuation = 0; //nullify it
-                                }
+                            } else//If we want the real case
+                            if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
+                                valuePortValuation = 0; //nullify it
                             }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                         } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
@@ -661,10 +673,9 @@ public class E3Model {
                                 if (isDashed(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dashed
                                     valuePortValuation = 0; //nullify it
                                 }
-                            } else {//If we want the real case
-                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
-                                    valuePortValuation = 0; //nullify it
-                                }
+                            } else//If we want the real case
+                            if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
+                                valuePortValuation = 0; //nullify it
                             }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                         }
@@ -739,7 +750,7 @@ public class E3Model {
         Map<Resource, XYSeries> actorSeriesMap = new HashMap();
         Set<Resource> actors = this.getActors();
         for (Resource actor : actors) {
-            XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());           
+            XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());
             actorSeriesMap.put(actor, actorSeries);
         }
 
@@ -757,8 +768,8 @@ public class E3Model {
                     actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
                 }
             }
-            if(startValue==endValue){
-                double i=startValue;
+            if (startValue == endValue) {
+                double i = startValue;
                 this.changeNeedOccurrence(need, i);
                 this.enhance();
                 //For each actor
@@ -773,8 +784,7 @@ public class E3Model {
         return actorSeriesMap;
     }
 
-    
-     /**
+    /**
      *
      * @param need the need to use on X-axis
      * @param startValue minimum occurrence rate of need
@@ -787,10 +797,9 @@ public class E3Model {
     public CategoryDataset getTotalsForActors(Resource need, int startValue, int endValue, boolean ideal) {
         //make sure the resources are from this model
         need = model.getResource(need.getURI());
-        
-         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         Set<Resource> actors = this.getActors();
-        
 
         try {
             /* Step - 1: Define the data for the series  */
@@ -803,22 +812,21 @@ public class E3Model {
                 //For each actor
                 for (Resource actor : actors) {
                     //add it's profit to the relevant series
-                     dataset.addValue(this.getTotalForActor(actor, ideal), actor.getProperty(E3value.e3_has_name).getString(), "\""+i+"\"");
+                    dataset.addValue(this.getTotalForActor(actor, ideal), actor.getProperty(E3value.e3_has_name).getString(), "\"" + i + "\"");
                 }
             }
         } catch (Exception i) {
             System.err.println(i);
         }
-        
+
         return dataset;
 
     }
-    
-    
+
     @Override
     public String toString() {
         //boring decalarations
-return description;
+        return description;
     }
 
     public double getCardinality(Resource res) {
@@ -861,17 +869,14 @@ return description;
     }
 
     public void makeDashed(Resource valueExchange) {
-
-        //make sure the resources are from this model
-        valueExchange = model.getResource(valueExchange.getURI());
+        valueExchange = model.getResource(valueExchange.getURI());        //make sure the resources are from this model
         valueExchange.addProperty(E3value.e3_has_formula, "DASHED=1");
     }
 
     public void makeDotted(Resource valueExchange) {
-
-        //make sure the resources are from this model
-        valueExchange = model.getResource(valueExchange.getURI());
+        valueExchange = model.getResource(valueExchange.getURI());        //make sure the resources are from this model
         valueExchange.addProperty(E3value.e3_has_formula, "DOTTED=1");
+        this.fraudChanges.addNonOccurringTransaction(Integer.parseInt(valueExchange.getProperty(E3value.e3_has_uid).toString()));
     }
 
     public int countDotted() {
@@ -897,7 +902,6 @@ return description;
      *
      * @param valueInterface1 the Value Interface that holds the outgoingport
      * @param valueInterface2 the ValueInterface that will hold the incoming
-     * @param actor2 the destination actor
      * @param value
      */
     public void addTransfer(Resource valueInterface1, Resource valueInterface2, double value) {
@@ -928,7 +932,7 @@ return description;
             }
         }
 
-        port1 = model.createResource(URIbase + "#"+ Integer.toString(id), E3value.value_port);
+        port1 = model.createResource(URIbase + "#" + Integer.toString(id), E3value.value_port);
         port1.addProperty(E3value.e3_has_name, "vp" + Integer.toString(id));
         port1.addProperty(E3value.e3_has_uid, Integer.toString(id));
         port1.addProperty(E3value.vp_has_dir, "true");
@@ -941,12 +945,12 @@ return description;
         diagramResource.addProperty(E3value.mo_has_mc, port1);
         port1.addProperty(E3value.vp_in_vo, vo1);
         vo1.addProperty(E3value.vo_consists_of_vp, port1);
-        port1.addProperty(E3value.e3_has_formula, "VALUATION="+value);
-        
-        id+=1;
-        port2 = model.createResource(URIbase +  "#"+ Integer.toString(id), E3value.value_port);
+        port1.addProperty(E3value.e3_has_formula, "VALUATION=" + value);
+
+        id += 1;
+        port2 = model.createResource(URIbase + "#" + Integer.toString(id), E3value.value_port);
         port2.addProperty(E3value.e3_has_name, "vp" + Integer.toString(id));
-        port2.addProperty(E3value.e3_has_uid,  Integer.toString(id));
+        port2.addProperty(E3value.e3_has_uid, Integer.toString(id));
         port2.addProperty(E3value.vp_has_dir, "true");
         port2.addProperty(E3value.mc_in_mo, modelResource);
         modelResource.addProperty(E3value.mo_has_mc, port2);
@@ -955,23 +959,23 @@ return description;
         port2.addProperty(E3value.mc_in_di, diagramResource);
         diagramResource.addProperty(E3value.mo_has_mc, port2);
         port2.addProperty(E3value.vp_in_vo, vo2);
-        vo2.addProperty(E3value.vo_consists_of_vp, port2);        
-        port2.addProperty(E3value.e3_has_formula, "VALUATION="+value);
+        vo2.addProperty(E3value.vo_consists_of_vp, port2);
+        port2.addProperty(E3value.e3_has_formula, "VALUATION=" + value);
 
-         id+=1;
-        exchange = model.createResource(URIbase +  "#"+ Integer.toString(id), E3value.value_exchange);        
+        id += 1;
+        exchange = model.createResource(URIbase + "#" + Integer.toString(id), E3value.value_exchange);
         exchange.addProperty(E3value.e3_has_name, "Hidden transfer");
         exchange.addProperty(E3value.e3_has_uid, Integer.toString(id));
         exchange.addProperty(E3value.mc_in_mo, modelResource);
         modelResource.addProperty(E3value.mo_has_mc, exchange);
-        moneyResource.addProperty(E3value.mo_has_mc,exchange);
-        exchange.addProperty(E3value.ve_has_in_po, port2);        
+        moneyResource.addProperty(E3value.mo_has_mc, exchange);
+        exchange.addProperty(E3value.ve_has_in_po, port2);
         exchange.addProperty(E3value.ve_has_out_po, port1);
         exchange.addProperty(E3value.e3_has_formula, "CARDINALITY=1");
-        
+
         port1.addProperty(E3value.vp_out_connects_ve, exchange);
-        
-        port2.addProperty(E3value.vp_in_connects_ve, exchange);       
+
+        port2.addProperty(E3value.vp_in_connects_ve, exchange);
 
     }
 
@@ -982,6 +986,11 @@ return description;
      * @param actor2
      */
     void collude(Resource actor1, Resource actor2) {
+
+        int actor1ID = Integer.parseInt(actor1.getProperty(E3value.e3_has_uid).getString());
+        int actor2ID = Integer.parseInt(actor2.getProperty(E3value.e3_has_uid).getString());
+        this.fraudChanges.addColludedActor(actor1ID);
+        this.fraudChanges.addColludedActor(actor2ID);
 
         //make sure the resources are from this model
         actor1 = model.getResource(actor1.getURI());
@@ -1012,16 +1021,16 @@ return description;
                     if (actor1FormulaType.equals(actor2FormulaType)) {
                         //add them up                        
                         actor1FormulaValue = actor1FormulaValue + actor2FormulaValue;
-                                                                  
+
                     }
                     //save the (updated or not) formula
-                    newActor1Formulas.add(actor1FormulaType+"="+actor1FormulaValue);
+                    newActor1Formulas.add(actor1FormulaType + "=" + actor1FormulaValue);
                 }
             }
             //remove the old ones
             actor1.removeAll(E3value.e3_has_formula);
             //add the new
-            for (String formula : newActor1Formulas){
+            for (String formula : newActor1Formulas) {
                 actor1.addProperty(E3value.e3_has_formula, formula);
             }
         }
@@ -1036,10 +1045,10 @@ return description;
             //and update its reference
             actor2Interface.getResource().getProperty(E3value.vi_assigned_to_ac).changeObject((RDFNode) actor1);
         }
-        
-        colludedActorURI=actor2.getURI();
-        newActorURI=actor1.getURI();
-        
+
+        colludedActorURI = actor2.getURI();
+        newActorURI = actor1.getURI();
+
         //and remove them from actor2
         actor2.removeAll(E3value.ac_has_vi);
 
@@ -1054,7 +1063,7 @@ return description;
      *
      * @param actor1
      * @param actor2
-     * @return 
+     * @return
      */
     public Map<Resource, Resource> getInterfacesBetween(Resource actor1, Resource actor2) {
         Map<Resource, Resource> interfaces = new HashMap<>();
@@ -1116,62 +1125,64 @@ return description;
         return interfaces;
 
     }
-/**
- * Average for individual actor
- * @param actor
- * @param need
- * @param startValue
- * @param endValue
- * @param ideal
- * @return 
- */
+
+    /**
+     * Average for individual actor
+     *
+     * @param actor
+     * @param need
+     * @param startValue
+     * @param endValue
+     * @param ideal
+     * @return
+     */
     public double getAverageForActor(Resource actor, Resource need, int startValue, int endValue, boolean ideal) {
-        
+
         actor = model.getResource(actor.getURI());
         need = model.getResource(need.getURI());
-        
+
         XYSeries series = getTotalForActor(actor, need, startValue, endValue, ideal);
         double sum = 0;
-        for (Object dataItemObject : series.getItems()){
+        for (Object dataItemObject : series.getItems()) {
             XYDataItem dataItem = (XYDataItem) dataItemObject;
-            sum +=dataItem.getY().doubleValue();            
+            sum += dataItem.getY().doubleValue();
         }
-        double mean = sum / series.getItemCount();        
-        this.lastKnownAverage= mean;
+        double mean = sum / series.getItemCount();
+        this.lastKnownAverage = mean;
         return mean;
     }
-    
+
     /**
      * Averages for all actors
+     *
      * @param actor main actor
      * @param need
      * @param startValue
      * @param endValue
      * @param ideal
-     * @return 
+     * @return
      */
-    Map<Resource, Double> getAveragesForActors( Resource need, int startValue, int endValue, boolean ideal) {
-        
+    Map<Resource, Double> getAveragesForActors(Resource need, int startValue, int endValue, boolean ideal) {
+
         need = model.getResource(need.getURI());
         Map<Resource, Double> averagesMap = new HashMap<>();
         Map<Resource, XYSeries> seriesMap = getTotalForActors(need, startValue, endValue, ideal);
-        
-        for(Resource actor : seriesMap.keySet()){    
+
+        for (Resource actor : seriesMap.keySet()) {
             double sum = 0;
-        for (Object dataItemObject : seriesMap.get(actor).getItems()){
-            XYDataItem dataItem = (XYDataItem) dataItemObject;
-            sum +=dataItem.getY().doubleValue();            
+            for (Object dataItemObject : seriesMap.get(actor).getItems()) {
+                XYDataItem dataItem = (XYDataItem) dataItemObject;
+                sum += dataItem.getY().doubleValue();
+            }
+            double mean = sum / seriesMap.get(actor).getItemCount();
+            averagesMap.put(actor, mean);
         }
-        double mean = sum / seriesMap.get(actor).getItemCount();        
-        averagesMap.put(actor, mean);
-        }
-        this.lastKnownAverages= averagesMap;
+        this.lastKnownAverages = averagesMap;
         return averagesMap;
     }
 
     public Map<Resource, Double> getLastKnownAverages() {
         return this.lastKnownAverages;
     }
-    
 
 }

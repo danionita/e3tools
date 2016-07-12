@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
 import com.mxgraph.util.mxPoint;
 
 import design.main.Utils.ClosableTabHeading;
-import e3fraud.gui.MainWindowV2;
+import e3fraud.gui.FraudWindow;
 import e3fraud.model.E3Model;
 
 public class Main { 
@@ -414,12 +414,13 @@ public class Main {
 				}
 				
 				RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-				MainWindowV2 main = new MainWindowV2(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model)); //, getCurrentGraphName());
+				FraudWindow main = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model),Main.this); //, getCurrentGraphName());
 
 				// TODO: Maybe add icons for fraud analysis as well?
 				JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
 				frame.add(main);
-				frame.setSize(1024, 768);
+                                frame.pack();
+				//frame.setSize(1024, 768); --> replaced with frame.pack so that it respects preferred sizes of components
 				frame.setVisible(true);
 
 			}

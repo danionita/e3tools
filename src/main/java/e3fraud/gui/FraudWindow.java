@@ -41,18 +41,23 @@ import org.jfree.chart.JFreeChart;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 import design.main.E3Graph;
+import design.main.E3GraphComponent;
+import design.main.Main;
 import e3fraud.model.E3Model;
 
 /**
  *
  * @author Dan
  */
-public class MainWindowV2 extends javax.swing.JPanel {
+public class FraudWindow extends javax.swing.JPanel {
 
     static private final String newline = "\n";
-    private JFreeChart graph1 = null;
-    private JFreeChart graph2 = null;
+    private JFreeChart chart = null;
     private E3Model baseModel = null;
+    private final E3Graph baseGraph;
+    private final Main mainFrame;
+    private E3Graph graph;
+    private E3Model selectedModel;
     private Resource selectedNeed;
     private Resource selectedActor;
     private String selectedNeedString;
@@ -60,21 +65,24 @@ public class MainWindowV2 extends javax.swing.JPanel {
     private int sortCriteria, groupingCriteria, collusions;
     private Double gainMin, gainMax, lossMin, lossMax;
     private int needStartValue = 0, needEndValue = 0;
-    private Map<String, Resource> actorsMap;
-    private Map<String, Resource> needsMap;
+    private final Map<String, Resource> actorsMap;
+    private final Map<String, Resource> needsMap;
     private java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
-    ChartPanel chartPanel;
-	private E3Graph original;
-    public static MainWindowV2 mainWindowInstance;
+    private ChartPanel chartPanel;
+    private E3GraphComponent graphPanel;
+    public static FraudWindow mainWindowInstance;
 
     /**
      * Creates new form MainWindowV2
      *
+     * @param original
      * @param baseModel the model to analyze
+     * @param mainFrame the parent frame
      */
-    public MainWindowV2(E3Graph original, E3Model baseModel) {
-    	this.original = original;
+    public FraudWindow(E3Graph original, E3Model baseModel, Main mainFrame) {
+    	this.baseGraph = original;
         this.baseModel = baseModel;
+        this.mainFrame = mainFrame;
         actorsMap = this.baseModel.getActorsMap();
         needsMap = this.baseModel.getNeedsMap();
         initComponents();
@@ -139,7 +147,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
         bottomPane = new javax.swing.JLayeredPane();
         visualizationPane = new javax.swing.JSplitPane();
         chartPane = new javax.swing.JPanel();
-        modelPane = new javax.swing.JPanel();
+        graphPane = new javax.swing.JPanel();
         placeholderLabel = new javax.swing.JLabel();
 
         mainPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -184,6 +192,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
 
         generateButton.setForeground(new java.awt.Color(0, 153, 0));
         generateButton.setText("Generate");
+        generateButton.setToolTipText("Generate fraud scenarios based on the above settings");
         generateButton.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 51)));
         generateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -217,11 +226,6 @@ public class MainWindowV2 extends javax.swing.JPanel {
 
         needEndField.setText("500");
         needEndField.setPreferredSize(new java.awt.Dimension(25, 22));
-        needEndField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                needEndFieldActionPerformed(evt);
-            }
-        });
 
         collusionLabel.setText("Max. colluding actors");
 
@@ -353,11 +357,6 @@ public class MainWindowV2 extends javax.swing.JPanel {
 
         lossStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         lossStartField.setPreferredSize(new java.awt.Dimension(60, 22));
-        lossStartField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lossStartFieldActionPerformed(evt);
-            }
-        });
 
         gainStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         gainStartField.setText("0");
@@ -487,24 +486,19 @@ public class MainWindowV2 extends javax.swing.JPanel {
         visualizationPane.setRightComponent(chartPane);
         chartPane.getAccessibleContext().setAccessibleDescription("");
 
-        modelPane.setPreferredSize(new java.awt.Dimension(500, 400));
-
-        javax.swing.GroupLayout modelPaneLayout = new javax.swing.GroupLayout(modelPane);
-        modelPane.setLayout(modelPaneLayout);
-        modelPaneLayout.setHorizontalGroup(
-            modelPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 500, Short.MAX_VALUE)
-        );
-        modelPaneLayout.setVerticalGroup(
-            modelPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-
-        visualizationPane.setLeftComponent(modelPane);
+        graphPane.setPreferredSize(new java.awt.Dimension(500, 400));
+        graphPane.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                graphPaneMouseClicked(evt);
+            }
+        });
+        graphPane.setLayout(new java.awt.BorderLayout());
+        visualizationPane.setLeftComponent(graphPane);
 
         placeholderLabel.setForeground(new java.awt.Color(102, 102, 102));
         placeholderLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         placeholderLabel.setText("< Select a scenario above to see its model and profitability graph here>");
+        placeholderLabel.setToolTipText("sdasdsadas");
         placeholderLabel.setPreferredSize(visualizationPane.getPreferredSize());
 
         bottomPane.setLayer(visualizationPane, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -572,24 +566,38 @@ public class MainWindowV2 extends javax.swing.JPanel {
             placeholderLabel.setVisible(false);
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             if (node.getUserObject() instanceof E3Model) {
-                //update current sub-ideal graph
-                graph2 = ChartGenerator.generateChart((E3Model) node.getUserObject(), selectedNeed, needStartValue, needEndValue, false);//real graph 
-                // and if ae chartPanel exists, update that too
+                //grab the E3Model of the selected row
+                selectedModel = (E3Model) node.getUserObject();
+                //create a chart 
+                chart = ChartGenerator.generateChart(selectedModel, selectedNeed, needStartValue, needEndValue, false);
+                //create a graph
+                graph = new E3Graph(baseGraph,selectedModel.getFraudChanges());
+                //then, 
+                
+                // if the chartPanel exists, update it
                 if (chartPanel != null) {
-                    chartPanel.setChart(graph2);
+                    chartPanel.setChart(chart);
                 }//otherwise create one and add it the window
                 else {
-                    chartPanel = new ChartPanel(graph2);
+                    chartPanel = new ChartPanel(chart);
                     chartPane.add(chartPanel);
                     chartPanel.setVisible(true);
+                }
+                
+                // if the graphPanel exists, update it
+                if (graphPanel != null) {
+                    graphPanel.setGraph(graph);
+                    //graphPanel.setEnabled(false);
+                }//otherwise create one and add it the window
+                else {
+                    graphPanel = new E3GraphComponent(graph);
+                    graphPanel.setEnabled(false);
+                    graphPane.add(graphPanel);  
+                    graphPanel.setVisible(true);
                 }
             }
         }
     }//GEN-LAST:event_treeValueChanged
-
-    private void needEndFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_needEndFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_needEndFieldActionPerformed
 
     private void resultScrollPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_resultScrollPaneComponentResized
         TreeModel oldModel = tree.getModel();
@@ -597,9 +605,10 @@ public class MainWindowV2 extends javax.swing.JPanel {
         tree.setModel(oldModel);
     }//GEN-LAST:event_resultScrollPaneComponentResized
 
-    private void lossStartFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lossStartFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_lossStartFieldActionPerformed
+    private void graphPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphPaneMouseClicked
+       mainFrame.addNewTabAndSwitch(graph);
+        System.out.println("click!");//WHY ISN'T IT WORKINGGGGGGGGGGGGG?
+    }//GEN-LAST:event_graphPaneMouseClicked
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
@@ -621,6 +630,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     generateButton.setVisible(true);
                     System.err.println("Exception encountered during generation: \n" + ex);
+                    ex.printStackTrace();
                     PopUps.infoBox("Encountered an error. Most likely out of memory; try increasing the heap size of JVM", "Error");
                 }
             }
@@ -702,8 +712,14 @@ public class MainWindowV2 extends javax.swing.JPanel {
         if (!gainEndField.getText().equals("")) {
             gainMax = Double.parseDouble(gainEndField.getText());
         }
+        else{
+            gainMax = Double.MAX_VALUE;
+        }
         if (!lossStartField.getText().equals("")) {
             lossMin = Double.parseDouble(lossStartField.getText());
+        }
+        else{
+            lossMin = Double.MIN_VALUE;
         }
         lossMax = Double.parseDouble(lossEndField.getText());
         collusions = (Integer) collusionsButton.getValue();
@@ -712,6 +728,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
     /**
      * Create the GUI and show it. For thread safety, this method should be
      * invoked from the event dispatch thread.
+     * @param model
      */
     public static void createAndShowGUI(E3Model model) {
         //Create and set up the window.
@@ -719,7 +736,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Add content to the window.
-        mainWindowInstance = new MainWindowV2(null, model);
+        mainWindowInstance = new FraudWindow(null, model, null);
         frame.setContentPane(mainWindowInstance);
 
         //Display the window.
@@ -746,6 +763,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
     private javax.swing.JPanel generationSettingsPanel;
     private javax.swing.JSeparator generationSettingsSeparator1;
     private javax.swing.JSeparator generationSettingsSeparator2;
+    private javax.swing.JPanel graphPane;
     private javax.swing.JComboBox<String> groupComboBox;
     private javax.swing.JLabel groupSettingLabel;
     private javax.swing.JCheckBox hiddenCheckBox;
@@ -759,7 +777,6 @@ public class MainWindowV2 extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> mainActorComboBox;
     private javax.swing.JLabel mainActorLabel;
     private javax.swing.JSplitPane mainPane;
-    private javax.swing.JPanel modelPane;
     private javax.swing.JComboBox<String> needComboBox;
     private javax.swing.JFormattedTextField needEndField;
     private javax.swing.JLabel needLabel;

@@ -520,11 +520,19 @@ public class Utils {
 		return thisTab;
 	}
 
-	class GraphDelta {
+	public static class GraphDelta {
 		public List<Integer> nonOccurringTransactions = new ArrayList<>();
 		public List<int[]> hiddenTransactions = new ArrayList<>();
 		public List<Integer> colludedActors = new ArrayList<>();
-		
+
+                public GraphDelta(GraphDelta oldGraphDelta){
+                    this.nonOccurringTransactions.addAll(nonOccurringTransactions);
+                    for(int[] item : hiddenTransactions){
+                        this.hiddenTransactions.add(Arrays.copyOf(item,item.length));                       
+                    }
+                    this.colludedActors.addAll(colludedActors);
+                }
+                
 		public void addNonOccurringTransaction(int id) {
 			nonOccurringTransactions.add(id);
 		}

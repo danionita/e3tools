@@ -25,7 +25,7 @@ package e3fraudTests;
 
 
 import javax.swing.SwingUtilities;
-import e3fraud.gui.MainWindowV2;
+import e3fraud.gui.FraudWindow;
 import e3fraud.parser.FileParser;
 import java.io.File;
 import javax.swing.UIManager;
@@ -52,7 +52,7 @@ public class MainV2 {
 //			System.out.println("Couldn't set Look and Feel to system");
 //		}
             	
-                MainWindowV2.createAndShowGUI(FileParser.parseFile(new File("C:\\Users\\Dan\\Documents\\Scenario 1.rdf")));
+                FraudWindow.createAndShowGUI(FileParser.parseFile(new File("C:\\Users\\Dan\\Documents\\Scenario 1.rdf")));
             }
         });
     }
