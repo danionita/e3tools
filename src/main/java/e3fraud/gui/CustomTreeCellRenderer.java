@@ -42,14 +42,16 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
     private final Color selectionBackground;
     private final Color background;
     private final JTree tree;
-
+    private int avaiableWidth,requiredHeight;
+    private JLabel left;
+    private JEditorPane right;
+    E3Model model;
     public CustomTreeCellRenderer(JTree tree) {
         DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
         selectionBackground = renderer.getBackgroundSelectionColor();
         background = renderer.getBackgroundNonSelectionColor();
         this.tree = tree;
 
-        //setPreferredSize(new Dimension(15, 50));
     }
 
     @Override
@@ -65,30 +67,31 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
         panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
         if (node.getUserObject() instanceof E3Model) {
-            E3Model model = (E3Model) node.getUserObject();
-            JLabel left = new JLabel(Integer.toString(node.getParent().getIndex(node) + 1));
+             model = (E3Model) node.getUserObject();
+            left = new JLabel(Integer.toString(node.getParent().getIndex(node) + 1));
             left.setFont(new Font("Arial", Font.BOLD, 14));
             //JLabel right = new JLabel(model.getDescription());
             //right.setLineWrap(true);
             //right.setWrapStyleWord(true);
 
-            JEditorPane right = new JEditorPane("text/html", model.getDescription());
+            right = new JEditorPane();
+            right.setContentType("text/html");
             right.setEditable(false);
+            
+            //calculate right pane's required height based on its content and how wide the tree is
+            avaiableWidth = tree.getParent().getWidth() - left.getPreferredSize().width-2; 
+            right.setSize(avaiableWidth,Short.MAX_VALUE);
+            right.setText(model.getPrefix()+"\n"+model.getDescription());
+            requiredHeight = right.getPreferredSize().height;
 
+            right.setPreferredSize(new Dimension(avaiableWidth,requiredHeight));
+            
             //set the font of right to system defaul:
             Font font = UIManager.getFont("Label.font");
             String bodyRule = "body { font-family: " + font.getFamily() + "; "
                     + "font-size: " + font.getSize() + "pt; }";
             ((HTMLDocument) right.getDocument()).getStyleSheet().addRule(bodyRule);
 
-            Dimension size = right.getPreferredSize();
-            int availableWidth= this.tree.getParent().getWidth() - left.getPreferredSize().width - 20; //( 20 extra to leave room for the scrollbar and border)           
-            //if the cell exceeds the available size, when it will be resize, text will have to wraped, thus creating a new line
-            if(size.width>availableWidth){
-               size.height+=16; // so we need to make room for that new line.
-            }            
-            size.width=availableWidth;
-            right.setPreferredSize(size);
 
             panel.setBackground(selected ? selectionBackground : background);
             right.setBackground(selected ? selectionBackground : background);
@@ -96,6 +99,7 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
             panel.add(right);
 
             panel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            
             return panel;
         } else {
             DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
@@ -104,4 +108,17 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
             return c;
         }
     }
+    
+@Override
+public Dimension getPreferredSize() {
+    System.out.println("there");
+            avaiableWidth = tree.getParent().getWidth() - this.left.getPreferredSize().width-17;
+            right.setSize(avaiableWidth,Short.MAX_VALUE);
+            right.setText(model.getPrefix()+"\n"+model.getDescription());
+            requiredHeight = right.getPreferredSize().height;
+    return new Dimension(avaiableWidth,requiredHeight);
+}
+    
+    
+    
 }

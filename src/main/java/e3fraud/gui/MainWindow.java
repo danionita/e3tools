@@ -503,7 +503,7 @@ public class MainWindow extends JPanel
         } //handle show ideal graph button
         else if (e.getSource() == idealGraphButton) {
             if (this.baseModel != null) {
-                graph1 = GraphingTool.generateGraph(baseModel, selectedNeed, needStartValue, needEndValue, true);//expected graph 
+                graph1 = ChartGenerator.generateChart(baseModel, selectedNeed, needStartValue, needEndValue, true);//expected graph 
                 ChartFrame chartframe1 = new ChartFrame("Ideal results", graph1);
                 chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
                 chartframe1.pack();
@@ -557,7 +557,7 @@ public class MainWindow extends JPanel
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
                 if (node.getUserObject() instanceof E3Model) {
                     //update current sub-ideal graph
-                    graph2 = GraphingTool.generateGraph((E3Model) node.getUserObject(), selectedNeed, needStartValue, needEndValue, false);//real graph 
+                    graph2 = ChartGenerator.generateChart((E3Model) node.getUserObject(), selectedNeed, needStartValue, needEndValue, false);//real graph 
                     // and if the chartPanel is expanded, update that too
                     if (chartPanel != null) {
                         chartPanel.setChart(graph2);

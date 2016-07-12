@@ -63,8 +63,12 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
      * @param endValue the max occurrence rate of need
      * @param sortCriteria 0 - do not sort, 1 - sort by loss first, 2- sort by gain first
      * @param groupingCriteria 0 - do not group, 1 - group based on generated collusion groups
+     * @param lossMin Filter by loss - minimum value
+     * @param lossMax Filter by loss - maximum value
+     * @param gainMin Filter by gain - minimum value
+     * @param gainMax Filter by gain - maximum value
      */
-    public SortingWorker(java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels, E3Model baseModel, String selectedActorString, Resource selectedActor, Resource selectedNeed, String selectedNeedString, int startValue, int endValue, int sortCriteria, int groupingCriteria) {
+    public SortingWorker(java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels, E3Model baseModel, String selectedActorString, Resource selectedActor, Resource selectedNeed, String selectedNeedString, int startValue, int endValue, int sortCriteria, int groupingCriteria, Double lossMin, Double lossMax, Double gainMin, Double gainMax) {
         this.baseModel = baseModel;
         this.selectedActorString = selectedActorString;
         this.selectedActor = selectedActor;
@@ -82,16 +86,12 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
 
     @Override
     protected DefaultMutableTreeNode doInBackground() throws Exception {
-    DecimalFormat df = new DecimalFormat("#.##");             
-    // Start generation
-        System.out.println(currentTime.currentTime() + " Sorting sub-ideal models...." + newline + "sortCriteria ="+sortCriteria + "groupingCtieria ="+groupingCriteria);
-        
+    DecimalFormat df = new DecimalFormat("#.##");                   
 
         //grouped case
         if (groupingCriteria==1) {
                  if (sortCriteria==1) {
                //sort by gain only
-                firePropertyChange("phase", "whatever","ranking...");
                 System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 i=0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
@@ -100,32 +100,44 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
                     root.add(category);
                     sortedSubIdealModels = ModelRanker.sortByGain(null, baseModel, cursor.getValue(), selectedActor, selectedNeed, startValue, endValue, false);
                     for (E3Model subIdealModel : sortedSubIdealModels) {
+                                subIdealModel.setPrefix(
+                                "Average gain of <b>"
+                                + df.format(subIdealModel.getLastKnownAverages().get(selectedActor)-baseModel.getLastKnownAverages().get(selectedActor))
+                                + " </b>("
+                                + df.format(subIdealModel.getLastKnownAverages().get(selectedActor))
+                                + "instead of "
+                                + df.format(baseModel.getLastKnownAverages().get(selectedActor))
+                                + ") for "
+                                + selectedActor.getProperty(E3value.e3_has_name).getString()
+                                //+ " = " + subIdealModel.getLastKnownAverages().get(selectedActor)
+                                + " due to: <br>");
                         category.add(new DefaultMutableTreeNode(subIdealModel));
                     }                    
                     setProgress(100*i/numberOfSubIdealModels);
                     i++;
                 }
             } else if (sortCriteria==0) {
-                //sort by loss first
-                firePropertyChange("phase", "whatever","ranking...");
+                //sort by loss first, then gain
                 System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                                 i=0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
                     DefaultMutableTreeNode category = new DefaultMutableTreeNode(cursor.getKey());
                     root.add(category);
-                    sortedSubIdealModels = ModelRanker.sortByLossandGain(null,baseModel, cursor.getValue(), selectedActor, selectedNeed, startValue, endValue, false);
+                    sortedSubIdealModels = ModelRanker.sortByLossThenGain(null,baseModel, cursor.getValue(), selectedActor, selectedNeed, startValue, endValue, false);
                     for (E3Model subIdealModel : sortedSubIdealModels) {
-                    subIdealModel.setDescription(
+                    //reset old prefix    
+                    subIdealModel.setPrefix(
                                 "Average loss of <b>"
+                                + df.format(baseModel.getLastKnownAverages().get(selectedActor)-(subIdealModel.getLastKnownAverages().get(selectedActor)))
+                                + " </b>("
                                 + df.format(subIdealModel.getLastKnownAverages().get(selectedActor))
-                                + " </b>(instead of <b>"
+                                + " instead of "
                                 + df.format(baseModel.getLastKnownAverages().get(selectedActor))
-                                + "</b>) for "
+                                + ") for "
                                 + selectedActor.getProperty(E3value.e3_has_name).getString()
                                 //+ " = " + subIdealModel.getLastKnownAverages().get(selectedActor)
-                                + " due to: <br>"
-                                + subIdealModel.getDescription());
+                                + " due to: <br>");
                         category.add(new DefaultMutableTreeNode(subIdealModel));
                     }                    
                     setProgress(100*i/numberOfSubIdealModels);
@@ -143,27 +155,39 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
             }
             //then rank
             if (sortCriteria==1) {
-                firePropertyChange("phase", "whatever","ranking...");
-                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                //by gain
+                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "...");
                 sortedSubIdealModels = ModelRanker.sortByGain(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
+                                 subIdealModel.setPrefix(
+                                "Average gain of <b>"
+                                + df.format(subIdealModel.getLastKnownAverages().get(selectedActor)-baseModel.getLastKnownAverages().get(selectedActor))
+                                + " </b>("
+                                + subIdealModel.getLastKnownAverages().get(selectedActor)
+                                + "instead of "
+                                + df.format(baseModel.getLastKnownAverages().get(selectedActor))
+                                + ") for "
+                                + selectedActor.getProperty(E3value.e3_has_name).getString()
+                                //+ " = " + subIdealModel.getLastKnownAverages().get(selectedActor)
+                                + " due to: <br>");
                     root.add(new DefaultMutableTreeNode(subIdealModel));
                 }
             } else if (sortCriteria==0) {
-                firePropertyChange("phase", "whatever","ranking...");
-                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
-                sortedSubIdealModels = ModelRanker.sortByLossandGain(this,baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
+                //by loss then gain
+                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model...");
+                sortedSubIdealModels = ModelRanker.sortByLossThenGain(this,baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
-                    subIdealModel.setDescription(
+                    subIdealModel.setPrefix(
                                 "Average loss of <b>"
+                                + df.format(baseModel.getLastKnownAverages().get(selectedActor)-(subIdealModel.getLastKnownAverages().get(selectedActor)))
+                                + " </b>("
                                 + df.format(subIdealModel.getLastKnownAverages().get(selectedActor))
-                                + " </b>(instead of <b>"
+                                + " instead of "
                                 + df.format(baseModel.getLastKnownAverages().get(selectedActor))
-                                + "</b>) for "
+                                + ") for "
                                 + selectedActor.getProperty(E3value.e3_has_name).getString()
                                 //+ " = " + subIdealModel.getLastKnownAverages().get(selectedActor)
-                                + " due to: <br>"
-                                + subIdealModel.getDescription());
+                                + " due to: <br>");
                     root.add(new DefaultMutableTreeNode(subIdealModel));
                 }
             }

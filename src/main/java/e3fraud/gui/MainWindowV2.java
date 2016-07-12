@@ -10,16 +10,14 @@ import e3fraud.model.E3Model;
 import java.awt.Cursor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -33,12 +31,13 @@ public class MainWindowV2 extends javax.swing.JPanel {
     static private final String newline = "\n";
     private JFreeChart graph1 = null;
     private JFreeChart graph2 = null;
-    private  E3Model baseModel = null;
+    private E3Model baseModel = null;
     private Resource selectedNeed;
     private Resource selectedActor;
     private String selectedNeedString;
     private String selectedActorString;
     private int sortCriteria, groupingCriteria, collusions;
+    private Double gainMin, gainMax, lossMin, lossMax;
     private int needStartValue = 0, needEndValue = 0;
     private Map<String, Resource> actorsMap;
     private Map<String, Resource> needsMap;
@@ -431,11 +430,15 @@ public class MainWindowV2 extends javax.swing.JPanel {
 
         resultScrollPane.setName("resultScrollPane"); // NOI18N
         resultScrollPane.setPreferredSize(new java.awt.Dimension(400, 322));
+        resultScrollPane.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                resultScrollPaneComponentResized(evt);
+            }
+        });
 
         tree.setMaximumSize(new java.awt.Dimension(9999, 9999));
         tree.setCellRenderer(new CustomTreeCellRenderer(tree));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.setLargeModel(true);
         tree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 treeValueChanged(evt);
@@ -519,29 +522,12 @@ public class MainWindowV2 extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
-        needStartValue = Integer.parseInt(needStartField.getText());
-        needEndValue = Integer.parseInt(needEndField.getText());
-        selectedActorString = mainActorComboBox.getSelectedItem().toString();
-        selectedNeedString = needComboBox.getSelectedItem().toString();
-        selectedActor = actorsMap.get(selectedActorString);
-        selectedNeed = needsMap.get(selectedNeedString);
-        sortCriteria = sortComboBox.getSelectedIndex();
-        groupingCriteria = groupComboBox.getSelectedIndex();
-        collusions = (Integer) collusionsButton.getValue();
+        readSettings();
         generateSortAndDisplay();
-        //sortAndDisplay();
     }//GEN-LAST:event_generateButtonActionPerformed
 
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
-        needStartValue = Integer.parseInt(needStartField.getText());
-        needEndValue = Integer.parseInt(needEndField.getText());
-        selectedActorString = mainActorComboBox.getSelectedItem().toString();
-        selectedNeedString = needComboBox.getSelectedItem().toString();
-        selectedActor = actorsMap.get(selectedActorString);
-        selectedNeed = needsMap.get(selectedNeedString);
-        sortCriteria = sortComboBox.getSelectedIndex();
-        groupingCriteria = groupComboBox.getSelectedIndex();
-        collusions = (Integer) collusionsButton.getValue();
+        readSettings();
         sortAndDisplay();
     }//GEN-LAST:event_refreshButtonActionPerformed
 
@@ -550,35 +536,40 @@ public class MainWindowV2 extends javax.swing.JPanel {
     }//GEN-LAST:event_advancedSettingsLabelMouseClicked
 
     private void treeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_treeValueChanged
-
-        JTree tree = (JTree) evt.getSource();        
-            //on selection
-            if (!tree.isSelectionEmpty()) {
-                        //enable visualization is enabled
-         visualizationPane.setVisible(true);
-                    placeholderLabel.setVisible(false);
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                if (node.getUserObject() instanceof E3Model) {
-                    //update current sub-ideal graph
-                    graph2 = GraphingTool.generateGraph((E3Model) node.getUserObject(), selectedNeed, needStartValue, needEndValue, false);//real graph 
-                    // and if ae chartPanel exists, update that too
-                    if (chartPanel != null) {
-                        chartPanel.setChart(graph2);
-                    }//otherwise create one and add it the window
-                    else{                                           
-                        chartPanel = new ChartPanel(graph2);
-                        chartPane.add(chartPanel);
-                        chartPanel.setVisible(true);                        
-                    }
+        JTree tree = (JTree) evt.getSource();
+        //on selection
+        if (!tree.isSelectionEmpty()) {
+            //enable visualization is enabled
+            visualizationPane.setVisible(true);
+            placeholderLabel.setVisible(false);
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            if (node.getUserObject() instanceof E3Model) {
+                //update current sub-ideal graph
+                graph2 = ChartGenerator.generateChart((E3Model) node.getUserObject(), selectedNeed, needStartValue, needEndValue, false);//real graph 
+                // and if ae chartPanel exists, update that too
+                if (chartPanel != null) {
+                    chartPanel.setChart(graph2);
+                }//otherwise create one and add it the window
+                else {
+                    chartPanel = new ChartPanel(graph2);
+                    chartPane.add(chartPanel);
+                    chartPanel.setVisible(true);
                 }
             }
+        }
     }//GEN-LAST:event_treeValueChanged
 
     private void needEndFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_needEndFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_needEndFieldActionPerformed
 
-    private void generateSortAndDisplay(){
+    private void resultScrollPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_resultScrollPaneComponentResized
+        TreeModel oldModel = tree.getModel();
+        tree.setModel(null);
+        tree.setModel(oldModel);
+    }//GEN-LAST:event_resultScrollPaneComponentResized
+
+    private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
         GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, sortCriteria, groupingCriteria, collusions) {
             //make it so that when Worker is done
@@ -586,9 +577,9 @@ public class MainWindowV2 extends javax.swing.JPanel {
             protected void done() {
                 try {
                     //the Worker's result is retrieved
-                    groupedSubIdealModels=get();
+                    groupedSubIdealModels = get();
                     //Progress bar is replaced with button
-                    progressBar.setVisible(false);                           
+                    progressBar.setVisible(false);
                     //and the cursor goes back to normal
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     //now sort and display
@@ -597,7 +588,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
                 } catch (InterruptedException | ExecutionException ex) {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     generateButton.setVisible(true);
-                    System.err.println("Exception encountered during generation: \n"+ex);
+                    System.err.println("Exception encountered during generation: \n" + ex);
                     PopUps.infoBox("Encountered an error. Most likely out of memory; try increasing the heap size of JVM", "Error");
                 }
             }
@@ -612,16 +603,16 @@ public class MainWindowV2 extends javax.swing.JPanel {
         //and run the worker
         generationWorker.execute();
     }
-    
-        private void sortAndDisplay(){
+
+    private void sortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-        SortingWorker rankingWorker = new SortingWorker(groupedSubIdealModels, baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, sortCriteria, groupingCriteria) {
+        SortingWorker rankingWorker = new SortingWorker(groupedSubIdealModels, baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, sortCriteria, groupingCriteria, lossMin, lossMax, gainMin, gainMax) {
             //make it so that when Worker is done
             @Override
             protected void done() {
                 try {
                     //the Worker's result is retrieved
-                    root=get();
+                    root = get();
                     //the tree is populated 
                     treeModel.setRoot(root);
                     tree.setModel(treeModel);
@@ -633,14 +624,14 @@ public class MainWindowV2 extends javax.swing.JPanel {
                     progressBar.setVisible(false);
                     generateButton.setVisible(true);
                     //and the result label appears
-                    resultCountLabel.setText(Integer.toString(root.getLeafCount()) + "fraud(s) generated");
+                    resultCountLabel.setText(Integer.toString(root.getLeafCount()) + " fraud(s) generated");
                     resultCountLabel.setVisible(true);
                     //and the cursor goes back to normal
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     //catch all in case something goes wrong
                 } catch (InterruptedException | ExecutionException ex) {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    System.err.println(ex.getMessage()+ "exception encountered during generation: \n");
+                    System.err.println(ex.getMessage() + "exception encountered during generation: \n");
                     ex.printStackTrace();
                     PopUps.infoBox("Encountered an error. Most likely out of memory; try increasing the heap size of JVM", "Error");
                 }
@@ -650,7 +641,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
         rankingWorker.addPropertyChangeListener(
                 new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                 if ("progress".equals(evt.getPropertyName())) {
+                if ("progress".equals(evt.getPropertyName())) {
                     progressBar.setValue((Integer) evt.getNewValue());
                 }
             }
@@ -665,9 +656,28 @@ public class MainWindowV2 extends javax.swing.JPanel {
         //and run the worker
         rankingWorker.execute();
     }
-        
-        
-            /**
+
+    private void readSettings() {
+        needStartValue = Integer.parseInt(needStartField.getText());
+        needEndValue = Integer.parseInt(needEndField.getText());
+        selectedActorString = mainActorComboBox.getSelectedItem().toString();
+        selectedNeedString = needComboBox.getSelectedItem().toString();
+        selectedActor = actorsMap.get(selectedActorString);
+        selectedNeed = needsMap.get(selectedNeedString);
+        sortCriteria = sortComboBox.getSelectedIndex();
+        groupingCriteria = groupComboBox.getSelectedIndex();
+        gainMin = Double.parseDouble(gainStartField.getText());
+        if (!gainEndField.getText().equals("")) {
+            gainMax = Double.parseDouble(gainEndField.getText());
+        }
+        if (!lossStartField.getText().equals("")) {
+            lossMin = Double.parseDouble(lossStartField.getText());
+        }
+        lossMax = Double.parseDouble(lossEndField.getText());
+        collusions = (Integer) collusionsButton.getValue();
+    }
+
+    /**
      * Create the GUI and show it. For thread safety, this method should be
      * invoked from the event dispatch thread.
      */
@@ -684,7 +694,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
         frame.pack();
         frame.setVisible(true);
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel advancedSettingsLabel;
     private javax.swing.JLayeredPane bottomPane;

@@ -40,7 +40,8 @@ public class FileParser extends JFrame {
     FileReader fr;
 
     /**
-     * @param
+     * @param file an e3value RDF file
+     * @return    an E3Model object  
      */
     public static E3Model parseFile(File file) {
         //Load file

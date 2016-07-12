@@ -35,14 +35,14 @@ import org.jfree.data.xy.XYSeries;
  *
  * @author Dan
  */
-public class GraphingTool {
+public class ChartGenerator {
 
-    public static JFreeChart generateGraph(E3Model model, Resource need, int startValue, int endValue, boolean expected) {
+    public static JFreeChart generateChart(E3Model model, Resource need, int startValue, int endValue, boolean expected) {
         //Get list of actors
         Set<Resource> actors = model.getActors();
         //generate a series
         Map<Resource, XYSeries> actorSeriesMap = model.getTotalForActors(need, startValue, endValue, expected);
-        
+
         //for each actor
         XYSeriesCollection line_chart_dataset = new XYSeriesCollection();
 
@@ -73,9 +73,11 @@ public class GraphingTool {
     }
 
     public static void saveToFile(File file, JFreeChart lineChartObject) throws IOException {
-        int width = 1024; /* Width of the image */
+        int width = 1024;
+        /* Width of the image */
 
-        int height = 720; /* Height of the image */
+        int height = 720;
+        /* Height of the image */
 
         ChartUtilities.saveChartAsPNG(file, lineChartObject, width, height);
     }

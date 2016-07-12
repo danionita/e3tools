@@ -86,7 +86,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
     protected java.util.HashMap<String, java.util.Set<E3Model>> doInBackground() throws Exception {
         DecimalFormat df = new DecimalFormat("#.##");
         // Start generation
-        System.out.println(currentTime.currentTime() + " Generating sub-ideal models...." + newline);
+        System.out.println(currentTime.currentTime() + " Generating sub-ideal models...." + newline + "\t, with need \"" + selectedNeedString + "\" " + "\toccuring " + startValue + " to " + endValue + " times..." + newline);
         SubIdealModelGenerator subIdealModelGenerator = new SubIdealModelGenerator();
 
         int size = 0;
@@ -118,7 +118,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
                 subIdealModels.addAll(subIdealModelGenerator.generateHiddenTransactions(intermediaryModel, selectedActor));
             }
             size += subIdealModels.size();
-            System.out.println("\nGenerated " + subIdealModels.size() + " sub-ideal models for category " + category + ":");
+            System.out.println("\t\tGenerated " + subIdealModels.size() + " sub-ideal models for category " + category + ":");
             groupedSubIdealModels.put(category, subIdealModels);
         }
         // generation done

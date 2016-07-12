@@ -606,6 +606,9 @@
                       <Dimension value="[400, 322]"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="componentResized" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="resultScrollPaneComponentResized"/>
+                  </Events>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
                       <JSplitPaneConstraints position="left"/>
@@ -627,7 +630,7 @@
                         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTree(treeModel)"/>
                         <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="root = new DefaultMutableTreeNode(&quot;No models generated yet.&quot;);&#xa;treeModel = new DefaultTreeModel(root);"/>
                         <AuxValue name="JavaCodeGenerator_DeclarationPost" type="java.lang.String" value="private DefaultMutableTreeNode root;&#xa;private DefaultTreeModel treeModel;"/>
-                        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tree.setCellRenderer(new CustomTreeCellRenderer(tree));&#xa;tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);&#xa;tree.setLargeModel(true);"/>
+                        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tree.setCellRenderer(new CustomTreeCellRenderer(tree));&#xa;tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);"/>
                       </AuxValues>
                     </Component>
                   </SubComponents>

@@ -43,6 +43,16 @@ public class E3Model {
     private final Model model;
     private String description;
     
+    private String prefix;
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+    
     public String colludedActorURI;
     public String newActorURI;
     
@@ -274,6 +284,7 @@ public class E3Model {
 
     /**
      * return a set of start-stimuli
+     * @return 
      */
     public Set<Resource> getNeeds() {
         // select all the resources with a E3value.elementary_actor property
@@ -355,7 +366,7 @@ public class E3Model {
     public Set<Resource> getMoneyExchanges() {
         // select all the resources with a ,E3value.elementary_actor property
         ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.value_exchange);
-        Set<Resource> moneyExchanges = new HashSet<Resource>();
+        Set<Resource> moneyExchanges = new HashSet<>();
         while (iter.hasNext()) {
             Resource exchange = iter.nextResource();
             if (isMoney(exchange)) {
@@ -410,7 +421,7 @@ public class E3Model {
         actor = model.getResource(actor.getURI());
 
         //as preparation, select the valueInterfaces that the calculation is to be done for
-        Set<Resource> selectedValueInterfaces = new HashSet<Resource>();
+        Set<Resource> selectedValueInterfaces = new HashSet<>();
         selectedValueInterfaces.add(selectedValueInterface);
         Resource nextElement;
         if (selectedValueInterface.hasProperty(E3value.de_down_ce)) {
@@ -886,7 +897,6 @@ return description;
      *
      * @param valueInterface1 the Value Interface that holds the outgoingport
      * @param valueInterface2 the ValueInterface that will hold the incoming
-     * @param actor1 the originating actor
      * @param actor2 the destination actor
      * @param value
      */
@@ -986,7 +996,7 @@ return description;
         if (actor1.hasProperty(E3value.e3_has_formula)) {
             //get list of formulas (INVESTMENT, EXPENSES, INTEREST) of the actors
             StmtIterator actor1Formulas = actor1.listProperties(E3value.e3_has_formula);
-            Set<String> newActor1Formulas = new HashSet<String>();
+            Set<String> newActor1Formulas = new HashSet<>();
             StmtIterator actor2Formulas = actor2.listProperties(E3value.e3_has_formula);
             //and for each one 
             while (actor1Formulas.hasNext()) {
@@ -1044,9 +1054,10 @@ return description;
      *
      * @param actor1
      * @param actor2
+     * @return 
      */
     public Map<Resource, Resource> getInterfacesBetween(Resource actor1, Resource actor2) {
-        Map<Resource, Resource> interfaces = new HashMap<Resource, Resource>();
+        Map<Resource, Resource> interfaces = new HashMap<>();
         //make sure the resources are from this model
         actor1 = model.getResource(actor1.getURI());
         actor2 = model.getResource(actor2.getURI());
