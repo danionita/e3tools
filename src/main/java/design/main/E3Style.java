@@ -63,6 +63,14 @@ public class E3Style {
 		stylesheet.putCellStyle("Actor", style);
 		
 		style = new Hashtable<>(baseStyle);
+		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
+		style.put(mxConstants.STYLE_FILLCOLOR, "#C0C0C0");
+		style.put(mxConstants.STYLE_GRADIENTCOLOR, "#C0C0C0");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#CC0000");
+		style.put(mxConstants.STYLE_STROKEWIDTH, 3);
+		stylesheet.putCellStyle("ColludedActor", style);
+		
+		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_SHAPE, "MarketSegmentStencil"); // We added this above in the try block
 		stylesheet.putCellStyle("MarketSegment", style);
 

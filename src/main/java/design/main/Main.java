@@ -37,6 +37,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -54,7 +56,7 @@ public class Main {
 	public static mxPoint contextPos = new mxPoint(-1, -1);
 	public static int newGraphCounter = 1;
 	public static ToolComponent globalTools;
-	public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = false;
+	public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = true;
 	public static final boolean DEBUG = true;
 	
 	public static ImageIcon e3f, e3v;
@@ -80,6 +82,10 @@ public class Main {
 	}
 	
 	public void addNewTabAndSwitch(E3Graph graph) {
+		addNewTabAndSwitch(graph, null);
+	}
+	
+	public void addNewTabAndSwitch(E3Graph graph, String title) {
 		E3GraphComponent graphComponent = new E3GraphComponent(graph);
 		
 		graph.getModel().beginUpdate();
@@ -94,11 +100,19 @@ public class Main {
 		// Create split view
 		JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(), graphComponent);
 		mainpane.setResizeWeight(0.025);
+		
+		if (title == null) {
+			if (graph.isFraud) {
+				title = "New fraud model " + newGraphCounter++;
+			} else {
+				title = "New value model " + newGraphCounter++;
+			}
+		}
 
 		if (graph.isFraud) {
-			Utils.addClosableTab(views, "New fraud model " + newGraphCounter++, mainpane, Main.e3f);
+			Utils.addClosableTab(views, title, mainpane, Main.e3f);
 		} else {
-			Utils.addClosableTab(views, "New value model " + newGraphCounter++, mainpane, Main.e3v);
+			Utils.addClosableTab(views, title, mainpane, Main.e3v);
 		}
 
 		views.setSelectedIndex(views.getTabCount() - 1);
@@ -347,8 +361,19 @@ public class Main {
 		JMenuItem changeType = new JMenuItem(new AbstractAction("Change type") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				
+				if (getCurrentGraph().isFraud) {
+					// TODO: Make this possible
+					JOptionPane.showMessageDialog(
+							Main.mainFrame, 
+							"Conversion from fraud to value model is not yet implemented",
+							"Functionality not implemented",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				} else {
+					E3Graph newGraph = new E3Graph(getCurrentGraph());
+					newGraph.isFraud = true;
+					addNewTabAndSwitch(newGraph, "Fraud model of " + getCurrentGraphName());
+				}
 			}
 		});
 		modelMenu.add(changeType);
@@ -376,6 +401,31 @@ public class Main {
 				
 			}
 		}));
+		
+		// To change "change type" to "convert to fraud" or "convert to value" depending on current graph
+		modelMenu.addMenuListener(new MenuListener() {
+			
+			@Override
+			public void menuSelected(MenuEvent e) {
+				if (getCurrentGraph().isFraud) {
+					changeType.setText("Convert to e3value model");
+				} else {
+					changeType.setText("Convert to e3fraud model");
+				}
+			}
+			
+			@Override
+			public void menuDeselected(MenuEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void menuCanceled(MenuEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 
 		menuBar.add(modelMenu);
 		
@@ -400,7 +450,7 @@ public class Main {
 		
 		toolMenu.addSeparator();
 		
-		toolMenu.add(new JMenuItem(new AbstractAction("Fraud assessment...") {
+		toolMenu.add(new JMenuItem(new AbstractAction("Fraud generation...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO: Convert this option to something greyed out, just like in the file menu?
@@ -444,8 +494,7 @@ public class Main {
 		
 		// TODO: Add shortcuts
 		// TODO: Add contents
-		// TODO: Add proper spelling
-		helpMenu.add(new JMenuItem("Help controsle (F1)"));
+		helpMenu.add(new JMenuItem("Help contents (F1)"));
 		helpMenu.addSeparator();
 		helpMenu.add(new JMenuItem("e3value website"));
 		helpMenu.add(new JMenuItem("e3fraud website"));
@@ -459,19 +508,15 @@ public class Main {
 		JToolBar toolbar = new JToolBar();
 		toolbar.setFloatable(false);
 		JButton newButton = new JButton(newIcon);
-		newButton.setContentAreaFilled(false);
 		newButton.setFocusPainted(false);
 
 		JButton copyButton = new JButton(copyIcon);
-		copyButton.setContentAreaFilled(false);
 		copyButton.setFocusPainted(false);
 
 		JButton zoomInButton = new JButton(zoomInIcon);
-		zoomInButton.setContentAreaFilled(false);
 		zoomInButton.setFocusPainted(false);
 
 		JButton zoomOutButton = new JButton(zoomOutIcon);
-		zoomOutButton.setContentAreaFilled(false);
 		zoomOutButton.setFocusPainted(false);
 
 		toolbar.add(newButton);

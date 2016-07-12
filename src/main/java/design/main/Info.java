@@ -160,6 +160,8 @@ public class Info {
 	public static class Actor extends Base {
 		private static final long serialVersionUID = -5569247045409511931L;
 		
+		public boolean colluded;
+		
 		public Actor() {
 			formulas.put("INVESTMENT", "0");
 			formulas.put("EXPENSES", "0");
@@ -170,6 +172,8 @@ public class Info {
 		public Base getCopy() {
 			Actor va = new Actor();
 			setCommons(this, va);
+			
+			va.colluded = colluded;
 			
 			return va;
 		}

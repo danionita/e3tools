@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.JPopupMenu;
+import javax.swing.ScrollPaneConstants;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -69,6 +70,19 @@ public class E3GraphComponent extends mxGraphComponent {
 	JPopupMenu endSignalMenu = new JPopupMenu();
 
 	public mxUndoManager undoManager;
+	
+	public E3GraphComponent makeShowcase(E3Graph graph) {
+		E3GraphComponent component = new E3GraphComponent(graph);
+		
+		component.setEnabled(false);
+    	component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    	component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+    	
+    	// TODO: Do some scaling and translation here? See MainWindow.java
+    	// TODO: Make it so the user can scroll around and such
+		
+		return component;
+	}
 
 	public E3GraphComponent(mxGraph graph) {
 		super(graph);
@@ -150,6 +164,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		// Set styling of nodes, background color, etc.
 		E3Style.styleGraphComponent(this);
 		
+		// TODO: Refactor this to be contained in the E3Graph definition
 		graph.addListener(mxEvent.CELLS_ADDED, new mxIEventListener() {
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {

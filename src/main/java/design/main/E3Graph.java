@@ -71,9 +71,17 @@ public class E3Graph extends mxGraph {
 		this(original);
 		
 		this.isFraud = true;
+		
+		// TODO: Remove possible fraud changes in original
+		// This line will have to merge deltas or something
 		this.delta = delta;
 		
 		// TODO: Apply changes from delta here
+		
+		for (int id : delta.colludedActors) {
+			// Object ac = getCellFromId(id));
+			setColludingActor(null, true);
+		}
 	}
 	
 	/**
@@ -703,4 +711,22 @@ public class E3Graph extends mxGraph {
 		
 		return this.insertEdge(getDefaultParent(), null, "", startDot, endDot);
 	}	
+	
+	public void setColludingActor(Object ac, boolean b) {
+		Actor acInfo = (Actor) Utils.base(this, ac);
+		acInfo.colluded = b;
+
+		getModel().beginUpdate();
+		try {
+			getModel().setValue(ac, acInfo);
+
+			if (acInfo.colluded) {
+				getModel().setStyle(ac, "ColludedActor");
+			} else {
+				getModel().setStyle(ac, "Actor");
+			}
+		} finally {
+			getModel().endUpdate();
+		}
+	}
 }

@@ -28,6 +28,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
@@ -39,6 +41,7 @@ import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
+import design.main.Info.Actor;
 import design.main.Info.Base;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
@@ -441,7 +444,6 @@ public class ContextMenus {
 				
 				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 				
-				
 				for (String valueObject : e3graph.valueObjects) {
 					if (valueObject.equals(ve.valueObject)) {
 						JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new AbstractAction(valueObject) {
@@ -595,6 +597,11 @@ public class ContextMenus {
 			@Override
 			public void menuCanceled(MenuEvent e) { }
 		});
+		
+		if (!((E3Graph) graph).isFraud) {
+			fraudMenu.setEnabled(false);
+		}
+		
 		menu.add(fraudMenu);
 
 		JMenuItem hideValueObjectMenu = new JMenuItem(new AbstractAction("Show/hide ValueObject") {
@@ -650,7 +657,35 @@ public class ContextMenus {
 	}
 	
 	public static void addActorMenu(JPopupMenu menu, mxGraph graph) {
-
+		JMenu fraudMenu = new JMenu("Fraud");
+		JCheckBoxMenuItem colluding = new JCheckBoxMenuItem(new AbstractAction("Colluding") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Actor acInfo = (Actor) Utils.base(graph, Main.contextTarget);
+				((E3Graph) graph).setColludingActor(Main.contextTarget, !acInfo.colluded);
+			}
+		});
+		
+		fraudMenu.add(colluding);
+		
+		if (!((E3Graph) graph).isFraud) {
+			fraudMenu.setEnabled(false);
+		}
+		
+		menu.add(fraudMenu);
+		menu.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				Actor acInfo = (Actor) Utils.base(graph, Main.contextTarget);
+				colluding.setSelected(acInfo.colluded);
+			}
+			
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { }
+			
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e) { }
+		});
 	}
 
 	public static void addStartSignalMenu(JPopupMenu menu, mxGraph graph) {
