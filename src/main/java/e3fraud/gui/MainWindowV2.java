@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (C) 2015 Dan Ionita
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *******************************************************************************/
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -5,13 +21,12 @@
  */
 package e3fraud.gui;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-import e3fraud.model.E3Model;
 import java.awt.Cursor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.JTree;
@@ -19,8 +34,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+
+import com.hp.hpl.jena.rdf.model.Resource;
+
+import design.main.E3Graph;
+import e3fraud.model.E3Model;
 
 /**
  *
@@ -43,6 +64,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
     private Map<String, Resource> needsMap;
     private java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
     ChartPanel chartPanel;
+	private E3Graph original;
     public static MainWindowV2 mainWindowInstance;
 
     /**
@@ -50,7 +72,8 @@ public class MainWindowV2 extends javax.swing.JPanel {
      *
      * @param baseModel the model to analyze
      */
-    public MainWindowV2(E3Model baseModel) {
+    public MainWindowV2(E3Graph original, E3Model baseModel) {
+    	this.original = original;
         this.baseModel = baseModel;
         actorsMap = this.baseModel.getActorsMap();
         needsMap = this.baseModel.getNeedsMap();
@@ -696,7 +719,7 @@ public class MainWindowV2 extends javax.swing.JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Add content to the window.
-        mainWindowInstance = new MainWindowV2(model);
+        mainWindowInstance = new MainWindowV2(null, model);
         frame.setContentPane(mainWindowInstance);
 
         //Display the window.

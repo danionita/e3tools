@@ -42,12 +42,14 @@ import design.main.Info.StartSignal;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
+import design.main.Utils.GraphDelta;
 
 public class E3Graph extends mxGraph {
 	public final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "MONEY-SECURED", "SERVICE")
 			);
 	public boolean isFraud;
+	public GraphDelta delta;
 	
 	public E3Graph(boolean isFraud) {
 		this.isFraud = isFraud;
@@ -63,6 +65,15 @@ public class E3Graph extends mxGraph {
 		} finally {
 			getModel().endUpdate();
 		}
+	}
+	
+	public E3Graph(E3Graph original, GraphDelta delta) {
+		this(original);
+		
+		this.isFraud = true;
+		this.delta = delta;
+		
+		// TODO: Apply changes from delta here
 	}
 	
 	/**
