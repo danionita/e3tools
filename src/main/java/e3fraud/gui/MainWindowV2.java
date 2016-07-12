@@ -328,10 +328,15 @@ public class MainWindowV2 extends javax.swing.JPanel {
             }
         });
 
-        lossStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
+        lossStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         lossStartField.setPreferredSize(new java.awt.Dimension(60, 22));
+        lossStartField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lossStartFieldActionPerformed(evt);
+            }
+        });
 
-        gainStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
+        gainStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         gainStartField.setText("0");
         gainStartField.setPreferredSize(new java.awt.Dimension(60, 22));
 
@@ -339,11 +344,11 @@ public class MainWindowV2 extends javax.swing.JPanel {
 
         lossToLabel.setText("to");
 
-        lossEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
+        lossEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         lossEndField.setText("0");
         lossEndField.setPreferredSize(new java.awt.Dimension(60, 22));
 
-        gainEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
+        gainEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         gainEndField.setPreferredSize(new java.awt.Dimension(60, 22));
 
         javax.swing.GroupLayout listSettingsPanelLayout = new javax.swing.GroupLayout(listSettingsPanel);
@@ -568,6 +573,10 @@ public class MainWindowV2 extends javax.swing.JPanel {
         tree.setModel(null);
         tree.setModel(oldModel);
     }//GEN-LAST:event_resultScrollPaneComponentResized
+
+    private void lossStartFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lossStartFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lossStartFieldActionPerformed
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)

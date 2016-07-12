@@ -27,6 +27,10 @@ import javax.swing.SwingWorker;
 import static java.lang.Math.max;
 import static java.lang.Math.max;
 import static java.lang.Math.max;
+import static java.lang.Math.max;
+import static java.lang.Math.max;
+import static java.lang.Math.max;
+import static java.lang.Math.max;
 
 /**
  *
@@ -160,7 +164,7 @@ public class ModelRanker {
      * or a sub-ideal case
      * @return a sorted list from highest to lowest loss for Actor
      */
-    public static List<E3Model> sortByGain(SwingWorker worker, E3Model baseModel, Set<E3Model> models, Resource actor, Resource need, int startValue, int endValue, boolean ideal) {
+    public static List<E3Model> sortByGainThenLoss(SwingWorker worker, E3Model baseModel, Set<E3Model> models, Resource actor, Resource need, int startValue, int endValue, boolean ideal) {
         int total = models.size();
         int i = 0;
         //make sure all models are enhanced                               
