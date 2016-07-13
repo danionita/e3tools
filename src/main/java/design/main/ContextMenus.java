@@ -449,6 +449,7 @@ public class ContextMenus {
 						JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new AbstractAction(valueObject) {
 							@Override
 							public void actionPerformed(ActionEvent arg0) {
+								// TODO: Replace this with the function in E3Graph
 								graph.getModel().beginUpdate();
 								try {
 									ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 

@@ -75,7 +75,7 @@ public class ExampleModels {
 			}
 		}
 	}
-	
+
 	public static class MediumTricky extends AbstractAction {
 		private Main main;
 
@@ -120,4 +120,54 @@ public class ExampleModels {
 			}	
 		}
 	}
+
+	public static class SingleTransaction extends AbstractAction {
+		private Main main;
+
+		public SingleTransaction(Main main) {
+			super("Single transaction");
+			this.main = main;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			E3Graph graph = main.getCurrentGraph();
+			mxGraphModel model = (mxGraphModel) graph.getModel();
+			
+			ToolComponent tc = Main.globalTools;
+			
+			Object root = graph.getDefaultParent();
+			
+			model.beginUpdate();
+			try {
+				Object l = graph.addActor(50, 50);
+				Object r = graph.addActor(350, 50);
+				
+				graph.setName(l, "Producer");
+				graph.setName(r, "Consumer");
+				
+				Object lvi = graph.addValueInterface(l, 50, 30);
+				Object rvi = graph.addValueInterface(r, 0, 30);
+				
+				Object paymentVE = graph.connectVE(rvi, lvi);
+				Object productVE = graph.connectVE(lvi, rvi);
+				
+				graph.setFormula(paymentVE, "VALUATION", "10");
+				graph.setFormula(productVE, "VALUATION", "6");
+				
+				graph.setValueObject(paymentVE, "MONEY");
+				graph.setValueObject(productVE, "SERVICE");
+				
+				Object ss = graph.addStartSignal(r, 20, 20);
+				Object es =  graph.addEndSignal(l, 20, 20);
+				
+				graph.connectCE(ss, rvi);
+				graph.connectCE(es, lvi);
+			} finally {
+				model.endUpdate();
+			}	
+		}
+	}
+	
+	
 }

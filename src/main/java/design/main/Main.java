@@ -133,7 +133,7 @@ public class Main {
 		
 		try {
 			e3v = new ImageIcon(
-					ImageIO.read(Main.class.getResourceAsStream("/e3v.png"))
+					ImageIO.read(Main.class.getClassLoader().getResourceAsStream("e3v.png"))
 					.getScaledInstance(25, 25, Image.SCALE_SMOOTH));
 			e3f = new ImageIcon(
 					ImageIO.read(Main.class.getResourceAsStream("/e3f.png"))
@@ -487,8 +487,14 @@ public class Main {
 		menuBar.add(toolMenu);
 		
 		JMenu exampleMenu = new JMenu("Examples");
+		if (Main.DEBUG) {
 		exampleMenu.add(new JMenuItem(new ExampleModels.SmallTricky(this)));
 		exampleMenu.add(new JMenuItem(new ExampleModels.MediumTricky(this)));
+		exampleMenu.addSeparator();
+		}
+		
+		exampleMenu.add(new JMenuItem(new ExampleModels.SingleTransaction(this)));
+		
 		menuBar.add(exampleMenu);
 		
 		JMenu helpMenu = new JMenu("Help");

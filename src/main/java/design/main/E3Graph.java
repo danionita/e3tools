@@ -821,12 +821,12 @@ public class E3Graph extends mxGraph {
 		
 		getModel().beginUpdate();
 		try {
-			getModel().setValue(Main.contextTarget, veInfo);
+			getModel().setValue(ve, veInfo);
 			
 			if (on) {
-				getModel().setStyle(Main.contextTarget, new String("NonOccurringValueExchange"));
+				getModel().setStyle(ve, new String("NonOccurringValueExchange"));
 			} else {
-				getModel().setStyle(Main.contextTarget, new String("ValueExchange"));
+				getModel().setStyle(ve, new String("ValueExchange"));
 			}
 		} finally {
 			getModel().endUpdate();
@@ -842,9 +842,9 @@ public class E3Graph extends mxGraph {
 			getModel().setValue(ve, veInfo);
 			
 			if (on) {
-				getModel().setStyle(Main.contextTarget, new String("HiddenValueExchange"));
+				getModel().setStyle(ve, new String("HiddenValueExchange"));
 			} else {
-				getModel().setStyle(Main.contextTarget, new String("ValueExchange"));
+				getModel().setStyle(ve, new String("ValueExchange"));
 			}
 		} finally {
 			getModel().endUpdate();
@@ -863,5 +863,42 @@ public class E3Graph extends mxGraph {
 		}
 		
 		throw new IllegalArgumentException("Id " + id + " does not exist");
+	}
+
+	public void setValueObject(Object ve, String obj) {
+		ValueExchange veInfo = (ValueExchange) Utils.base(this, ve);
+		veInfo.valueObject = obj;
+		
+		getModel().beginUpdate();
+		try {
+			getModel().setValue(ve, veInfo);
+			Utils.updateValueExchangeValueObjectLabel(this, ve);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+
+	public void setName(Object l, String name) {
+		Base info = Utils.base(this, l);
+		info.name = name;
+		
+		getModel().beginUpdate();
+		try {
+			getModel().setValue(l, info);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+
+	public void setFormula(Object subject, String formula, String value) {
+		Base info = Utils.base(this, subject);
+		info.formulas.put(formula, value);
+				
+		getModel().beginUpdate();
+		try {
+			getModel().setValue(subject, info);
+		} finally {
+			getModel().endUpdate();
+		}
 	}
 }

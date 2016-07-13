@@ -208,6 +208,7 @@ public class Utils {
 	 * @return
 	 */
 	public static Object getValueExchangeNameLabel(mxGraph graph, Object valueExchangeEdge) {
+		System.out.println("Name label children: " + graph.getModel().getChildCount(valueExchangeEdge));
 		for (Object cell : Utils.getAllCells(graph, valueExchangeEdge)) {
 			if (graph.getModel().getValue(cell) instanceof ValueExchangeLabel) {
 				ValueExchangeLabel labelValue = (ValueExchangeLabel) graph.getModel().getValue(cell);
@@ -228,8 +229,11 @@ public class Utils {
 	 * @return
 	 */
 	public static Object getValueExchangeValueObjectLabel(mxGraph graph, Object valueExchangeEdge) {
+		System.out.println("Looking for ValueExchangeLabels");
+		System.out.println("Children: " + graph.getModel().getChildCount(valueExchangeEdge));
 		for (Object cell : Utils.getAllCells(graph, valueExchangeEdge)) {
 			if (graph.getModel().getValue(cell) instanceof ValueExchangeLabel) {
+				System.out.println("ValueExchangeLabel found");
 				ValueExchangeLabel labelValue = (ValueExchangeLabel) graph.getModel().getValue(cell);
 				if (labelValue.isValueObjectLabel) {
 					return cell;
