@@ -1065,14 +1065,50 @@ public class E3Graph extends mxGraph {
 		}
 	}
 
-	public void setCellSize(Object userA, int i, int j) {
+	public void setCellSize(Object userA, double x, double y) {
 		mxGeometry gm = Utils.geometry(this, userA);
-		gm.setWidth(i);
-		gm.setHeight(j);
+		gm.setWidth(x);
+		gm.setHeight(y);
 		
 		getModel().beginUpdate();
 		try {
 			getModel().setGeometry(userA, gm);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+
+	public void setValueExchangeLabel(Object ve, String name) {
+		getModel().beginUpdate();
+		try {
+			setName(ve, name);
+			Utils.updateValueExchangeNameLabel(this, ve);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+
+	public void setValueExchangeLabelVisible(Object ve, boolean b) {
+		getModel().beginUpdate();
+		try {
+			ValueExchange veInfo = (ValueExchange) Utils.base(this, ve);
+			veInfo.labelHidden = !b;
+			getModel().setValue(ve, veInfo);
+			Utils.updateValueExchangeNameLabel(this, ve);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+
+	public void setValueExchangeLabelPosition(Object ve, double x, double y) {
+		Object nameLabel = Utils.getValueExchangeNameLabel(this, ve);
+		mxGeometry gm = Utils.geometry(this, nameLabel);
+		gm.setX(x);
+		gm.setY(y);
+		
+		getModel().beginUpdate();
+		try {
+			getModel().setGeometry(nameLabel, gm);
 		} finally {
 			getModel().endUpdate();
 		}

@@ -180,29 +180,53 @@ public class ExampleModels {
 				Object ve = graph.connectVE(userALeftVI, providerALeftVI);
 				graph.setValueObject(ve, "MONEY");
 				graph.setValueObjectLabelPosition(ve, 0, -50);
+				graph.setValueExchangeLabelVisible(ve, true);
+				graph.setValueExchangeLabel(ve, "Subscription fee");
+				graph.setValueExchangeLabelPosition(ve, -0.2, -100);
 				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "37.5");
 
 				ve = graph.connectVE(providerALeftVI, userALeftVI);
 				graph.setValueObject(ve, "SERVICE");
 				graph.setValueObjectLabelPosition(ve, 0, -10);
+				graph.setValueExchangeLabel(ve, "Subscription\nfor one month");
+				graph.setValueExchangeLabelVisible(ve, true);
+				graph.setValueExchangeLabelPosition(ve, 0.3, -5);
 				
 				ve = graph.connectVE(userARightVI, providerARightVI);
+				graph.setValueExchangeLabel(ve, "Proof of\nsubscription");
+				graph.setValueExchangeLabelVisible(ve, true);
+				graph.setValueExchangeLabelPosition(ve, 0.7, -70);
 				ve = graph.connectVE(providerARightVI, userARightVI);
 				graph.setValueObject(ve, "SERVICE");
 				graph.setValueObjectLabelPosition(ve, 0, -10);
+				graph.setValueExchangeLabel(ve, "Call");
+				graph.setValueExchangeLabelVisible(ve, true);
+				graph.setValueExchangeLabelPosition(ve, 0.3, -10);
 				
 				ve = graph.connectVE(providerAWallVI, providerBLeftVI);
 				graph.setValueObject(ve, "MONEY");
 				graph.setValueObjectLabelPosition(ve, 0.3, -10);
 				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "0.07");
+				graph.setValueExchangeLabelVisible(ve, true);
+				graph.setValueExchangeLabel(ve, "Interconnection fee");
+				graph.setValueExchangeLabelPosition(ve, 0.8, -30);
 				ve = graph.connectVE(providerBLeftVI, providerAWallVI);
 				graph.setValueObject(ve, "SERVICE");
 				graph.setValueObjectLabelPosition(ve, -0.3, -20);
+				graph.setValueExchangeLabel(ve, "Interconnection");
+				graph.setValueExchangeLabelVisible(ve, true);
+				graph.setValueExchangeLabelPosition(ve, -0.6, -30);
 				
 				ve = graph.connectVE(providerBRightVI, userBVI);
 				graph.setValueObject(ve, "SERVICE");
 				graph.setValueObjectLabelPosition(ve, 0, -10);
+				graph.setValueExchangeLabel(ve, "Call");
+				graph.setValueExchangeLabelVisible(ve, true);
+				graph.setValueExchangeLabelPosition(ve, 0.3, -10);
 				ve = graph.connectVE(userBVI, providerBRightVI);
+				graph.setValueExchangeLabel(ve, "Proof of subscription");
+				graph.setValueExchangeLabelVisible(ve, true);
+				graph.setValueExchangeLabelPosition(ve, 0, -120);
 				
 				graph.connectCE(userALeftSS, userALeftVI);
 				graph.connectCE(userARightSS, userARightVI);
