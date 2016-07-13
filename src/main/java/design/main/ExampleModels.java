@@ -120,4 +120,48 @@ public class ExampleModels {
 			}	
 		}
 	}
+        public static class FlatRate extends AbstractAction {
+		private Main main;
+
+		public FlatRate(Main main) {
+			super("Flat Rate telephony");
+			this.main = main;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			E3Graph graph = main.getCurrentGraph();
+			mxGraphModel model = (mxGraphModel) graph.getModel();
+			
+			ToolComponent tc = Main.globalTools;
+			
+			Object root = graph.getDefaultParent();
+			
+			model.beginUpdate();
+			try {
+				Object tl = graph.addActor(100, 100);
+				Object bl = graph.addActor(100, 250);
+				Object tr = graph.addActor(250, 100);
+				
+				Object tlBottom = graph.addValueInterface(tl, 30, 50);
+				Object blTop = graph.addValueInterface(bl, 30, 0);
+				Object tlRight = graph.addValueInterface(tl, 50, 30);
+				Object trLeft = graph.addValueInterface(tr, 0, 30);
+				
+				graph.connectVE(tlBottom, blTop);
+				graph.connectVE(blTop, tlBottom);
+				graph.connectVE(tlRight, trLeft);
+				graph.connectVE(trLeft, tlRight);
+				
+				Object ss = graph.addStartSignal(bl, 20, 20);
+				Object es =  graph.addEndSignal(tr, 20, 20);
+				
+				graph.connectCE(ss, blTop);
+				graph.connectCE(tlBottom, tlRight);
+				graph.connectCE(trLeft, es);
+			} finally {
+				model.endUpdate();
+			}	
+		}
+	}
 }
