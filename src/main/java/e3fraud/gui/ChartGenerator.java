@@ -65,9 +65,9 @@ public class ChartGenerator {
         /* Step -2:Define the JFreeChart object to create line chart */
         JFreeChart lineChartObject;
         if (expected) {
-            lineChartObject = ChartFactory.createScatterPlot("(Ideal) Profit Vs Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Profit (in Euro)", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
+            lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Profit (in Euro)", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
         } else {
-            lineChartObject = ChartFactory.createScatterPlot("(Non-ideal) Profit Vs Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Profit (in Euro)", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
+            lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Profit (in Euro)", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
         }
         return lineChartObject;
     }

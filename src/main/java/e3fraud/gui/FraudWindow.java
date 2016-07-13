@@ -150,7 +150,9 @@ public class FraudWindow extends javax.swing.JPanel {
         bottomPane = new javax.swing.JLayeredPane();
         visualizationPane = new javax.swing.JSplitPane();
         chartPane = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         graphPane = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         placeholderLabel = new javax.swing.JLabel();
 
         mainPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -467,6 +469,7 @@ public class FraudWindow extends javax.swing.JPanel {
         });
 
         tree.setMaximumSize(new java.awt.Dimension(9999, 9999));
+        tree.setRowHeight(0);//hack to make rowHeight adjust to components instead of fixed (stupid LAF)
         tree.setCellRenderer(new CustomTreeCellRenderer(tree));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
@@ -486,16 +489,25 @@ public class FraudWindow extends javax.swing.JPanel {
 
         chartPane.setPreferredSize(new java.awt.Dimension(500, 400));
         chartPane.setLayout(new java.awt.BorderLayout());
+
+        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel2.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setText("Profitability graph <right-click for options>");
+        chartPane.add(jLabel2, java.awt.BorderLayout.PAGE_START);
+
         visualizationPane.setRightComponent(chartPane);
         chartPane.getAccessibleContext().setAccessibleDescription("");
 
         graphPane.setPreferredSize(new java.awt.Dimension(500, 400));
-        graphPane.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                graphPaneMouseClicked(evt);
-            }
-        });
         graphPane.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel1.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Model preview <double click to open in editor>");
+        graphPane.add(jLabel1, java.awt.BorderLayout.PAGE_START);
+
         visualizationPane.setLeftComponent(graphPane);
 
         placeholderLabel.setForeground(new java.awt.Color(102, 102, 102));
@@ -588,8 +600,8 @@ public class FraudWindow extends javax.swing.JPanel {
                 }
                 
                 // Remove current e3graph if it's already there
-                if (graphPane.getComponentCount() > 0) {
-                	graphPane.removeAll();
+                if (graphPane.getComponentCount() > 1) {
+                	graphPane.remove(1);
                 }
                 
                 // Then just create a graph panel from scratch
@@ -628,7 +640,7 @@ public class FraudWindow extends javax.swing.JPanel {
 				// TODO: If you make a very big graph the graphpanel doesn't center nicely
 				// I already fixed this before (see MainWindow.java in the fitMiniGraph() method)
 				// But there is some bullshittery going on with the sizes and stuff
-				// I'd say we push this forward to the next sprint
+				// I'd say we push this forward to the next sprint                                
             }
         }
     }//GEN-LAST:event_treeValueChanged
@@ -638,11 +650,6 @@ public class FraudWindow extends javax.swing.JPanel {
         tree.setModel(null);
         tree.setModel(oldModel);
     }//GEN-LAST:event_resultScrollPaneComponentResized
-
-    private void graphPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_graphPaneMouseClicked
-       mainFrame.addNewTabAndSwitch(graph);
-        System.out.println("click!");//WHY ISN'T IT WORKINGGGGGGGGGGGGG?
-    }//GEN-LAST:event_graphPaneMouseClicked
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
@@ -801,6 +808,8 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> groupComboBox;
     private javax.swing.JLabel groupSettingLabel;
     private javax.swing.JCheckBox hiddenCheckBox;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JSplitPane listPane;
     private javax.swing.JPanel listSettingsPanel;
     private javax.swing.JSeparator listSettingsSeparator;
