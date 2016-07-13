@@ -20,10 +20,15 @@
  */
 package design.main;
 
+import static design.main.Utils.openWebpage;
+
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -43,6 +48,8 @@ import javax.swing.event.MenuListener;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
 
 import com.mxgraph.util.mxPoint;
 
@@ -50,12 +57,6 @@ import design.main.Utils.ClosableTabHeading;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
-import java.awt.Dimension;
-import java.net.MalformedURLException;
-import java.net.URL;
-import static design.main.Utils.openWebpage;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.JFreeChart;
 
 public class Main {
     public static final JFrame mainFrame = new JFrame("e3tools editor");
