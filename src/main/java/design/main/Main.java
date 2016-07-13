@@ -494,6 +494,7 @@ public class Main {
 //        exampleMenu.add(new JMenuItem(new ExampleModels.MediumTricky(this)));
         
         exampleMenu.add(new JMenuItem(new ExampleModels.SingleTransaction(this)));
+        exampleMenu.add(new JMenuItem(new ExampleModels.FlatRateTelephony(this)));
         
         menuBar.add(exampleMenu);
 

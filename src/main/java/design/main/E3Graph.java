@@ -26,12 +26,15 @@ import java.util.List;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.util.mxEvent;
+import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
 import design.main.Info.Base;
+import design.main.Info.ConnectionElement;
 import design.main.Info.EndSignal;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
@@ -41,6 +44,7 @@ import design.main.Info.SignalDot;
 import design.main.Info.StartSignal;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueExchange;
+import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.Utils.GraphDelta;
@@ -54,6 +58,8 @@ public class E3Graph extends mxGraph {
 	
 	public E3Graph(boolean isFraud) {
 		this.isFraud = isFraud;
+		
+		addStandardEventListeners();
 	}
 
 	public E3Graph(E3Graph original) {
@@ -66,6 +72,8 @@ public class E3Graph extends mxGraph {
 		} finally {
 			getModel().endUpdate();
 		}
+		
+		addStandardEventListeners();
 	}
 	
 	public E3Graph(E3Graph original, GraphDelta delta) {
@@ -77,30 +85,157 @@ public class E3Graph extends mxGraph {
 		// This line will have to merge deltas or something
 		this.delta = delta;
 		
-		// TODO: Apply changes from delta here
-		
-		for (long id : delta.nonOccurringTransactions) {
-			Object ve = getCellFromId(id);
-			setValueExchangeNonOcurring(ve, true);
+		getModel().beginUpdate();
+		try {
+			for (long id : delta.nonOccurringTransactions) {
+				Object ve = getCellFromId(id);
+				setValueExchangeNonOcurring(ve, true);
+			}
+			for (long[] valueInterfaces : delta.hiddenTransactions) {
+				Object leftValueInterface = getCellFromId(valueInterfaces[0]);
+				Object rightValueInterface = getCellFromId(valueInterfaces[1]);
+
+				Object leftVP = addValuePort(this, (mxICell) leftValueInterface, false);
+				Object rightVP = addValuePort(this, (mxICell) rightValueInterface, true);
+
+				Object newVE = connectVP(leftVP, rightVP);
+
+				setValueExchangeHidden(newVE, true);
+			}
+			for (long id : delta.colludedActors) {
+				Object ac = getCellFromId(id);
+				setColludingActor(ac, true);
+			} 
+		} finally {
+			getModel().endUpdate();
 		}
+	}
+	
+	private void addStandardEventListeners() {
+		mxGraph graph = this;
 		
-		for (long[] valueInterfaces : delta.hiddenTransactions) {
-			Object leftValueInterface = getCellFromId(valueInterfaces[0]);
-			Object rightValueInterface = getCellFromId(valueInterfaces[1]);
-			
-			// TODO: Continue here
-			Object leftVP = addValuePort(this, (mxICell) leftValueInterface, false);
-			Object rightVP = addValuePort(this, (mxICell) rightValueInterface, true);
-			
-			Object newVE = connectVP(leftVP, rightVP);
-			
-			setValueExchangeHidden(newVE, true);
-		}
-		
-		for (long id : delta.colludedActors) {
-			Object ac = getCellFromId(id);
-			setColludingActor(ac, true);
-		}
+		// TODO: Refactor this properly 
+		addListener(mxEvent.CELLS_ADDED, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				Object[] cells = ((Object[]) evt.getProperty("cells"));
+				mxCell cell = (mxCell) cells[0];
+				
+				graph.getModel().beginUpdate();
+				try {
+					Base value = Utils.base(graph, cell);
+					
+					if (value != null && !(value instanceof ValueExchangeLabel)) {
+						value.name = value.getClass().getSimpleName() + value.getSUID();
+						graph.getModel().setValue(cell, value);
+					}
+					
+					if (value instanceof ValueInterface) {
+						mxICell parent = (mxICell) cell.getParent();
+						if (parent == graph.getDefaultParent()) {
+							graph.getModel().remove(cell);
+						}
+						
+						graph.constrainChild(cell);
+					} else if (value instanceof StartSignal || value instanceof EndSignal) {
+						Object parent = graph.getModel().getParent(cell);
+						if (parent == graph.getDefaultParent()) {
+							graph.getModel().remove(cell);
+						}
+					} else if (value instanceof LogicBase) {
+						Object parent = graph.getModel().getParent(cell);
+						if (parent == graph.getDefaultParent()) {
+							graph.getModel().remove(cell);
+						}
+					}
+				} finally {
+					graph.getModel().endUpdate();
+				}
+				
+				// Maybe it's an edge being added
+				mxICell source = (mxICell) evt.getProperty("source");
+				mxICell target = (mxICell) evt.getProperty("target");
+				
+				if (source != null && target != null) {
+					Base sourceValue = Utils.base(graph, source);
+					Base targetValue = Utils.base(graph, target);
+
+					if (Utils.isDotValue(sourceValue) && Utils.isDotValue(targetValue)) {
+						graph.getModel().setStyle(cell, "ConnectionElement");
+						ConnectionElement value = new ConnectionElement();
+						value.name = "ConnectionElement" + value.getSUID();
+						graph.getModel().setValue(cell, value);
+
+						Object[] sourceEdges = graph.getEdges(source);
+						Object[] targetEdges = graph.getEdges(target);
+						
+						if (sourceEdges.length + targetEdges.length > 2) {
+							graph.getModel().beginUpdate();
+							try {
+								// TODO: If this ever gives problems, change to graph.removeCells
+								graph.getModel().remove(cell);
+							} finally {
+								graph.getModel().endUpdate();
+							}
+						}
+					} else if (sourceValue instanceof ValuePort && targetValue instanceof ValuePort) {
+						System.out.println("ValueExchange added!");
+						
+						boolean sourceIncoming = ((ValuePort) sourceValue).incoming;
+						boolean targetIncoming = ((ValuePort) targetValue).incoming;
+						
+						// Reverse engineered from the original editor:
+						// For two top level actors, one should be incoming and one
+						// Should be outgoing. If one of them is nested, anything goes.
+						boolean sourceIsTopLevel = Utils.isToplevelValueInterface(graph, source);
+						boolean targetIsTopLevel = Utils.isToplevelValueInterface(graph, target);
+						
+						// One should be an incoming value interface, other one should be outgoing
+						// But only if they are both top-level
+						graph.getModel().beginUpdate();
+						try {
+							// Set ValueExchange edge properties
+							graph.getModel().setStyle(cell, new String("ValueExchange"));
+							ValueExchange value = new ValueExchange();
+							value.name = "ValueExchange" + value.getSUID();
+							graph.getModel().setValue(cell, value);
+							
+							// Add two labels with values properly set
+							ValueExchangeLabel valueObjectLabelValue = new ValueExchangeLabel();
+							valueObjectLabelValue.isValueObjectLabel = true;
+							ValueExchangeLabel nameLabelValue = new ValueExchangeLabel();
+							
+							mxCell nameLabel = new mxCell(nameLabelValue, new mxGeometry(0, -60, 0, 0), "NameText");
+							nameLabel.getGeometry().setRelative(true);
+							nameLabel.setVertex(true);
+							nameLabel.setVisible(false);
+							graph.addCell(nameLabel, cell);
+
+							mxCell valueObjectLabel = new mxCell(valueObjectLabelValue, new mxGeometry(0, 30, 0, 0), "NameText");
+							valueObjectLabel.getGeometry().setRelative(true);
+							valueObjectLabel.setVertex(true);
+							valueObjectLabel.setVisible(false);
+							graph.addCell(valueObjectLabel, cell);
+							
+							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
+								graph.getModel().remove(cell);
+							}
+							
+							Utils.updateValueExchangeNameLabel(graph, cell);
+						} finally {
+							graph.getModel().endUpdate();
+						}
+					} else {
+						graph.getModel().beginUpdate();
+						try {
+							graph.getModel().remove(cell);
+						} finally {
+							graph.getModel().endUpdate();
+						}
+					}
+				}
+			}
+		});
 	}
 	
 	/**
@@ -897,6 +1032,47 @@ public class E3Graph extends mxGraph {
 		getModel().beginUpdate();
 		try {
 			getModel().setValue(subject, info);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+	
+	public void setFormulaOnEdgeAndPorts(Object valueExchange, String formula, String value) {
+		Object vpLeft = getModel().getTerminal(valueExchange, true);
+		Object vpRight = getModel().getTerminal(valueExchange, false);
+		
+		getModel().beginUpdate();
+		try {
+			setFormula(valueExchange, formula, value);
+			setFormula(vpLeft, formula, value);
+			setFormula(vpRight, formula, value);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+
+	public void setValueObjectLabelPosition(Object paymentVE, double i, double j) {
+		Object valueObjectLabel = Utils.getValueExchangeValueObjectLabel(this, paymentVE);
+		mxGeometry gm = Utils.geometry(this, valueObjectLabel);
+		gm.setX(i);
+		gm.setY(j);
+		
+		getModel().beginUpdate();
+		try {
+			getModel().setGeometry(valueObjectLabel, gm);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+
+	public void setCellSize(Object userA, int i, int j) {
+		mxGeometry gm = Utils.geometry(this, userA);
+		gm.setWidth(i);
+		gm.setHeight(j);
+		
+		getModel().beginUpdate();
+		try {
+			getModel().setGeometry(userA, gm);
 		} finally {
 			getModel().endUpdate();
 		}

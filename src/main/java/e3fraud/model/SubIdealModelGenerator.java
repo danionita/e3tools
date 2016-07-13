@@ -294,8 +294,8 @@ int STEPS = 3;
                             
                            // System.out.println("\t\t\t\t\t\tadding a hidden transfer"); 
                             generatedModel.addTransfer(interface1, interface2, (float)value);
-                            int interface1ID = Integer.parseInt(interface1.getProperty(E3value.e3_has_uid).toString());
-                            int interface2ID = Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
+                            int interface1ID = interface1.getProperty(E3value.e3_has_uid).getInt(); // Integer.parseInt(interface1.getProperty(E3value.e3_has_uid).toString());
+                            int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
                             generatedModel.getFraudChanges().addHiddenTransaction(interface1ID,interface2ID);
                             generatedModel.appendDescription("<b>Hidden</b> transfer of value " + df.format(value) + " (out of " + df.format(actor1Total) + ") per occurence from \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
                             

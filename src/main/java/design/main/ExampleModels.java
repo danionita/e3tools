@@ -19,10 +19,13 @@
 package design.main;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 
 import com.mxgraph.model.mxGraphModel;
+
+import design.main.Info.ValuePort;
 
 public class ExampleModels {
 	public static class SmallTricky extends AbstractAction {
@@ -121,6 +124,102 @@ public class ExampleModels {
 		}
 	}
 
+	public static class FlatRateTelephony extends AbstractAction {
+		private Main main;
+
+		public FlatRateTelephony(Main main) {
+			super("Flat rate telephony");
+			this.main = main;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			E3Graph graph = main.getCurrentGraph();
+			mxGraphModel model = (mxGraphModel) graph.getModel();
+			
+			ToolComponent tc = Main.globalTools;
+			
+			Object root = graph.getDefaultParent();
+			
+			model.beginUpdate();
+			try {
+				Object userA = graph.addActor(50, 300);
+				Object userB = graph.addActor(400, 300);
+				Object providerA = graph.addActor(50, 50);
+				Object providerB = graph.addActor(400, 50);
+				
+				graph.setCellSize(userA, 200, 100);
+				graph.setCellSize(userB, 100, 100);
+				graph.setCellSize(providerA, 200, 100);
+				graph.setCellSize(providerB, 100, 100);
+				
+				graph.setName(userA, "User A");
+				graph.setName(userB, "User B");
+				graph.setName(providerA, "Provider A");
+				graph.setName(providerB, "Provider B");
+				
+				Object userALeftVI = graph.addValueInterface(userA, 40, 0);
+				Object userARightVI = graph.addValueInterface(userA, 140, 0);
+				
+				Object providerALeftVI = graph.addValueInterface(providerA, 40, 50);
+				Object providerARightVI = graph.addValueInterface(providerA, 140, 50);
+				Object providerAWallVI = graph.addValueInterface(providerA, 200, 30);
+				
+				Object providerBLeftVI = graph.addValueInterface(providerB, 0, 30);
+				Object providerBRightVI = graph.addValueInterface(providerB, 40, 50);
+				
+				Object userBVI = graph.addValueInterface(userB, 40, 0);
+				
+				Object userALeftSS = graph.addStartSignal(userA, 40, 30);
+				Object userARightSS = graph.addStartSignal(userA, 140, 30);
+				
+				Object providerAES = graph.addEndSignal(providerA, 40, 30);
+				
+				Object userBES = graph.addEndSignal(userB, 40, 20);
+				
+				Object ve = graph.connectVE(userALeftVI, providerALeftVI);
+				graph.setValueObject(ve, "MONEY");
+				graph.setValueObjectLabelPosition(ve, 0, -50);
+				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "37.5");
+
+				ve = graph.connectVE(providerALeftVI, userALeftVI);
+				graph.setValueObject(ve, "SERVICE");
+				graph.setValueObjectLabelPosition(ve, 0, -10);
+				
+				ve = graph.connectVE(userARightVI, providerARightVI);
+				ve = graph.connectVE(providerARightVI, userARightVI);
+				graph.setValueObject(ve, "SERVICE");
+				graph.setValueObjectLabelPosition(ve, 0, -10);
+				
+				ve = graph.connectVE(providerAWallVI, providerBLeftVI);
+				graph.setValueObject(ve, "MONEY");
+				graph.setValueObjectLabelPosition(ve, 0.3, -10);
+				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "0.07");
+				ve = graph.connectVE(providerBLeftVI, providerAWallVI);
+				graph.setValueObject(ve, "SERVICE");
+				graph.setValueObjectLabelPosition(ve, -0.3, -20);
+				
+				ve = graph.connectVE(providerBRightVI, userBVI);
+				graph.setValueObject(ve, "SERVICE");
+				graph.setValueObjectLabelPosition(ve, 0, -10);
+				ve = graph.connectVE(userBVI, providerBRightVI);
+				
+				graph.connectCE(userALeftSS, userALeftVI);
+				graph.connectCE(userARightSS, userARightVI);
+
+				graph.connectCE(providerALeftVI, providerAES);
+				graph.connectCE(providerARightVI, providerAWallVI);
+				
+				graph.connectCE(providerBLeftVI, providerBRightVI);
+
+				graph.connectCE(userBVI, userBES);
+				
+			} finally {
+				model.endUpdate();
+			}	
+		}
+	}
+ 
 	public static class SingleTransaction extends AbstractAction {
 		private Main main;
 
@@ -155,8 +254,32 @@ public class ExampleModels {
 				graph.setFormula(paymentVE, "VALUATION", "10");
 				graph.setFormula(productVE, "VALUATION", "6");
 				
+				// TODO: This should be replaced by automatic propagation of valuations
+				List<Object> valuePorts = Utils.getChildrenWithValue(graph, lvi, ValuePort.class);
+				for (Object vp : valuePorts) {
+					ValuePort vpInfo = (ValuePort) Utils.base(graph, vp);
+					if (vpInfo.incoming) {
+						graph.setFormula(vp, "VALUATION", "10");
+					} else {
+						graph.setFormula(vp, "VALUATION", "6");
+					}
+				}
+
+				valuePorts = Utils.getChildrenWithValue(graph, rvi, ValuePort.class);
+				for (Object vp : valuePorts) {
+					ValuePort vpInfo = (ValuePort) Utils.base(graph, vp);
+					if (vpInfo.incoming) {
+						graph.setFormula(vp, "VALUATION", "6");
+					} else {
+						graph.setFormula(vp, "VALUATION", "10");
+					}
+				}
+				
 				graph.setValueObject(paymentVE, "MONEY");
 				graph.setValueObject(productVE, "SERVICE");
+				
+				graph.setValueObjectLabelPosition(paymentVE, 0, -20);
+				graph.setValueObjectLabelPosition(productVE, 0, -15);
 				
 				Object ss = graph.addStartSignal(r, 20, 20);
 				Object es =  graph.addEndSignal(l, 20, 20);
@@ -168,4 +291,6 @@ public class ExampleModels {
 			}	
 		}
 	}
+	
+	
 }
