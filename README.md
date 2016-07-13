@@ -1,7 +1,7 @@
 # e3tools
 
 ## How to use
-1. Download jar from here: [link](e3tool-alpha-20160713.jar)
+1. Download jar from here: [link](https://github.com/danionita/e3tools/raw/master/e3tool-alpha-20160713.jar)
 2. Double click the jar
 3. Enjoy the e3tool!
 
