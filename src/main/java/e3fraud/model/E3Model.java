@@ -158,6 +158,11 @@ public class E3Model {
         while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {
 //            System.out.println("\t\t...moved to element: " + nextElement.getProperty(E3value.e3_has_name).getString());
 //            System.out.println("\t\t...with type: " + nextElement.getProperty(RDF.type).toString());
+
+//            if (nextElement.getProperty(E3value.e3_has_name).getString().equals("vp718")) {
+//            	System.exit(1);
+//            }
+
             //if it is a ValueInterface
             if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {
                 //add the respective OCCURRENCE rate
@@ -213,10 +218,11 @@ public class E3Model {
                 }
             } else if (nextElement.hasProperty(RDF.type, E3value.value_offering) && nextElement.getProperty(E3value.e3_has_name).getString().equals("out")) {//if it's a (outgoing) ValueOffering
                 //and it has ports
-                //System.out.println("\t\tfound ValueInterface with an (outgoing) ValueOffering");
+//                System.out.println("\t\tfound ValueInterface with an (outgoing) ValueOffering");
                 if (nextElement.getProperty(E3value.vo_consists_of_vp) != null) {
-                    //System.out.println("\t\tand it has outgoing ports");
+//                    System.out.println("\t\tand it has outgoing ports");
                     nextElement = nextElement.getProperty(E3value.vo_consists_of_vp).getResource();//choose one of it's ports                    
+//                    System.out.println("Name of next element: " + nextElement.getProperty(E3value.e3_has_name).getString());
                 } //otherwise, (this happens when the transaction is non-reciprocal so there are no out nodes)
                 else {
                     //System.out.println("\t\tand it does not have outgoing ports");
@@ -247,6 +253,7 @@ public class E3Model {
             } else if (nextElement.hasProperty(RDF.type, E3value.value_interface) && nextElement.hasProperty(E3value.de_down_ce)) { //if it's a ValueInterface with an outgoing ConnectionElement (meaning we need to go down this ConnectionElement)
                 nextElement = nextElement.getProperty(E3value.de_down_ce).getResource();//choose the next Connection Element
             }
+
         }
         //System.out.println("\t...reached end stimulus!");
     }
@@ -933,6 +940,7 @@ public class E3Model {
             }
         }
 
+//        System.out.println("Creating a VP: " + id);
         port1 = model.createResource(URIbase + "#" + Integer.toString(id), E3value.value_port);
         port1.addProperty(E3value.e3_has_name, "vp" + Integer.toString(id));
         port1.addProperty(E3value.e3_has_uid, Integer.toString(id));

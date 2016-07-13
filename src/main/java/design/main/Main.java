@@ -132,6 +132,14 @@ public class Main {
     public Main() {
         // Silly log4j
         Logger.getRootLogger().setLevel(Level.OFF);
+        
+        // To make sure the exampls work we need to start counting at 1000
+        // Because otherwise Dan's code might overwrite our ID's (See E3Model.java:943)
+        // TODO: Make sure dan's code checks if an ID is available or not.
+        // TODO: Pay extra attention to this when writing import/export codes
+        // We probably need to move from maximum id + 1 to just constructing an array
+        // of all used ID's and then finding the first one that's available
+        Info.nextSUID += 1000;
 
         if (mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll) {
             try {

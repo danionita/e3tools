@@ -91,6 +91,7 @@ public class E3Graph extends mxGraph {
 				Object ve = getCellFromId(id);
 				setValueExchangeNonOcurring(ve, true);
 			}
+
 			for (long[] valueInterfaces : delta.hiddenTransactions) {
 				Object leftValueInterface = getCellFromId(valueInterfaces[0]);
 				Object rightValueInterface = getCellFromId(valueInterfaces[1]);
@@ -102,6 +103,7 @@ public class E3Graph extends mxGraph {
 
 				setValueExchangeHidden(newVE, true);
 			}
+			
 			for (long id : delta.colludedActors) {
 				Object ac = getCellFromId(id);
 				setColludingActor(ac, true);

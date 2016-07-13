@@ -181,6 +181,10 @@ public class RDFExport {
 					if (model.getEdgeCount(port) > 0) {
 						Object otherPort = Utils.getOpposite(graph, model.getEdgeAt(port, 0), port);
 						Object valueInterface = model.getParent(otherPort);
+						
+						System.out.println("Source value interface: " + oppositeValue.getSUID());
+						System.out.println("End value interface: " + ((Base) model.getValue(valueInterface)).getSUID());
+						
 						Object otherDot = Utils.getChildrenWithValue(graph, valueInterface, SignalDot.class).get(0);
 						
 						if (flowMap.containsKey(otherDot)) {
@@ -380,10 +384,12 @@ public class RDFExport {
 			
 			Base value = (Base) cellValue;
 			
+			System.out.println("Considering: \"" + value.name + "\"");
+			
 			Resource res = getResource.apply(value.getSUID());
 
 			// Add name
-			if (value.name != null && !value.name.isEmpty()) {
+			if (value.name != null) {
 				res.addProperty(E3value.e3_has_name, value.name);
 			}
 			
@@ -518,6 +524,7 @@ public class RDFExport {
 				res.addProperty(RDF.type, E3value.end_stimulus);
 			} else if (value instanceof ConnectionElement) {
 				res.addProperty(RDF.type, E3value.connection_element);
+				System.out.println("Connection element with SUID: " + value.getSUID() + " and name: " + value.name);
 			} else if (value instanceof LogicBase) {
 				LogicBase lbInfo = (LogicBase) value;
 				if (((LogicBase) value).isOr) {
