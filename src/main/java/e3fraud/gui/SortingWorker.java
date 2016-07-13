@@ -186,16 +186,15 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
                     Resource topGainActor = subIdealModel.getTopDeltaActor();
                     Double topGain = subIdealModel.getLastKnownTopDelta();
                     Double idealAverageForTopGainActor = baseModel.getLastKnownAverages().get(topGainActor);
-                    Double subAverageForTopGainActor = subIdealModel.getLastKnownAverages().get(topGainActor);
+                    Double subIdealAverageForTopGainActor = subIdealModel.getLastKnownAverages().get(topGainActor);
                     Double subIdealAverageForMainActor = subIdealModel.getLastKnownAverages().get(selectedActor);
                     Double idealAverageForMainActor = baseModel.getLastKnownAverages().get(selectedActor);
                     Double loss = idealAverageForMainActor - subIdealAverageForMainActor;
                     if (gainMin < topGain || topGain < gainMax || lossMin < loss || loss < lossMax) {
-                        subIdealModel.setPrefix(
-                                "Average gain of <b>"
+                        subIdealModel.setPrefix("Average gain of <b>"
                                 + df.format(topGain)
                                 + " </b>("
-                                + df.format(subAverageForTopGainActor)
+                                + df.format(subIdealAverageForTopGainActor)
                                 + "instead of "
                                 + df.format(idealAverageForTopGainActor)
                                 + ") for "
