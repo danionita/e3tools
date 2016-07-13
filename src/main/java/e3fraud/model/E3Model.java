@@ -1162,7 +1162,7 @@ public class E3Model {
      * @param ideal
      * @return
      */
-    Map<Resource, Double> getAveragesForActors(Resource need, int startValue, int endValue, boolean ideal) {
+    public Map<Resource, Double> getAveragesForActors(Resource need, int startValue, int endValue, boolean ideal) {
 
         need = model.getResource(need.getURI());
         Map<Resource, Double> averagesMap = new HashMap<>();

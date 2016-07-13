@@ -40,7 +40,6 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-import javax.help.*;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -48,11 +47,15 @@ import org.apache.log4j.Logger;
 import com.mxgraph.util.mxPoint;
 
 import design.main.Utils.ClosableTabHeading;
-import static design.main.Utils.openWebpage;
 import e3fraud.gui.FraudWindow;
+import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
+import java.awt.Dimension;
 import java.net.MalformedURLException;
 import java.net.URL;
+import static design.main.Utils.openWebpage;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
 
 public class Main {
 
@@ -63,6 +66,9 @@ public class Main {
     public static ToolComponent globalTools;
     public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = true;
     public static final boolean DEBUG = true;
+    
+    int CHART_WIDTH = 500;
+    int CHART_HEIGHT = 400;
 
     public static ImageIcon e3f, e3v;
     public static ImageIcon newIcon, copyIcon, zoomInIcon, zoomOutIcon;
@@ -468,15 +474,13 @@ public class Main {
                 }
 
                 RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                FraudWindow main = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this); //, getCurrentGraphName());
+                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this); //, getCurrentGraphName());
 
                 // TODO: Maybe add icons for fraud analysis as well?
                 JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
-                frame.add(main);
+                frame.add(fraudWindowInstance);
                 frame.pack();
-                //frame.setSize(1024, 768); --> replaced with frame.pack so that it respects preferred sizes of components
                 frame.setVisible(true);
-
             }
         }));
 
@@ -484,7 +488,13 @@ public class Main {
         toolMenu.add(new JMenuItem(new AbstractAction("Profitability chart...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model));
+                ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
+                chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
+                chartframe1.pack();
+                chartframe1.setLocationByPlatform(true);
+                chartframe1.setVisible(true);
             }
         }));
 
@@ -499,11 +509,11 @@ public class Main {
 
         // TODO: Add shortcuts
         // Find the HelpSet file and create the HelpSet object:
-        helpMenu.add(new JMenuItem(new AbstractAction("Help Wiki") {
+        helpMenu.add(new JMenuItem(new AbstractAction("Help Wiki (F1)") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    openWebpage(new URL("e3value.few.vu.nl"));
+                    openWebpage(new URL("https://github.com/danionita/e3tools/wiki"));
                 } catch (MalformedURLException ex) {
                     java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
                 }
@@ -514,7 +524,7 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    openWebpage(new URL("e3value.few.vu.nl"));
+                    openWebpage(new URL("http://e3value.few.vu.nl"));
                 } catch (MalformedURLException ex) {
                     java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
                 }
@@ -522,7 +532,12 @@ public class Main {
         }));
 
         helpMenu.addSeparator();
-        helpMenu.add(new JMenuItem("About..."));
+        helpMenu.add(new JMenuItem(new AbstractAction("About...") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "The e3tool integrates the e3value value modelling and e-business analysis methodology developed by Jaap Gordjin with the e3fraud fraud assessment methodology developed by Dan Ionita. \n This tool was developed at the University of Twente by Dan Ionita and Bob Rubbens. ");
+            }
+        }));
 
         menuBar.add(helpMenu);
 

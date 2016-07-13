@@ -42,9 +42,12 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.mxgraph.model.mxGeometry;
+import com.mxgraph.view.mxGraphView;
 
 import design.main.E3Graph;
 import design.main.E3GraphComponent;
+import design.main.Info;
 import design.main.Main;
 import e3fraud.model.E3Model;
 
@@ -493,7 +496,7 @@ public class FraudWindow extends javax.swing.JPanel {
         jLabel2.setBackground(new java.awt.Color(255, 255, 255));
         jLabel2.setForeground(new java.awt.Color(51, 51, 51));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("Profitability graph <right-click for options>");
+        jLabel2.setText("Profitability chart <right-click for options>");
         chartPane.add(jLabel2, java.awt.BorderLayout.PAGE_START);
 
         visualizationPane.setRightComponent(chartPane);
@@ -636,8 +639,10 @@ public class FraudWindow extends javax.swing.JPanel {
 				graphPane.revalidate();
 				// Set it visible if it isn't already
 				graphPanel.setVisible(true);
-				
-				// TODO: If you make a very big graph the graphpanel doesn't center nicely
+                                //fitMiniGraph();				
+				//TODO: 
+                                //Fix scaling;
+                                // If you make a very big graph the graphpanel doesn't center nicely
 				// I already fixed this before (see MainWindow.java in the fitMiniGraph() method)
 				// But there is some bullshittery going on with the sizes and stuff
 				// I'd say we push this forward to the next sprint                                
@@ -764,6 +769,32 @@ public class FraudWindow extends javax.swing.JPanel {
         }
         lossMax = Double.parseDouble(lossEndField.getText());
         collusions = (Integer) collusionsButton.getValue();
+    }
+    
+    public void fitMiniGraph() {
+		Main.mainFrame.pack();
+
+		mxGraphView view = graphPanel.getGraph().getView();
+		
+		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
+		
+		for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
+			// Only look at the positions from top-level elements
+			if (!(graph.getModel().getValue(obj) instanceof Info.ValueActivity
+					|| graph.getModel().getValue(obj) instanceof Info.MarketSegment
+					|| graph.getModel().getValue(obj) instanceof Info.Actor)) continue;
+			
+			mxGeometry gm = graph.getCellGeometry(obj);
+			minX = Math.min(minX, gm.getX());
+			minY = Math.min(minY, gm.getY());			
+		}
+
+		double scale = graphPanel.getVisibleRect().getWidth() / view.getGraphBounds().getWidth();
+                System.out.println(scale);
+               
+		view.scaleAndTranslate(scale, -minX, -minY);
+		
+		graphPanel.refresh();
     }
 
     /**
