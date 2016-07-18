@@ -99,6 +99,18 @@ public class ConnectionVisitor {
 		setSend(upDot);
 		setReceive(downDot);
 		
+		for (Object dot : new Object[]{upDot, downDot}) {
+			Base info = Utils.base(graph, dot);
+			if (info instanceof LogicDot) {
+				LogicDot logicDot = (LogicDot) info;
+				if (dot == upDot) {
+					ceRes.addProperty(E3value.up_fraction,  "" + logicDot.proportion);
+				} else {
+					ceRes.addProperty(E3value.down_fraction,  "" + logicDot.proportion);
+				}
+			}
+		}
+		
 		if (oppositeValue instanceof ValueInterface) {
 			Resource viRes = exporter.getResource(oppositeValue.getSUID());
 			viRes.addProperty(E3value.de_up_ce, ceRes);
@@ -148,6 +160,7 @@ public class ConnectionVisitor {
 	
 	void visit(Object upDot, Object lb, LogicBase lbInfo) throws MalformedFlowException {
 		System.out.println("Visiting logicbase");
+		// AND/OR just have de_up_ce and de_down_de's for incoming and outgoing edges.
 		
 		List<Object> dots = Utils.getChildrenWithValue(graph, lb, LogicDot.class);
 		int unitPos = -1;

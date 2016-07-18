@@ -207,59 +207,21 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Rotate right") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Base value = Utils.base(graph, Main.contextTarget);
-				
-				if (value instanceof Info.LogicDot) {
-					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
-				}
-
-				LogicBase lb = (LogicBase) Utils.base(graph, Main.contextTarget);
-				lb.direction = lb.direction.rotateRight();
-
-				mxGeometry gm = (mxGeometry) graph.getCellGeometry(Main.contextTarget).clone();
-				double width = gm.getWidth();
-				double height = gm.getHeight();
-				gm.setWidth(height);
-				gm.setHeight(width);
-				graph.getModel().beginUpdate();
-				try {
-					graph.getModel().setGeometry(Main.contextTarget, gm);
-					graph.getModel().setValue(Main.contextTarget, lb);
-				} finally {
-					graph.getModel().endUpdate();
-				}
-
-				E3Graph.straightenLogicUnit(graph, (mxCell) Main.contextTarget);
+				((E3Graph) graph).rotateLogicRight(Main.contextTarget);
 			}
 		}));
 
 		menu.add(new JMenuItem(new AbstractAction("Rotate left") {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Base value = Utils.base(graph, Main.contextTarget);
-				
-				if (value instanceof Info.LogicDot) {
-					Main.contextTarget = graph.getModel().getParent(Main.contextTarget);
-				}
-
-				LogicBase lb = (LogicBase) Utils.base(graph, Main.contextTarget);
-				lb.direction = lb.direction.rotateLeft();
-
-				mxGeometry gm = (mxGeometry) graph.getCellGeometry(Main.contextTarget).clone();
-				double width = gm.getWidth();
-				double height = gm.getHeight();
-				gm.setWidth(height);
-				gm.setHeight(width);
 				graph.getModel().beginUpdate();
 				try {
-					graph.getModel().setGeometry(Main.contextTarget, gm);
-					graph.getModel().setValue(Main.contextTarget, lb);
+					((E3Graph) graph).rotateLogicRight(Main.contextTarget);
+					((E3Graph) graph).rotateLogicRight(Main.contextTarget);
+					((E3Graph) graph).rotateLogicRight(Main.contextTarget);
 				} finally {
 					graph.getModel().endUpdate();
 				}
-
-				E3Graph.straightenLogicUnit(graph, (mxCell) Main.contextTarget);
 			}
 		}));
 	}
@@ -273,7 +235,7 @@ public class ContextMenus {
 				graph.getModel().beginUpdate();
 				try {
 					mxCell logicUnit = (mxCell) graph.getModel().getParent(Main.contextTarget);
-					graph.getModel().remove(Main.contextTarget);
+					graph.removeCells(new Object[]{Main.contextTarget});
 					E3Graph.straightenLogicUnit(graph, logicUnit);
 				} finally {
 					graph.getModel().endUpdate();
@@ -413,7 +375,7 @@ public class ContextMenus {
 				graph.getModel().beginUpdate();
 				try {
 					Object parent = graph.getModel().getParent(Main.contextTarget);
-					graph.getModel().remove(Main.contextTarget);
+					graph.removeCells(new Object[]{Main.contextTarget});
 					E3Graph.straightenValueInterface(graph, (mxICell) parent);
 				} finally {
 					graph.getModel().endUpdate();

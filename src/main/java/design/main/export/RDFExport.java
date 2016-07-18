@@ -148,6 +148,7 @@ public class RDFExport {
 					|| cellValue instanceof ConnectionElement
 					|| cellValue instanceof ValueActivity
 					|| cellValue instanceof ValuePort
+					|| cellValue instanceof LogicBase
 			)) continue;
 			
 			Base value = (Base) cellValue;
@@ -290,6 +291,7 @@ public class RDFExport {
 				res.addProperty(RDF.type, E3value.connection_element);
 				System.out.println("Connection element with SUID: " + value.getSUID() + " and name: " + value.name);
 			} else if (value instanceof LogicBase) {
+				System.out.println("Adding LogicBase");
 				LogicBase lbInfo = (LogicBase) value;
 				if (((LogicBase) value).isOr) {
 					res.addProperty(RDF.type, E3value.OR_node);

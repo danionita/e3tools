@@ -211,7 +211,7 @@ public class ImportTest {
 							Base childValue = (Base) t.getCurrentGraph().getModel().getValue(child);
 							if (childValue instanceof ValuePort) toRemove.add(child);
 						}
-						toRemove.forEach(o -> t.getCurrentGraph().getModel().remove(o));
+						t.getCurrentGraph().removeCells(toRemove.toArray());
 						
 						E3Graph.straightenValueInterface(t.getCurrentGraph(), valueInterface);
 						

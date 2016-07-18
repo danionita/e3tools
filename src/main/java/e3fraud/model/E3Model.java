@@ -182,6 +182,7 @@ public class E3Model {
 
             //then move to next element, depending on the type of element the current one is:
             if (nextElement.hasProperty(RDF.type, E3value.OR_node)) { //if it's a OR node
+            	System.out.println("OR NODE!");
                 StmtIterator nodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
                 if (nodes.hasNext()) {
                     List<Statement> nodeList = nodes.toList();//get list() of outgoing elements (for more control)
@@ -198,6 +199,7 @@ public class E3Model {
                     return;
                 }
             } else if (nextElement.hasProperty(RDF.type, E3value.AND_node)) { //if it's a AND node
+            	System.out.println("AND NODE");
                 StmtIterator nodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
                 if (nodes.hasNext()) {
                     List<Statement> nodeList = nodes.toList();//get list() of outgoing elements (for more control)

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -134,19 +135,19 @@ public class E3Graph extends mxGraph {
 					if (value instanceof ValueInterface) {
 						mxICell parent = (mxICell) cell.getParent();
 						if (parent == graph.getDefaultParent()) {
-							graph.getModel().remove(cell);
+							graph.removeCells(new Object[]{cell});
 						}
 						
 						graph.constrainChild(cell);
 					} else if (value instanceof StartSignal || value instanceof EndSignal) {
 						Object parent = graph.getModel().getParent(cell);
 						if (parent == graph.getDefaultParent()) {
-							graph.getModel().remove(cell);
+							graph.removeCells(new Object[]{cell});
 						}
 					} else if (value instanceof LogicBase) {
 						Object parent = graph.getModel().getParent(cell);
 						if (parent == graph.getDefaultParent()) {
-							graph.getModel().remove(cell);
+							graph.removeCells(new Object[]{cell});
 						}
 					}
 				} finally {
@@ -174,7 +175,7 @@ public class E3Graph extends mxGraph {
 							graph.getModel().beginUpdate();
 							try {
 								// TODO: If this ever gives problems, change to graph.removeCells
-								graph.getModel().remove(cell);
+								graph.removeCells(new Object[]{cell});
 							} finally {
 								graph.getModel().endUpdate();
 							}
@@ -219,7 +220,7 @@ public class E3Graph extends mxGraph {
 							graph.addCell(valueObjectLabel, cell);
 							
 							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
-								graph.getModel().remove(cell);
+								graph.removeCells(new Object[]{cell});
 							}
 							
 							Utils.updateValueExchangeNameLabel(graph, cell);
@@ -229,7 +230,7 @@ public class E3Graph extends mxGraph {
 					} else {
 						graph.getModel().beginUpdate();
 						try {
-							graph.getModel().remove(cell);
+							graph.removeCells(new Object[]{cell});
 						} finally {
 							graph.getModel().endUpdate();
 						}
@@ -938,9 +939,31 @@ public class E3Graph extends mxGraph {
 		throw new IllegalArgumentException("Start or end cells are not value ports");
 	}
 
+	/**
+	 * Connects pairs of signaldots, or pairs of start signal/end signal/value interfaces
+	 * So the allowed combinations are:
+	 * (SignalDot/LogicDot) -> (SignalDot/LogicDot)
+	 * (start signal/end signal/value interface) -> (start signal/end signal/value interface)
+	 * @param start
+	 * @param end
+	 * @return
+	 */
 	public Object connectCE(Object start, Object end) {
 		Base startInfo = Utils.base(this, start);
 		Base endInfo = Utils.base(this, end);
+		
+		if ((startInfo instanceof SignalDot || startInfo instanceof LogicDot)
+				&& (endInfo instanceof SignalDot || endInfo instanceof LogicDot)){
+			getModel().beginUpdate();
+			try {
+				return this.insertEdge(getDefaultParent(), null, "", start, end);
+			} finally {
+				getModel().endUpdate();
+			}
+		}
+		
+		System.out.println(startInfo.getClass().getSimpleName());
+		System.out.println(endInfo.getClass().getSimpleName());
 		
 		Object startDot = Utils.getChildrenWithValue(this, start, SignalDot.class).get(0);
 		Object endDot = Utils.getChildrenWithValue(this, end, SignalDot.class).get(0);
@@ -1133,5 +1156,128 @@ public class E3Graph extends mxGraph {
 		} finally {
 			getModel().endUpdate();
 		}
+	}
+
+	public Object addAnd(Object parent, int x, int y, Side targetDir) {
+		getModel().beginUpdate();
+		try {
+			Object logic = Main.globalTools.clone(Main.globalTools.andGate);
+			mxGeometry gm = ((mxCell) logic).getGeometry();
+			gm.setX(x);
+			gm.setY(y);
+			
+			addCell(logic, parent);
+			
+			Side currDir = Side.RIGHT;
+			while (currDir != targetDir) {
+				currDir = currDir.rotateRight();
+				rotateLogicRight(logic);
+			}
+			
+			return logic;
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+
+	public Object addOr(Object parent, int x, int y, Side targetDir) {
+		getModel().beginUpdate();
+		try {
+			Object logic = Main.globalTools.clone(Main.globalTools.orGate);
+			mxGeometry gm = ((mxCell) logic).getGeometry();
+			gm.setX(x);
+			gm.setY(y);
+			
+			addCell(logic, parent);
+			
+			Side currDir = Side.RIGHT;
+			while (currDir != targetDir) {
+				currDir = currDir.rotateRight();
+				rotateLogicRight(logic);
+			}
+			
+			return logic;
+		} finally {
+			getModel().endUpdate();
+		}
+	}
+	
+	public Object rotateLogicRight(Object logic) {
+		Base value = Utils.base(this, logic);
+		
+		if (value instanceof Info.LogicDot) {
+			logic = getModel().getParent(logic);
+		}
+
+		LogicBase lb = (LogicBase) Utils.base(this, logic);
+		lb.direction = lb.direction.rotateRight();
+
+		mxGeometry gm = (mxGeometry) getCellGeometry(logic).clone();
+		double width = gm.getWidth();
+		double height = gm.getHeight();
+		gm.setWidth(height);
+		gm.setHeight(width);
+		getModel().beginUpdate();
+		try {
+			getModel().setGeometry(logic, gm);
+			getModel().setValue(logic, lb);
+		} finally {
+			getModel().endUpdate();
+		}
+
+		E3Graph.straightenLogicUnit(this, (mxCell) logic);
+		
+		return logic;
+	}
+	
+	/**
+	 * Connects something with a signal dot to something with a logic dot
+	 * @param signal The thing with a signal dot
+	 * @param logic The thing with a logic dot
+	 * @param unit Whether or not to hook the signal to the unit dot or a normal logic dot
+	 * @return The created edge
+	 */
+	public Object connectSignalToLogic(Object signal, Object logic, boolean unit) {
+		Object signalDot = Utils.getChildrenWithValue(this, signal, SignalDot.class).get(0);
+		List<Object> logicDots = Utils.getChildrenWithValue(this, logic, LogicDot.class);
+		logicDots = logicDots.stream().filter(o -> {
+			LogicDot dotInfo = (LogicDot) Utils.base(E3Graph.this, o);
+			return dotInfo.isUnit == unit;
+		}).collect(Collectors.toList());
+		
+		for (Object dot : logicDots) {
+			if (getModel().getEdgeCount(dot) == 0) {
+				System.out.println("Connecting " + dot + " and " + signalDot);
+				return connectCE(signalDot, dot);
+			}
+		}
+		
+		return null;
+	}
+	
+	public Object connectLogicToLogic(Object l, Object r, boolean unitL, boolean unitR) {
+		List<Object> logicDotsL = Utils.getChildrenWithValue(this, l, LogicDot.class);
+		List<Object> logicDotsR = Utils.getChildrenWithValue(this, r, LogicDot.class);
+
+		logicDotsL = logicDotsL.stream().filter(o -> {
+			LogicDot dotInfo = (LogicDot) Utils.base(E3Graph.this, o);
+			return dotInfo.isUnit == unitL;
+		}).collect(Collectors.toList());
+		
+		
+		logicDotsR = logicDotsR.stream().filter(o -> {
+			LogicDot dotInfo = (LogicDot) Utils.base(E3Graph.this, o);
+			return dotInfo.isUnit == unitR;
+		}).collect(Collectors.toList());
+		
+		for (Object dotL : logicDotsL) {
+			if (getModel().getEdgeCount(dotL) > 0) continue;
+			for (Object dotR : logicDotsR) {
+				if (getModel().getEdgeCount(dotR) > 0) continue;
+				return connectCE(dotL, dotR);
+			}
+		}
+		
+		return null;
 	}
 }

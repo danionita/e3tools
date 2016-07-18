@@ -68,9 +68,6 @@ public class Main {
     int CHART_WIDTH = 500;
     int CHART_HEIGHT = 400;
 
-//    public static ImageIcon e3f, e3v;
-//    public static ImageIcon newIcon, copyIcon, zoomInIcon, zoomOutIcon;
-
     public JTabbedPane views;
 	private JToolBar toolbar;
 
@@ -488,6 +485,7 @@ public class Main {
         
         exampleMenu.add(new JMenuItem(new ExampleModels.SingleTransaction(this)));
         exampleMenu.add(new JMenuItem(new ExampleModels.FlatRateTelephony(this)));
+        exampleMenu.add(new JMenuItem(new ExampleModels.LogicGate(this)));
         
         menuBar.add(exampleMenu);
 

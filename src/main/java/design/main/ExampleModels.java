@@ -25,7 +25,9 @@ import javax.swing.AbstractAction;
 
 import com.mxgraph.model.mxGraphModel;
 
+import design.main.Info.Side;
 import design.main.Info.ValuePort;
+import design.main.export.ConnectionVisitor;
 
 public class ExampleModels {
 	public static class SmallTricky extends AbstractAction {
@@ -183,7 +185,6 @@ public class ExampleModels {
 				graph.setValueExchangeLabelVisible(ve, true);
 				graph.setValueExchangeLabel(ve, "Subscription fee");
 				graph.setValueExchangeLabelPosition(ve, -0.2, -100);
-//				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "37.5");
 				graph.setFormula(ve, "VALUATION", "37.5");
 
 				ve = graph.connectVE(providerALeftVI, userALeftVI);
@@ -207,7 +208,6 @@ public class ExampleModels {
 				ve = graph.connectVE(providerAWallVI, providerBLeftVI);
 				graph.setValueObject(ve, "MONEY");
 				graph.setValueObjectLabelPosition(ve, 0.3, -10);
-//				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "0.07");
 				graph.setFormula(ve, "VALUATION", "0.07");
 				graph.setValueExchangeLabelVisible(ve, true);
 				graph.setValueExchangeLabel(ve, "Interconnection fee");
@@ -317,6 +317,78 @@ public class ExampleModels {
 			}	
 		}
 	}
-	
-	
+
+	public static class LogicGate extends AbstractAction {
+		private Main main;
+
+		public LogicGate(Main main) {
+			super("Logic gate");
+			this.main = main;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			E3Graph graph = main.getCurrentGraph();
+			mxGraphModel model = (mxGraphModel) graph.getModel();
+			
+			ToolComponent tc = Main.globalTools;
+			
+			Object root = graph.getDefaultParent();
+			
+			model.beginUpdate();
+			try {
+				Object acLeft = graph.addActor(150, 50);
+				Object acRight = graph.addActor(400, 50);
+				Object acMain = graph.addActor(150, 250);
+				
+				graph.setCellSize(acLeft, 100, 100);
+				graph.setCellSize(acRight, 100, 100);
+				graph.setCellSize(acMain, 350, 300);
+				
+				Object andBL = graph.addAnd(acMain, 50, 150, Side.BOTTOM);
+				Object orBR = graph.addOr(acMain, 250, 150, Side.BOTTOM);
+				Object andTL = graph.addAnd(acMain, 50, 75, Side.TOP);
+				Object andTR = graph.addAnd(acMain, 250, 75, Side.TOP);
+				Object orB = graph.addOr(acMain, 140, 200, Side.BOTTOM);
+				
+				Object end = graph.addEndSignal(acMain, 150, 240);
+				Object startL = graph.addStartSignal(acLeft, 30, 30);
+				Object startR = graph.addStartSignal(acRight, 30, 30);
+				
+				Object viTL = graph.addValueInterface(acLeft, 30, 50);
+				Object viTR = graph.addValueInterface(acRight, 30, 50);
+				Object viBL = graph.addValueInterface(acMain, 30, 0);
+				Object viBR = graph.addValueInterface(acMain, 280, 0);
+				
+				Object ve = graph.connectVE(viTL, viBL);
+				graph.setValueObject(ve, "MONEY");
+				graph.setFormula(ve, "VALUATION", "10");
+				graph.connectVE(viBL, viTL);
+				ve = graph.connectVE(viTR, viBR);
+				graph.setValueObject(ve, "MONEY");
+				graph.setFormula(ve, "VALUATION", "0.7");
+				graph.connectVE(viBR, viTR);
+				
+				graph.connectCE(startL, viTL);
+				graph.connectCE(startR, viTR);
+				
+				graph.connectSignalToLogic(viBL, andTL, true);
+				graph.connectSignalToLogic(viBR, andTR, true);
+				
+				graph.connectLogicToLogic(andTL, andBL, false, false);
+				graph.connectLogicToLogic(andTL, orBR, false, false);
+
+				graph.connectLogicToLogic(andTR, andBL, false, false);
+				graph.connectLogicToLogic(andTR, orBR, false, false);
+				
+				graph.connectLogicToLogic(andBL, orB, true, false);
+				graph.connectLogicToLogic(orBR, orB, true, false);
+				
+				graph.connectSignalToLogic(end, orB, true);
+			} finally {
+				model.endUpdate();
+			}
+			
+		}
+	}
 }
