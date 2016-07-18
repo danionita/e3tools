@@ -16,24 +16,29 @@
  */
 package e3fraud.model;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.vocabulary.RDF;
-import design.main.Utils;
-import e3fraud.vocabulary.E3value;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.vocabulary.RDF;
+
+import design.main.Utils;
+import e3fraud.vocabulary.E3value;
 
 /**
  *
@@ -919,8 +924,6 @@ public class E3Model {
 
         Resource port1, port2, exchange;
         String URIbase = this.getActors().iterator().next().getURI().split("#")[0];
-        int id = model.listStatements().toSet().size();
-        //System.out.println(URIbase + " " + id);
         Resource modelResource = this.getModelResource();
         Resource moneyResource = this.getMoneyResource();
         Resource diagramResource = this.getDiagramResource();
@@ -940,10 +943,11 @@ public class E3Model {
             }
         }
 
+        long id = Utils.getUnusedID(URIbase, model);
 //        System.out.println("Creating a VP: " + id);
-        port1 = model.createResource(URIbase + "#" + Integer.toString(id), E3value.value_port);
-        port1.addProperty(E3value.e3_has_name, "vp" + Integer.toString(id));
-        port1.addProperty(E3value.e3_has_uid, Integer.toString(id));
+        port1 = model.createResource(URIbase + "#" + id, E3value.value_port);
+        port1.addProperty(E3value.e3_has_name, "vp" + id);
+        port1.addProperty(E3value.e3_has_uid, "" + id);
         port1.addProperty(E3value.vp_has_dir, "true");
         port1.addProperty(E3value.mc_in_mo, modelResource);
         modelResource.addProperty(E3value.mo_has_mc, port1);
@@ -956,10 +960,10 @@ public class E3Model {
         vo1.addProperty(E3value.vo_consists_of_vp, port1);
         port1.addProperty(E3value.e3_has_formula, "VALUATION=" + value);
 
-        id += 1;
-        port2 = model.createResource(URIbase + "#" + Integer.toString(id), E3value.value_port);
-        port2.addProperty(E3value.e3_has_name, "vp" + Integer.toString(id));
-        port2.addProperty(E3value.e3_has_uid, Integer.toString(id));
+        id = Utils.getUnusedID(URIbase, model);
+        port2 = model.createResource(URIbase + "#" + id, E3value.value_port);
+        port2.addProperty(E3value.e3_has_name, "vp" + id);
+        port2.addProperty(E3value.e3_has_uid, "" + id);
         port2.addProperty(E3value.vp_has_dir, "true");
         port2.addProperty(E3value.mc_in_mo, modelResource);
         modelResource.addProperty(E3value.mo_has_mc, port2);
@@ -970,11 +974,11 @@ public class E3Model {
         port2.addProperty(E3value.vp_in_vo, vo2);
         vo2.addProperty(E3value.vo_consists_of_vp, port2);
         port2.addProperty(E3value.e3_has_formula, "VALUATION=" + value);
-
-        id += 1;
-        exchange = model.createResource(URIbase + "#" + Integer.toString(id), E3value.value_exchange);
+        
+        id = Utils.getUnusedID(URIbase, model);
+        exchange = model.createResource(URIbase + "#" + id, E3value.value_exchange);
         exchange.addProperty(E3value.e3_has_name, "Hidden transfer");
-        exchange.addProperty(E3value.e3_has_uid, Integer.toString(id));
+        exchange.addProperty(E3value.e3_has_uid, "" + id);
         exchange.addProperty(E3value.mc_in_mo, modelResource);
         modelResource.addProperty(E3value.mo_has_mc, exchange);
         moneyResource.addProperty(E3value.mo_has_mc, exchange);
@@ -985,7 +989,6 @@ public class E3Model {
         port1.addProperty(E3value.vp_out_connects_ve, exchange);
 
         port2.addProperty(E3value.vp_in_connects_ve, exchange);
-
     }
 
     /**

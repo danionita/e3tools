@@ -116,7 +116,6 @@ public class E3Graph extends mxGraph {
 	private void addStandardEventListeners() {
 		mxGraph graph = this;
 		
-		// TODO: Refactor this properly 
 		addListener(mxEvent.CELLS_ADDED, new mxIEventListener() {
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {

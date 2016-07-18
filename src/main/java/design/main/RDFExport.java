@@ -49,7 +49,7 @@ import design.vocabulary.E3value;
 
 public class RDFExport {
 	
-	private final mxGraph graph;
+	private final E3Graph graph;
 	private String result;
 	
 	Map<Long, Resource> offeringIn = new HashMap<>();
@@ -58,7 +58,7 @@ public class RDFExport {
 	public Model model;
 	
 	public RDFExport(mxGraph graph) {
-		this.graph = graph;
+		this.graph = (E3Graph) graph;
 		
 		convertToRdf();
 	}
@@ -367,6 +367,10 @@ public class RDFExport {
 		
 		Map<Object, Flow> flowMap = new HashMap<>();
 		
+		for (String valueObject : graph.valueObjects) {
+			getValueObject.apply(valueObject);
+		}
+		
 		for (Object cell : Utils.getAllCells(graph)) {
 			Object cellValue = graph.getModel().getValue(cell);
 			
@@ -495,12 +499,7 @@ public class RDFExport {
 							veRes.addProperty(E3value.ve_has_out_po, vpRes);
 						}
 						
-						// TODO: Value objects are currently only exported if they are attached
-						// to a value exchange. Easy fix: call getValueObject for each
-						// valueObject before at the beginning
-						System.out.println("Checking ValueObject: " + veInfo.valueObject);
 						if (veInfo.valueObject != null) {
-							System.out.println("Exporting ValueObject: " + veInfo.valueObject);
 							Resource valueObjectRes = getValueObject.apply(veInfo.valueObject);
 							vpRes.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
 							valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, vpRes);

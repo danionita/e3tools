@@ -111,6 +111,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		ContextMenus.addStartSignalMenu(startSignalMenu, graph);
 		
 		ContextMenus.addE3PropertiesMenu(endSignalMenu, graph);
+		ContextMenus.addEndSignalMenu(endSignalMenu, graph);
 		
 		// Some debug menus
 		if (Main.DEBUG) {

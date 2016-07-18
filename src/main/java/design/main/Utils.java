@@ -21,8 +21,12 @@
 package design.main;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +43,9 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
@@ -54,10 +61,7 @@ import design.main.Info.ValueExchange;
 import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
-import java.awt.Desktop;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import design.vocabulary.E3value;
 
 public class Utils {
     public static boolean overlap(mxRectangle a, mxRectangle b) {
@@ -602,5 +606,27 @@ public class Utils {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * Finds the next unused ID in a Jena/E3Value rdf model. Does not claim the ID by creating
+     * a resource with the unused ID.
+     * @param URIbase The base uri of the model
+     * @param m The model to look in for used ID's
+     * @return An unused ID.
+     */
+    public static long getUnusedID(String URIbase, Model m) {
+    	long candidate = 1;
+    	Resource candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
+    	System.out.println("Start looking");
+    	while (m.contains(candidateResource, E3value.e3_has_uid, "" + candidate)) {
+    		System.out.println("Contains " + candidate);
+    		candidate++;
+			candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
+    	}
+    	
+    	System.out.println("Result: " + candidate);
+    	
+    	return candidate;
     }
 }

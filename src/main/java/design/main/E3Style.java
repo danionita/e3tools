@@ -146,6 +146,7 @@ public class E3Style {
 		// There is also STYLE_VERTICAL_POSTION_ALIGN or something
 		// Which is supposed to put a label on top of the cell's border
 		// But I think it's broken therefore it's hacked like this
+		// For the hack see ToolComponent cell creation of StartSignal
 		style.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_TOP);
 		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
 		style.put(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, "#FAFAD2");
@@ -155,6 +156,10 @@ public class E3Style {
 		style.put(mxConstants.STYLE_SHAPE, "EndSignalStencil");
 		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
 		style.put(mxConstants.STYLE_RESIZABLE, 0);
+
+		style.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_TOP);
+		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
+		style.put(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, "#FAFAD2");
 		stylesheet.putCellStyle("EndSignal", style);
 		
 		style = new Hashtable<>();

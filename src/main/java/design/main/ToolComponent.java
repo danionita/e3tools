@@ -180,7 +180,10 @@ public class ToolComponent extends mxGraphComponent {
 			// End signal
 			{
 				endSignal = (mxCell) graph.insertVertex(root, null, new EndSignal(), 55, 420, 45, 45, "EndSignal");
-				ess = endSignal;
+				mxGeometry sgm = graph.getModel().getGeometry(endSignal);
+				// Magic number to get the label to float nicely above
+				sgm.setOffset(new mxPoint(0, -21));
+
 				mxCell dot = (mxCell) graph.insertVertex(endSignal, null, new SignalDot(), 0.5, 0.5, 2 * E3Style.DOTRADIUS, 2 * E3Style.DOTRADIUS, "Dot");
 				mxGeometry gm = Utils.geometry(graph, dot);
 				gm.setRelative(true);

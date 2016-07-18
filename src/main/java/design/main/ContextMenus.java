@@ -28,8 +28,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
@@ -43,6 +41,7 @@ import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
 import design.main.Info.Base;
+import design.main.Info.EndSignal;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
 import design.main.Info.StartSignal;
@@ -658,6 +657,24 @@ public class ContextMenus {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				StartSignal value = (StartSignal) Utils.base(graph, Main.contextTarget);
+				
+				value.showLabel ^= true;
+				
+				graph.getModel().beginUpdate();
+				try {
+					graph.getModel().setValue(Main.contextTarget, value);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		}));
+	}
+
+	public static void addEndSignalMenu(JPopupMenu menu, mxGraph graph) {
+		menu.add(new JMenuItem(new AbstractAction("Toggle label visibility") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				EndSignal value = (EndSignal) Utils.base(graph, Main.contextTarget);
 				
 				value.showLabel ^= true;
 				

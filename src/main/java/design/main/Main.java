@@ -139,7 +139,7 @@ public class Main {
         // TODO: Pay extra attention to this when writing import/export codes
         // We probably need to move from maximum id + 1 to just constructing an array
         // of all used ID's and then finding the first one that's available
-        Info.nextSUID += 1000;
+//        Info.nextSUID += 1000;
 
         if (mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll) {
             try {
