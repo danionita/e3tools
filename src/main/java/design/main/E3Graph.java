@@ -612,25 +612,7 @@ public class E3Graph extends mxGraph {
 	public Object[] cloneCells(Object[] cells, boolean allowInvalidEdges) {
 		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
 
-		class H {
-			public void renewBasesAndIncreaseSUIDS(mxCell cell) {
-				if (cell.getValue() instanceof Base) {
-					cell.setValue(((Base) cell.getValue()).getCopy()); 
-					((Base) cell.getValue()).setSUID(Info.getSUID());
-				}
-				
-				for (int i = 0; i < cell.getChildCount(); i++) {
-					renewBasesAndIncreaseSUIDS((mxCell) cell.getChildAt(i));
-				}
-			}
-		} H h = new H();
-		
-		for ( Object obj : clones) {
-			if (model.getValue(obj) instanceof Info.Base) {
-				mxCell cell = (mxCell) obj;
-				h.renewBasesAndIncreaseSUIDS(cell);
-			}
-		}
+		Utils.renewBasesAndIncreaseSUIDs(clones);
 		
 		return clones;
 	}

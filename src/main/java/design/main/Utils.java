@@ -46,6 +46,7 @@ import javax.swing.border.EtchedBorder;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
@@ -628,5 +629,28 @@ public class Utils {
     	System.out.println("Result: " + candidate);
     	
     	return candidate;
+    }
+    
+    public static void renewBasesAndIncreaseSUIDs(mxCell cell) {
+		if (cell.getValue() instanceof Base) {
+			cell.setValue(((Base) cell.getValue()).getCopy()); 
+			((Base) cell.getValue()).setSUID(Info.getSUID());
+		}
+		
+		for (int i = 0; i < cell.getChildCount(); i++) {
+			renewBasesAndIncreaseSUIDs((mxCell) cell.getChildAt(i));
+		}
+    }
+    
+    public static void renewBasesAndIncreaseSUIDs(mxCell[] cells) {
+    	for (mxCell cell : cells) {
+    		if (cell.getValue() instanceof Base) {
+    			renewBasesAndIncreaseSUIDs(cell);
+    		}
+    	}
+    }
+    
+    public static void renewBasesAndIncreaseSUIDs(Object[] cells) {
+    	renewBasesAndIncreaseSUIDs(Arrays.copyOf(cells, cells.length, mxCell[].class));
     }
 }

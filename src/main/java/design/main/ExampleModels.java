@@ -183,7 +183,8 @@ public class ExampleModels {
 				graph.setValueExchangeLabelVisible(ve, true);
 				graph.setValueExchangeLabel(ve, "Subscription fee");
 				graph.setValueExchangeLabelPosition(ve, -0.2, -100);
-				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "37.5");
+//				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "37.5");
+				graph.setFormula(ve, "VALUATION", "37.5");
 
 				ve = graph.connectVE(providerALeftVI, userALeftVI);
 				graph.setValueObject(ve, "SERVICE");
@@ -206,7 +207,8 @@ public class ExampleModels {
 				ve = graph.connectVE(providerAWallVI, providerBLeftVI);
 				graph.setValueObject(ve, "MONEY");
 				graph.setValueObjectLabelPosition(ve, 0.3, -10);
-				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "0.07");
+//				graph.setFormulaOnEdgeAndPorts(ve, "VALUATION", "0.07");
+				graph.setFormula(ve, "VALUATION", "0.07");
 				graph.setValueExchangeLabelVisible(ve, true);
 				graph.setValueExchangeLabel(ve, "Interconnection fee");
 				graph.setValueExchangeLabelPosition(ve, 0.8, -30);

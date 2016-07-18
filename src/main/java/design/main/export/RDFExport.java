@@ -21,7 +21,6 @@ package design.main.export;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -31,7 +30,6 @@ import com.mxgraph.view.mxGraph;
 
 import design.main.E3Graph;
 import design.main.Info;
-import design.main.Utils;
 import design.main.Info.Actor;
 import design.main.Info.Base;
 import design.main.Info.ConnectionElement;
@@ -43,7 +41,7 @@ import design.main.Info.ValueActivity;
 import design.main.Info.ValueExchange;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
-import design.main.Utils.EdgeAndSides;
+import design.main.Utils;
 import design.vocabulary.E3value;
 
 public class RDFExport {
@@ -249,7 +247,6 @@ public class RDFExport {
 				
 				assert(graph.getModel().getEdgeCount(cell) < 2);
 				if (graph.getModel().getEdgeCount(cell) == 1) {
-					System.out.println("One!");
 					Object valueExchange = graph.getModel().getEdgeAt(cell, 0);
 					ValueExchange veInfo = (ValueExchange) graph.getModel().getValue(valueExchange);
 					Resource veRes = getResource(veInfo.getSUID());
@@ -266,6 +263,12 @@ public class RDFExport {
 						Resource valueObjectRes = getValueObject(veInfo.valueObject);
 						res.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
 						valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, res);
+					}
+					
+					// Propagate valuation from edge if vp valuation == 0
+					if (value.formulas.getOrDefault("VALUATION", "0").equals("0")) {
+						value.formulas.put("VALUATION", veInfo.formulas.getOrDefault("VALUATION", "0"));
+						res.addProperty(E3value.e3_has_formula, "VALUATION" + "=" + value.formulas.get("VALUATION"));
 					}
 				}
 			} else if (value instanceof ValueExchange) {
