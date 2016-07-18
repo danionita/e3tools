@@ -24,15 +24,11 @@ import static design.main.Utils.openWebpage;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -42,6 +38,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
@@ -71,10 +68,11 @@ public class Main {
     int CHART_WIDTH = 500;
     int CHART_HEIGHT = 400;
 
-    public static ImageIcon e3f, e3v;
-    public static ImageIcon newIcon, copyIcon, zoomInIcon, zoomOutIcon;
+//    public static ImageIcon e3f, e3v;
+//    public static ImageIcon newIcon, copyIcon, zoomInIcon, zoomOutIcon;
 
     public JTabbedPane views;
+	private JToolBar toolbar;
 
     public E3GraphComponent getCurrentGraphComponent() {
         JSplitPane pane = (JSplitPane) views.getComponentAt(views.getSelectedIndex());
@@ -122,25 +120,33 @@ public class Main {
         }
 
         if (graph.isFraud) {
-            Utils.addClosableTab(views, title, mainpane, Main.e3f);
+            Utils.addClosableTab(views, title, mainpane, IconStore.getImage("/e3f.png", 25, 25));
         } else {
-            Utils.addClosableTab(views, title, mainpane, Main.e3v);
+            Utils.addClosableTab(views, title, mainpane, IconStore.getImage("/e3v.png", 25, 25));
         }
 
         views.setSelectedIndex(views.getTabCount() - 1);
     }
 
+    public void addToolbarButton(String icon, String keyStroke, Runnable action) {
+		JButton button = new JButton();
+		button.setFocusPainted(false);
+		button.setAction(new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				action.run();
+			}
+		});
+		button.setIcon(IconStore.getIcon(icon));
+		
+		// TODO: Implement keyStroke
+		
+		toolbar.add(button);
+	}
+
     public Main() {
         // Silly log4j
         Logger.getRootLogger().setLevel(Level.OFF);
-        
-        // To make sure the exampls work we need to start counting at 1000
-        // Because otherwise Dan's code might overwrite our ID's (See E3Model.java:943)
-        // TODO: Make sure dan's code checks if an ID is available or not.
-        // TODO: Pay extra attention to this when writing import/export codes
-        // We probably need to move from maximum id + 1 to just constructing an array
-        // of all used ID's and then finding the first one that's available
-//        Info.nextSUID += 1000;
 
         if (mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll) {
             try {
@@ -148,30 +154,6 @@ public class Main {
             } catch (Exception e) {
                 System.out.println("Couldn't set Look and Feel to system");
             }
-        }
-
-        try {
-            e3v = new ImageIcon(
-                    ImageIO.read(Main.class.getResourceAsStream("/e3v.png"))
-                    .getScaledInstance(25, 25, Image.SCALE_SMOOTH));
-            e3f = new ImageIcon(
-                    ImageIO.read(Main.class.getResourceAsStream("/e3f.png"))
-                    .getScaledInstance(25, 25, Image.SCALE_SMOOTH));
-
-            newIcon = new ImageIcon(
-                    ImageIO.read(Main.class.getResourceAsStream("/icons/page_white.png")));
-
-            copyIcon = new ImageIcon(
-                    ImageIO.read(Main.class.getResourceAsStream("/icons/page_white_copy.png")));
-
-            zoomInIcon = new ImageIcon(
-                    ImageIO.read(Main.class.getResourceAsStream("/icons/magnifier_zoom_in.png")));
-
-            zoomOutIcon = new ImageIcon(
-                    ImageIO.read(Main.class.getResourceAsStream("/icons/magnifier_zoom_out.png")));
-        } catch (IOException e) {
-            System.out.println("Tab pictures have failed to load.");
-            e.printStackTrace();
         }
 
         // Add menubar
@@ -423,7 +405,6 @@ public class Main {
 
         // To change "change type" to "convert to fraud" or "convert to value" depending on current graph
         modelMenu.addMenuListener(new MenuListener() {
-
             @Override
             public void menuSelected(MenuEvent e) {
                 if (getCurrentGraph().isFraud) {
@@ -434,16 +415,10 @@ public class Main {
             }
 
             @Override
-            public void menuDeselected(MenuEvent e) {
-                // TODO Auto-generated method stub
-
-            }
+            public void menuDeselected(MenuEvent e) { }
 
             @Override
-            public void menuCanceled(MenuEvent e) {
-                // TODO Auto-generated method stub
-
-            }
+            public void menuCanceled(MenuEvent e) { }
         });
 
         menuBar.add(modelMenu);
@@ -510,8 +485,6 @@ public class Main {
         menuBar.add(toolMenu);
 
         JMenu exampleMenu = new JMenu("Examples");
-//        exampleMenu.add(new JMenuItem(new ExampleModels.SmallTricky(this)));
-//        exampleMenu.add(new JMenuItem(new ExampleModels.MediumTricky(this)));
         
         exampleMenu.add(new JMenuItem(new ExampleModels.SingleTransaction(this)));
         exampleMenu.add(new JMenuItem(new ExampleModels.FlatRateTelephony(this)));
@@ -556,25 +529,98 @@ public class Main {
 
         mainFrame.setJMenuBar(menuBar);
 
-        JToolBar toolbar = new JToolBar();
+        toolbar = new JToolBar();
         toolbar.setFloatable(false);
-        JButton newButton = new JButton(newIcon);
-        newButton.setFocusPainted(false);
+        
+        // New value
+        addToolbarButton("page_green", "control N", () -> {
+			addNewTabAndSwitch(false);
+        });
+        
+        // New fraud
+        addToolbarButton("page_red", "control M", () -> {
+        	addNewTabAndSwitch(true);
+        });
 
-        JButton copyButton = new JButton(copyIcon);
-        copyButton.setFocusPainted(false);
+        // Close
+        addToolbarButton("page_delete", null, () -> {
+        	views.remove(views.getSelectedIndex());
+        });
+        
+        // Duplicate
+        addToolbarButton("page_copy", null, () -> {
+        	addNewTabAndSwitch(new E3Graph(getCurrentGraph()));
+        });
+        
+        // TODO: I don't know what this is (last of the first group)
+        // There are a few more below
+        addToolbarButton("thumb_up", null, null);
 
-        JButton zoomInButton = new JButton(zoomInIcon);
-        zoomInButton.setFocusPainted(false);
-
-        JButton zoomOutButton = new JButton(zoomOutIcon);
-        zoomOutButton.setFocusPainted(false);
-
-        toolbar.add(newButton);
-        toolbar.add(copyButton);
         toolbar.addSeparator();
-        toolbar.add(zoomInButton);
-        toolbar.add(zoomOutButton);
+        
+        // Cut
+        addToolbarButton("cut", null, () -> {
+        	TransferHandler.getCutAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
+        });
+        
+        // Copy
+        addToolbarButton("page_white_copy", null, () -> {
+        	TransferHandler.getCopyAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
+        });
+        
+        // Paste
+        addToolbarButton("paste_plain", null, () -> {
+        	TransferHandler.getPasteAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
+        });
+
+        toolbar.addSeparator();
+        
+        // Zoom in
+        addToolbarButton("magnifier_zoom_in", null, () -> {
+        	getCurrentGraphComponent().zoomIn();
+        });
+        
+        // Zoom out
+        addToolbarButton("magnifier_zoom_out", null, () -> {
+        	getCurrentGraphComponent().zoomOut();
+        });
+
+        toolbar.addSeparator();
+        
+        // Dunno
+        addToolbarButton("thumb_up", null, null);
+        
+        // Dunno
+        addToolbarButton("thumb_up", null, null);
+        
+        // Dunno
+        addToolbarButton("tux", null, null);
+        
+        // Dunno
+        addToolbarButton("thumb_up", null, null);
+
+        toolbar.addSeparator();
+        
+        // Dunno
+        addToolbarButton("thumb_up", null, null);
+        
+        // Dunno
+        addToolbarButton("thumb_up", null, null);
+        
+        // Dunno
+        addToolbarButton("thumb_up", null, null);
+
+        toolbar.addSeparator();
+        
+        // Help
+        addToolbarButton("Help", null, () -> {
+			try {
+				openWebpage(new URL("https://github.com/danionita/e3tools/wiki"));
+			} catch (MalformedURLException ex) {
+				java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+			}
+        });
+
         mainFrame.getContentPane().add(toolbar, BorderLayout.PAGE_START);
 
         globalTools = new ToolComponent();
@@ -591,7 +637,7 @@ public class Main {
         mainFrame.setVisible(true);
     }
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
         Main t = new Main();
     }
 }

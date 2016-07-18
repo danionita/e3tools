@@ -237,6 +237,44 @@ public class E3Graph extends mxGraph {
 				}
 			}
 		});
+
+		graph.addListener(mxEvent.RESIZE_CELLS, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				Object[] cells = ((Object[]) evt.getProperty("cells"));
+				mxCell cell = (mxCell) cells[0];
+				
+				if (Utils.base(graph, cell) instanceof LogicBase) {
+					E3Graph.straightenLogicUnit(graph, cell);
+				} else {
+					graph.getModel().beginUpdate();
+					try {
+						for (int i = 0; i < cell.getChildCount(); i++) {
+							// Straighten ports & constrain cell if needed
+							graph.constrainChild(cell.getChildAt(i));
+						}
+					} finally {
+						graph.getModel().endUpdate();
+					}
+				}
+			}
+		});
+		
+		graph.addListener(mxEvent.MOVE_CELLS, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				Object[] cells = ((Object[]) evt.getProperty("cells"));
+				mxCell cell = (mxCell) cells[0];
+
+				graph.getModel().beginUpdate();
+				try {
+					// Straighten ports & constrain cell if needed
+					graph.constrainChild(cell);
+				} finally {
+					graph.getModel().endUpdate();
+				}
+			}
+		});
 	}
 	
 	/**
