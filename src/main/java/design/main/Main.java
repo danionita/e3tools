@@ -54,6 +54,7 @@ import org.jfree.chart.JFreeChart;
 import com.mxgraph.util.mxPoint;
 
 import design.main.Utils.ClosableTabHeading;
+import design.main.export.RDFExport;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
