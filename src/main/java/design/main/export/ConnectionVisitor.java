@@ -1,14 +1,13 @@
 package design.main.export;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.mxgraph.model.mxGraphModel;
-import com.mxgraph.view.mxGraph;
 
-import design.main.Utils;
+import design.main.E3Graph;
 import design.main.Info.Base;
 import design.main.Info.ConnectionElement;
 import design.main.Info.EndSignal;
@@ -18,20 +17,19 @@ import design.main.Info.SignalDot;
 import design.main.Info.StartSignal;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
+import design.main.Utils;
 import design.vocabulary.E3value;
 
 public class ConnectionVisitor {
-	mxGraph graph;
+	RDFExport exporter;
+	E3Graph graph;
 	mxGraphModel model;
-	Function<Long, Resource> getResource;
-	Map<Object, Flow> flowMap;
+	public Map<Object, Flow> flowMap = new HashMap<>();
 	
-	ConnectionVisitor(mxGraph graph, Function<Long, Resource> getResource, Map<Object, Flow> flowMap) {
-		this.graph = graph;
-		model = (mxGraphModel) graph.getModel();
-		
-		this.getResource = getResource;
-		this.flowMap = flowMap;
+	ConnectionVisitor(RDFExport exporter) {
+		this.exporter = exporter;
+		this.graph = exporter.graph;
+		this.model = (mxGraphModel) graph.getModel();
 	}
 	
 	void setSend(Object obj) throws MalformedFlowException {
@@ -67,7 +65,7 @@ public class ConnectionVisitor {
 	void visit(Object ss, StartSignal ssInfo) throws MalformedFlowException {
 		System.out.println("Visiting StartSignal");
 		
-		Resource res = getResource.apply(ssInfo.getSUID());
+		Resource res = exporter.getResource(ssInfo.getSUID());
 		Object child = model.getChildAt(ss, 0);
 		
 		setSend(child);
@@ -76,7 +74,7 @@ public class ConnectionVisitor {
 			Object edge = model.getEdgeAt(child, 0);
 			ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
 			
-			Resource edgeRes = getResource.apply(edgeInfo.getSUID());
+			Resource edgeRes = exporter.getResource(edgeInfo.getSUID());
 			res.addProperty(E3value.de_down_ce, edgeRes);
 			
 			visit(child, edge, edgeInfo);
@@ -86,7 +84,7 @@ public class ConnectionVisitor {
 	void visit(Object upDot, Object ce, ConnectionElement ceInfo) throws MalformedFlowException {
 		System.out.println("Visiting ConnectionElement");
 		
-		Resource ceRes = getResource.apply(ceInfo.getSUID());
+		Resource ceRes = exporter.getResource(ceInfo.getSUID());
 		
 		Object downDot = Utils.getOpposite(graph, ce, upDot);
 		Object opposite = model.getParent(downDot);
@@ -95,14 +93,14 @@ public class ConnectionVisitor {
 		Object up = model.getParent(upDot);
 		Base upValue = (Base) model.getValue(up);
 		
-		ceRes.addProperty(E3value.ce_with_up_de, getResource.apply(upValue.getSUID()));
-		ceRes.addProperty(E3value.ce_with_down_de, getResource.apply(oppositeValue.getSUID()));
+		ceRes.addProperty(E3value.ce_with_up_de, exporter.getResource(upValue.getSUID()));
+		ceRes.addProperty(E3value.ce_with_down_de, exporter.getResource(oppositeValue.getSUID()));
 		
 		setSend(upDot);
 		setReceive(downDot);
 		
 		if (oppositeValue instanceof ValueInterface) {
-			Resource viRes = getResource.apply(oppositeValue.getSUID());
+			Resource viRes = exporter.getResource(oppositeValue.getSUID());
 			viRes.addProperty(E3value.de_up_ce, ceRes);
 			
 			// TODO: This can be moved to its own function
@@ -129,8 +127,8 @@ public class ConnectionVisitor {
 							ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
 
 							Base viInfo = (Base) model.getValue(valueInterface);
-							Resource otherViRes = getResource.apply(viInfo.getSUID());
-							otherViRes.addProperty(E3value.de_down_ce, getResource.apply(edgeInfo.getSUID()));
+							Resource otherViRes = exporter.getResource(viInfo.getSUID());
+							otherViRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.getSUID()));
 							
 							visit(otherDot, edge, edgeInfo);
 						}
@@ -166,14 +164,14 @@ public class ConnectionVisitor {
 		
 		Object unitDot = dots.remove(unitPos);
 		
-		Resource lbRes = getResource.apply(lbInfo.getSUID());
+		Resource lbRes = exporter.getResource(lbInfo.getSUID());
 		
 		if (unitDot == upDot) {
 			setReceive(upDot);
 			
 			Object ce = model.getEdgeAt(upDot, 0);
 			ConnectionElement ceInfo = (ConnectionElement) model.getValue(ce);
-			lbRes.addProperty(E3value.de_up_ce, getResource.apply(ceInfo.getSUID()));
+			lbRes.addProperty(E3value.de_up_ce, exporter.getResource(ceInfo.getSUID()));
 			
 			for (Object dot : dots) {
 				if (flowMap.containsKey(dot)) {
@@ -184,7 +182,7 @@ public class ConnectionVisitor {
 					if (model.getEdgeCount(dot) == 1) {
 						Object edge = model.getEdgeAt(dot, 0);
 						ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
-						lbRes.addProperty(E3value.de_down_ce, getResource.apply(edgeInfo.getSUID()));
+						lbRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.getSUID()));
 						visit(dot, edge, edgeInfo);
 					}
 				}
@@ -198,7 +196,7 @@ public class ConnectionVisitor {
 				if (model.getEdgeCount(unitDot) == 1) {
 					Object ce = model.getEdgeAt(unitDot, 0);
 					ConnectionElement ceInfo = (ConnectionElement) model.getValue(ce);
-					lbRes.addProperty(E3value.de_down_ce, getResource.apply(ceInfo.getSUID()));
+					lbRes.addProperty(E3value.de_down_ce, exporter.getResource(ceInfo.getSUID()));
 				
 					visit(unitDot, ce, ceInfo);
 				}
@@ -210,7 +208,7 @@ public class ConnectionVisitor {
 				if (model.getEdgeCount(dot) == 1) {
 					Object edge = model.getEdgeAt(dot, 0);
 					ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
-					lbRes.addProperty(E3value.de_up_ce, getResource.apply(edgeInfo.getSUID()));
+					lbRes.addProperty(E3value.de_up_ce, exporter.getResource(edgeInfo.getSUID()));
 				}
 			}
 		}
@@ -222,7 +220,7 @@ public class ConnectionVisitor {
 		Object edge = model.getEdgeAt(model.getChildAt(es, 0), 0);
 		ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
 		
-		Resource endRes = getResource.apply(esInfo.getSUID());
-		endRes.addProperty(E3value.de_up_ce, getResource.apply(edgeInfo.getSUID()));
+		Resource endRes = exporter.getResource(esInfo.getSUID());
+		endRes.addProperty(E3value.de_up_ce, exporter.getResource(edgeInfo.getSUID()));
 	}
 }

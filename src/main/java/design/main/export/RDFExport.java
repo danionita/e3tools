@@ -48,13 +48,16 @@ import design.vocabulary.E3value;
 
 public class RDFExport {
 	
-	private final E3Graph graph;
+	public final E3Graph graph;
 	private String result;
 	
 	Map<Long, Resource> offeringIn = new HashMap<>();
 	Map<Long, Resource> offeringOut = new HashMap<>();
 	Map<String, Resource> valueObject = new HashMap<>();
 	public Model model;
+	private Resource modelRes;
+	private Resource diagramRes;
+	private String base;
 	
 	public RDFExport(mxGraph graph) {
 		this.graph = (E3Graph) graph;
@@ -62,78 +65,76 @@ public class RDFExport {
 		convertToRdf();
 	}
 	
+	public Resource getResource(long suid) {
+		Resource res = model.createResource(base + suid);
+		
+		res.addProperty(E3value.e3_has_uid, "" + suid);
+		res.addProperty(E3value.mc_in_mo, modelRes);
+		res.addProperty(E3value.mc_in_di, diagramRes);
+		modelRes.addProperty(E3value.mo_has_mc, res);
+		diagramRes.addProperty(E3value.di_has_mc, res);
+		
+		return res;
+	}
+	
+	public Resource getOfferingIn(long suid) {
+		if (!offeringIn.containsKey(suid)) {
+			offeringIn.put(suid, getResource(Info.getSUID()));
+			Resource of = offeringIn.get(suid);
+			of.addProperty(E3value.e3_has_name, "in");
+			of.addProperty(RDF.type, E3value.value_offering);
+
+			of.addProperty(E3value.vo_in_vi, getResource(suid));
+			getResource(suid).addProperty(E3value.vi_consists_of_of, of);
+		}
+		
+		return offeringIn.get(suid);
+	}
+	
+	public Resource getOfferingOut(long suid) {
+		if (!offeringOut.containsKey(suid)) {
+			offeringOut.put(suid, getResource(Info.getSUID()));
+			Resource of = offeringOut.get(suid);
+			of.addProperty(E3value.e3_has_name, "out");
+			of.addProperty(RDF.type, E3value.value_offering);
+
+			of.addProperty(E3value.vo_in_vi, getResource(suid));
+			getResource(suid).addProperty(E3value.vi_consists_of_of, of);
+		}
+		
+		return offeringOut.get(suid);
+	}
+
+	public Resource getValueObject(String obj) {
+		if (!valueObject.containsKey(obj)) {
+			valueObject.put(obj, getResource(Info.getSUID()));
+			Resource reObj = valueObject.get(obj);
+			reObj.addProperty(E3value.e3_has_name, obj);
+			reObj.addProperty(RDF.type, E3value.value_object);
+		}
+		
+		return valueObject.get(obj);
+	}
+	
 	private void convertToRdf() {
 		model = ModelFactory.createDefaultModel();
 		model.setNsPrefix("a", E3value.getURI());
-		String base = "http://www.cs.vu.nl/~gordijn/TestModel#";
+		base = "http://www.cs.vu.nl/~gordijn/TestModel#";
 		
 		// Create model resource
 		long modelSUID = Info.getSUID();
-		Resource modelRes = model.createResource(base + modelSUID, E3value.model);
+		modelRes = model.createResource(base + modelSUID, E3value.model);
 		modelRes.addProperty(E3value.e3_has_name, "model" + modelSUID);
 		modelRes.addProperty(E3value.e3_has_uid, "" + modelSUID);
 		
 		// Create diagram resource
 		long diagramSUID = Info.getSUID();
-		Resource diagramRes = model.createResource(base + diagramSUID, E3value.diagram);
+		diagramRes = model.createResource(base + diagramSUID, E3value.diagram);
 		diagramRes.addProperty(E3value.e3_has_name, "diagram" + diagramSUID);
 		diagramRes.addProperty(E3value.e3_has_uid, "" + diagramSUID);
 		
-		Function<Long, Resource> getResource = suid -> {
-			Resource res = model.createResource(base + suid);
-			
-			res.addProperty(E3value.e3_has_uid, "" + suid);
-			res.addProperty(E3value.mc_in_mo, modelRes);
-			res.addProperty(E3value.mc_in_di, diagramRes);
-			modelRes.addProperty(E3value.mo_has_mc, res);
-			diagramRes.addProperty(E3value.di_has_mc, res);
-			
-			return res;
-		};
-		
-		Function<Long, Resource> getOfferingIn = suid -> {
-			if (!offeringIn.containsKey(suid)) {
-				offeringIn.put(suid, getResource.apply(Info.getSUID()));
-				Resource of = offeringIn.get(suid);
-				of.addProperty(E3value.e3_has_name, "in");
-				of.addProperty(RDF.type, E3value.value_offering);
-
-				of.addProperty(E3value.vo_in_vi, getResource.apply(suid));
-				getResource.apply(suid).addProperty(E3value.vi_consists_of_of, of);
-			}
-			
-			return offeringIn.get(suid);
-		};
-		
-		Function<Long, Resource> getOfferingOut = suid -> {
-			if (!offeringOut.containsKey(suid)) {
-				offeringOut.put(suid, getResource.apply(Info.getSUID()));
-				Resource of = offeringOut.get(suid);
-				of.addProperty(E3value.e3_has_name, "out");
-				of.addProperty(RDF.type, E3value.value_offering);
-
-				of.addProperty(E3value.vo_in_vi, getResource.apply(suid));
-				getResource.apply(suid).addProperty(E3value.vi_consists_of_of, of);
-			}
-			
-			return offeringOut.get(suid);
-		};
-		
-		Function<String, Resource> getValueObject = obj -> {
-			if (!valueObject.containsKey(obj)) {
-				valueObject.put(obj, getResource.apply(Info.getSUID()));
-				Resource reObj = valueObject.get(obj);
-				reObj.addProperty(E3value.e3_has_name, obj);
-				reObj.addProperty(RDF.type, E3value.value_object);
-			}
-			
-			return valueObject.get(obj);
-		};
-		
-		Map<Object, Flow> flowMap = new HashMap<>();
-		
 		for (String valueObject : graph.valueObjects) {
-			getValueObject.apply(valueObject);
+			getValueObject(valueObject);
 		}
 		
 		for (Object cell : Utils.getAllCells(graph)) {
@@ -155,7 +156,7 @@ public class RDFExport {
 			
 			System.out.println("Considering: \"" + value.name + "\"");
 			
-			Resource res = getResource.apply(value.getSUID());
+			Resource res = getResource(value.getSUID());
 
 			// Add name
 			if (value.name != null) {
@@ -174,7 +175,7 @@ public class RDFExport {
 				
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
 					Base childInfo = (Base) graph.getModel().getValue(child);
-					res.addProperty(E3value.ac_has_vi, getResource.apply(childInfo.getSUID()));
+					res.addProperty(E3value.ac_has_vi, getResource(childInfo.getSUID()));
 				}
 				
 				// TODO: We need an extra RDF thing here, right? Like ac_consist_of_ms or smth
@@ -185,7 +186,7 @@ public class RDFExport {
 				
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueActivity.class)) {
 					ValueActivity vaInfo = (ValueActivity) graph.getModel().getValue(child);
-					Resource vaRes = getResource.apply(vaInfo.getSUID());
+					Resource vaRes = getResource(vaInfo.getSUID());
 					res.addProperty(E3value.el_performs_va, vaRes);
 					vaRes.addProperty(E3value.va_performed_by_el, res);
 				}
@@ -194,7 +195,7 @@ public class RDFExport {
 
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
 					Base childInfo = (Base) graph.getModel().getValue(child);
-					res.addProperty(E3value.ms_has_vi, getResource.apply(childInfo.getSUID()));
+					res.addProperty(E3value.ms_has_vi, getResource(childInfo.getSUID()));
 				}
 
 				// TODO: Can't implement this because Dan's E3value class does not have the
@@ -210,13 +211,13 @@ public class RDFExport {
 
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
 					Base childInfo = (Base) graph.getModel().getValue(child);
-					res.addProperty(E3value.va_has_vi, getResource.apply(childInfo.getSUID()));
+					res.addProperty(E3value.va_has_vi, getResource(childInfo.getSUID()));
 				}
 			} else if (value instanceof ValueInterface) {
 				res.addProperty(RDF.type, E3value.value_interface);
 				
 				Base parentValue = (Base) graph.getModel().getValue(graph.getModel().getParent(cell));
-				Resource parentRes = getResource.apply(parentValue.getSUID());
+				Resource parentRes = getResource(parentValue.getSUID());
 
 				if (parentValue instanceof Actor) {
 					res.addProperty(E3value.vi_assigned_to_ac, parentRes);
@@ -233,11 +234,11 @@ public class RDFExport {
 				ValueInterface viInfo = (ValueInterface) graph.getModel().getValue(viCell);
 
 				if (((ValuePort) value).incoming) {
-					Resource offIn = getOfferingIn.apply(viInfo.getSUID());
+					Resource offIn = getOfferingIn(viInfo.getSUID());
 					offIn.addProperty(E3value.vo_consists_of_vp, res);					
 					res.addProperty(E3value.vp_in_vo, offIn);
 				} else {
-					Resource offOut = getOfferingOut.apply(viInfo.getSUID());
+					Resource offOut = getOfferingOut(viInfo.getSUID());
 					offOut.addProperty(E3value.vo_consists_of_vp, res);					
 					res.addProperty(E3value.vp_in_vo, offOut);
 				}
@@ -251,7 +252,7 @@ public class RDFExport {
 					System.out.println("One!");
 					Object valueExchange = graph.getModel().getEdgeAt(cell, 0);
 					ValueExchange veInfo = (ValueExchange) graph.getModel().getValue(valueExchange);
-					Resource veRes = getResource.apply(veInfo.getSUID());
+					Resource veRes = getResource(veInfo.getSUID());
 					
 					if (vpInfo.incoming) {
 						res.addProperty(E3value.vp_in_connects_ve, veRes);
@@ -262,7 +263,7 @@ public class RDFExport {
 					}
 					
 					if (veInfo.valueObject != null) {
-						Resource valueObjectRes = getValueObject.apply(veInfo.valueObject);
+						Resource valueObjectRes = getValueObject(veInfo.valueObject);
 						res.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
 						valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, res);
 					}
@@ -272,7 +273,7 @@ public class RDFExport {
 			} else if (value instanceof StartSignal) {
 				res.addProperty(RDF.type, E3value.start_stimulus);
 				
-				ConnectionVisitor cv = new ConnectionVisitor(graph, getResource, flowMap);
+				ConnectionVisitor cv = new ConnectionVisitor(this);
 				try {
 					System.out.println("Starting visitor");
 					cv.accept(cell);
