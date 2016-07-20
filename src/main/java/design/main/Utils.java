@@ -619,14 +619,14 @@ public class Utils {
     public static long getUnusedID(String URIbase, Model m) {
     	long candidate = 1;
     	Resource candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
-    	System.out.println("Start looking");
+    	//System.out.println("Start looking");
     	while (m.contains(candidateResource, E3value.e3_has_uid, "" + candidate)) {
-    		System.out.println("Contains " + candidate);
+    		//System.out.println("Contains " + candidate);
     		candidate++;
 			candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
     	}
     	
-    	System.out.println("Result: " + candidate);
+    	//System.out.println("Result: " + candidate);
     	
     	return candidate;
     }

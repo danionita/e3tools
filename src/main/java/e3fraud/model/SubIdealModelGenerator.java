@@ -57,7 +57,6 @@ int STEPS = 3;
         for (E3Model colludedModel : colludedModels) {
             //generate all possible combinations of non-occuring transactions to the result
             colludedAndNonOccuringModels.addAll(generateNonoccurringTransactions(colludedModel));
-
             colludedAndHiddenModels.addAll(generateHiddenTransactions(colludedModel, mainActor));
         }
 
@@ -337,4 +336,6 @@ int STEPS = 3;
         }
         return subIdealModels;
     }
+    
+    
 }

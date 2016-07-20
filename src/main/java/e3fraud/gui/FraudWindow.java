@@ -364,6 +364,7 @@ public class FraudWindow extends javax.swing.JPanel {
         });
 
         lossStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
+        lossStartField.setText("0");
         lossStartField.setPreferredSize(new java.awt.Dimension(60, 22));
 
         gainStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
@@ -375,7 +376,6 @@ public class FraudWindow extends javax.swing.JPanel {
         lossToLabel.setText("to");
 
         lossEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
-        lossEndField.setText("0");
         lossEndField.setPreferredSize(new java.awt.Dimension(60, 22));
 
         gainEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
@@ -754,20 +754,20 @@ public class FraudWindow extends javax.swing.JPanel {
         selectedNeed = needsMap.get(selectedNeedString);
         sortCriteria = sortComboBox.getSelectedIndex();
         groupingCriteria = groupComboBox.getSelectedIndex();
-        gainMin = Double.parseDouble(gainStartField.getText());
+        gainMin = Double.parseDouble(gainStartField.getText());        
+        lossMin = Double.parseDouble(lossStartField.getText());
         if (!gainEndField.getText().equals("")) {
             gainMax = Double.parseDouble(gainEndField.getText());
         }
         else{
             gainMax = Double.MAX_VALUE;
         }
-        if (!lossStartField.getText().equals("")) {
-            lossMin = Double.parseDouble(lossStartField.getText());
+        if (!lossEndField.getText().equals("")) {
+            lossMax = Double.parseDouble(lossEndField.getText());
         }
         else{
-            lossMin = Double.MIN_VALUE;
+            lossMax = Double.MAX_VALUE;
         }
-        lossMax = Double.parseDouble(lossEndField.getText());
         collusions = (Integer) collusionsButton.getValue();
     }
     
@@ -790,7 +790,7 @@ public class FraudWindow extends javax.swing.JPanel {
 		}
 
 		double scale = graphPanel.getVisibleRect().getWidth() / view.getGraphBounds().getWidth();
-                System.out.println(scale);
+                //System.out.println(scale);
                
 		view.scaleAndTranslate(scale, -minX, -minY);
 		

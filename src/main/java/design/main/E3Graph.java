@@ -181,7 +181,7 @@ public class E3Graph extends mxGraph {
 							}
 						}
 					} else if (sourceValue instanceof ValuePort && targetValue instanceof ValuePort) {
-						System.out.println("ValueExchange added!");
+						//System.out.println("ValueExchange added!");
 						
 						boolean sourceIncoming = ((ValuePort) sourceValue).incoming;
 						boolean targetIncoming = ((ValuePort) targetValue).incoming;

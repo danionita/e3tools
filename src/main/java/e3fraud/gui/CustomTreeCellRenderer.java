@@ -83,7 +83,7 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
             right.setSize(avaiableWidth,Short.MAX_VALUE);
             right.setText(model.getPrefix()+"\n"+model.getDescription());
             requiredHeight = right.getPreferredSize().height;
-            System.out.println(requiredHeight);
+            //System.out.println(requiredHeight);
 
             right.setPreferredSize(new Dimension(avaiableWidth,requiredHeight));
             
@@ -112,7 +112,7 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
     
 @Override
 public Dimension getPreferredSize() {
-    System.out.println("there");
+    //System.out.println("there");
             avaiableWidth = tree.getParent().getWidth() - this.left.getPreferredSize().width-17;
             right.setSize(avaiableWidth,Short.MAX_VALUE);
             right.setText(model.getPrefix()+"\n"+model.getDescription());

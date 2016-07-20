@@ -173,7 +173,9 @@ public class ExampleModels {
 				Object userBVI = graph.addValueInterface(userB, 40, 0);
 				
 				Object userALeftSS = graph.addStartSignal(userA, 40, 30);
+                                graph.setName(userALeftSS, "Subscribe");
 				Object userARightSS = graph.addStartSignal(userA, 140, 30);
+                                graph.setName(userARightSS, "Make call");
 				
 				Object providerAES = graph.addEndSignal(providerA, 40, 30);
 				

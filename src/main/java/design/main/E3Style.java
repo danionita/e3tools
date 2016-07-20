@@ -251,7 +251,7 @@ public class E3Style {
 			String name = newShape.getName();
 			
 			mxGraphics2DCanvas.putShape(name, newShape);
-			System.out.println("Added " + name + " shape");
+			//System.out.println("Added " + name + " shape");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

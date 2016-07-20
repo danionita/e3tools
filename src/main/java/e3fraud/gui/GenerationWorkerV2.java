@@ -27,6 +27,7 @@ import e3fraud.tools.currentTime;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.SwingWorker;
@@ -36,9 +37,9 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
 
     static private final String newline = "\n";
     private final E3Model baseModel;
-    private final String selectedActorString;
+    private final String mainActorString;
     private final String selectedNeedString;
-    private final Resource selectedActor;
+    private final Resource mainActor;
     private final Resource selectedNeed;
     private final int startValue;
     private final int endValue;
@@ -53,8 +54,8 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
     /**
      *
      * @param baseModel the model to analyze
-     * @param selectedActorString the main actor's name
-     * @param selectedActor the main actor's RDF resource
+     * @param mainActorString the main actor's name
+     * @param mainActor the main actor's RDF resource
      * @param selectedNeed the selected need's RDF resource
      * @param selectedNeedString the selected need's name
      * @param startValue the min occurrence rate of need
@@ -66,10 +67,10 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
      * @param collusions maximum number of actors which can be part of a single
      * colluded actor
      */
-    public GenerationWorkerV2(E3Model baseModel, String selectedActorString, Resource selectedActor, Resource selectedNeed, String selectedNeedString, int startValue, int endValue, int sortCriteria, int groupingCriteria, int collusions) {
+    public GenerationWorkerV2(E3Model baseModel, String mainActorString, Resource mainActor, Resource selectedNeed, String selectedNeedString, int startValue, int endValue, int sortCriteria, int groupingCriteria, int collusions) {
         this.baseModel = baseModel;
-        this.selectedActorString = selectedActorString;
-        this.selectedActor = selectedActor;
+        this.mainActorString = mainActorString;
+        this.mainActor = mainActor;
         this.selectedNeed = selectedNeed;
         this.selectedNeedString = selectedNeedString;
         this.startValue = startValue;
@@ -85,13 +86,17 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
     @Override
     protected java.util.HashMap<String, java.util.Set<E3Model>> doInBackground() throws Exception {
         DecimalFormat df = new DecimalFormat("#.##");
+        
+        baseModel.enhance();
+        baseModel.getAveragesForActors(selectedNeed, startValue, endValue, true);
+        
         // Start generation
-        System.out.println(currentTime.currentTime() + " Generating sub-ideal models...." + newline + "\t, with need \"" + selectedNeedString + "\" " + "\toccuring " + startValue + " to " + endValue + " times..." + newline);
+        System.out.println(currentTime.currentTime() + " Generating sub-ideal models...." + newline + "\t with need \"" + selectedNeedString + "\" " + "\toccuring " + startValue + " to " + endValue + " times..." + newline);
         SubIdealModelGenerator subIdealModelGenerator = new SubIdealModelGenerator();
 
         int size = 0;
         //generate colluded models            
-        Set<E3Model> colludedAndNonColludedModels = subIdealModelGenerator.generateCollusions(baseModel, selectedActor, collusions);
+        Set<E3Model> colludedAndNonColludedModels = subIdealModelGenerator.generateCollusions(baseModel, mainActor, collusions);
         //use base model as a basis for the non-collusion group
         colludedAndNonColludedModels.add(baseModel);
 
@@ -115,7 +120,14 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
             intermediaryModels.add(model);
             int i = 1;
             for (E3Model intermediaryModel : intermediaryModels) {
-                subIdealModels.addAll(subIdealModelGenerator.generateHiddenTransactions(intermediaryModel, selectedActor));
+                subIdealModels.addAll(subIdealModelGenerator.generateHiddenTransactions(intermediaryModel, mainActor));
+            }
+            
+            //pre-compute averages and top gains now to save time later
+            for (E3Model subIdealModel : subIdealModels){
+                subIdealModel.enhance();
+                subIdealModel.getAveragesForActors(selectedNeed, startValue, endValue, false);
+                computeTopGain(subIdealModel,baseModel,mainActor);
             }
             size += subIdealModels.size();
             System.out.println("\t\tGenerated " + subIdealModels.size() + " sub-ideal models for category " + category + ":");
@@ -124,6 +136,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
         // generation done
         System.out.println(currentTime.currentTime() + " Generated : " + size + " sub-ideal models (" + colludedAndNonColludedModels.size() + " groups)!" + newline);
 
+        
         return groupedSubIdealModels;
 //    @Override
 //    protected void process(List<String> chunks) {
@@ -132,5 +145,39 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
 //            log.append("\n");
 //        }
 //    }
+    }
+    
+        
+    private void computeTopGain(E3Model subIdealModel, E3Model baseModel, Resource mainActor){        
+            Map<Resource, Double> modelToPlaceAverages = subIdealModel.getLastKnownAverages();
+            Map<Resource, Double> baseModelAverages = baseModel.getLastKnownAverages();
+            //First, find the actor with the largest Delta gain in the model to place
+            double highestDelta = -Double.MAX_VALUE;
+            double averageIdealGainOfTopGainActor= -Double.MAX_VALUE;
+            Resource highestDeltaActor = null;
+            for (Resource actorInSubIdealModel : subIdealModel.getActors()) {
+                //If it is part of a colluded actor
+                if (actorInSubIdealModel.getURI().equals(subIdealModel.newActorURI)) {
+                    Resource colludedActor = baseModel.getJenaModel().getResource(subIdealModel.colludedActorURI);
+                    //deduct the base profit of both actors                    
+                    double delta = modelToPlaceAverages.get(actorInSubIdealModel) - baseModelAverages.get(actorInSubIdealModel) - baseModelAverages.get(colludedActor);
+                    if (delta > highestDelta) {
+                        highestDelta = delta;
+                        highestDeltaActor = actorInSubIdealModel;
+                        averageIdealGainOfTopGainActor = baseModelAverages.get(actorInSubIdealModel) + baseModelAverages.get(colludedActor);//this workaround is needed because when actors are colluded, we cannot query the baseModel for their ideal average
+                    }
+                } else if (!actorInSubIdealModel.getURI().equals(mainActor.getURI())) {
+                    //otherwise, deduct the base profit
+                    double delta = modelToPlaceAverages.get(actorInSubIdealModel) - baseModelAverages.get(actorInSubIdealModel);
+                    if (delta > highestDelta) {
+                        highestDelta = delta;
+                        highestDeltaActor = actorInSubIdealModel;
+                        averageIdealGainOfTopGainActor = baseModelAverages.get(actorInSubIdealModel);
+                    }
+                }
+            }
+            subIdealModel.setLastKnownTopDelta(highestDelta);
+            subIdealModel.setLastKnownIdealAverageForTopGainActor(averageIdealGainOfTopGainActor);
+            subIdealModel.setTopDeltaActor(highestDeltaActor);
     }
 }

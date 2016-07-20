@@ -55,6 +55,7 @@ import design.main.export.RDFExport;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
+import static design.main.Utils.openWebpage;
 
 public class Main {
     public static final JFrame mainFrame = new JFrame("e3tools editor");
@@ -471,11 +472,13 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 RDFExport rdfExporter = new RDFExport(getCurrentGraph());
                 JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model));
+                if(chart!=null){
                 ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
                 chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
                 chartframe1.pack();
                 chartframe1.setLocationByPlatform(true);
                 chartframe1.setVisible(true);
+                }
             }
         }));
 

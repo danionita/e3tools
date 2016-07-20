@@ -84,6 +84,7 @@ public class E3Model {
     private Map<Resource, Double> lastKnownAverages;
     private double lastKnownTopDelta;
     private Resource topDeltaActor;
+    private double lastKnownIdealAverageForTopGainActor;
 
     public Resource getTopDeltaActor() {
         return topDeltaActor;
@@ -99,6 +100,14 @@ public class E3Model {
 
     public void setLastKnownTopDelta(double lastKnownTopDelta) {
         this.lastKnownTopDelta = lastKnownTopDelta;
+    }
+
+    public void setLastKnownIdealAverageForTopGainActor(double lastKnownIdealAverageForTopGainActor) {
+        this.lastKnownIdealAverageForTopGainActor = lastKnownIdealAverageForTopGainActor;
+    }
+
+    public double getLastKnownIdealAverageForTopGainActor() {
+        return lastKnownIdealAverageForTopGainActor;
     }
 
     public E3Model(Model jenaModel) {
@@ -147,6 +156,7 @@ public class E3Model {
             traverse(nextElement, occurences);
             //System.out.println("\t...Finished!\n");
         }
+
     }
 
     /**
@@ -167,7 +177,6 @@ public class E3Model {
 //            if (nextElement.getProperty(E3value.e3_has_name).getString().equals("vp718")) {
 //            	System.exit(1);
 //            }
-
             //if it is a ValueInterface
             if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {
                 //add the respective OCCURRENCE rate
@@ -182,7 +191,7 @@ public class E3Model {
 
             //then move to next element, depending on the type of element the current one is:
             if (nextElement.hasProperty(RDF.type, E3value.OR_node)) { //if it's a OR node
-            	System.out.println("OR NODE!");
+                System.out.println("OR NODE!");
                 StmtIterator nodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
                 if (nodes.hasNext()) {
                     List<Statement> nodeList = nodes.toList();//get list() of outgoing elements (for more control)
@@ -199,7 +208,7 @@ public class E3Model {
                     return;
                 }
             } else if (nextElement.hasProperty(RDF.type, E3value.AND_node)) { //if it's a AND node
-            	System.out.println("AND NODE");
+                System.out.println("AND NODE");
                 StmtIterator nodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
                 if (nodes.hasNext()) {
                     List<Statement> nodeList = nodes.toList();//get list() of outgoing elements (for more control)
@@ -422,7 +431,7 @@ public class E3Model {
         return false;
     }
 
-    public boolean changeNeedOccurrence(Resource need, double occurrence) {
+    public boolean updateNeedOccurrence(Resource need, double occurrence) {
         //first, check if input is really a need:
         if (!need.hasProperty(RDF.type, E3value.start_stimulus)) {
             System.err.println("Not a need!");
@@ -431,6 +440,19 @@ public class E3Model {
         Statement formula = need.getProperty(E3value.e3_has_formula);
         formula.changeObject("OCCURRENCES=" + occurrence);
         return true;
+    }
+    
+    public int getNeedOccurrence(Resource need) {
+        Statement formula = need.getProperty(E3value.e3_has_formula);     
+        System.out.println(formula.getString());
+        System.out.println(formula.getString().split("=", 2)[1]);
+        int value = Integer.valueOf(formula.getString().split("=", 2)[1]);
+        return value;
+    }
+    
+    public void setNeedOccurrence(Resource need, int occurrence) {
+        Statement formula = need.getProperty(E3value.e3_has_formula);
+        formula.changeObject("OCCURRENCES=" + occurrence);
     }
 
     /**
@@ -561,8 +583,10 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
-                                    valuePortValuation = 0; //nullify it
+                                {
+                                    if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
+                                        valuePortValuation = 0; //nullify it
+                                    }
                                 }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                             } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
@@ -571,8 +595,10 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
-                                    valuePortValuation = 0; //nullify it
+                                {
+                                    if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
+                                        valuePortValuation = 0; //nullify it
+                                    }
                                 }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                             }
@@ -679,8 +705,10 @@ public class E3Model {
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                            if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
-                                valuePortValuation = 0; //nullify it
+                            {
+                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
+                                    valuePortValuation = 0; //nullify it
+                                }
                             }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                         } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
@@ -689,8 +717,10 @@ public class E3Model {
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                            if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
-                                valuePortValuation = 0; //nullify it
+                            {
+                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
+                                    valuePortValuation = 0; //nullify it
+                                }
                             }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                         }
@@ -728,24 +758,24 @@ public class E3Model {
      */
     public XYSeries getTotalForActor(Resource actor, Resource need, int startValue, int endValue, boolean ideal) {
         XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());
-
+        int initialOccurenceRate = this.getNeedOccurrence(need);
         //make sure the resources are from this model
         actor = model.getResource(actor.getURI());
         need = model.getResource(need.getURI());
-        try {
+
             /* Step - 1: Define the data for the series  */
             //we only need 50 values so divide interval to 50
             double step = (endValue - (double) startValue) / 50;
             //calculate profit for each (occurence) value:
             for (double i = startValue; i < endValue; i += step) {
-                this.changeNeedOccurrence(need, i);
+                this.updateNeedOccurrence(need, i);
                 this.enhance();
                 //add it's profit to the relevant series
                 actorSeries.add(i, this.getTotalForActor(actor, ideal));
             }
-        } catch (Exception i) {
-            System.err.println(i);
-        }
+            this.setNeedOccurrence(need, initialOccurenceRate);
+        System.out.println("Setting occurence back to "+ initialOccurenceRate);//reset the occurence rates to initial ones (in case multiple analyses are to be ran on the same baseModel
+
         return actorSeries;
     }
 
@@ -755,9 +785,10 @@ public class E3Model {
      * @param startValue minimum occurrence rate of need
      * @param endValue maximum occurrence rate of need
      * @param ideal ideal or sub-ideal case
-     * @return an XY series representing the profitability graph of the selected
-     * actor. The X-axis represented the number of occurrences of need (in the
-     * interval startValue endValue) and the Y-axis represents the profit
+     * @return a map of <Actor,XY series>, where XYSeries represents the
+     * profitability graph of each actor. The X-axis represents the number of
+     * occurrences of need (in the interval startValue endValue) and the Y-axis
+     * represents the profit
      */
     public Map<Resource, XYSeries> getTotalForActors(Resource need, int startValue, int endValue, boolean ideal) {
         //make sure the resources are from this model
@@ -768,24 +799,24 @@ public class E3Model {
             XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());
             actorSeriesMap.put(actor, actorSeries);
         }
-
+                int initialOccurenceRate = this.getNeedOccurrence(need);
         try {
             /* Step - 1: Define the data for the series  */
             //we only need 50 values so divide interval to 50
             double step = (endValue - (double) startValue) / 50;
             //calculate profit for each (occurence) value:
             for (double i = startValue; i < endValue; i += step) {
-                this.changeNeedOccurrence(need, i);
+                this.updateNeedOccurrence(need, i);
                 this.enhance();
                 //For each actor
                 for (Resource actor : actors) {
                     //add it's profit to the relevant series
                     actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
                 }
-            }
+            }            
             if (startValue == endValue) {
                 double i = startValue;
-                this.changeNeedOccurrence(need, i);
+                this.updateNeedOccurrence(need, i);
                 this.enhance();
                 //For each actor
                 for (Resource actor : actors) {
@@ -796,6 +827,8 @@ public class E3Model {
         } catch (Exception i) {
             System.err.println(i);
         }
+        
+        this.setNeedOccurrence(need, initialOccurenceRate);
         return actorSeriesMap;
     }
 
@@ -822,7 +855,7 @@ public class E3Model {
             double step = (endValue - (double) startValue) / 50;
             //calculate profit for each (occurence) value:
             for (double i = startValue; i < endValue; i += step) {
-                this.changeNeedOccurrence(need, i);
+                this.updateNeedOccurrence(need, i);
                 this.enhance();
                 //For each actor
                 for (Resource actor : actors) {
@@ -976,7 +1009,7 @@ public class E3Model {
         port2.addProperty(E3value.vp_in_vo, vo2);
         vo2.addProperty(E3value.vo_consists_of_vp, port2);
         port2.addProperty(E3value.e3_has_formula, "VALUATION=" + value);
-        
+
         id = Utils.getUnusedID(URIbase, model);
         exchange = model.createResource(URIbase + "#" + id, E3value.value_exchange);
         exchange.addProperty(E3value.e3_has_name, "Hidden transfer");

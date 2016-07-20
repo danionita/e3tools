@@ -381,7 +381,7 @@ public class Info {
 		
 		public StartSignal() {
 			name = "StartSignal" + getSUID();
-			formulas.put("COUNT", "1");
+			formulas.put("OCCURRENCES", "1");
 		}
 
 		@Override
