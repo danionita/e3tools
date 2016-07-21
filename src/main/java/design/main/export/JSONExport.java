@@ -7,14 +7,26 @@ import design.main.E3Graph;
 
 public class JSONExport {
 	private E3Graph graph;
+	private String name;
 
-	public JSONExport(E3Graph graph) {
+	public JSONExport(E3Graph graph, String name) {
 		this.graph = graph;
+		this.name = name;
 	}
 	
 	public String generateJSON() {
-		Json.createObjectBuilder();
+		JsonObjectBuilder main = Json.createObjectBuilder();
 		
-		return "";
+		main.add("name", name);
+				
+		if (graph.isFraud) {
+			main.add("type", "fraud");
+		} else {
+			main.add("type", "value");
+		}
+		
+		
+		
+		return "kek";
 	}
 }
