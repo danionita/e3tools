@@ -497,9 +497,9 @@ public class ContextMenus {
 				});
 				
 				ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
-				if (ve.formulas.containsKey("dashed")) {
+				if (ve.formulas.containsKey("DASHED")) {
 					nonOccurringMenu.setSelected(true);
-				} else if (ve.formulas.containsKey("dotted")) {
+				} else if (ve.formulas.containsKey("DOTTED")) {
 					hiddenMenu.setSelected(true);
 				} 				
 

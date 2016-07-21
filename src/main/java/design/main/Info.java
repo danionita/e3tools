@@ -326,34 +326,34 @@ public class Info {
 		@Override
 		public List<String> getImmutableProperties() {
 			return Arrays.asList(
-					"dotted",
-					"dashed"
+					"DOTTED",
+					"DASHED"
 			);
 		}
 
 		public boolean isNonOccurring() {
-			return formulas.getOrDefault("dashed", "0").equals("1");
+			return formulas.getOrDefault("DASHED", "0").equals("1");
 		}
 		
 		public boolean isHidden() {
-			return formulas.getOrDefault("dotted", "0").equals("1");
+			return formulas.getOrDefault("DOTTED", "0").equals("1");
 		}
 		
 		public void setNonOccurring(boolean on) {
 			if (on) {
-				formulas.put("dashed", "1");
-				formulas.remove("dotted");
+				formulas.put("DASHED", "1");
+				formulas.remove("DOTTED");
 			} else {
-				formulas.remove("dashed");
+				formulas.remove("DASHED");
 			}
 		}
 		
 		public void setHidden(boolean on) {
 			if (on) {
-				formulas.put("dotted", "1");
-				formulas.remove("dashed");
+				formulas.put("DOTTED", "1");
+				formulas.remove("DASHED");
 			} else {
-				formulas.remove("dotted");
+				formulas.remove("DOTTED");
 			}
 		}
 	}
