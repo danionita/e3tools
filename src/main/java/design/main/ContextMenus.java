@@ -98,11 +98,6 @@ public class ContextMenus {
 						graph.getModel().beginUpdate();
 						try {
 							graph.getModel().setValue(Main.contextTarget, event.resultObject);
-							
-							// If a value exchange was edited, update its name & valueobject labels
-							if (event.resultObject instanceof ValueExchange) {
-								Utils.updateValueExchangeNameLabel(graph, Main.contextTarget);
-							}
 						} finally {
 							graph.getModel().endUpdate();
 						}
@@ -416,8 +411,6 @@ public class ContextMenus {
 									ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 
 									ve.valueObject = null;
 									graph.getModel().setValue(Main.contextTarget, ve);
-									
-									Utils.updateValueExchangeValueObjectLabel(graph, Main.contextTarget);
 								} finally {
 									graph.getModel().endUpdate();
 								}
@@ -434,8 +427,6 @@ public class ContextMenus {
 									ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget); 
 									ve.valueObject = valueObject;
 									graph.getModel().setValue(Main.contextTarget, ve);
-									
-									Utils.updateValueExchangeValueObjectLabel(graph, Main.contextTarget);
 								} finally {
 									graph.getModel().endUpdate();
 								}
@@ -538,8 +529,6 @@ public class ContextMenus {
 					ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 					ve.valueObjectHidden ^= true;
 					graph.getModel().setValue(Main.contextTarget, ve);
-					
-					Utils.setValueExchangeValueObjectLabelVisibility(graph, Main.contextTarget);
 				} finally {
 					graph.getModel().endUpdate();
 				}
@@ -555,8 +544,6 @@ public class ContextMenus {
 					ValueExchange ve = (ValueExchange) Utils.base(graph, Main.contextTarget);
 					ve.labelHidden ^= true;
 					graph.getModel().setValue(Main.contextTarget, ve);
-					
-					Utils.setValueExchangeNameLabelVisibility(graph, Main.contextTarget);
 				} finally {
 					graph.getModel().endUpdate();
 				}

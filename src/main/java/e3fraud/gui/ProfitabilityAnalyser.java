@@ -41,7 +41,7 @@ public class ProfitabilityAnalyser{
     private static JFreeChart chart;
 
 
-    public static JFreeChart getProfitabilityAnalysis(E3Model baseModel) {
+    public static JFreeChart getProfitabilityAnalysis(E3Model baseModel, boolean ideal) {
         System.out.println(currentTime.currentTime() + " Starting profitability analysis...");
 
         //have the user indicate the ToA via pop-up
@@ -89,8 +89,9 @@ public class ProfitabilityAnalyser{
                     needEndValue = Integer.parseInt(yField.getText());
                     selectedNeed = needsMap.get(selectedNeedString);
                     selectedActor = actorsMap.get(selectedActorString);                    
-                    baseModel.getAveragesForActors(selectedNeed, needStartValue, needEndValue, true);
-                    chart = ChartGenerator.generateChart(baseModel, selectedNeed, needStartValue, needEndValue, true);//expected graph 
+                    baseModel.getAveragesForActors(selectedNeed, needStartValue, needEndValue, ideal);
+                    System.out.println("Generating chart for ideal model: "+ideal );
+                    chart = ChartGenerator.generateChart(baseModel, selectedNeed, needStartValue, needEndValue, ideal);//expected graph 
                     return chart;                       
                 }
 

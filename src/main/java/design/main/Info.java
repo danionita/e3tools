@@ -316,7 +316,11 @@ public class Info {
 		 */
 		@Override
 		public String toString() {
-			return "";
+			String result = "";
+			if (!labelHidden && name != null) result += name;
+			result += " ";
+			if (!valueObjectHidden && valueObject != null) result += " [" + valueObject + "]";
+			return result.trim();
 		}
 		
 		@Override

@@ -471,23 +471,21 @@ public class Main {
                     return;
                 }
 
-                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this); //, getCurrentGraphName());
-
-                // TODO: Maybe add icons for fraud analysis as well?
                 JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
+                // TODO: Maybe add icons for fraud analysis as well?
                 frame.add(fraudWindowInstance);
                 frame.pack();
                 frame.setVisible(true);
             }
         }));
 
-        // TODO: Implement profitability chart
         toolMenu.add(new JMenuItem(new AbstractAction("Profitability chart...") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model));
+                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model),!getCurrentGraph().isFraud);
                 if(chart!=null){
                 ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
                 chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
@@ -607,7 +605,21 @@ public class Main {
         });
         
         // Change type
-        addToolbarButton("page_refresh", "Change model type (e3value<->e3fraud)", null, null);
+        addToolbarButton("page_refresh", "Change model type (e3value<->e3fraud)", null, ()->{
+                if (getCurrentGraph().isFraud) {
+                    // TODO: Make this possible
+                    JOptionPane.showMessageDialog(
+                            Main.mainFrame,
+                            "Conversion from fraud to value model is not yet implemented",
+                            "Functionality not implemented",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                } else {
+                    E3Graph newGraph = new E3Graph(getCurrentGraph());
+                    newGraph.isFraud = true;
+                    addNewTabAndSwitch(newGraph, "Fraud model of " + getCurrentGraphName());
+                }
+        });
         
         // Value Objects editor
         addToolbarButton("cross", "Value Objects editor", null, null);
@@ -625,7 +637,8 @@ public class Main {
         
         // e3fraud analysis
         addToolbarButton("e3fraud", "Fraud generation", null, () ->{
-                            // TODO: Convert this option to something greyed out, just like in the file menu?
+
+                // TODO: Convert this option to something greyed out, just like in the file menu?
                 if (views.getTabCount() == 0) {
                     JOptionPane.showMessageDialog(
                             Main.mainFrame,
@@ -635,20 +648,19 @@ public class Main {
                     return;
                 }
 
-                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this); //, getCurrentGraphName());
-
-                // TODO: Maybe add icons for fraud analysis as well?
                 JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
+                // TODO: Maybe add icons for fraud analysis as well?
                 frame.add(fraudWindowInstance);
                 frame.pack();
-                frame.setVisible(true);
+                frame.setVisible(true);            
         });
         
         // profitability analysis
         addToolbarButton("chart_curve", "Profitability analysis", null, () -> {          
                             RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model));
+                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model),!getCurrentGraph().isFraud);
                 if(chart!=null){
                 ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
                 chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));

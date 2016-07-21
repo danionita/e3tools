@@ -174,6 +174,10 @@ public class E3GraphComponent extends mxGraphComponent {
 			public void mousePressed(MouseEvent e) {
 				if (e.isPopupTrigger()) {
 					triggerContextMenu(e);
+				} else {
+					Object cell = graph.getSelectionCell();
+					mxGeometry gm = graph.getCellGeometry(cell);
+					System.out.println(gm);
 				}
 			}
 			

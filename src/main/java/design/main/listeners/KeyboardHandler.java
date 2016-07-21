@@ -104,8 +104,8 @@ public class KeyboardHandler extends mxKeyboardHandler {
 							}
 							
 							graph.getModel().setValue(Main.contextTarget, veInfo);
-							Utils.setValueExchangeValueObjectLabelVisibility(graph, graph.getModel().getParent(selectedCell));
-							Utils.setValueExchangeNameLabelVisibility(graph, graph.getModel().getParent(selectedCell));
+//							Utils.setValueExchangeValueObjectLabelVisibility(graph, graph.getModel().getParent(selectedCell));
+//							Utils.setValueExchangeNameLabelVisibility(graph, graph.getModel().getParent(selectedCell));
 						} finally {
 							graph.getModel().endUpdate();
 						}

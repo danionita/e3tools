@@ -205,7 +205,7 @@ int STEPS = 3;
                 while (moneyExchangeIterator.hasNext()) {
                     //and update new model accordingly
                     Resource exchange = moneyExchangeIterator.next();
-                    generatedModel.makeDotted(exchange);
+                    generatedModel.makeNonOccurring(exchange);
                     generatedModel.appendDescription("<b>Non-occuring</b> exchange " + exchange.getProperty(E3value.e3_has_name).getLiteral().toString());
                 }
                 //System.out.println("Generated:" + generatedModel.getDescription());
@@ -221,7 +221,7 @@ int STEPS = 3;
      * @param baseModel
      * @param mainActor
      * @return a set of models derived from baseModel with all possible
-     * combinations of hidden (dashed) transactions
+     * combinations of hidden (dotted) transactions
      */
     public Set<E3Model> generateHiddenTransactions(E3Model baseModel, Resource mainActor) {
         Set<E3Model> subIdealModels = new HashSet<>();

@@ -463,8 +463,8 @@ public class E3Model {
      * @param actor the actor to calculate the profit for
      * @param selectedValueInterface the ValueInterface that is used as filter
      * @param ideal whether or not the calculation should be done for the
-     * expected case (taking into consideration only solid and dotted lines ) or
-     * for the real case (taking into consideration only solid and dashed
+     * expected case (taking into consideration only solid and nonOccurring lines ) or
+     * for the real case (taking into consideration only solid and hidden
      * lines). True means expected. False means real.
      * @return the profit for that actor in the selected case
      */
@@ -578,24 +578,24 @@ public class E3Model {
                             //multiplying it with the CARDINALITY of the Port's associated Value Exchange and nullifying if necessary
                             if (valuePort.getResource().hasProperty(E3value.vp_out_connects_ve)) {//if it's an (outgoing) ValuePort
                                 if (ideal == true) {//If we want the expected case
-                                    if (isDashed(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dashed
+                                    if (isHidden(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is hidden
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
                                 {
-                                    if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
+                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
                                 }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                             } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                                 if (ideal == true) {//If we want the expected case
-                                    if (isDashed(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dashed
+                                    if (isHidden(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is hidden
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
                                 {
-                                    if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
+                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
                                 }
@@ -631,8 +631,8 @@ public class E3Model {
      *
      * @param actor the actor to calculate the profit for
      * @param ideal whether or not the calculation should be done for the
-     * expected case (taking into consideration only solid and dotted lines ) or
-     * for the real case (taking into consideration only solid and dashed
+     * expected case (taking into consideration only solid and nonOccurring lines ) or
+     * for the real case (taking into consideration only solid and hidden
      * lines). True means expected. False means real.
      * @return the profit for that actor in the selected case
      */
@@ -700,24 +700,24 @@ public class E3Model {
                         //multiplying it with the CARDINALITY of the Port's associated Value Exchange and nullifying if necessary
                         if (valuePort.getResource().hasProperty(E3value.vp_out_connects_ve)) {//if it's an (outgoing) ValuePort
                             if (ideal == true) {//If we want the expected case
-                                if (isDashed(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dashed
+                                if (isHidden(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is hidden
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
                             {
-                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is dotted
+                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
                             }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                         } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                             if (ideal == true) {//If we want the expected case
-                                if (isDashed(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dashed
+                                if (isHidden(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is hidden
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
                             {
-                                if (isDotted(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is dotted
+                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
                             }
@@ -890,22 +890,9 @@ public class E3Model {
         return cardinality;
     }
 
-    private boolean isDotted(Resource valueExchange) {
+    private boolean isNonOccurring(Resource valueExchange) {
         Resource exchange = model.getResource(valueExchange.getURI());
         StmtIterator veFormulas = exchange.listProperties(E3value.e3_has_formula);
-        while (veFormulas.hasNext()) {
-            Statement formula = veFormulas.next();
-            if (formula.getString().split("=", 2)[0].equals("DOTTED")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isDashed(Resource valueExchange) {
-        //make sure the resources are from this model
-        valueExchange = model.getResource(valueExchange.getURI());
-        StmtIterator veFormulas = valueExchange.listProperties(E3value.e3_has_formula);
         while (veFormulas.hasNext()) {
             Statement formula = veFormulas.next();
             if (formula.getString().split("=", 2)[0].equals("DASHED")) {
@@ -915,23 +902,36 @@ public class E3Model {
         return false;
     }
 
-    public void makeDashed(Resource valueExchange) {
-        valueExchange = model.getResource(valueExchange.getURI());        //make sure the resources are from this model
-        valueExchange.addProperty(E3value.e3_has_formula, "DASHED=1");
+    private boolean isHidden(Resource valueExchange) {
+        //make sure the resources are from this model
+        valueExchange = model.getResource(valueExchange.getURI());
+        StmtIterator veFormulas = valueExchange.listProperties(E3value.e3_has_formula);
+        while (veFormulas.hasNext()) {
+            Statement formula = veFormulas.next();
+            if (formula.getString().split("=", 2)[0].equals("DOTTED")) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void makeDotted(Resource valueExchange) {
+    public void makeHidden(Resource valueExchange) {
         valueExchange = model.getResource(valueExchange.getURI());        //make sure the resources are from this model
         valueExchange.addProperty(E3value.e3_has_formula, "DOTTED=1");
+    }
+
+    public void makeNonOccurring(Resource valueExchange) {
+        valueExchange = model.getResource(valueExchange.getURI());        //make sure the resources are from this model
+        valueExchange.addProperty(E3value.e3_has_formula, "DASHED=1");
         this.fraudChanges.addNonOccurringTransaction(valueExchange.getProperty(E3value.e3_has_uid).getLong());
     }
 
-    public int countDotted() {
+    public int countNonOccurring() {
         ResIterator resIterator = model.listResourcesWithProperty(E3value.e3_has_formula);
         int i = 0;
         while (resIterator.hasNext()) {
             Resource resource = resIterator.next();
-            if (isDotted(resource)) {
+            if (isNonOccurring(resource)) {
                 i++;
             }
 
