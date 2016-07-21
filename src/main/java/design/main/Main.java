@@ -455,11 +455,10 @@ public class Main {
                     return;
                 }
 
-                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this); //, getCurrentGraphName());
-
-                // TODO: Maybe add icons for fraud analysis as well?
                 JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
+                // TODO: Maybe add icons for fraud analysis as well?
                 frame.add(fraudWindowInstance);
                 frame.pack();
                 frame.setVisible(true);

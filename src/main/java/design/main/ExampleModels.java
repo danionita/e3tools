@@ -65,16 +65,6 @@ public class ExampleModels {
 				
 				graph.connectCE(ss, blTop);
 				graph.connectCE(tlBottom, es);
-
-//				System.out.println("Pre-commit: ");
-//				Base info = (Base) ((mxCell) model.getChildAt(tlBottom, 0)).getValue();
-//				System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
-//				info = (Base) ((mxCell) model.getChildAt(tlBottom, 1)).getValue();
-//				System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
-//				info = (Base) ((mxCell) model.getChildAt(blTop, 0)).getValue();
-//				System.out.println("SUID of ValuePort " + 0 + ": " + info.getSUID());
-//				info = (Base) ((mxCell) model.getChildAt(blTop, 1)).getValue();
-//				System.out.println("SUID of ValuePort " + 1 + ": " + info.getSUID());
 			} finally {
 				model.endUpdate();
 			}
@@ -136,6 +126,8 @@ public class ExampleModels {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			main.addNewTabAndSwitch(false);
+
 			E3Graph graph = main.getCurrentGraph();
 			mxGraphModel model = (mxGraphModel) graph.getModel();
 			
@@ -258,6 +250,8 @@ public class ExampleModels {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			main.addNewTabAndSwitch(false);
+
 			E3Graph graph = main.getCurrentGraph();
 			mxGraphModel model = (mxGraphModel) graph.getModel();
 			
@@ -330,6 +324,8 @@ public class ExampleModels {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			main.addNewTabAndSwitch(false);
+			
 			E3Graph graph = main.getCurrentGraph();
 			mxGraphModel model = (mxGraphModel) graph.getModel();
 			

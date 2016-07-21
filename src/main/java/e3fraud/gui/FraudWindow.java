@@ -32,6 +32,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -77,6 +79,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private ChartPanel chartPanel;
     private E3GraphComponent graphPanel;
     public static FraudWindow mainWindowInstance;
+	private JFrame myFrame;
 
     /**
      * Creates new form MainWindowV2
@@ -85,10 +88,11 @@ public class FraudWindow extends javax.swing.JPanel {
      * @param baseModel the model to analyze
      * @param mainFrame the parent frame
      */
-    public FraudWindow(E3Graph original, E3Model baseModel, Main mainFrame) {
+    public FraudWindow(E3Graph original, E3Model baseModel, Main mainFrame, JFrame myFrame) {
     	this.baseGraph = original;
         this.baseModel = baseModel;
         this.mainFrame = mainFrame;
+		this.myFrame = myFrame;
         actorsMap = this.baseModel.getActorsMap();
         needsMap = this.baseModel.getNeedsMap();
         initComponents();
@@ -613,39 +617,73 @@ public class FraudWindow extends javax.swing.JPanel {
 				graphPanel.setPopupTriggerEnabled(false);
 				// Prevent other funny business
 				graphPanel.setEnabled(false);
-				// Reference this inside mouse adapter
-				FraudWindow fw = this;
 				// Apparently mxGraphControl takes care of mouse business of
 				// mxGraph (which is the parent of E3Graph)
 				graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
+						System.out.println("Mouse clicked on graph!");
 						// On doubleclick
 						if (e.getClickCount() == 2) {
 							// Create a new tab with the current graph
-							fw.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
+							FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
 							// Switch to the screen
-							fw.mainFrame.mainFrame.requestFocus();
+							FraudWindow.this.mainFrame.mainFrame.requestFocus();
 						}
 					}
 				});
+
 				// Refresh E3GraphComponent to make sure E3Style is used
 				graphPanel.refresh();
 				// Add it 
 				graphPane.add(graphPanel);  
-				// Apparently repaint + revalidate is needed to make sure
-				// e3graph is drawn in the case that the graphPane is reused
-				graphPane.repaint();
-				graphPane.revalidate();
 				// Set it visible if it isn't already
 				graphPanel.setVisible(true);
-                                //fitMiniGraph();				
-				//TODO: 
-                                //Fix scaling;
-                                // If you make a very big graph the graphpanel doesn't center nicely
-				// I already fixed this before (see MainWindow.java in the fitMiniGraph() method)
-				// But there is some bullshittery going on with the sizes and stuff
-				// I'd say we push this forward to the next sprint                                
+
+				// Graph scaling code
+				// To ensure that the size is not 0
+				if (graphPane.getVisibleRect().getWidth() < 10) {
+					myFrame.pack();
+				}
+				
+				mxGraphView view = graphPanel.getGraph().getView();
+				
+				double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
+						maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
+				
+				for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
+					// Only look at the positions from top-level elements
+					if (!(graph.getModel().getValue(obj) instanceof Info.ValueActivity
+							|| graph.getModel().getValue(obj) instanceof Info.MarketSegment
+							|| graph.getModel().getValue(obj) instanceof Info.Actor)) continue;
+					
+					// Gather the bounds
+					mxGeometry gm = graph.getCellGeometry(obj);
+					minX = Math.min(minX, gm.getX());
+					minY = Math.min(minY, gm.getY());			
+					maxX = Math.max(maxX, gm.getX() + gm.getWidth());
+					maxY = Math.max(maxY, gm.getY() + gm.getHeight());
+				}
+				
+				double graphWidth = maxX - minX;
+				double graphHeight = maxY - minY;
+				
+				double scale = 1;
+				
+				// We add 10 to ad a tiny border of white around the graph
+				if (graphWidth > graphHeight) {
+					scale = graphPane.getVisibleRect().getWidth() / (graphWidth + 10);
+				} else {
+					scale = graphPane.getVisibleRect().getHeight() / (graphHeight + 10);
+				}
+					   
+				view.scaleAndTranslate(scale, -minX, -minY);
+				
+				// Make the scrollbars disappear
+				graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+				
+				myFrame.pack();
             }
         }
     }//GEN-LAST:event_treeValueChanged
@@ -808,7 +846,7 @@ public class FraudWindow extends javax.swing.JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Add content to the window.
-        mainWindowInstance = new FraudWindow(null, model, null);
+        mainWindowInstance = new FraudWindow(null, model, null, frame);
         frame.setContentPane(mainWindowInstance);
 
         //Display the window.
