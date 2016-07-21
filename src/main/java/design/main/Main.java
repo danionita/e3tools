@@ -465,7 +465,6 @@ public class Main {
             }
         }));
 
-        // TODO: Implement profitability chart
         toolMenu.add(new JMenuItem(new AbstractAction("Profitability chart...") {
             @Override
             public void actionPerformed(ActionEvent e) {

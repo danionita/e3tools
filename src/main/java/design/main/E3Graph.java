@@ -187,8 +187,6 @@ public class E3Graph extends mxGraph {
 							}
 						}
 					} else if (sourceValue instanceof ValuePort && targetValue instanceof ValuePort) {
-						//System.out.println("ValueExchange added!");
-						
 						boolean sourceIncoming = ((ValuePort) sourceValue).incoming;
 						boolean targetIncoming = ((ValuePort) targetValue).incoming;
 						
@@ -208,28 +206,9 @@ public class E3Graph extends mxGraph {
 							value.name = "ValueExchange" + value.getSUID();
 							graph.getModel().setValue(cell, value);
 							
-							// Add two labels with values properly set
-							ValueExchangeLabel valueObjectLabelValue = new ValueExchangeLabel();
-							valueObjectLabelValue.isValueObjectLabel = true;
-							ValueExchangeLabel nameLabelValue = new ValueExchangeLabel();
-							
-							mxCell nameLabel = new mxCell(nameLabelValue, new mxGeometry(0, -60, 0, 0), "NameText");
-							nameLabel.getGeometry().setRelative(true);
-							nameLabel.setVertex(true);
-							nameLabel.setVisible(false);
-							graph.addCell(nameLabel, cell);
-
-							mxCell valueObjectLabel = new mxCell(valueObjectLabelValue, new mxGeometry(0, 30, 0, 0), "NameText");
-							valueObjectLabel.getGeometry().setRelative(true);
-							valueObjectLabel.setVertex(true);
-							valueObjectLabel.setVisible(false);
-							graph.addCell(valueObjectLabel, cell);
-							
 							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
 								graph.removeCells(new Object[]{cell});
 							}
-							
-							Utils.updateValueExchangeNameLabel(graph, cell);
 						} finally {
 							graph.getModel().endUpdate();
 						}
@@ -1057,7 +1036,7 @@ public class E3Graph extends mxGraph {
 		getModel().beginUpdate();
 		try {
 			getModel().setValue(ve, veInfo);
-			Utils.updateValueExchangeValueObjectLabel(this, ve);
+//			Utils.updateValueExchangeValueObjectLabel(this, ve);
 		} finally {
 			getModel().endUpdate();
 		}
@@ -1101,20 +1080,6 @@ public class E3Graph extends mxGraph {
 		}
 	}
 
-	public void setValueObjectLabelPosition(Object paymentVE, double i, double j) {
-		Object valueObjectLabel = Utils.getValueExchangeValueObjectLabel(this, paymentVE);
-		mxGeometry gm = Utils.geometry(this, valueObjectLabel);
-		gm.setX(i);
-		gm.setY(j);
-		
-		getModel().beginUpdate();
-		try {
-			getModel().setGeometry(valueObjectLabel, gm);
-		} finally {
-			getModel().endUpdate();
-		}
-	}
-
 	public void setCellSize(Object userA, double x, double y) {
 		mxGeometry gm = Utils.geometry(this, userA);
 		gm.setWidth(x);
@@ -1132,7 +1097,6 @@ public class E3Graph extends mxGraph {
 		getModel().beginUpdate();
 		try {
 			setName(ve, name);
-			Utils.updateValueExchangeNameLabel(this, ve);
 		} finally {
 			getModel().endUpdate();
 		}
@@ -1144,21 +1108,19 @@ public class E3Graph extends mxGraph {
 			ValueExchange veInfo = (ValueExchange) Utils.base(this, ve);
 			veInfo.labelHidden = !b;
 			getModel().setValue(ve, veInfo);
-			Utils.updateValueExchangeNameLabel(this, ve);
 		} finally {
 			getModel().endUpdate();
 		}
 	}
 
 	public void setValueExchangeLabelPosition(Object ve, double x, double y) {
-		Object nameLabel = Utils.getValueExchangeNameLabel(this, ve);
-		mxGeometry gm = Utils.geometry(this, nameLabel);
+		mxGeometry gm = Utils.geometry(this, ve);
 		gm.setX(x);
 		gm.setY(y);
 		
 		getModel().beginUpdate();
 		try {
-			getModel().setGeometry(nameLabel, gm);
+			getModel().setGeometry(ve, gm);
 		} finally {
 			getModel().endUpdate();
 		}
