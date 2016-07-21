@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with e3tool.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
+ * *****************************************************************************
  */
 package design.main;
 
@@ -65,6 +65,7 @@ import design.main.Info.ValuePort;
 import design.vocabulary.E3value;
 
 public class Utils {
+
     public static boolean overlap(mxRectangle a, mxRectangle b) {
         if (a.getX() > b.getX()) {
             mxRectangle dummy = a;
@@ -567,30 +568,44 @@ public class Utils {
 
         public List<Long> nonOccurringTransactions = new ArrayList<>();
         public List<long[]> hiddenTransactions = new ArrayList<>();
-        public List<Long> colludedActors = new ArrayList<>();
+        public List<Long> colludedActors= new ArrayList<>();
 
         public GraphDelta(GraphDelta oldGraphDelta) {
-            this.nonOccurringTransactions.addAll(nonOccurringTransactions);
-            for (long[] item : hiddenTransactions) {
+            if(oldGraphDelta!=null){
+            if (oldGraphDelta.nonOccurringTransactions != null) {
+                this.nonOccurringTransactions.addAll(oldGraphDelta.nonOccurringTransactions);
+            }
+            for (long[] item : oldGraphDelta.hiddenTransactions) {
                 this.hiddenTransactions.add(Arrays.copyOf(item, item.length));
             }
-            this.colludedActors.addAll(colludedActors);
+            if (oldGraphDelta.colludedActors != null) {
+                this.colludedActors.addAll(oldGraphDelta.colludedActors);
+            }
+            }   
         }
 
-        public void addNonOccurringTransaction(long id) {
-            nonOccurringTransactions.add(id);
+        public GraphDelta() {
+            nonOccurringTransactions = new ArrayList<>();
+            hiddenTransactions = new ArrayList<>();
+            colludedActors = new ArrayList<>();
         }
+    
 
-        public void addHiddenTransaction(long from, long to) {
-            hiddenTransactions.add(new long[]{from, to});
-        }
-
-        public void addColludedActor(long id) {
-            colludedActors.add(id);
-        }
+    public void addNonOccurringTransaction(long id) {
+        this.nonOccurringTransactions.add(id);
     }
 
-    public static void openWebpage(URI uri) {
+    public void addHiddenTransaction(long from, long to) {
+        this.hiddenTransactions.add(new long[]{from, to});
+    }
+
+    public void addColludedActor(long id) {
+        this.colludedActors.add(id);
+        System.out.println("Adding collusion to changes");
+    }
+    }
+
+public static void openWebpage(URI uri) {
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
             try {
@@ -650,7 +665,13 @@ public class Utils {
     	}
     }
     
-    public static void renewBasesAndIncreaseSUIDs(Object[] cells) {
-    	renewBasesAndIncreaseSUIDs(Arrays.copyOf(cells, cells.length, mxCell[].class));
+    public static 
+
+
+
+void renewBasesAndIncreaseSUIDs(Object[] cells) {
+    	renewBasesAndIncreaseSUIDs(Arrays.copyOf(cells, cells.length, mxCell[].class
+
+));
     }
 }

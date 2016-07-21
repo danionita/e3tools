@@ -141,6 +141,22 @@ public class Main {
 		
 		toolbar.add(button);
 	}
+    
+    public void addToolbarButton(String icon, String tooltip, String keyStroke, Runnable action) {
+		JButton button = new JButton();
+		button.setFocusPainted(false);
+		button.setAction(new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				action.run();
+			}
+		});
+		button.setIcon(IconStore.getIcon(icon));
+                button.setToolTipText(tooltip);		
+		// TODO: Implement keyStroke
+		
+		toolbar.add(button);
+	}
 
     public Main() {
         // Silly log4j
@@ -534,87 +550,118 @@ public class Main {
         toolbar.setFloatable(false);
         
         // New value
-        addToolbarButton("page_green", "control N", () -> {
+        addToolbarButton("page_green", "New e3value model","control N", () -> {
 			addNewTabAndSwitch(false);
         });
         
         // New fraud
-        addToolbarButton("page_red", "control M", () -> {
+        addToolbarButton("page_red", "New e3fraud model", "control M", () -> {
         	addNewTabAndSwitch(true);
         });
 
-        // Close
-        addToolbarButton("page_delete", null, () -> {
-        	views.remove(views.getSelectedIndex());
+        // Open
+        addToolbarButton("folder", "Open model", null, () -> {
+        	JOptionPane.showMessageDialog(mainFrame, "Open functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
         });
         
-        // Duplicate
-        addToolbarButton("page_copy", null, () -> {
-        	addNewTabAndSwitch(new E3Graph(getCurrentGraph()));
+        // Save
+        addToolbarButton("disk", "Save model", null, () -> {
+        	JOptionPane.showMessageDialog(mainFrame, "Save functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
         });
-        
-        // TODO: I don't know what this is (last of the first group)
-        // There are a few more below
-        addToolbarButton("thumb_up", null, null);
 
         toolbar.addSeparator();
         
         // Cut
-        addToolbarButton("cut", null, () -> {
+        addToolbarButton("cut", "Cut", null, () -> {
         	TransferHandler.getCutAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
         });
         
         // Copy
-        addToolbarButton("page_white_copy", null, () -> {
+        addToolbarButton("page_white_copy", "Copy", null, () -> {
         	TransferHandler.getCopyAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
         });
         
         // Paste
-        addToolbarButton("paste_plain", null, () -> {
+        addToolbarButton("paste_plain", "Paste", null, () -> {
         	TransferHandler.getPasteAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
         });
 
         toolbar.addSeparator();
         
         // Zoom in
-        addToolbarButton("magnifier_zoom_in", null, () -> {
+        addToolbarButton("magnifier_zoom_in", "Zoom in", null, () -> {
         	getCurrentGraphComponent().zoomIn();
         });
         
         // Zoom out
-        addToolbarButton("magnifier_zoom_out", null, () -> {
+        addToolbarButton("magnifier_zoom_out", "Zoom out", null, () -> {
         	getCurrentGraphComponent().zoomOut();
         });
 
         toolbar.addSeparator();
         
-        // Dunno
-        addToolbarButton("thumb_up", null, null);
+                
+        // Duplicate
+        addToolbarButton("page_copy", "Create duplicate", null, () -> {
+        	addNewTabAndSwitch(new E3Graph(getCurrentGraph()));
+        });
         
-        // Dunno
-        addToolbarButton("thumb_up", null, null);
+        // Change type
+        addToolbarButton("page_refresh", "Change model type (e3value<->e3fraud)", null, null);
         
-        // Dunno
-        addToolbarButton("tux", null, null);
+        // Value Objects editor
+        addToolbarButton("cross", "Value Objects editor", null, null);
         
-        // Dunno
-        addToolbarButton("thumb_up", null, null);
+        // Value Transactions editor
+        addToolbarButton("cross", "Value Transactions editor", null, null);
 
         toolbar.addSeparator();
         
-        // Dunno
-        addToolbarButton("thumb_up", null, null);
+        // Net Value Flow
+        addToolbarButton("cross", "Net Value Flow", null, null);
         
-        // Dunno
-        addToolbarButton("thumb_up", null, null);
+        // Analyze transactions
+        addToolbarButton("cross", "Analyze transactions", null, null);
         
-        // Dunno
-        addToolbarButton("thumb_up", null, null);
+        // e3fraud analysis
+        addToolbarButton("e3fraud", "Fraud generation", null, () ->{
+                            // TODO: Convert this option to something greyed out, just like in the file menu?
+                if (views.getTabCount() == 0) {
+                    JOptionPane.showMessageDialog(
+                            Main.mainFrame,
+                            "A model must be opened to analyze. Click File ➡ New model to open a new model.",
+                            "No model available",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this); //, getCurrentGraphName());
+
+                // TODO: Maybe add icons for fraud analysis as well?
+                JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
+                frame.add(fraudWindowInstance);
+                frame.pack();
+                frame.setVisible(true);
+        });
+        
+        // profitability analysis
+        addToolbarButton("chart_curve", "Profitability analysis", null, () -> {          
+                            RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model));
+                if(chart!=null){
+                ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
+                chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
+                chartframe1.pack();
+                chartframe1.setLocationByPlatform(true);
+                chartframe1.setVisible(true);
+                }        
+        });
 
         toolbar.addSeparator();
         
         // Help
-        addToolbarButton("Help", null, () -> {
+        addToolbarButton("Help", "Help", null, () -> {
 			try {
 				openWebpage(new URL("https://github.com/danionita/e3tools/wiki"));
 			} catch (MalformedURLException ex) {

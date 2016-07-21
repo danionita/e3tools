@@ -113,6 +113,7 @@ public class E3Model {
     public E3Model(Model jenaModel) {
         this.model = jenaModel;
         this.description = "Base Model";
+        this.fraudChanges = null;
     }
 
     /**
@@ -434,7 +435,7 @@ public class E3Model {
     public boolean updateNeedOccurrence(Resource need, double occurrence) {
         //first, check if input is really a need:
         if (!need.hasProperty(RDF.type, E3value.start_stimulus)) {
-            System.err.println("Not a need!");
+            System.err.println("Attempted to set occurence rate on a node which is not a need!");
             return false;
         }
         Statement formula = need.getProperty(E3value.e3_has_formula);
@@ -444,8 +445,6 @@ public class E3Model {
     
     public int getNeedOccurrence(Resource need) {
         Statement formula = need.getProperty(E3value.e3_has_formula);     
-        System.out.println(formula.getString());
-        System.out.println(formula.getString().split("=", 2)[1]);
         int value = Integer.valueOf(formula.getString().split("=", 2)[1]);
         return value;
     }

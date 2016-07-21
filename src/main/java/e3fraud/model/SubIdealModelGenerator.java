@@ -144,21 +144,23 @@ int STEPS = 3;
             Model model = ModelFactory.createDefaultModel();
             model.add(baseModel.getJenaModel());
             E3Model generatedModel = new E3Model(model, baseModel);
-            generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
 
             //just in case previous method did not change anything(if this method was called directly, instead of calling generateAll)
             if (generatedModel.getDescription().equals("Base Model")) {
                 generatedModel.setDescription("");
                 generatedModel.setIsFraud(true);
+                generatedModel.setFraudChanges(new GraphDelta());
             }
 
+            generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
+            
             Resource actor1 = secondaryActorsCombination.getValue(0);
            
             
             String description = ("<b>Colluding actors</b>  \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"" );
             for(int j=0; j<i; j++){
                 Resource actorj = secondaryActorsCombination.getValue(j+1);
-                generatedModel.collude(actor1, actorj);
+                generatedModel.collude(actor1, actorj);                
                 description += " and \"" + actorj.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"";
             }
             generatedModel.appendDescription(description);
@@ -190,13 +192,13 @@ int STEPS = 3;
                 Model model = ModelFactory.createDefaultModel();
                 model.add(baseModel.getJenaModel());
                 E3Model generatedModel = new E3Model(model, baseModel);
-                generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
 
                 //just in case previous method did not change anything(if this method was called directly, instead of calling generateAll)
                 if (generatedModel.getDescription().equals("Base Model") || generatedModel.getDescription().equals("No collusion")) {
                     generatedModel.setDescription("");
                     generatedModel.setIsFraud(false);
                 }
+                generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
 
                 //iterate through the elements of the combination
                 Iterator<Resource> moneyExchangeIterator = moneyExchangeCombination.iterator();
@@ -281,14 +283,16 @@ int STEPS = 3;
                             Model model = ModelFactory.createDefaultModel();
                             model.add(baseModel.getJenaModel());
                             E3Model generatedModel = new E3Model(model, baseModel);
-                            generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
                             //System.out.println("\t\t\t\t\t adding a hidden transfer of "+ value+ " between \""+ actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" and \""+ actor2.getProperty(E3value.e3_has_name).getLiteral().toString()+ "\"");     
                     
                             //just in case previous method did not change anything (if this method was called directly, instead of calling generateAll)
                             if (generatedModel.getDescription().equals("Base Model") || generatedModel.getDescription().equals("No collusion")) {
                                 generatedModel.setDescription("");
                                 generatedModel.setIsFraud(true);
+                                generatedModel.setFraudChanges(new GraphDelta());
                             }
+                            
+                            generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
                             //add a transfer from actor1 to actor 2 of the value
                             
                            // System.out.println("\t\t\t\t\t\tadding a hidden transfer"); 
@@ -315,15 +319,17 @@ int STEPS = 3;
                             Model model = ModelFactory.createDefaultModel();
                             model.add(baseModel.getJenaModel());
                             E3Model generatedModel = new E3Model(model, baseModel);
-                            generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
                             
 
                             //just in case previous method did not change anything (if this method was called directly, instead of calling generateAll)
                             if (generatedModel.getDescription().equals("Base Model")) {
                                 generatedModel.setDescription("");
                                 generatedModel.setIsFraud(true);
+                                generatedModel.setFraudChanges(new GraphDelta());
                             }
 
+                            generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
+                            
                             //add a transfer from actor1 to actor 2 of the value
                             generatedModel.addTransfer(interface2, interface1, value);
                             generatedModel.appendDescription("<b>Hidden</b>  transfer of value " + df.format(value) + " (out of " + df.format(actor2Total) + ") from \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");

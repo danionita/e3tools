@@ -33,7 +33,7 @@ import java.util.Set;
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
+public class SortingWorker extends SwingWorker<ResultObject, String> {
 
     static private final String newline = "\n";
     private final E3Model baseModel;
@@ -93,15 +93,14 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
     }
 
     @Override
-    protected DefaultMutableTreeNode doInBackground() throws Exception {
+    protected ResultObject doInBackground() throws Exception {
         DecimalFormat df = new DecimalFormat("#.##");
-
+                            i = 0;
         //grouped case
         if (groupingCriteria == 1) {
             if (sortCriteria == 1) {
                 //sort by gain only, then loss
                 System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
-                i = 0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
                     DefaultMutableTreeNode category = new DefaultMutableTreeNode(cursor.getKey());
@@ -173,6 +172,7 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
             for (Set<E3Model> subSetOfSubIdealModels : groupedSubIdealModels.values()) {
                 subIdealModels.addAll(subSetOfSubIdealModels);
             }
+            numberOfSubIdealModels = subIdealModels.size();
             //then rank
             if (sortCriteria == 1) {
                 //by gain then loss
@@ -200,6 +200,8 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
                                 + ") due to: <br>");
                         root.add(new DefaultMutableTreeNode(subIdealModel));
                     }
+                    setProgress(100 * i / numberOfSubIdealModels);
+                    i++;
                 }
             } else if (sortCriteria == 0) {
                 //by loss then gain
@@ -224,12 +226,14 @@ public class SortingWorker extends SwingWorker<DefaultMutableTreeNode, String> {
                                 + " due to: <br>");
                         root.add(new DefaultMutableTreeNode(subIdealModel));
                     }
+                    setProgress(100 * i / numberOfSubIdealModels);
+                    i++;
                 }
             }
         }
 
         //ranking done
-        return root;
+        return new ResultObject(numberOfSubIdealModels,root.getChildCount(),root);
     }
 
 //    @Override

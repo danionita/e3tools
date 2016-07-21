@@ -1,4 +1,5 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  * Copyright (C) 2015 Dan Ionita
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,7 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *******************************************************************************/
+ ******************************************************************************
+ */
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -75,6 +77,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private final Map<String, Resource> needsMap;
     private java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
     private ChartPanel chartPanel;
+    private ResultObject results;
     private E3GraphComponent graphPanel;
     public static FraudWindow mainWindowInstance;
 
@@ -86,7 +89,7 @@ public class FraudWindow extends javax.swing.JPanel {
      * @param mainFrame the parent frame
      */
     public FraudWindow(E3Graph original, E3Model baseModel, Main mainFrame) {
-    	this.baseGraph = original;
+        this.baseGraph = original;
         this.baseModel = baseModel;
         this.mainFrame = mainFrame;
         actorsMap = this.baseModel.getActorsMap();
@@ -135,10 +138,6 @@ public class FraudWindow extends javax.swing.JPanel {
         listSettingsSeparator = new javax.swing.JSeparator();
         gainLabel = new javax.swing.JLabel();
         lossLabel = new javax.swing.JLabel();
-        fraudTypeLabel = new javax.swing.JLabel();
-        collusionCheckBox = new javax.swing.JCheckBox();
-        hiddenCheckBox = new javax.swing.JCheckBox();
-        nonOccurringCheckBox = new javax.swing.JCheckBox();
         refreshButton = new javax.swing.JButton();
         lossStartField = new javax.swing.JFormattedTextField();
         gainStartField = new javax.swing.JFormattedTextField();
@@ -146,6 +145,8 @@ public class FraudWindow extends javax.swing.JPanel {
         lossToLabel = new javax.swing.JLabel();
         lossEndField = new javax.swing.JFormattedTextField();
         gainEndField = new javax.swing.JFormattedTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         resultScrollPane = new javax.swing.JScrollPane();
         root = new DefaultMutableTreeNode("No models generated yet.");
         treeModel = new DefaultTreeModel(root);
@@ -330,9 +331,9 @@ public class FraudWindow extends javax.swing.JPanel {
         listSettingsPanel.setMinimumSize(new java.awt.Dimension(200, 250));
         listSettingsPanel.setPreferredSize(new java.awt.Dimension(200, 370));
 
-        rankingSettingLabel.setText("Sort by");
+        rankingSettingLabel.setText("Sort by:");
 
-        groupSettingLabel.setText("Group by");
+        groupSettingLabel.setText("Group by:");
 
         sortComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Loss of main actor", "Gain of other actors" }));
 
@@ -341,20 +342,6 @@ public class FraudWindow extends javax.swing.JPanel {
         gainLabel.setText("Gain of other actors ");
 
         lossLabel.setText("Loss of main actor");
-
-        fraudTypeLabel.setText("Fraud types <not yet available>");
-
-        fraudTypeButtonGroup.add(collusionCheckBox);
-        collusionCheckBox.setText("Collusion");
-        collusionCheckBox.setEnabled(false);
-
-        fraudTypeButtonGroup.add(hiddenCheckBox);
-        hiddenCheckBox.setText("Hidden transfers");
-        hiddenCheckBox.setEnabled(false);
-
-        fraudTypeButtonGroup.add(nonOccurringCheckBox);
-        nonOccurringCheckBox.setText("Non-occuring transfers");
-        nonOccurringCheckBox.setEnabled(false);
 
         refreshButton.setText("Apply");
         refreshButton.addActionListener(new java.awt.event.ActionListener() {
@@ -381,50 +368,56 @@ public class FraudWindow extends javax.swing.JPanel {
         gainEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         gainEndField.setPreferredSize(new java.awt.Dimension(60, 22));
 
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel3.setText("Sorting and grouping");
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel4.setText("Filters");
+
         javax.swing.GroupLayout listSettingsPanelLayout = new javax.swing.GroupLayout(listSettingsPanel);
         listSettingsPanel.setLayout(listSettingsPanelLayout);
         listSettingsPanelLayout.setHorizontalGroup(
             listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(listSettingsPanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listSettingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(listSettingsPanelLayout.createSequentialGroup()
+                .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
                         .addComponent(gainStartField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(gainToLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(gainEndField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listSettingsPanelLayout.createSequentialGroup()
+                    .addGroup(listSettingsPanelLayout.createSequentialGroup()
                         .addComponent(lossStartField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lossToLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lossEndField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(refreshButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(listSettingsSeparator)
-                    .addComponent(fraudTypeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(listSettingsPanelLayout.createSequentialGroup()
-                        .addComponent(rankingSettingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(sortComboBox, 0, 1, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listSettingsPanelLayout.createSequentialGroup()
-                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(nonOccurringCheckBox, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(hiddenCheckBox, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lossLabel, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(gainLabel, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(collusionCheckBox, javax.swing.GroupLayout.Alignment.LEADING))
+                    .addComponent(refreshButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(listSettingsSeparator, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
+                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lossLabel)
+                            .addComponent(gainLabel))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listSettingsPanelLayout.createSequentialGroup()
-                        .addComponent(groupSettingLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(groupComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
+                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(rankingSettingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(groupSettingLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(groupComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(sortComboBox, 0, 126, Short.MAX_VALUE)))
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(6, 6, 6))
         );
         listSettingsPanelLayout.setVerticalGroup(
             listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(listSettingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rankingSettingLabel)
                     .addComponent(sortComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -434,6 +427,8 @@ public class FraudWindow extends javax.swing.JPanel {
                     .addComponent(groupComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(listSettingsSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lossLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -449,16 +444,8 @@ public class FraudWindow extends javax.swing.JPanel {
                     .addComponent(gainToLabel)
                     .addComponent(gainEndField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(fraudTypeLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(collusionCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(hiddenCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(nonOccurringCheckBox)
-                .addGap(18, 18, 18)
                 .addComponent(refreshButton)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         listPane.setRightComponent(listSettingsPanel);
@@ -589,9 +576,12 @@ public class FraudWindow extends javax.swing.JPanel {
                 //create a chart 
                 chart = ChartGenerator.generateChart(selectedModel, selectedNeed, needStartValue, needEndValue, false);
                 //create a graph
-                graph = new E3Graph(baseGraph,selectedModel.getFraudChanges());
+                graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
+                System.out.println("CHANGES:");
+                System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
+                System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
+                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
                 //then, 
-                
                 // if the chartPanel exists, update it
                 if (chartPanel != null) {
                     chartPanel.setChart(chart);
@@ -601,51 +591,51 @@ public class FraudWindow extends javax.swing.JPanel {
                     chartPane.add(chartPanel);
                     chartPanel.setVisible(true);
                 }
-                
+
                 // Remove current e3graph if it's already there
                 if (graphPane.getComponentCount() > 1) {
-                	graphPane.remove(1);
+                    graphPane.remove(1);
                 }
-                
+
                 // Then just create a graph panel from scratch
-				graphPanel = new E3GraphComponent(graph);
-				// Disable right mouse clicks
-				graphPanel.setPopupTriggerEnabled(false);
-				// Prevent other funny business
-				graphPanel.setEnabled(false);
-				// Reference this inside mouse adapter
-				FraudWindow fw = this;
-				// Apparently mxGraphControl takes care of mouse business of
-				// mxGraph (which is the parent of E3Graph)
-				graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						// On doubleclick
-						if (e.getClickCount() == 2) {
-							// Create a new tab with the current graph
-							fw.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
-							// Switch to the screen
-							fw.mainFrame.mainFrame.requestFocus();
-						}
-					}
-				});
-				// Refresh E3GraphComponent to make sure E3Style is used
-				graphPanel.refresh();
-				// Add it 
-				graphPane.add(graphPanel);  
-				// Apparently repaint + revalidate is needed to make sure
-				// e3graph is drawn in the case that the graphPane is reused
-				graphPane.repaint();
-				graphPane.revalidate();
-				// Set it visible if it isn't already
-				graphPanel.setVisible(true);
-                                //fitMiniGraph();				
-				//TODO: 
-                                //Fix scaling;
-                                // If you make a very big graph the graphpanel doesn't center nicely
-				// I already fixed this before (see MainWindow.java in the fitMiniGraph() method)
-				// But there is some bullshittery going on with the sizes and stuff
-				// I'd say we push this forward to the next sprint                                
+                graphPanel = new E3GraphComponent(graph);
+                // Disable right mouse clicks
+                graphPanel.setPopupTriggerEnabled(false);
+                // Prevent other funny business
+                graphPanel.setEnabled(false);
+                // Reference this inside mouse adapter
+                FraudWindow fw = this;
+                // Apparently mxGraphControl takes care of mouse business of
+                // mxGraph (which is the parent of E3Graph)
+                graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        // On doubleclick
+                        if (e.getClickCount() == 2) {
+                            // Create a new tab with the current graph
+                            fw.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
+                            // Switch to the screen
+                            fw.mainFrame.mainFrame.requestFocus();
+                        }
+                    }
+                });
+                // Refresh E3GraphComponent to make sure E3Style is used
+                graphPanel.refresh();
+                // Add it 
+                graphPane.add(graphPanel);
+                // Apparently repaint + revalidate is needed to make sure
+                // e3graph is drawn in the case that the graphPane is reused
+                graphPane.repaint();
+                graphPane.revalidate();
+                // Set it visible if it isn't already
+                graphPanel.setVisible(true);
+                //fitMiniGraph();				
+                //TODO: 
+                //Fix scaling;
+                // If you make a very big graph the graphpanel doesn't center nicely
+                // I already fixed this before (see MainWindow.java in the fitMiniGraph() method)
+                // But there is some bullshittery going on with the sizes and stuff
+                // I'd say we push this forward to the next sprint                                
             }
         }
     }//GEN-LAST:event_treeValueChanged
@@ -699,22 +689,31 @@ public class FraudWindow extends javax.swing.JPanel {
             @Override
             protected void done() {
                 try {
-                    //the Worker's result is retrieved
-                    root = get();
-                    //the tree is populated 
+                    //The Worker's result is retrieved
+                    results = get();
+                    //if there are any results to show
+                    if (results.getShownResults()>0) {
+                        root=results.getRoot();
+                        //Hide root to save space
+                        tree.setRootVisible(false);
+                        //Update result label 
+                        resultCountLabel.setText("Showing " + results.getShownResults() + "/"+results.getTotalResults()+" results");
+                    } else {
+                        tree.setRootVisible(true);
+                        root = new DefaultMutableTreeNode("No results to show (check generation settings or filters)");
+                        resultCountLabel.setText("Showing " + results.getShownResults() + "/"+results.getTotalResults()+" results");
+                    }
+                    //The result tree is populated 
                     treeModel.setRoot(root);
                     tree.setModel(treeModel);
                     tree.updateUI();
                     tree.collapseRow(1);
-                    //hide root to save space
-                    tree.setRootVisible(false);
-                    //Finally, replace progress bar with generate button
+                    //Replace progress bar with generate button
                     progressBar.setVisible(false);
                     generateButton.setVisible(true);
-                    //and the result label appears
-                    resultCountLabel.setText(Integer.toString(root.getLeafCount()) + " fraud(s) generated");
+                    //show result label
                     resultCountLabel.setVisible(true);
-                    //and the cursor goes back to normal
+                    //The cursor also goes back to normal
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     //catch all in case something goes wrong
                 } catch (InterruptedException | ExecutionException ex) {
@@ -754,52 +753,53 @@ public class FraudWindow extends javax.swing.JPanel {
         selectedNeed = needsMap.get(selectedNeedString);
         sortCriteria = sortComboBox.getSelectedIndex();
         groupingCriteria = groupComboBox.getSelectedIndex();
-        gainMin = Double.parseDouble(gainStartField.getText());        
+        gainMin = Double.parseDouble(gainStartField.getText());
         lossMin = Double.parseDouble(lossStartField.getText());
         if (!gainEndField.getText().equals("")) {
             gainMax = Double.parseDouble(gainEndField.getText());
-        }
-        else{
+        } else {
             gainMax = Double.MAX_VALUE;
         }
         if (!lossEndField.getText().equals("")) {
             lossMax = Double.parseDouble(lossEndField.getText());
-        }
-        else{
+        } else {
             lossMax = Double.MAX_VALUE;
         }
         collusions = (Integer) collusionsButton.getValue();
     }
-    
+
     public void fitMiniGraph() {
-		Main.mainFrame.pack();
+        Main.mainFrame.pack();
 
-		mxGraphView view = graphPanel.getGraph().getView();
-		
-		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
-		
-		for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
-			// Only look at the positions from top-level elements
-			if (!(graph.getModel().getValue(obj) instanceof Info.ValueActivity
-					|| graph.getModel().getValue(obj) instanceof Info.MarketSegment
-					|| graph.getModel().getValue(obj) instanceof Info.Actor)) continue;
-			
-			mxGeometry gm = graph.getCellGeometry(obj);
-			minX = Math.min(minX, gm.getX());
-			minY = Math.min(minY, gm.getY());			
-		}
+        mxGraphView view = graphPanel.getGraph().getView();
 
-		double scale = graphPanel.getVisibleRect().getWidth() / view.getGraphBounds().getWidth();
-                //System.out.println(scale);
-               
-		view.scaleAndTranslate(scale, -minX, -minY);
-		
-		graphPanel.refresh();
+        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
+
+        for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
+            // Only look at the positions from top-level elements
+            if (!(graph.getModel().getValue(obj) instanceof Info.ValueActivity
+                    || graph.getModel().getValue(obj) instanceof Info.MarketSegment
+                    || graph.getModel().getValue(obj) instanceof Info.Actor)) {
+                continue;
+            }
+
+            mxGeometry gm = graph.getCellGeometry(obj);
+            minX = Math.min(minX, gm.getX());
+            minY = Math.min(minY, gm.getY());
+        }
+
+        double scale = graphPanel.getVisibleRect().getWidth() / view.getGraphBounds().getWidth();
+        //System.out.println(scale);
+
+        view.scaleAndTranslate(scale, -minX, -minY);
+
+        graphPanel.refresh();
     }
 
     /**
      * Create the GUI and show it. For thread safety, this method should be
      * invoked from the event dispatch thread.
+     *
      * @param model
      */
     public static void createAndShowGUI(E3Model model) {
@@ -820,11 +820,9 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JLabel advancedSettingsLabel;
     private javax.swing.JLayeredPane bottomPane;
     private javax.swing.JPanel chartPane;
-    private javax.swing.JCheckBox collusionCheckBox;
     private javax.swing.JLabel collusionLabel;
     private javax.swing.JSpinner collusionsButton;
     private javax.swing.ButtonGroup fraudTypeButtonGroup;
-    private javax.swing.JLabel fraudTypeLabel;
     private javax.swing.JFormattedTextField gainEndField;
     private javax.swing.JLabel gainLabel;
     private javax.swing.JFormattedTextField gainStartField;
@@ -838,9 +836,10 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JPanel graphPane;
     private javax.swing.JComboBox<String> groupComboBox;
     private javax.swing.JLabel groupSettingLabel;
-    private javax.swing.JCheckBox hiddenCheckBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JSplitPane listPane;
     private javax.swing.JPanel listSettingsPanel;
     private javax.swing.JSeparator listSettingsSeparator;
@@ -856,7 +855,6 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JLabel needLabel;
     private javax.swing.JFormattedTextField needStartField;
     private javax.swing.JLabel needToLabel;
-    private javax.swing.JCheckBox nonOccurringCheckBox;
     private javax.swing.JLabel occuringLabel;
     private javax.swing.JLabel placeholderLabel;
     private javax.swing.JProgressBar progressBar;
