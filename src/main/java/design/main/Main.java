@@ -51,6 +51,7 @@ import org.jfree.chart.JFreeChart;
 import com.mxgraph.util.mxPoint;
 
 import design.main.Utils.ClosableTabHeading;
+import design.main.export.JSONExport;
 import design.main.export.RDFExport;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
@@ -226,6 +227,13 @@ public class Main {
             }
         });
         exportMenu.add(exportRDF);
+        JMenuItem exportJSON = new JMenuItem(new AbstractAction("JSON") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new JSONExport(getCurrentGraph(), getCurrentGraphName()).generateJSON();
+			}
+        });
+        exportMenu.add(exportJSON);
         JMenuItem exportImage = new JMenuItem(new AbstractAction("Image") {
             @Override
             public void actionPerformed(ActionEvent e) {
