@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with e3tool.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
+ * *****************************************************************************
  */
 package design.main;
 
@@ -57,8 +57,15 @@ import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
 import static design.main.Utils.openWebpage;
+import e3fraud.parser.FileParser;
+import e3fraud.tools.currentTime;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Main {
+
     public static final JFrame mainFrame = new JFrame("e3tools editor");
     public static Object contextTarget = null;
     public static mxPoint contextPos = new mxPoint(-1, -1);
@@ -66,12 +73,12 @@ public class Main {
     public static ToolComponent globalTools;
     public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = true;
     public static final boolean DEBUG = true;
-    
+
     int CHART_WIDTH = 500;
     int CHART_HEIGHT = 400;
 
     public JTabbedPane views;
-	private JToolBar toolbar;
+    private JToolBar toolbar;
 
     public E3GraphComponent getCurrentGraphComponent() {
         JSplitPane pane = (JSplitPane) views.getComponentAt(views.getSelectedIndex());
@@ -128,36 +135,35 @@ public class Main {
     }
 
     public void addToolbarButton(String icon, String keyStroke, Runnable action) {
-		JButton button = new JButton();
-		button.setFocusPainted(false);
-		button.setAction(new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				action.run();
-			}
-		});
-		button.setIcon(IconStore.getIcon(icon));
-		
-		// TODO: Implement keyStroke
-		
-		toolbar.add(button);
-	}
-    
+        JButton button = new JButton();
+        button.setFocusPainted(false);
+        button.setAction(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                action.run();
+            }
+        });
+        button.setIcon(IconStore.getIcon(icon));
+
+        // TODO: Implement keyStroke
+        toolbar.add(button);
+    }
+
     public void addToolbarButton(String icon, String tooltip, String keyStroke, Runnable action) {
-		JButton button = new JButton();
-		button.setFocusPainted(false);
-		button.setAction(new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				action.run();
-			}
-		});
-		button.setIcon(IconStore.getIcon(icon));
-                button.setToolTipText(tooltip);		
-		// TODO: Implement keyStroke
-		
-		toolbar.add(button);
-	}
+        JButton button = new JButton();
+        button.setFocusPainted(false);
+        button.setAction(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                action.run();
+            }
+        });
+        button.setIcon(IconStore.getIcon(icon));
+        button.setToolTipText(tooltip);
+        // TODO: Implement keyStroke
+
+        toolbar.add(button);
+    }
 
     public Main() {
         // Silly log4j
@@ -196,7 +202,8 @@ public class Main {
         fileMenu.add(new JMenuItem(new AbstractAction("Open...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                E3Graph openedGraph = Utils.openFile(mainFrame);
+                addNewTabAndSwitch(openedGraph,openedGraph.title);
             }
         }));
         // TODO: Implement save functionality
@@ -204,7 +211,11 @@ public class Main {
         fileMenu.add(new JMenuItem(new AbstractAction("Save (ctrl+s)") {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                E3Graph graphToSave = getCurrentGraph();
+                if(graphToSave.title == null){
+                    graphToSave.title = getCurrentGraphName();
+                }
+                Utils.saveFile(mainFrame, graphToSave);
             }
         }));
         // TODO: Implement save functionality
@@ -228,10 +239,10 @@ public class Main {
         });
         exportMenu.add(exportRDF);
         JMenuItem exportJSON = new JMenuItem(new AbstractAction("JSON") {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				new JSONExport(getCurrentGraph(), getCurrentGraphName()).generateJSON();
-			}
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                new JSONExport(getCurrentGraph(), getCurrentGraphName()).generateJSON();
+            }
         });
         exportMenu.add(exportJSON);
         JMenuItem exportImage = new JMenuItem(new AbstractAction("Image") {
@@ -437,10 +448,12 @@ public class Main {
             }
 
             @Override
-            public void menuDeselected(MenuEvent e) { }
+            public void menuDeselected(MenuEvent e) {
+            }
 
             @Override
-            public void menuCanceled(MenuEvent e) { }
+            public void menuCanceled(MenuEvent e) {
+            }
         });
 
         menuBar.add(modelMenu);
@@ -493,13 +506,13 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model),!getCurrentGraph().isFraud);
-                if(chart!=null){
-                ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
-                chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
-                chartframe1.pack();
-                chartframe1.setLocationByPlatform(true);
-                chartframe1.setVisible(true);
+                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !getCurrentGraph().isFraud);
+                if (chart != null) {
+                    ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
+                    chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
+                    chartframe1.pack();
+                    chartframe1.setLocationByPlatform(true);
+                    chartframe1.setVisible(true);
                 }
             }
         }));
@@ -507,11 +520,11 @@ public class Main {
         menuBar.add(toolMenu);
 
         JMenu exampleMenu = new JMenu("Examples");
-        
+
         exampleMenu.add(new JMenuItem(new ExampleModels.SingleTransaction(this)));
         exampleMenu.add(new JMenuItem(new ExampleModels.FlatRateTelephony(this)));
         exampleMenu.add(new JMenuItem(new ExampleModels.LogicGate(this)));
-        
+
         menuBar.add(exampleMenu);
 
         JMenu helpMenu = new JMenu("Help");
@@ -554,139 +567,138 @@ public class Main {
 
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
-        
+
         // New value
-        addToolbarButton("page_green", "New e3value model","control N", () -> {
-			addNewTabAndSwitch(false);
+        addToolbarButton("page_green", "New e3value model", "control N", () -> {
+            addNewTabAndSwitch(false);
         });
-        
+
         // New fraud
         addToolbarButton("page_red", "New e3fraud model", "control M", () -> {
-        	addNewTabAndSwitch(true);
+            addNewTabAndSwitch(true);
         });
 
         // Open
         addToolbarButton("folder", "Open model", null, () -> {
-        	JOptionPane.showMessageDialog(mainFrame, "Open functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mainFrame, "Open functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
         });
-        
+
         // Save
         addToolbarButton("disk", "Save model", null, () -> {
-        	JOptionPane.showMessageDialog(mainFrame, "Save functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mainFrame, "Save functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
         });
 
         toolbar.addSeparator();
-        
+
         // Cut
         addToolbarButton("cut", "Cut", null, () -> {
-        	TransferHandler.getCutAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
+            TransferHandler.getCutAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
         });
-        
+
         // Copy
         addToolbarButton("page_white_copy", "Copy", null, () -> {
-        	TransferHandler.getCopyAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
+            TransferHandler.getCopyAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
         });
-        
+
         // Paste
         addToolbarButton("paste_plain", "Paste", null, () -> {
-        	TransferHandler.getPasteAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
+            TransferHandler.getPasteAction().actionPerformed(new ActionEvent(getCurrentGraphComponent(), -1, null));
         });
 
         toolbar.addSeparator();
-        
+
         // Zoom in
         addToolbarButton("magnifier_zoom_in", "Zoom in", null, () -> {
-        	getCurrentGraphComponent().zoomIn();
+            getCurrentGraphComponent().zoomIn();
         });
-        
+
         // Zoom out
         addToolbarButton("magnifier_zoom_out", "Zoom out", null, () -> {
-        	getCurrentGraphComponent().zoomOut();
+            getCurrentGraphComponent().zoomOut();
         });
 
         toolbar.addSeparator();
-        
-                
+
         // Duplicate
         addToolbarButton("page_copy", "Create duplicate", null, () -> {
-        	addNewTabAndSwitch(new E3Graph(getCurrentGraph()));
+            addNewTabAndSwitch(new E3Graph(getCurrentGraph()));
         });
-        
+
         // Change type
-        addToolbarButton("page_refresh", "Change model type (e3value<->e3fraud)", null, ()->{
-                if (getCurrentGraph().isFraud) {
-                    // TODO: Make this possible
-                    JOptionPane.showMessageDialog(
-                            Main.mainFrame,
-                            "Conversion from fraud to value model is not yet implemented",
-                            "Functionality not implemented",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                } else {
-                    E3Graph newGraph = new E3Graph(getCurrentGraph());
-                    newGraph.isFraud = true;
-                    addNewTabAndSwitch(newGraph, "Fraud model of " + getCurrentGraphName());
-                }
+        addToolbarButton("page_refresh", "Change model type (e3value<->e3fraud)", null, () -> {
+            if (getCurrentGraph().isFraud) {
+                // TODO: Make this possible
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "Conversion from fraud to value model is not yet implemented",
+                        "Functionality not implemented",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            } else {
+                E3Graph newGraph = new E3Graph(getCurrentGraph());
+                newGraph.isFraud = true;
+                addNewTabAndSwitch(newGraph, "Fraud model of " + getCurrentGraphName());
+            }
         });
-        
+
         // Value Objects editor
         addToolbarButton("cross", "Value Objects editor", null, null);
-        
+
         // Value Transactions editor
         addToolbarButton("cross", "Value Transactions editor", null, null);
 
         toolbar.addSeparator();
-        
+
         // Net Value Flow
         addToolbarButton("cross", "Net Value Flow", null, null);
-        
+
         // Analyze transactions
         addToolbarButton("cross", "Analyze transactions", null, null);
-        
+
         // e3fraud analysis
-        addToolbarButton("e3fraud", "Fraud generation", null, () ->{
+        addToolbarButton("e3fraud", "Fraud generation", null, () -> {
 
-                // TODO: Convert this option to something greyed out, just like in the file menu?
-                if (views.getTabCount() == 0) {
-                    JOptionPane.showMessageDialog(
-                            Main.mainFrame,
-                            "A model must be opened to analyze. Click File ➡ New model to open a new model.",
-                            "No model available",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            // TODO: Convert this option to something greyed out, just like in the file menu?
+            if (views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to analyze. Click File ➡ New model to open a new model.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-                JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
-                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
-                // TODO: Maybe add icons for fraud analysis as well?
-                frame.add(fraudWindowInstance);
-                frame.pack();
-                frame.setVisible(true);            
+            JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
+            RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+            FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
+            // TODO: Maybe add icons for fraud analysis as well?
+            frame.add(fraudWindowInstance);
+            frame.pack();
+            frame.setVisible(true);
         });
-        
+
         // profitability analysis
-        addToolbarButton("chart_curve", "Profitability analysis", null, () -> {          
-                            RDFExport rdfExporter = new RDFExport(getCurrentGraph());
-                JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model),!getCurrentGraph().isFraud);
-                if(chart!=null){
+        addToolbarButton("chart_curve", "Profitability analysis", null, () -> {
+            RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+            JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !getCurrentGraph().isFraud);
+            if (chart != null) {
                 ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
                 chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
                 chartframe1.pack();
                 chartframe1.setLocationByPlatform(true);
                 chartframe1.setVisible(true);
-                }        
+            }
         });
 
         toolbar.addSeparator();
-        
+
         // Help
         addToolbarButton("Help", "Help", null, () -> {
-			try {
-				openWebpage(new URL("https://github.com/danionita/e3tools/wiki"));
-			} catch (MalformedURLException ex) {
-				java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-			}
+            try {
+                openWebpage(new URL("https://github.com/danionita/e3tools/wiki"));
+            } catch (MalformedURLException ex) {
+                java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
         });
 
         mainFrame.getContentPane().add(toolbar, BorderLayout.PAGE_START);
@@ -705,7 +717,7 @@ public class Main {
         mainFrame.setVisible(true);
     }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         Main t = new Main();
     }
 }

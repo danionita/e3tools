@@ -49,13 +49,15 @@ import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.Utils.GraphDelta;
+import java.io.Serializable;
 
-public class E3Graph extends mxGraph {
+public class E3Graph extends mxGraph implements Serializable{
 	public final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "MONEY-SECURED", "SERVICE")
 			);
 	public boolean isFraud;
 	public GraphDelta delta;
+        public String title;
 	
 	public E3Graph(boolean isFraud) {
 		this.isFraud = isFraud;

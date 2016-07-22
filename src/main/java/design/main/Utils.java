@@ -59,10 +59,23 @@ import design.main.Info.LogicDot;
 import design.main.Info.SignalDot;
 import design.main.Info.StartSignal;
 import design.main.Info.ValueExchange;
-import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.vocabulary.E3value;
+import e3fraud.tools.currentTime;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Utils {
 
@@ -415,20 +428,20 @@ public class Utils {
 
         public List<Long> nonOccurringTransactions = new ArrayList<>();
         public List<long[]> hiddenTransactions = new ArrayList<>();
-        public List<Long> colludedActors= new ArrayList<>();
+        public List<Long> colludedActors = new ArrayList<>();
 
         public GraphDelta(GraphDelta oldGraphDelta) {
-            if(oldGraphDelta!=null){
-            if (oldGraphDelta.nonOccurringTransactions != null) {
-                this.nonOccurringTransactions.addAll(oldGraphDelta.nonOccurringTransactions);
+            if (oldGraphDelta != null) {
+                if (oldGraphDelta.nonOccurringTransactions != null) {
+                    this.nonOccurringTransactions.addAll(oldGraphDelta.nonOccurringTransactions);
+                }
+                for (long[] item : oldGraphDelta.hiddenTransactions) {
+                    this.hiddenTransactions.add(Arrays.copyOf(item, item.length));
+                }
+                if (oldGraphDelta.colludedActors != null) {
+                    this.colludedActors.addAll(oldGraphDelta.colludedActors);
+                }
             }
-            for (long[] item : oldGraphDelta.hiddenTransactions) {
-                this.hiddenTransactions.add(Arrays.copyOf(item, item.length));
-            }
-            if (oldGraphDelta.colludedActors != null) {
-                this.colludedActors.addAll(oldGraphDelta.colludedActors);
-            }
-            }   
         }
 
         public GraphDelta() {
@@ -436,23 +449,22 @@ public class Utils {
             hiddenTransactions = new ArrayList<>();
             colludedActors = new ArrayList<>();
         }
-    
 
-    public void addNonOccurringTransaction(long id) {
-        this.nonOccurringTransactions.add(id);
+        public void addNonOccurringTransaction(long id) {
+            this.nonOccurringTransactions.add(id);
+        }
+
+        public void addHiddenTransaction(long from, long to) {
+            this.hiddenTransactions.add(new long[]{from, to});
+        }
+
+        public void addColludedActor(long id) {
+            this.colludedActors.add(id);
+            System.out.println("Adding collusion to changes");
+        }
     }
 
-    public void addHiddenTransaction(long from, long to) {
-        this.hiddenTransactions.add(new long[]{from, to});
-    }
-
-    public void addColludedActor(long id) {
-        this.colludedActors.add(id);
-        System.out.println("Adding collusion to changes");
-    }
-    }
-
-public static void openWebpage(URI uri) {
+    public static void openWebpage(URI uri) {
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
             try {
@@ -470,55 +482,128 @@ public static void openWebpage(URI uri) {
             e.printStackTrace();
         }
     }
-    
+
     /**
-     * Finds the next unused ID in a Jena/E3Value rdf model. Does not claim the ID by creating
-     * a resource with the unused ID.
+     * Finds the next unused ID in a Jena/E3Value rdf model. Does not claim the
+     * ID by creating a resource with the unused ID.
+     *
      * @param URIbase The base uri of the model
      * @param m The model to look in for used ID's
      * @return An unused ID.
      */
     public static long getUnusedID(String URIbase, Model m) {
-    	long candidate = 1;
-    	Resource candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
-    	//System.out.println("Start looking");
-    	while (m.contains(candidateResource, E3value.e3_has_uid, "" + candidate)) {
-    		//System.out.println("Contains " + candidate);
-    		candidate++;
-			candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
-    	}
-    	
-    	//System.out.println("Result: " + candidate);
-    	
-    	return candidate;
+        long candidate = 1;
+        Resource candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
+        //System.out.println("Start looking");
+        while (m.contains(candidateResource, E3value.e3_has_uid, "" + candidate)) {
+            //System.out.println("Contains " + candidate);
+            candidate++;
+            candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
+        }
+
+        //System.out.println("Result: " + candidate);
+        return candidate;
     }
-    
+
     public static void renewBasesAndIncreaseSUIDs(mxCell cell) {
-		if (cell.getValue() instanceof Base) {
-			cell.setValue(((Base) cell.getValue()).getCopy()); 
-			((Base) cell.getValue()).setSUID(Info.getSUID());
-		}
-		
-		for (int i = 0; i < cell.getChildCount(); i++) {
-			renewBasesAndIncreaseSUIDs((mxCell) cell.getChildAt(i));
-		}
+        if (cell.getValue() instanceof Base) {
+            cell.setValue(((Base) cell.getValue()).getCopy());
+            ((Base) cell.getValue()).setSUID(Info.getSUID());
+        }
+
+        for (int i = 0; i < cell.getChildCount(); i++) {
+            renewBasesAndIncreaseSUIDs((mxCell) cell.getChildAt(i));
+        }
     }
-    
+
     public static void renewBasesAndIncreaseSUIDs(mxCell[] cells) {
-    	for (mxCell cell : cells) {
-    		if (cell.getValue() instanceof Base) {
-    			renewBasesAndIncreaseSUIDs(cell);
-    		}
-    	}
+        for (mxCell cell : cells) {
+            if (cell.getValue() instanceof Base) {
+                renewBasesAndIncreaseSUIDs(cell);
+            }
+        }
     }
-    
-    public static 
 
+    public static void renewBasesAndIncreaseSUIDs(Object[] cells) {
+        renewBasesAndIncreaseSUIDs(Arrays.copyOf(cells, cells.length, mxCell[].class
+        ));
+    }
 
+    public static E3Graph openFile(JFrame mainFrame) {
+        JFileChooser fc = new JFileChooser();
+        E3Graph graph = null;
+        FileFilter rdfFilter = new FileNameExtensionFilter("e3tool file", "e3");
+        fc.addChoosableFileFilter(rdfFilter);
+        fc.setFileFilter(rdfFilter);
+        int returnVal = fc.showOpenDialog(mainFrame);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            FileInputStream fin = null;
+            try {
+                fin = new FileInputStream(file);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            ObjectInputStream ois = null;
+            try {
+                ois = new ObjectInputStream(fin);
+            } catch (IOException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                graph = (E3Graph) ois.readObject();
+            } catch (IOException | ClassNotFoundException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            System.out.println(currentTime.currentTime() + " Opened: " + file.getName() + ".");
+        } else {
+            System.out.println(currentTime.currentTime() + " Open command cancelled by user.");
+        }
+        return graph;
+    }
 
-void renewBasesAndIncreaseSUIDs(Object[] cells) {
-    	renewBasesAndIncreaseSUIDs(Arrays.copyOf(cells, cells.length, mxCell[].class
-
-));
+    public static boolean saveFile(JFrame mainFrame, E3Graph graph) {
+        JFileChooser fc = new JFileChooser();
+        FileFilter rdfFilter = new FileNameExtensionFilter("e3tool file", "e3");
+        fc.addChoosableFileFilter(rdfFilter);
+        fc.setFileFilter(rdfFilter);
+        int returnVal = fc.showSaveDialog(mainFrame);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            String extension = "";
+            int i = file.getName().lastIndexOf('.');
+            if (i > 0) {
+                extension = file.getName().substring(i + 1);
+            }
+            if(!extension.equals("e3")){
+            String fileWithExtension = file + ".e3";            
+            file = new File(fileWithExtension);
+            }
+            FileOutputStream fout = null;
+            try {
+                fout = new FileOutputStream(file);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+            ObjectOutputStream oos = null;
+            try {
+                oos = new ObjectOutputStream(fout);
+            } catch (IOException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+            try {
+                oos.writeObject(graph);
+            } catch (IOException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+            System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
+            return true;
+        } else {
+            System.out.println(currentTime.currentTime() + " Save command cancelled by user.");
+            return false;
+        }
     }
 }
