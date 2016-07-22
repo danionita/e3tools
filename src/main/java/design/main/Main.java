@@ -28,6 +28,9 @@ import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -56,13 +59,6 @@ import design.main.export.RDFExport;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
-import static design.main.Utils.openWebpage;
-import e3fraud.parser.FileParser;
-import e3fraud.tools.currentTime;
-import java.io.File;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Main {
 
@@ -103,7 +99,7 @@ public class Main {
 
     public void addNewTabAndSwitch(E3Graph graph, String title) {
         E3GraphComponent graphComponent = new E3GraphComponent(graph);
-
+        
         graph.getModel().beginUpdate();
         try {
             // Playground for custom shapes
@@ -198,24 +194,17 @@ public class Main {
             }
         }));
         fileMenu.addSeparator();
-        // TODO: Implement open functionality
         fileMenu.add(new JMenuItem(new AbstractAction("Open...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                E3Graph openedGraph = Utils.openFile(mainFrame);
-                addNewTabAndSwitch(openedGraph,openedGraph.title);
+                addNewTabAndSwitch(Utils.openFile(mainFrame));
             }
         }));
-        // TODO: Implement save functionality
         // TODO: Implement save shortcut
         fileMenu.add(new JMenuItem(new AbstractAction("Save (ctrl+s)") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                E3Graph graphToSave = getCurrentGraph();
-                if(graphToSave.title == null){
-                    graphToSave.title = getCurrentGraphName();
-                }
-                Utils.saveFile(mainFrame, graphToSave);
+                Utils.saveFile(mainFrame, getCurrentGraph());
             }
         }));
         // TODO: Implement save functionality

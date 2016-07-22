@@ -18,6 +18,7 @@
  *******************************************************************************/
 package design.main;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,11 +46,9 @@ import design.main.Info.SignalDot;
 import design.main.Info.StartSignal;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueExchange;
-import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.Utils.GraphDelta;
-import java.io.Serializable;
 
 public class E3Graph extends mxGraph implements Serializable{
 	public final ArrayList<String> valueObjects = new ArrayList<>(
@@ -134,11 +133,6 @@ public class E3Graph extends mxGraph implements Serializable{
 				graph.getModel().beginUpdate();
 				try {
 					Base value = Utils.base(graph, cell);
-					
-					if (value != null && !(value instanceof ValueExchangeLabel)) {
-						value.name = value.getClass().getSimpleName() + value.getSUID();
-						graph.getModel().setValue(cell, value);
-					}
 					
 					if (value instanceof ValueInterface) {
 						mxICell parent = (mxICell) cell.getParent();
@@ -1250,4 +1244,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		return null;
 	}
+	
+	
+	
 }

@@ -33,11 +33,6 @@ import com.mxgraph.swing.util.mxGraphActions;
 import com.mxgraph.util.mxUndoManager;
 import com.mxgraph.view.mxGraph;
 
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueExchangeLabel;
-import design.main.Main;
-import design.main.Utils;
-
 public class KeyboardHandler extends mxKeyboardHandler {
 
 	private mxUndoManager undoManager;
@@ -83,38 +78,19 @@ public class KeyboardHandler extends mxKeyboardHandler {
 		map.put("zoomIn", mxGraphActions.getZoomInAction());
 		map.put("zoomOut", mxGraphActions.getZoomOutAction());
 		
-		map.put("delete", new mxGraphActions.DeleteAction("Delete") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mxGraph graph = mxGraphActions.getGraph(e);
-				
-				if (graph != null) {
-					Object selectedCell = graph.getSelectionCell();
-					Object value = graph.getModel().getValue(selectedCell);
-					if (value instanceof ValueExchangeLabel) {
-						graph.getModel().beginUpdate();
-						try {
-							ValueExchangeLabel veLabelInfo = (ValueExchangeLabel) Utils.base(graph, selectedCell);
-							ValueExchange veInfo = (ValueExchange) Utils.base(graph, graph.getModel().getParent(selectedCell));
-							
-							if (veLabelInfo.isValueObjectLabel) {
-								veInfo.valueObjectHidden ^= true;
-							} else {
-								veInfo.labelHidden ^= true;
-							}
-							
-							graph.getModel().setValue(Main.contextTarget, veInfo);
-//							Utils.setValueExchangeValueObjectLabelVisibility(graph, graph.getModel().getParent(selectedCell));
-//							Utils.setValueExchangeNameLabelVisibility(graph, graph.getModel().getParent(selectedCell));
-						} finally {
-							graph.getModel().endUpdate();
-						}
-					} else {
-						graph.removeCells();
-					}
-				}
-			}
-		});
+		map.put("delete", new mxGraphActions.DeleteAction("Delete"));
+//		map.put("delete", new mxGraphActions.DeleteAction("Delete") {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				mxGraph graph = mxGraphActions.getGraph(e);
+//				
+//				if (graph != null) {
+//					Object selectedCell = graph.getSelectionCell();
+//					Object value = graph.getModel().getValue(selectedCell);
+//					graph.removeCells();
+//				}
+//			}
+//		});
 		
 		map.put("undo", new AbstractAction("Undo") {
 			@Override

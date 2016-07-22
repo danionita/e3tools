@@ -88,7 +88,7 @@ public class Info {
 	
 	public static class ValuePort extends Base {
 		private static final long serialVersionUID = 9212361683143336826L;
-		public boolean incoming;
+		public Boolean incoming;
 		
 		ValuePort(boolean incoming_) {
 			incoming = incoming_;
@@ -97,6 +97,8 @@ public class Info {
 			formulas.put("CADINALITY", "0");
 			formulas.put("EXPENSES", "0");
 		}
+		
+		public ValuePort() { }
 		
 		@Override
 		public Base getCopy() {
@@ -146,6 +148,8 @@ public class Info {
 		
 		public Side side;
 		
+		public ValueInterface() { }
+		
 		@Override
 		public Base getCopy() {
 			ValueInterface vi = new ValueInterface();
@@ -160,7 +164,7 @@ public class Info {
 	public static class Actor extends Base {
 		private static final long serialVersionUID = -5569247045409511931L;
 		
-		public boolean colluded;
+		public Boolean colluded = false;
 		
 		public Actor() {
 			formulas.put("INVESTMENT", "0");
@@ -254,10 +258,12 @@ public class Info {
 	public static class LogicDot extends Base {
 		private static final long serialVersionUID = 6736897501245007019L;
 		// Unit dot is dot that is alone on one side of the logic unit
-		public boolean isUnit = false;
+		public Boolean isUnit = false;
 		public int proportion = 1;
 		
 		public LogicDot(boolean isUnit_) {isUnit = isUnit_;}
+		
+		public LogicDot() {}
 
 		@Override
 		public Base getCopy() {
@@ -273,7 +279,7 @@ public class Info {
 	
 	public static class LogicBase extends Base {
 		private static final long serialVersionUID = 7083658541375507487L;
-		public boolean isOr = false;
+		public Boolean isOr = false;
 		public Side direction = Side.RIGHT;
 
 		@Override
@@ -291,8 +297,8 @@ public class Info {
 	public static class ValueExchange extends Base {
 		private static final long serialVersionUID = -7607653966138790703L;
 		public String valueObject = null;
-		public boolean valueObjectHidden = false;
-		public boolean labelHidden = true;
+		public Boolean valueObjectHidden = false;
+		public Boolean labelHidden = true;
 		
 		public ValueExchange() {
 			formulas.put("CARDINALITY", "1");
@@ -358,30 +364,10 @@ public class Info {
 		}
 	}
 	
-	public static class ValueExchangeLabel extends Base {
-		private static final long serialVersionUID = -8263020130640344457L;
-
-		public boolean isValueObjectLabel = false;
-
-		@Override
-		public Base getCopy() {
-			ValueExchangeLabel copy = new ValueExchangeLabel();
-			setCommons(this, copy);
-
-			copy.isValueObjectLabel = isValueObjectLabel;
-
-			return copy;
-		}
-		
-		public String toString() {
-			return name;
-		}
-	}
-	
 	public static class StartSignal extends Base {
 		private static final long serialVersionUID = -3440018877858008513L;
 		
-		public boolean showLabel = false;
+		public Boolean showLabel = false;
 		
 		public StartSignal() {
 			name = "StartSignal" + getSUID();
@@ -406,7 +392,7 @@ public class Info {
 	public static class EndSignal extends Base {
 		private static final long serialVersionUID = -6483661636370237656L;
 		
-		public boolean showLabel = false;
+		public Boolean showLabel = false;
 		
 		public EndSignal() {
 			name = "EndSignal" + getSUID();

@@ -25,9 +25,7 @@ import java.util.List;
 import javax.swing.JPopupMenu;
 import javax.swing.ScrollPaneConstants;
 
-import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.handler.mxGraphHandler;
 import com.mxgraph.util.mxEvent;
@@ -41,7 +39,6 @@ import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
 import design.main.Info.Base;
-import design.main.Info.ConnectionElement;
 import design.main.Info.EndSignal;
 import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
@@ -49,7 +46,6 @@ import design.main.Info.MarketSegment;
 import design.main.Info.StartSignal;
 import design.main.Info.ValueActivity;
 import design.main.Info.ValueExchange;
-import design.main.Info.ValueExchangeLabel;
 import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.main.listeners.KeyboardHandler;

@@ -36,6 +36,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
@@ -531,79 +532,80 @@ public class Utils {
 
     public static E3Graph openFile(JFrame mainFrame) {
         JFileChooser fc = new JFileChooser();
-        E3Graph graph = null;
+
         FileFilter rdfFilter = new FileNameExtensionFilter("e3tool file", "e3");
         fc.addChoosableFileFilter(rdfFilter);
         fc.setFileFilter(rdfFilter);
+
         int returnVal = fc.showOpenDialog(mainFrame);
+
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             FileInputStream fin = null;
+
             try {
-                fin = new FileInputStream(file);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            ObjectInputStream ois = null;
-            try {
-                ois = new ObjectInputStream(fin);
-            } catch (IOException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            try {
-                graph = (E3Graph) ois.readObject();
-            } catch (IOException | ClassNotFoundException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            System.out.println(currentTime.currentTime() + " Opened: " + file.getName() + ".");
+				return GraphIO.loadGraph(file.getAbsolutePath());
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
         } else {
             System.out.println(currentTime.currentTime() + " Open command cancelled by user.");
         }
-        return graph;
+        
+        return null;
     }
 
-    public static boolean saveFile(JFrame mainFrame, E3Graph graph) {
+    /**
+     * TODO: Do it this way: https://forum.jgraph.com/accept_answer/4852/index.html
+     * @param mainFrame
+     * @param graph
+     * @return
+     */
+    public static void saveFile(JFrame mainFrame, E3Graph graph) {
         JFileChooser fc = new JFileChooser();
+
         FileFilter rdfFilter = new FileNameExtensionFilter("e3tool file", "e3");
         fc.addChoosableFileFilter(rdfFilter);
         fc.setFileFilter(rdfFilter);
+
         int returnVal = fc.showSaveDialog(mainFrame);
+        
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+
             String extension = "";
             int i = file.getName().lastIndexOf('.');
             if (i > 0) {
                 extension = file.getName().substring(i + 1);
             }
+
             if(!extension.equals("e3")){
-            String fileWithExtension = file + ".e3";            
-            file = new File(fileWithExtension);
+				String fileWithExtension = file + ".e3";            
+				file = new File(fileWithExtension);
             }
-            FileOutputStream fout = null;
-            try {
-                fout = new FileOutputStream(file);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
+            
+            if (file.exists()) {
+            	int result = JOptionPane.showConfirmDialog(
+            			mainFrame,
+            			fc.getSelectedFile() + " already exists. Would you like to overwrite it?",
+            			"File already exists",
+            			JOptionPane.OK_CANCEL_OPTION,
+            			JOptionPane.WARNING_MESSAGE);
+            	
+            	if (result != JOptionPane.OK_OPTION) {
+					System.out.println(currentTime.currentTime() + " Save command cancelled by user.");
+            		return;
+            	}
+            	
+            	file.delete();
             }
-            ObjectOutputStream oos = null;
-            try {
-                oos = new ObjectOutputStream(fout);
-            } catch (IOException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
-            try {
-                oos.writeObject(graph);
-            } catch (IOException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
+            
+            GraphIO.saveGraph(graph, file.getAbsolutePath());
+
             System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
-            return true;
         } else {
             System.out.println(currentTime.currentTime() + " Save command cancelled by user.");
-            return false;
         }
     }
 }
