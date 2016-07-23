@@ -82,9 +82,6 @@ public class Main {
         return (E3Graph) getCurrentGraphComponent().getGraph();
     }
 
-    public String getCurrentGraphName() {
-        return ((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex())).title;
-    }
 
     public void addNewTabAndSwitch(boolean isFraud) {
         addNewTabAndSwitch(new E3Graph(isFraud));
@@ -114,7 +111,16 @@ public class Main {
 
         views.setSelectedIndex(views.getTabCount() - 1);
     }
+    
+    public void setCurrentTabTitle(String title) {
+    	((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex()))
+    		.setTitle(title);
+    }
 
+    public String getCurrentGraphTitle() {
+    	return getCurrentGraph().title;
+    }
+    
     public void addToolbarButton(String icon, String keyStroke, Runnable action) {
         JButton button = new JButton();
         button.setFocusPainted(false);
@@ -218,7 +224,7 @@ public class Main {
         JMenuItem exportJSON = new JMenuItem(new AbstractAction("JSON") {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                new JSONExport(getCurrentGraph(), getCurrentGraphName()).generateJSON();
+                new JSONExport(getCurrentGraph(), getCurrentGraphTitle()).generateJSON();
             }
         });
         exportMenu.add(exportJSON);
@@ -397,13 +403,14 @@ public class Main {
         modelMenu.add(new AbstractAction("Change title") {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String newName = JOptionPane.showInputDialog(
+				String newTitle = JOptionPane.showInputDialog(
 						mainFrame, 
 						"Enter new model title",
-						"Rename \"" + getCurrentGraphName() + "\"",
+						"Rename \"" + getCurrentGraphTitle() + "\"",
 						JOptionPane.QUESTION_MESSAGE);
 				
-				getCurrentGraph().title = newName;
+				getCurrentGraph().title = newTitle;
+				Main.this.setCurrentTabTitle(newTitle);
 			}
         });
         modelMenu.addSeparator();
@@ -487,7 +494,7 @@ public class Main {
                     return;
                 }
 
-                JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
+                JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphTitle() + "\"");
                 RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
                 FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
                 // TODO: Maybe add icons for fraud analysis as well?
@@ -503,7 +510,7 @@ public class Main {
                 RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
                 JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !getCurrentGraph().isFraud);
                 if (chart != null) {
-                    ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
+                    ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphTitle() + "\"", chart);
                     chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
                     chartframe1.pack();
                     chartframe1.setLocationByPlatform(true);
@@ -668,7 +675,7 @@ public class Main {
                 return;
             }
 
-            JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
+            JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphTitle() + "\"");
             RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
             FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
             // TODO: Maybe add icons for fraud analysis as well?
@@ -682,7 +689,7 @@ public class Main {
             RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
             JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !getCurrentGraph().isFraud);
             if (chart != null) {
-                ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
+                ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphTitle() + "\"", chart);
                 chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
                 chartframe1.pack();
                 chartframe1.setLocationByPlatform(true);

@@ -345,11 +345,71 @@ public class Utils {
     }
 
     public static class ClosableTabHeading extends JPanel {
-
         public final String title;
+		private ImageIcon icon;
+		private JTabbedPane container;
+		private Component tab;
+		private JLabel label;
 
-        ClosableTabHeading(String title) {
+        ClosableTabHeading(String title, ImageIcon icon, JTabbedPane container, Component tab) {
             this.title = title;
+			this.icon = icon;
+			this.container = container;
+			this.tab = tab;
+			
+			setOpaque(false);
+			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+			if (icon != null) {
+				add(new JLabel(icon));
+			}
+
+			add(Box.createHorizontalStrut(5));
+
+			label = new JLabel(title);
+			add(label);
+
+			JLabel close = new JLabel("✖");
+			Border border = close.getBorder();
+			Border insideMargin = new EmptyBorder(2, 2, 2, 2);
+			Border outsideMargin = new EmptyBorder(2, 6, 2, 0);
+			Border noLineBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+			Border lowerLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+			Border raisedLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+
+			Border normalBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(noLineBorder, insideMargin)));
+			Border hoverBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(raisedLineBorder, insideMargin)));
+			Border pressBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(lowerLineBorder, insideMargin)));
+
+			close.setBorder(normalBorder);
+
+			close.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					container.remove(tab);
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+					close.setBorder(pressBorder);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
+					close.setBorder(normalBorder);
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					close.setBorder(hoverBorder);
+				}
+			});
+
+			add(close);
+        }
+        
+        public void setTitle(String title) {
+        	label.setText(title);
         }
     }
 
@@ -364,62 +424,12 @@ public class Utils {
     public static Component addClosableTab(JTabbedPane panes, String title, Component component, ImageIcon icon) {
         Component thisTab = panes.add(component);
 
-        JPanel heading = new ClosableTabHeading(title);
-        heading.setOpaque(false);
-        heading.setLayout(new BoxLayout(heading, BoxLayout.X_AXIS));
-
-        if (icon != null) {
-            heading.add(new JLabel(icon));
-        }
-
-        heading.add(Box.createHorizontalStrut(5));
-
-        JLabel label = new JLabel(title);
-        heading.add(label);
-
-        JLabel close = new JLabel("✖");
-        Border border = close.getBorder();
-        Border insideMargin = new EmptyBorder(2, 2, 2, 2);
-        Border outsideMargin = new EmptyBorder(2, 6, 2, 0);
-        Border noLineBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-        Border lowerLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-        Border raisedLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
-
-        Border normalBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(noLineBorder, insideMargin)));
-        Border hoverBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(raisedLineBorder, insideMargin)));
-        Border pressBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(lowerLineBorder, insideMargin)));
-
-        close.setBorder(normalBorder);
-
-        close.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                panes.remove(thisTab);
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                close.setBorder(pressBorder);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                close.setBorder(normalBorder);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                close.setBorder(hoverBorder);
-            }
-        });
-
-        heading.add(close);
-
+        JPanel heading = new ClosableTabHeading(title, icon, panes, thisTab);
         panes.setTabComponentAt(panes.indexOfComponent(thisTab), heading);
 
         return thisTab;
     }
-
+    
     public static class GraphDelta {
 
         public List<Long> nonOccurringTransactions = new ArrayList<>();
