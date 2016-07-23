@@ -13,8 +13,9 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.json.Json;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParser.Event;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.swing.JOptionPane;
 
 import org.w3c.dom.Document;
@@ -155,22 +156,23 @@ public class GraphIO {
 		E3Graph graph = new E3Graph(false);
 		
 		codec.decode(document.getDocumentElement(), graph.getModel());
+
+		JsonObject json = Json.createReader(new StringReader(properties)).readObject();
 		
-		JsonParser jsonParser = Json.createParser(new StringReader(properties));
-		while (jsonParser.hasNext()) {
-			Event e = jsonParser.next();
-			if (e == Event.KEY_NAME) {
-				String keyName = jsonParser.getString();
-				Event e2 = jsonParser.next();
-				
-				if (e2.equals(Event.VALUE_STRING)) {
-					if (keyName.equals("title")) {
-						graph.title = jsonParser.getString();
-					}
-				} else if (keyName.equals("fraud")) {
-					graph.isFraud = e2.equals(Event.VALUE_TRUE);
-				}
-			} 
+		if (json.containsKey("title")) {
+			graph.title = json.getString("title");
+		}
+		
+		if (json.containsKey("fraud")) {
+			graph.isFraud = json.getBoolean("fraud");
+		}
+		
+		if (json.containsKey("valueObjects")) {
+			graph.valueObjects.clear();
+			JsonArray valueObjects = json.getJsonArray("valueObjects");
+			for (int i = 0;  i < valueObjects.size(); i++) {
+				graph.valueObjects.add(valueObjects.getString(i));
+			}
 		}
 		
 		return graph;
@@ -186,12 +188,16 @@ public class GraphIO {
 			mxCodec codec = new mxCodec();
 			String xml = mxXmlUtils.getXml(codec.encode(graph.getModel()));
 			
-			// TODO: ValueObjects are not saved here!
+			JsonArrayBuilder valueObjectsJson = Json.createArrayBuilder();
+			for (String vo : graph.valueObjects) {
+				valueObjectsJson.add(vo);
+			}
+					
 			String properties = Json.createObjectBuilder()
 					.add("fraud", graph.isFraud)
 					.add("title", graph.title == null ? "" : graph.title)
-					.build()
-					.toString();
+					.add("valueObjects", valueObjectsJson)
+					.build().toString();
 			
 			ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(fileName));
 			
