@@ -24,17 +24,23 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -43,6 +49,8 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -64,19 +72,6 @@ import design.main.Info.ValueInterface;
 import design.main.Info.ValuePort;
 import design.vocabulary.E3value;
 import e3fraud.tools.currentTime;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Utils {
 
@@ -530,7 +525,7 @@ public class Utils {
         ));
     }
 
-    public static E3Graph openFile(JFrame mainFrame) {
+    public static Optional<E3Graph> openFile(JFrame mainFrame) {
         JFileChooser fc = new JFileChooser();
 
         FileFilter rdfFilter = new FileNameExtensionFilter("e3tool file", "e3");
@@ -541,19 +536,23 @@ public class Utils {
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
-            FileInputStream fin = null;
 
-            try {
-				return GraphIO.loadGraph(file.getAbsolutePath());
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
+			Optional<E3Graph> result = GraphIO.loadGraph(file.getAbsolutePath());
+			
+			if (!result.isPresent()) {
+				JOptionPane.showMessageDialog(
+						mainFrame,
+						"Error during file loading. Please make sure the file destination is accesible.",
+						"Loading error",
+						JOptionPane.ERROR_MESSAGE);
 			}
+			
+			return result;
         } else {
             System.out.println(currentTime.currentTime() + " Open command cancelled by user.");
         }
         
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -601,7 +600,17 @@ public class Utils {
             	file.delete();
             }
             
-            GraphIO.saveGraph(graph, file.getAbsolutePath());
+            try {
+				GraphIO.saveGraph(graph, file.getAbsolutePath());
+			} catch (IOException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(
+						mainFrame,
+						"Error during file saving. Please make sure the file destination is accesible.",
+						"Saving error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 
             System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
         } else {

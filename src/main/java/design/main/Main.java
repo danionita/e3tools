@@ -27,10 +27,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -184,21 +182,24 @@ public class Main {
         fileMenu.add(new JMenuItem(new AbstractAction("Open...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addNewTabAndSwitch(Utils.openFile(mainFrame));
+            	Optional<E3Graph> graph = Utils.openFile(mainFrame);
+            	if (graph.isPresent()) {
+					addNewTabAndSwitch(graph.get());
+            	}
             }
         }));
         // TODO: Implement save shortcut
         fileMenu.add(new JMenuItem(new AbstractAction("Save (ctrl+s)") {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	// TODO: Make this function save to the same path as the file was loaded from
                 Utils.saveFile(mainFrame, getCurrentGraph());
             }
         }));
-        // TODO: Implement save functionality
         JMenuItem saveAs = new JMenuItem(new AbstractAction("Save as...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(mainFrame, "Save functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
+                Utils.saveFile(mainFrame, getCurrentGraph());
             }
         });
         fileMenu.add(saveAs);
@@ -221,10 +222,11 @@ public class Main {
             }
         });
         exportMenu.add(exportJSON);
+        // TODO: implement image exporting (see jgraphx manual, I think
+        // they already support png and pdf, maybe even more)
         JMenuItem exportImage = new JMenuItem(new AbstractAction("Image") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
 
             }
         });
@@ -392,6 +394,18 @@ public class Main {
             }
         });
         modelMenu.add(changeType);
+        modelMenu.add(new AbstractAction("Change title") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String newName = JOptionPane.showInputDialog(
+						mainFrame, 
+						"Enter new model title",
+						"Rename \"" + getCurrentGraphName() + "\"",
+						JOptionPane.QUESTION_MESSAGE);
+				
+				getCurrentGraph().title = newName;
+			}
+        });
         modelMenu.addSeparator();
         modelMenu.add(new JMenuItem(new AbstractAction("ValueObjects...") {
             @Override

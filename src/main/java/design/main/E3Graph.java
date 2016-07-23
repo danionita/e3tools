@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.w3c.dom.Document;
+
+import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
@@ -32,6 +35,7 @@ import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
+import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 
 import design.main.Info.Actor;
@@ -1317,4 +1321,23 @@ public class E3Graph extends mxGraph implements Serializable{
 		return value;
 	}
 	
+	public String toXML() {
+		GraphIO.assureRegistered();
+
+		mxCodec codec = new mxCodec();
+		return mxXmlUtils.getXml(codec.encode(getModel()));
+	}
+	
+	public static E3Graph fromXML(String xml) {
+		GraphIO.assureRegistered();
+		
+		Document document = mxXmlUtils.parseXml(xml);
+		mxCodec codec = new mxCodec(document);
+		
+		E3Graph graph = new E3Graph(false);
+		
+		codec.decode(document.getDocumentElement(), graph.getModel());
+		
+		return graph;
+	}
 }

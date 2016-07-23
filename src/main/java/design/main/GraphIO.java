@@ -1,12 +1,14 @@
 package design.main;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -41,6 +43,12 @@ import design.main.Info.ValuePort;
 public class GraphIO {
 
 	static boolean registered = false;
+	public static void assureRegistered() {
+		if (!registered) {
+			registerCodecs();
+			registered = true;
+		}
+	}
 
 	public static class ObjectCodecWithEnum extends mxObjectCodec {
 		public ObjectCodecWithEnum(Object template) {
@@ -114,12 +122,15 @@ public class GraphIO {
 		mxCodecRegistry.register(new ObjectCodecWithEnum(new ConnectionElement()));
 	}
 
-	public static E3Graph loadGraph(String fileName) throws IOException {
-		// necessary for this to work:
-		if (!registered)
-			registerCodecs();
-
-		ZipFile zf = new ZipFile(fileName);
+	public static Optional<E3Graph> loadGraph(String fileName) {
+		// TODO: Try-with-resource here
+		ZipFile zf;
+		try {
+			zf = new ZipFile(fileName);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return Optional.empty();
+		}
 
 		String properties = null, xml = null;
 		List<String[]> files = zf.stream().map(entry -> {
@@ -142,6 +153,10 @@ public class GraphIO {
 			return null;
 		}).collect(Collectors.toList());
 		
+		if (files.contains(null)) {
+			return Optional.empty();
+		}
+		
 		for (String[] file : files) {
 			if (file[0].equals("graph.xml")) {
 				xml = file[1];
@@ -150,12 +165,7 @@ public class GraphIO {
 			}
 		}
 
-		Document document = mxXmlUtils.parseXml(xml);
-		mxCodec codec = new mxCodec(document);
-		
-		E3Graph graph = new E3Graph(false);
-		
-		codec.decode(document.getDocumentElement(), graph.getModel());
+		E3Graph graph = E3Graph.fromXML(xml);
 
 		JsonObject json = Json.createReader(new StringReader(properties)).readObject();
 		
@@ -175,51 +185,49 @@ public class GraphIO {
 			}
 		}
 		
-		return graph;
+		try {
+			zf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Failed to close the zip stream");
+		}
+		
+		return Optional.of(graph);
 	}
 
-	public static void saveGraph(E3Graph graph, String fileName) {
-		// info: necessary for this to work:
-		if (!registered)
-			registerCodecs();
-
-		try {
-			// taken from EditorActions class
-			mxCodec codec = new mxCodec();
-			String xml = mxXmlUtils.getXml(codec.encode(graph.getModel()));
-			
-			JsonArrayBuilder valueObjectsJson = Json.createArrayBuilder();
-			for (String vo : graph.valueObjects) {
-				valueObjectsJson.add(vo);
-			}
-					
-			String properties = Json.createObjectBuilder()
-					.add("fraud", graph.isFraud)
-					.add("title", graph.title == null ? "" : graph.title)
-					.add("valueObjects", valueObjectsJson)
-					.build().toString();
-			
-			ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(fileName));
-			
-			{
-				zout.putNextEntry(new ZipEntry("graph.xml"));
-				byte[] b = xml.getBytes();
-				zout.write(b, 0, b.length);
-				zout.closeEntry();
-			}
-			
-			{
-				zout.putNextEntry(new ZipEntry("properties.json"));
-				byte[] b = properties.getBytes();
-				zout.write(b, 0, b.length);
-				zout.closeEntry();
-			}
-			
-			zout.close();
-			
-			JOptionPane.showMessageDialog(Main.mainFrame, "File saved to: " + fileName);
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+	public static void saveGraph(E3Graph graph, String fileName) throws IOException {
+		String xml = graph.toXML();
+		
+		JsonArrayBuilder valueObjectsJson = Json.createArrayBuilder();
+		for (String vo : graph.valueObjects) {
+			valueObjectsJson.add(vo);
 		}
+				
+		String properties = Json.createObjectBuilder()
+				.add("fraud", graph.isFraud)
+				.add("title", graph.title == null ? "" : graph.title)
+				.add("valueObjects", valueObjectsJson)
+				.build().toString();
+		
+		// TODO: Try-with-resource here!
+		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(fileName));
+		
+		{
+			zout.putNextEntry(new ZipEntry("graph.xml"));
+			byte[] b = xml.getBytes();
+			zout.write(b, 0, b.length);
+			zout.closeEntry();
+		}
+		
+		{
+			zout.putNextEntry(new ZipEntry("properties.json"));
+			byte[] b = properties.getBytes();
+			zout.write(b, 0, b.length);
+			zout.closeEntry();
+		}
+		
+		zout.close();
+		
+		JOptionPane.showMessageDialog(Main.mainFrame, "File saved to: " + fileName);
 	}
 }
