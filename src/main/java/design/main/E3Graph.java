@@ -51,25 +51,42 @@ import design.main.Info.ValuePort;
 import design.main.Utils.GraphDelta;
 
 public class E3Graph extends mxGraph implements Serializable{
+    public static int newGraphCounter = 1;
+
 	public final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "MONEY-SECURED", "SERVICE")
 			);
 	public boolean isFraud;
 	public GraphDelta delta;
-        public String title;
+	public String title = "";
 	
 	public E3Graph(boolean isFraud) {
+		this(isFraud, null);
+	}
+	
+	public E3Graph(boolean isFraud, String title) {
 		this.isFraud = isFraud;
+		this.title = title;
+		
+		if (this.title == null) {
+			if (isFraud) {
+				this.title = "Fraud model " + newGraphCounter++;
+			} else {
+				this.title = "Value model " + newGraphCounter++;
+			}
+		}
 		
 		addStandardEventListeners();
 	}
 
 	public E3Graph(E3Graph original) {
 		isFraud = original.isFraud;
+		title = "Copy of " + original.title;
 		
 		getModel().beginUpdate();
 		try {
 			addCells(original.cloneCellsKeepSUIDs(original.getChildCells(original.getDefaultParent())));
+			valueObjects.clear();
 			valueObjects.addAll(original.valueObjects);
 		} finally {
 			getModel().endUpdate();
@@ -82,6 +99,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		this(original);
 		
 		this.isFraud = true;
+		this.title = "Fraud instance of " + original.title;
 		
 		// TODO: Remove possible fraud changes in original
 		// This line will have to merge deltas or something
@@ -1245,6 +1263,58 @@ public class E3Graph extends mxGraph implements Serializable{
 		return null;
 	}
 	
+	/**
+	 * Turns a value model into a fraud model, or simply copies the model
+	 * if it is already a fraud model. If it is a value model also prepends
+	 * "Fraud model of " to the title. Lossless conversion.
+	 * @return
+	 */
+	public E3Graph toFraud() {
+		if (isFraud) {
+			return new E3Graph(this);
+		} 
+		
+		E3Graph fraud = new E3Graph(this);
+		fraud.title = "Fraud model of " + title;
+		fraud.isFraud = true;
+		
+		return fraud;
+	}
 	
+	/**
+	 * Converts the graph to a value graph if it is a fraud graph,
+	 * and simply copies it otherwise. Also prepends "Value model of " 
+	 * if it is a fraud model to the title. Lossy conversion (colluded
+	 * actors, hidden transactions, non-occurring transactions
+	 * are turned off)
+	 * @return
+	 */
+	public E3Graph toValue() {
+		if (!isFraud) {
+			return new E3Graph(this);
+		}
+		
+		E3Graph value = new E3Graph(this);
+		value.title = "Value model of " + title;
+		value.isFraud = false;
+		
+		value.getModel().beginUpdate();
+		try {
+			Utils.getAllCells(value).stream().forEach(obj -> {
+				Object val = value.getModel().getValue(obj);
+				
+				if (val instanceof Actor) {
+					value.setColludingActor(obj, false);
+				} else if (val instanceof ValueExchange) {
+					value.setValueExchangeNonOcurring(obj, false);
+					value.setValueExchangeHidden(obj, false);
+				}
+			});
+		} finally {
+			value.getModel().endUpdate();
+		}
+		
+		return value;
+	}
 	
 }

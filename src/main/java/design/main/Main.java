@@ -65,7 +65,6 @@ public class Main {
     public static final JFrame mainFrame = new JFrame("e3tools editor");
     public static Object contextTarget = null;
     public static mxPoint contextPos = new mxPoint(-1, -1);
-    public static int newGraphCounter = 1;
     public static ToolComponent globalTools;
     public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = true;
     public static final boolean DEBUG = true;
@@ -94,10 +93,6 @@ public class Main {
     }
 
     public void addNewTabAndSwitch(E3Graph graph) {
-        addNewTabAndSwitch(graph, null);
-    }
-
-    public void addNewTabAndSwitch(E3Graph graph, String title) {
         E3GraphComponent graphComponent = new E3GraphComponent(graph);
         
         graph.getModel().beginUpdate();
@@ -113,18 +108,10 @@ public class Main {
         JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(), graphComponent);
         mainpane.setResizeWeight(0.025);
 
-        if (title == null) {
-            if (graph.isFraud) {
-                title = "New fraud model " + newGraphCounter++;
-            } else {
-                title = "New value model " + newGraphCounter++;
-            }
-        }
-
         if (graph.isFraud) {
-            Utils.addClosableTab(views, title, mainpane, IconStore.getImage("/e3f.png", 25, 25));
+            Utils.addClosableTab(views, graph.title, mainpane, IconStore.getImage("/e3f.png", 25, 25));
         } else {
-            Utils.addClosableTab(views, title, mainpane, IconStore.getImage("/e3v.png", 25, 25));
+            Utils.addClosableTab(views, graph.title, mainpane, IconStore.getImage("/e3v.png", 25, 25));
         }
 
         views.setSelectedIndex(views.getTabCount() - 1);
@@ -385,17 +372,22 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getCurrentGraph().isFraud) {
-                    // TODO: Make this possible
-                    JOptionPane.showMessageDialog(
-                            Main.mainFrame,
-                            "Conversion from fraud to value model is not yet implemented",
-                            "Functionality not implemented",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
+					int response = JOptionPane.showConfirmDialog(
+							Main.mainFrame,
+							"Converting a fraud model to a value model will "
+							+ "cause information about colluded actors, hidden "
+							+ "transactions, and non-occurring transactions "
+							+ "to be lost. Continue?",
+							"Conversion confirmation",
+							JOptionPane.OK_CANCEL_OPTION,
+							JOptionPane.WARNING_MESSAGE
+							);
+                	
+					if (response == JOptionPane.OK_OPTION) {
+						addNewTabAndSwitch(getCurrentGraph().toValue());
+					}
                 } else {
-                    E3Graph newGraph = new E3Graph(getCurrentGraph());
-                    newGraph.isFraud = true;
-                    addNewTabAndSwitch(newGraph, "Fraud model of " + getCurrentGraphName());
+                    addNewTabAndSwitch(getCurrentGraph().toFraud());
                 }
             }
         });
@@ -615,19 +607,24 @@ public class Main {
 
         // Change type
         addToolbarButton("page_refresh", "Change model type (e3value<->e3fraud)", null, () -> {
-            if (getCurrentGraph().isFraud) {
-                // TODO: Make this possible
-                JOptionPane.showMessageDialog(
-                        Main.mainFrame,
-                        "Conversion from fraud to value model is not yet implemented",
-                        "Functionality not implemented",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            } else {
-                E3Graph newGraph = new E3Graph(getCurrentGraph());
-                newGraph.isFraud = true;
-                addNewTabAndSwitch(newGraph, "Fraud model of " + getCurrentGraphName());
-            }
+			if (getCurrentGraph().isFraud) {
+				int response = JOptionPane.showConfirmDialog(
+						Main.mainFrame,
+						"Converting a fraud model to a value model will "
+						+ "cause information about colluded actors, hidden "
+						+ "transactions, and non-occurring transactions "
+						+ "to be lost. Continue?",
+						"Conversion confirmation",
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.WARNING_MESSAGE
+						);
+				
+				if (response == JOptionPane.OK_OPTION) {
+					addNewTabAndSwitch(getCurrentGraph().toValue());
+				}
+			} else {
+				addNewTabAndSwitch(getCurrentGraph().toFraud());
+                }
         });
 
         // Value Objects editor
