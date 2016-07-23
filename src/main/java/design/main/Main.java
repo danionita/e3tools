@@ -210,7 +210,7 @@ public class Main {
         JMenuItem exportRDF = new JMenuItem(new AbstractAction("RDF") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(new RDFExport(getCurrentGraph()).toString());
+                System.out.println(new RDFExport(getCurrentGraph(), true).toString());
             }
         });
         exportMenu.add(exportRDF);
@@ -474,7 +474,7 @@ public class Main {
                 }
 
                 JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
-                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
                 FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
                 // TODO: Maybe add icons for fraud analysis as well?
                 frame.add(fraudWindowInstance);
@@ -486,7 +486,7 @@ public class Main {
         toolMenu.add(new JMenuItem(new AbstractAction("Profitability chart...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
                 JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !getCurrentGraph().isFraud);
                 if (chart != null) {
                     ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
@@ -655,7 +655,7 @@ public class Main {
             }
 
             JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
-            RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+            RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
             FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
             // TODO: Maybe add icons for fraud analysis as well?
             frame.add(fraudWindowInstance);
@@ -665,7 +665,7 @@ public class Main {
 
         // profitability analysis
         addToolbarButton("chart_curve", "Profitability analysis", null, () -> {
-            RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+            RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
             JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !getCurrentGraph().isFraud);
             if (chart != null) {
                 ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);

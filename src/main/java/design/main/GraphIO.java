@@ -186,6 +186,7 @@ public class GraphIO {
 			mxCodec codec = new mxCodec();
 			String xml = mxXmlUtils.getXml(codec.encode(graph.getModel()));
 			
+			// TODO: ValueObjects are not saved here!
 			String properties = Json.createObjectBuilder()
 					.add("fraud", graph.isFraud)
 					.add("title", graph.title == null ? "" : graph.title)

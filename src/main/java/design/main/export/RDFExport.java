@@ -21,6 +21,7 @@ package design.main.export;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -56,8 +57,10 @@ public class RDFExport {
 	private Resource modelRes;
 	private Resource diagramRes;
 	private String base;
+	private boolean unsafe;
 	
-	public RDFExport(mxGraph graph) {
+	public RDFExport(mxGraph graph, boolean unsafe) {
+		this.unsafe = unsafe;
 		this.graph = (E3Graph) graph;
 		
 		convertToRdf();
@@ -134,6 +137,11 @@ public class RDFExport {
 		for (String valueObject : graph.valueObjects) {
 			getValueObject(valueObject);
 		}
+
+		// TODO: Make sure there's a E3Graph.getNewSUID() method as well,
+		// and get rid of this whole global counter thing.
+		long colludedID = Info.getSUID();
+		Map<String, String> colludedFormulas = new HashMap<>();
 		
 		for (Object cell : Utils.getAllCells(graph)) {
 			Object cellValue = graph.getModel().getValue(cell);
@@ -155,18 +163,54 @@ public class RDFExport {
 			
 			System.out.println("Considering: \"" + value.name + "\"");
 			
-			Resource res = getResource(value.getSUID());
-
-			// Add name
-			if (value.name != null) {
-				res.addProperty(E3value.e3_has_name, value.name);
+			Resource res = null;
+			
+			if (value instanceof Actor) {
+				Actor acInfo = (Actor) value;
+				
+				if (acInfo.colluded) {
+					res = getResource(colludedID);
+					
+					if (res.hasProperty(E3value.e3_has_name)) {
+						String newName = res.getProperty(E3value.e3_has_name).getString() + " + " + acInfo.name;
+						res.removeAll(E3value.e3_has_name);
+						res.addProperty(E3value.e3_has_name, newName);
+					} else {
+						res.addProperty(E3value.e3_has_name, acInfo.name);
+					}
+					
+					for (String key : value.formulas.keySet()) {
+						if (colludedFormulas.containsKey(key)) {
+							if (unsafe) {
+								int original = Integer.parseInt(colludedFormulas.get(key));
+								int delta = Integer.parseInt(value.formulas.get(key));
+								colludedFormulas.put(key, (original + delta) + "");
+							} else {
+								colludedFormulas.put(
+									key, 
+									colludedFormulas.get(key) + "+" + value.formulas.get(key));
+							}
+						} else {
+							colludedFormulas.put(key, value.formulas.get(key));
+						}
+					}
+				}
 			}
 			
-			// Add formulas
-			// TODO: What if the value part of the formula is empty? Put zero there or just leave it empty?
-			// I guess for now we'll just leave it "empty", the parser on the other side can deal with it
-			for (String key : value.formulas.keySet()) {
-				res.addProperty(E3value.e3_has_formula, key + "=" + value.formulas.get(key));
+			if (res == null) {
+				res = getResource(value.getSUID());
+
+				// Add name
+				if (value.name != null) {
+					res.addProperty(E3value.e3_has_name, value.name);
+				}
+			
+				// Add formulas
+				// TODO: What if the value part of the formula is empty? Put zero there or just leave it empty?
+				// I guess for now we'll just leave it "empty", the parser on the other side can deal with it
+				for (String key : value.formulas.keySet()) {
+					res.addProperty(E3value.e3_has_formula, key + "=" + value.formulas.get(key));
+				}
 			}
 			
 			if (value instanceof Actor) {
@@ -219,7 +263,13 @@ public class RDFExport {
 				Resource parentRes = getResource(parentValue.getSUID());
 
 				if (parentValue instanceof Actor) {
-					res.addProperty(E3value.vi_assigned_to_ac, parentRes);
+					Actor acInfo = (Actor) parentValue;
+					
+					if (acInfo.colluded) {
+						res.addProperty(E3value.vi_assigned_to_ac, getResource(colludedID));
+					} else {
+						res.addProperty(E3value.vi_assigned_to_ac, parentRes);
+					}
 				} else if (parentValue instanceof MarketSegment) {
 					res.addProperty(E3value.vi_assigned_to_ms, parentRes);
 				} else if (parentValue instanceof ValueActivity) {
@@ -299,6 +349,12 @@ public class RDFExport {
 					res.addProperty(RDF.type, E3value.AND_node);
 				}
 			}
+		}
+		
+		// Commit the formuals for the colluded actor
+		Resource res = getResource(colludedID);
+		for (Entry<String, String> entry : colludedFormulas.entrySet()) {
+			res.addProperty(E3value.e3_has_formula, entry.getKey() + "=" + entry.getValue());
 		}
 		
 		// Convert to RDF
