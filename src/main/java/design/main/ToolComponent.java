@@ -145,7 +145,7 @@ public class ToolComponent extends mxGraphComponent {
 			
 			// Start signal
 			{
-				startSignal = graph.insertVertex(root, null, new StartSignal(), 70, 380, 30, 30, "StartSignal");
+				startSignal = graph.insertVertex(root, null, new StartSignal(), 70, 380, 25, 25, "StartSignal");
 				mxGeometry sgm = graph.getModel().getGeometry(startSignal);
 				// Magic number to get the label to float nicely above
 				sgm.setOffset(new mxPoint(0, -21));
@@ -159,7 +159,7 @@ public class ToolComponent extends mxGraphComponent {
 			
 			// End signal
 			{
-				endSignal = (mxCell) graph.insertVertex(root, null, new EndSignal(), 55, 420, 45, 45, "EndSignal");
+				endSignal = (mxCell) graph.insertVertex(root, null, new EndSignal(), 55, 420, 35, 35, "EndSignal");
 				mxGeometry sgm = graph.getModel().getGeometry(endSignal);
 				// Magic number to get the label to float nicely above
 				sgm.setOffset(new mxPoint(0, -21));
