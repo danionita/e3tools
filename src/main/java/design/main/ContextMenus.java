@@ -19,6 +19,7 @@
 package design.main;
 
 import java.awt.event.ActionEvent;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
@@ -42,7 +42,6 @@ import com.mxgraph.view.mxGraph;
 import design.main.Info.Actor;
 import design.main.Info.Base;
 import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
 import design.main.Info.LogicDot;
 import design.main.Info.StartSignal;
 import design.main.Info.ValueExchange;
@@ -256,6 +255,8 @@ public class ContextMenus {
 						null,
 						logicDot.proportion + "");
 				
+				if (amountStr != null) amountStr = amountStr.trim();
+				
 				int amount = 0;
 				
 				try {
@@ -268,12 +269,25 @@ public class ContextMenus {
 								JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-				} catch (Exception ex) {
-					JOptionPane.showMessageDialog(
-							Main.mainFrame,
-							"\"" + amountStr + "\" is not a valid proportion",
-							"Invalid proportion",
-							JOptionPane.ERROR_MESSAGE);
+				} catch (NumberFormatException ex) {
+					if (amountStr == null)
+						return;
+					
+					try {
+						BigInteger bi = new BigInteger(amountStr);
+						JOptionPane.showMessageDialog(
+								Main.mainFrame,
+								"Number \"" + amountStr + "\" is too big",
+								"Invalid proportion",
+								JOptionPane.ERROR_MESSAGE);
+					} catch (NumberFormatException ex2) {
+						JOptionPane.showMessageDialog(
+								Main.mainFrame,
+								"\"" + amountStr + "\" is not a valid proportion",
+								"Invalid proportion",
+								JOptionPane.ERROR_MESSAGE);
+					}
+					
 					return;
 				}
 				
