@@ -20,19 +20,21 @@ package design.main;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import com.mxgraph.canvas.mxGraphics2DCanvas;
 import com.mxgraph.shape.mxStencilShape;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxUtils;
-import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
 public class E3Style {
 	public static final double DOTRADIUS = 4;
+	public static final int LABEL_FONTSIZE = 12;
 	
 	public static void styleGraphComponent(mxGraphComponent graphComponent) {
 		mxGraph graph = graphComponent.getGraph();
@@ -41,12 +43,13 @@ public class E3Style {
 		mxStylesheet stylesheet = graph.getStylesheet();
 		Hashtable<String, Object> style;
 		Hashtable<String, Object> baseStyle = new Hashtable<>();
-		
+
 		baseStyle.put(mxConstants.STYLE_STROKECOLOR,  "#000000");
 		baseStyle.put(mxConstants.STYLE_STROKEWIDTH, 1.0);
 		baseStyle.put(mxConstants.STYLE_FONTCOLOR, "#000000");
 		baseStyle.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_LEFT);
 		baseStyle.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_TOP);
+		baseStyle.put(mxConstants.STYLE_FONTSIZE, LABEL_FONTSIZE);
 		
 		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_ROUNDED, true);
@@ -99,8 +102,8 @@ public class E3Style {
 		style.put(mxConstants.STYLE_RESIZABLE, 0);
 		style.put(mxConstants.STYLE_ROTATION, 180);
 		stylesheet.putCellStyle("ValuePortEast", style);
-		style = new Hashtable<>(baseStyle);
 
+		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_FILLCOLOR, "#FFFFFF");
 		style.put(mxConstants.STYLE_GRADIENTCOLOR, "#FFFFFF");
 		style.put(mxConstants.STYLE_SHAPE, "ValuePortStencil");
@@ -121,6 +124,7 @@ public class E3Style {
 		style.put(mxConstants.STYLE_ENDARROW, mxConstants.NONE);
 		style.put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
 		style.put(mxConstants.STYLE_FONTCOLOR, "#444444");
+		style.put(mxConstants.STYLE_FONTSIZE, LABEL_FONTSIZE);
 		stylesheet.putCellStyle("ValueExchange", style);
 		
 		style = new Hashtable<>(style);
@@ -137,6 +141,7 @@ public class E3Style {
 		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
 		style.put(mxConstants.STYLE_FILLCOLOR, "#FF0000");
 		style.put(mxConstants.STYLE_DASHED, true);
+		style.put(mxConstants.STYLE_FONTSIZE, LABEL_FONTSIZE);
 		stylesheet.putCellStyle("ConnectionElement", style);
 		
 		style = new Hashtable<>();
@@ -156,7 +161,6 @@ public class E3Style {
 		style.put(mxConstants.STYLE_SHAPE, "EndSignalStencil");
 		style.put(mxConstants.STYLE_STROKECOLOR, "#000000");
 		style.put(mxConstants.STYLE_RESIZABLE, 0);
-
 		style.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_TOP);
 		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
 		style.put(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, "#FAFAD2");
@@ -236,8 +240,11 @@ public class E3Style {
 		addStencil("northtriangle.shape");
 	}
 	
+	public static Set<String> loadedStencils = new HashSet<String>();
+	
 	public static void addStencil(String filename) {
 		try {
+			if (loadedStencils.contains(filename)) return;
                     
 			String nodeXml = mxUtils.readInputStream(
                                 E3Style.class.getResourceAsStream("/" + filename));
@@ -251,9 +258,11 @@ public class E3Style {
 			String name = newShape.getName();
 			
 			mxGraphics2DCanvas.putShape(name, newShape);
-			//System.out.println("Added " + name + " shape");
+			
+			loadedStencils.add(filename);
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.out.println("Unable to load stencil " + filename);
 		}
 	}
 }
