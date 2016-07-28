@@ -3,7 +3,7 @@ package design.main.info;
 public class Actor extends Base {
 	private static final long serialVersionUID = -5569247045409511931L;
 	
-	public Boolean colluded = false;
+	public boolean colluded = false;
 	
 	public Actor() {
 		formulas.put("INVESTMENT", "0");

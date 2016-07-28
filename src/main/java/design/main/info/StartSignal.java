@@ -3,7 +3,7 @@ package design.main.info;
 public class StartSignal extends Base {
 	private static final long serialVersionUID = -3440018877858008513L;
 	
-	public Boolean showLabel = false;
+	public boolean showLabel = false;
 	
 	public StartSignal() {
 		name = "StartSignal" + getSUID();

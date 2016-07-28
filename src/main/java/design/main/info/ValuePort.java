@@ -4,7 +4,7 @@ import design.main.info.Info.Side;
 
 public class ValuePort extends Base {
 	private static final long serialVersionUID = 9212361683143336826L;
-	public Boolean incoming;
+	public boolean incoming;
 	
 	public ValuePort(boolean incoming_) {
 		incoming = incoming_;

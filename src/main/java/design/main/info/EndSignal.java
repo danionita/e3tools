@@ -6,7 +6,7 @@ import java.util.List;
 public class EndSignal extends Base {
 	private static final long serialVersionUID = -6483661636370237656L;
 	
-	public Boolean showLabel = false;
+	public boolean showLabel = false;
 	
 	public EndSignal() {
 		name = "EndSignal" + getSUID();

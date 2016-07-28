@@ -4,7 +4,7 @@ import design.main.info.Info.Side;
 
 public class LogicBase extends Base {
 	private static final long serialVersionUID = 7083658541375507487L;
-	public Boolean isOr = false;
+	public boolean isOr = false;
 	public Side direction = Side.RIGHT;
 
 	@Override

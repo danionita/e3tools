@@ -6,8 +6,8 @@ import java.util.List;
 public class ValueExchange extends Base {
 	private static final long serialVersionUID = -7607653966138790703L;
 	public String valueObject = null;
-	public Boolean valueObjectHidden = false;
-	public Boolean labelHidden = true;
+	public boolean valueObjectHidden = false;
+	public boolean labelHidden = true;
 	
 	public ValueExchange() {
 		formulas.put("CARDINALITY", "1");
