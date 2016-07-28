@@ -62,14 +62,15 @@ import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
-import design.main.Info.Base;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicDot;
-import design.main.Info.SignalDot;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
+import design.main.info.Base;
+import design.main.info.EndSignal;
+import design.main.info.Info;
+import design.main.info.LogicDot;
+import design.main.info.SignalDot;
+import design.main.info.StartSignal;
+import design.main.info.ValueExchange;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 import design.vocabulary.E3value;
 import e3fraud.tools.currentTime;
 

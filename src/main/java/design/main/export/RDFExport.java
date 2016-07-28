@@ -30,19 +30,19 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import com.mxgraph.view.mxGraph;
 
 import design.main.E3Graph;
-import design.main.Info;
-import design.main.Info.Actor;
-import design.main.Info.Base;
-import design.main.Info.ConnectionElement;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
-import design.main.Info.MarketSegment;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueActivity;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
 import design.main.Utils;
+import design.main.info.Actor;
+import design.main.info.Base;
+import design.main.info.ConnectionElement;
+import design.main.info.EndSignal;
+import design.main.info.Info;
+import design.main.info.LogicBase;
+import design.main.info.MarketSegment;
+import design.main.info.StartSignal;
+import design.main.info.ValueActivity;
+import design.main.info.ValueExchange;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 import design.vocabulary.E3value;
 
 public class RDFExport {

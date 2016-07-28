@@ -1,7 +1,6 @@
 package design.main;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,25 +19,23 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.swing.JOptionPane;
 
-import org.w3c.dom.Document;
-
-import com.mxgraph.io.mxCodec;
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.io.mxObjectCodec;
-import com.mxgraph.util.mxXmlUtils;
 
-import design.main.Info.Actor;
-import design.main.Info.ConnectionElement;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
-import design.main.Info.LogicDot;
-import design.main.Info.MarketSegment;
-import design.main.Info.SignalDot;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueActivity;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
+import design.main.export.ObjectXStreamCodec;
+import design.main.info.Actor;
+import design.main.info.Base;
+import design.main.info.ConnectionElement;
+import design.main.info.EndSignal;
+import design.main.info.LogicBase;
+import design.main.info.LogicDot;
+import design.main.info.MarketSegment;
+import design.main.info.SignalDot;
+import design.main.info.StartSignal;
+import design.main.info.ValueActivity;
+import design.main.info.ValueExchange;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 
 public class GraphIO {
 
@@ -106,20 +103,23 @@ public class GraphIO {
 		// support it; posted by gaudenz:
 		// http://forum.jgraph.com/questions/2302/how-to-encode-enums?page=1#3433
 		
-		mxCodecRegistry.addPackage(Info.class.getPackage().toString());
+		mxCodecRegistry.addPackage("design.main.info");
 		
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ValuePort()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ValueInterface()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new Actor()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new MarketSegment()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ValueActivity()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new SignalDot()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new LogicDot()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new LogicBase()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ValueExchange()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new StartSignal()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new EndSignal()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ConnectionElement()));
+		ObjectXStreamCodec xStreamCodec = new ObjectXStreamCodec();
+		mxCodecRegistry.register(xStreamCodec);	
+		
+		mxCodecRegistry.addAlias(ValuePort.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(ValueInterface.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(Actor.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(MarketSegment.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(ValueActivity.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(SignalDot.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(LogicDot.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(LogicBase.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(ValueExchange.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(StartSignal.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(EndSignal.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(ConnectionElement.class.getSimpleName(), xStreamCodec.getName());
 	}
 
 	public static Optional<E3Graph> loadGraph(String fileName) {
@@ -141,7 +141,7 @@ public class GraphIO {
 				String line;
 
 				while ((line = reader.readLine()) != null) {
-					out.append(line);
+					out.append(line + "\n");
 				}
 				reader.close();
 				
@@ -164,7 +164,7 @@ public class GraphIO {
 				properties = file[1];
 			}
 		}
-
+		
 		E3Graph graph = E3Graph.fromXML(xml);
 
 		JsonObject json = Json.createReader(new StringReader(properties)).readObject();

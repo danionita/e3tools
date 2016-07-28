@@ -51,8 +51,10 @@ import com.mxgraph.view.mxGraphView;
 
 import design.main.E3Graph;
 import design.main.E3GraphComponent;
-import design.main.Info;
 import design.main.Main;
+import design.main.info.Actor;
+import design.main.info.MarketSegment;
+import design.main.info.ValueActivity;
 import e3fraud.model.E3Model;
 
 /**
@@ -643,9 +645,9 @@ public class FraudWindow extends javax.swing.JPanel {
 				
 				for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
 					// Only look at the positions from top-level elements
-					if (!(graph.getModel().getValue(obj) instanceof Info.ValueActivity
-							|| graph.getModel().getValue(obj) instanceof Info.MarketSegment
-							|| graph.getModel().getValue(obj) instanceof Info.Actor)) continue;
+					if (!(graph.getModel().getValue(obj) instanceof ValueActivity
+							|| graph.getModel().getValue(obj) instanceof MarketSegment
+							|| graph.getModel().getValue(obj) instanceof Actor)) continue;
 					
 					// Gather the bounds
 					mxGeometry gm = graph.getCellGeometry(obj);
@@ -815,9 +817,9 @@ public class FraudWindow extends javax.swing.JPanel {
 
         for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
             // Only look at the positions from top-level elements
-            if (!(graph.getModel().getValue(obj) instanceof Info.ValueActivity
-                    || graph.getModel().getValue(obj) instanceof Info.MarketSegment
-                    || graph.getModel().getValue(obj) instanceof Info.Actor)) {
+            if (!(graph.getModel().getValue(obj) instanceof ValueActivity
+                    || graph.getModel().getValue(obj) instanceof MarketSegment
+                    || graph.getModel().getValue(obj) instanceof Actor)) {
                 continue;
             }
 

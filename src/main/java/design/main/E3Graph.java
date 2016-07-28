@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
@@ -38,21 +40,21 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 
-import design.main.Info.Actor;
-import design.main.Info.Base;
-import design.main.Info.ConnectionElement;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
-import design.main.Info.LogicDot;
-import design.main.Info.MarketSegment;
-import design.main.Info.Side;
-import design.main.Info.SignalDot;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueActivity;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
 import design.main.Utils.GraphDelta;
+import design.main.info.Actor;
+import design.main.info.Base;
+import design.main.info.ConnectionElement;
+import design.main.info.EndSignal;
+import design.main.info.Info.Side;
+import design.main.info.LogicBase;
+import design.main.info.LogicDot;
+import design.main.info.MarketSegment;
+import design.main.info.SignalDot;
+import design.main.info.StartSignal;
+import design.main.info.ValueActivity;
+import design.main.info.ValueExchange;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
@@ -461,7 +463,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		graph.getModel().beginUpdate();
 		try {
-			Info.ValueInterface viInfo = (ValueInterface) Utils.base(graph, vi);
+			ValueInterface viInfo = (ValueInterface) Utils.base(graph, vi);
 			
 			mxGeometry viGm = Utils.geometry(graph, vi);
 			mxGeometry parentGm = Utils.geometry(graph, vi.getParent());
@@ -604,8 +606,8 @@ public class E3Graph extends mxGraph implements Serializable{
 	public String convertValueToString(Object obj) {
 		mxICell cell = (mxICell) obj;
 		
-		if (cell.getValue() instanceof Info.Base) {
-			return ((Info.Base) cell.getValue()).toString();
+		if (cell.getValue() instanceof Base) {
+			return ((Base) cell.getValue()).toString();
 		}
 
 		return super.convertValueToString(cell);
@@ -614,17 +616,17 @@ public class E3Graph extends mxGraph implements Serializable{
 	@Override
 	public void cellLabelChanged(Object cell, Object newValue, boolean autoSize) {
 		Object oldValue = Utils.base(this, cell);
-		if (oldValue instanceof Info.Base) {
+		if (oldValue instanceof Base) {
 			if (newValue instanceof String) {
 				String name = (String) newValue;
-				if (oldValue instanceof Info.Actor) {
-					Info.Actor actor = (Info.Actor) oldValue;
+				if (oldValue instanceof Actor) {
+					Actor actor = (Actor) oldValue;
 					actor.name = name;
-				} else if (oldValue instanceof Info.MarketSegment) {
-					Info.MarketSegment marketSegment = (Info.MarketSegment) oldValue;
+				} else if (oldValue instanceof MarketSegment) {
+					MarketSegment marketSegment = (MarketSegment) oldValue;
 					marketSegment.name = name;
-				} else if (oldValue instanceof Info.ValueActivity) {
-					Info.ValueActivity valueActivity = (Info.ValueActivity) oldValue;
+				} else if (oldValue instanceof ValueActivity) {
+					ValueActivity valueActivity = (ValueActivity) oldValue;
 					valueActivity.name = name;
 				}
 			}			
@@ -675,7 +677,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		} H h = new H();
 		
 		for ( Object obj : clones) {
-			if (model.getValue(obj) instanceof Info.Base) {
+			if (model.getValue(obj) instanceof Base) {
 				mxCell cell = (mxCell) obj;
 				h.renewBasesAndIncreaseSUIDS(cell);
 			}
@@ -1191,7 +1193,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object rotateLogicRight(Object logic) {
 		Base value = Utils.base(this, logic);
 		
-		if (value instanceof Info.LogicDot) {
+		if (value instanceof LogicDot) {
 			logic = getModel().getParent(logic);
 		}
 
@@ -1332,6 +1334,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		GraphIO.assureRegistered();
 		
 		Document document = mxXmlUtils.parseXml(xml);
+		
 		mxCodec codec = new mxCodec(document);
 		
 		E3Graph graph = new E3Graph(false);

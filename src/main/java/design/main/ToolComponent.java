@@ -27,17 +27,17 @@ import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
-import design.main.Info.Actor;
-import design.main.Info.Base;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
-import design.main.Info.LogicDot;
-import design.main.Info.MarketSegment;
-import design.main.Info.Side;
-import design.main.Info.SignalDot;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueActivity;
-import design.main.Info.ValueInterface;
+import design.main.info.Actor;
+import design.main.info.Base;
+import design.main.info.EndSignal;
+import design.main.info.Info.Side;
+import design.main.info.LogicBase;
+import design.main.info.LogicDot;
+import design.main.info.MarketSegment;
+import design.main.info.SignalDot;
+import design.main.info.StartSignal;
+import design.main.info.ValueActivity;
+import design.main.info.ValueInterface;
 import design.main.listeners.ProxySelection;
 
 public class ToolComponent extends mxGraphComponent {
@@ -76,8 +76,8 @@ public class ToolComponent extends mxGraphComponent {
 			public String convertValueToString(Object obj) {
 				mxICell cell = (mxICell) obj;
 				
-				if (cell.getValue() instanceof Info.Base) {
-					return ((Info.Base) cell.getValue()).toString();
+				if (cell.getValue() instanceof Base) {
+					return ((Base) cell.getValue()).toString();
 				}
 
 				return super.convertValueToString(cell);

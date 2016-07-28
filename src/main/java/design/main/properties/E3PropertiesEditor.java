@@ -59,9 +59,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import design.main.Info;
 import design.main.Main;
-import design.main.Info.Base;
+import design.main.info.Base;
 
 public class E3PropertiesEditor {
 	private JLabel idLabel;
@@ -76,7 +75,7 @@ public class E3PropertiesEditor {
 	private boolean changingCell = false;
 	private JDialog dialog;
 	
-	private Info.Base value;
+	private Base value;
 	
 	public final List<E3PropertiesEventListener> listeners = new ArrayList<>();
 	
@@ -101,7 +100,7 @@ public class E3PropertiesEditor {
 		changingTextArea = false;
 	}
 
-	public E3PropertiesEditor(JFrame owner, Info.Base value_) {
+	public E3PropertiesEditor(JFrame owner, Base value_) {
 		value = value_.getCopy();
 		
 		topPanel = new JPanel();

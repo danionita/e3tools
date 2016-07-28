@@ -8,16 +8,16 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.mxgraph.model.mxGraphModel;
 
 import design.main.E3Graph;
-import design.main.Info.Base;
-import design.main.Info.ConnectionElement;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
-import design.main.Info.LogicDot;
-import design.main.Info.SignalDot;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
 import design.main.Utils;
+import design.main.info.Base;
+import design.main.info.ConnectionElement;
+import design.main.info.EndSignal;
+import design.main.info.LogicBase;
+import design.main.info.LogicDot;
+import design.main.info.SignalDot;
+import design.main.info.StartSignal;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 import design.vocabulary.E3value;
 
 public class ConnectionVisitor {

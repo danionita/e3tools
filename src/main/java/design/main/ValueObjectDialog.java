@@ -42,8 +42,8 @@ import javax.swing.event.ListSelectionListener;
 
 import com.mxgraph.util.mxConstants;
 
-import design.main.Info.Base;
-import design.main.Info.ValueExchange;
+import design.main.info.Base;
+import design.main.info.ValueExchange;
 
 public class ValueObjectDialog {
 	private E3Graph graph;

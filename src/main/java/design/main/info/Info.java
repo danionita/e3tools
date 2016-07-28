@@ -16,17 +16,29 @@
  * You should have received a copy of the GNU General Public License
  * along with e3tool.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package design.main.properties;
+package design.main.info;
 
-import java.util.EventObject;
-
-import design.main.info.Base;
-
-public class E3PropertiesEvent extends EventObject {
-	public Base resultObject;
+public class Info {
+	public static long nextSUID = 0;
+	public static long getSUID() {
+		return nextSUID++;
+	}
 	
-	public E3PropertiesEvent(Object source, Base resultObject_) {
-		super(source);
-		resultObject = resultObject_;
+	public static enum Side {
+		TOP, RIGHT, BOTTOM, LEFT;
+		public Side rotateRight() {
+			if (this == TOP) {
+				return RIGHT;
+			} else if (this == RIGHT) {
+				return BOTTOM;
+			} else if (this == BOTTOM) {
+				return LEFT;
+			} else { // (this == LEFT)
+				return TOP;
+			}
+		}
+		public Side rotateLeft() {
+			return this.rotateRight().rotateRight().rotateRight();
+		}
 	}
 }
