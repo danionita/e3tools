@@ -37,17 +37,17 @@ import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
 
-import design.main.Info.Actor;
-import design.main.Info.Base;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
-import design.main.Info.LogicDot;
-import design.main.Info.MarketSegment;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueActivity;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
+import design.main.info.Actor;
+import design.main.info.Base;
+import design.main.info.EndSignal;
+import design.main.info.LogicBase;
+import design.main.info.LogicDot;
+import design.main.info.MarketSegment;
+import design.main.info.StartSignal;
+import design.main.info.ValueActivity;
+import design.main.info.ValueExchange;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 import design.main.listeners.KeyboardHandler;
 import design.main.listeners.ProxySelection;
 
@@ -168,12 +168,16 @@ public class E3GraphComponent extends mxGraphComponent {
 		getGraphControl().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
+				Object cell = graph.getSelectionCell();
+				mxGeometry gm = graph.getCellGeometry(cell);
+				
+				if (graph.getModel().getValue(cell) instanceof Base) {
+					Base base = (Base) graph.getModel().getValue(cell);
+					System.out.println(base.getSUID());
+				}
+
 				if (e.isPopupTrigger()) {
 					triggerContextMenu(e);
-				} else {
-					Object cell = graph.getSelectionCell();
-					mxGeometry gm = graph.getCellGeometry(cell);
-					System.out.println(gm);
 				}
 			}
 			

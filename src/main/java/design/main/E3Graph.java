@@ -25,6 +25,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
@@ -32,44 +37,62 @@ import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
+import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 
-import design.main.Info.Actor;
-import design.main.Info.Base;
-import design.main.Info.ConnectionElement;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
-import design.main.Info.LogicDot;
-import design.main.Info.MarketSegment;
-import design.main.Info.Side;
-import design.main.Info.SignalDot;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueActivity;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
 import design.main.Utils.GraphDelta;
+import design.main.info.Actor;
+import design.main.info.Base;
+import design.main.info.ConnectionElement;
+import design.main.info.EndSignal;
+import design.main.info.Info.Side;
+import design.main.info.LogicBase;
+import design.main.info.LogicDot;
+import design.main.info.MarketSegment;
+import design.main.info.SignalDot;
+import design.main.info.StartSignal;
+import design.main.info.ValueActivity;
+import design.main.info.ValueExchange;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 
 public class E3Graph extends mxGraph implements Serializable{
+    public static int newGraphCounter = 1;
+
 	public final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "MONEY-SECURED", "SERVICE")
 			);
 	public boolean isFraud;
 	public GraphDelta delta;
-        public String title;
+	public String title = "";
 	
 	public E3Graph(boolean isFraud) {
+		this(isFraud, null);
+	}
+	
+	public E3Graph(boolean isFraud, String title) {
 		this.isFraud = isFraud;
+		this.title = title;
+		
+		if (this.title == null) {
+			if (isFraud) {
+				this.title = "Fraud model " + newGraphCounter++;
+			} else {
+				this.title = "Value model " + newGraphCounter++;
+			}
+		}
 		
 		addStandardEventListeners();
 	}
 
 	public E3Graph(E3Graph original) {
 		isFraud = original.isFraud;
+		title = "Copy of " + original.title;
 		
 		getModel().beginUpdate();
 		try {
 			addCells(original.cloneCellsKeepSUIDs(original.getChildCells(original.getDefaultParent())));
+			valueObjects.clear();
 			valueObjects.addAll(original.valueObjects);
 		} finally {
 			getModel().endUpdate();
@@ -82,6 +105,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		this(original);
 		
 		this.isFraud = true;
+		this.title = "Fraud instance of " + original.title;
 		
 		// TODO: Remove possible fraud changes in original
 		// This line will have to merge deltas or something
@@ -439,7 +463,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		graph.getModel().beginUpdate();
 		try {
-			Info.ValueInterface viInfo = (ValueInterface) Utils.base(graph, vi);
+			ValueInterface viInfo = (ValueInterface) Utils.base(graph, vi);
 			
 			mxGeometry viGm = Utils.geometry(graph, vi);
 			mxGeometry parentGm = Utils.geometry(graph, vi.getParent());
@@ -582,8 +606,8 @@ public class E3Graph extends mxGraph implements Serializable{
 	public String convertValueToString(Object obj) {
 		mxICell cell = (mxICell) obj;
 		
-		if (cell.getValue() instanceof Info.Base) {
-			return ((Info.Base) cell.getValue()).toString();
+		if (cell.getValue() instanceof Base) {
+			return ((Base) cell.getValue()).toString();
 		}
 
 		return super.convertValueToString(cell);
@@ -592,17 +616,17 @@ public class E3Graph extends mxGraph implements Serializable{
 	@Override
 	public void cellLabelChanged(Object cell, Object newValue, boolean autoSize) {
 		Object oldValue = Utils.base(this, cell);
-		if (oldValue instanceof Info.Base) {
+		if (oldValue instanceof Base) {
 			if (newValue instanceof String) {
 				String name = (String) newValue;
-				if (oldValue instanceof Info.Actor) {
-					Info.Actor actor = (Info.Actor) oldValue;
+				if (oldValue instanceof Actor) {
+					Actor actor = (Actor) oldValue;
 					actor.name = name;
-				} else if (oldValue instanceof Info.MarketSegment) {
-					Info.MarketSegment marketSegment = (Info.MarketSegment) oldValue;
+				} else if (oldValue instanceof MarketSegment) {
+					MarketSegment marketSegment = (MarketSegment) oldValue;
 					marketSegment.name = name;
-				} else if (oldValue instanceof Info.ValueActivity) {
-					Info.ValueActivity valueActivity = (Info.ValueActivity) oldValue;
+				} else if (oldValue instanceof ValueActivity) {
+					ValueActivity valueActivity = (ValueActivity) oldValue;
 					valueActivity.name = name;
 				}
 			}			
@@ -653,7 +677,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		} H h = new H();
 		
 		for ( Object obj : clones) {
-			if (model.getValue(obj) instanceof Info.Base) {
+			if (model.getValue(obj) instanceof Base) {
 				mxCell cell = (mxCell) obj;
 				h.renewBasesAndIncreaseSUIDS(cell);
 			}
@@ -1169,7 +1193,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object rotateLogicRight(Object logic) {
 		Base value = Utils.base(this, logic);
 		
-		if (value instanceof Info.LogicDot) {
+		if (value instanceof LogicDot) {
 			logic = getModel().getParent(logic);
 		}
 
@@ -1245,6 +1269,78 @@ public class E3Graph extends mxGraph implements Serializable{
 		return null;
 	}
 	
+	/**
+	 * Turns a value model into a fraud model, or simply copies the model
+	 * if it is already a fraud model. If it is a value model also prepends
+	 * "Fraud model of " to the title. Lossless conversion.
+	 * @return
+	 */
+	public E3Graph toFraud() {
+		if (isFraud) {
+			return new E3Graph(this);
+		} 
+		
+		E3Graph fraud = new E3Graph(this);
+		fraud.title = "Fraud model of " + title;
+		fraud.isFraud = true;
+		
+		return fraud;
+	}
 	
+	/**
+	 * Converts the graph to a value graph if it is a fraud graph,
+	 * and simply copies it otherwise. Also prepends "Value model of " 
+	 * if it is a fraud model to the title. Lossy conversion (colluded
+	 * actors, hidden transactions, non-occurring transactions
+	 * are turned off)
+	 * @return
+	 */
+	public E3Graph toValue() {
+		if (!isFraud) {
+			return new E3Graph(this);
+		}
+		
+		E3Graph value = new E3Graph(this);
+		value.title = "Value model of " + title;
+		value.isFraud = false;
+		
+		value.getModel().beginUpdate();
+		try {
+			Utils.getAllCells(value).stream().forEach(obj -> {
+				Object val = value.getModel().getValue(obj);
+				
+				if (val instanceof Actor) {
+					value.setColludingActor(obj, false);
+				} else if (val instanceof ValueExchange) {
+					value.setValueExchangeNonOcurring(obj, false);
+					value.setValueExchangeHidden(obj, false);
+				}
+			});
+		} finally {
+			value.getModel().endUpdate();
+		}
+		
+		return value;
+	}
 	
+	public String toXML() {
+		GraphIO.assureRegistered();
+
+		mxCodec codec = new mxCodec();
+		return mxXmlUtils.getXml(codec.encode(getModel()));
+	}
+	
+	public static E3Graph fromXML(String xml) {
+		GraphIO.assureRegistered();
+		
+		Document document = mxXmlUtils.parseXml(xml);
+		
+		mxCodec codec = new mxCodec(document);
+		
+		E3Graph graph = new E3Graph(false);
+		
+		codec.decode(document.getDocumentElement(), graph.getModel());
+		
+		return graph;
+	}
 }

@@ -77,6 +77,12 @@
 			<artifactId>javax.json</artifactId>
 			<version>1.0.4</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/xstream/xstream -->
+		<dependency>
+			<groupId>xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.2.2</version>
+		</dependency>
     </dependencies>
     <build>
         <resources>

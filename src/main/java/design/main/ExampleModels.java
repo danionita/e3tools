@@ -25,9 +25,9 @@ import javax.swing.AbstractAction;
 
 import com.mxgraph.model.mxGraphModel;
 
-import design.main.Info.Side;
-import design.main.Info.ValuePort;
 import design.main.export.ConnectionVisitor;
+import design.main.info.Info.Side;
+import design.main.info.ValuePort;
 
 public class ExampleModels {
 	public static class SmallTricky extends AbstractAction {

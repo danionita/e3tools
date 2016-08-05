@@ -7,39 +7,45 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.json.Json;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParser.Event;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.swing.JOptionPane;
 
-import org.w3c.dom.Document;
-
-import com.mxgraph.io.mxCodec;
 import com.mxgraph.io.mxCodecRegistry;
 import com.mxgraph.io.mxObjectCodec;
-import com.mxgraph.util.mxXmlUtils;
 
-import design.main.Info.Actor;
-import design.main.Info.ConnectionElement;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicBase;
-import design.main.Info.LogicDot;
-import design.main.Info.MarketSegment;
-import design.main.Info.SignalDot;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueActivity;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
+import design.main.export.ObjectXStreamCodec;
+import design.main.info.Actor;
+import design.main.info.Base;
+import design.main.info.ConnectionElement;
+import design.main.info.EndSignal;
+import design.main.info.LogicBase;
+import design.main.info.LogicDot;
+import design.main.info.MarketSegment;
+import design.main.info.SignalDot;
+import design.main.info.StartSignal;
+import design.main.info.ValueActivity;
+import design.main.info.ValueExchange;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 
 public class GraphIO {
 
 	static boolean registered = false;
+	public static void assureRegistered() {
+		if (!registered) {
+			registerCodecs();
+			registered = true;
+		}
+	}
 
 	public static class ObjectCodecWithEnum extends mxObjectCodec {
 		public ObjectCodecWithEnum(Object template) {
@@ -97,28 +103,34 @@ public class GraphIO {
 		// support it; posted by gaudenz:
 		// http://forum.jgraph.com/questions/2302/how-to-encode-enums?page=1#3433
 		
-		mxCodecRegistry.addPackage(Info.class.getPackage().toString());
+		mxCodecRegistry.addPackage("design.main.info");
 		
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ValuePort()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ValueInterface()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new Actor()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new MarketSegment()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ValueActivity()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new SignalDot()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new LogicDot()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new LogicBase()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ValueExchange()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new StartSignal()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new EndSignal()));
-		mxCodecRegistry.register(new ObjectCodecWithEnum(new ConnectionElement()));
+		ObjectXStreamCodec xStreamCodec = new ObjectXStreamCodec();
+		mxCodecRegistry.register(xStreamCodec);	
+		
+		mxCodecRegistry.addAlias(ValuePort.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(ValueInterface.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(Actor.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(MarketSegment.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(ValueActivity.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(SignalDot.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(LogicDot.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(LogicBase.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(ValueExchange.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(StartSignal.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(EndSignal.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(ConnectionElement.class.getSimpleName(), xStreamCodec.getName());
 	}
 
-	public static E3Graph loadGraph(String fileName) throws IOException {
-		// necessary for this to work:
-		if (!registered)
-			registerCodecs();
-
-		ZipFile zf = new ZipFile(fileName);
+	public static Optional<E3Graph> loadGraph(String fileName) {
+		// TODO: Try-with-resource here
+		ZipFile zf;
+		try {
+			zf = new ZipFile(fileName);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return Optional.empty();
+		}
 
 		String properties = null, xml = null;
 		List<String[]> files = zf.stream().map(entry -> {
@@ -129,7 +141,7 @@ public class GraphIO {
 				String line;
 
 				while ((line = reader.readLine()) != null) {
-					out.append(line);
+					out.append(line + "\n");
 				}
 				reader.close();
 				
@@ -141,6 +153,10 @@ public class GraphIO {
 			return null;
 		}).collect(Collectors.toList());
 		
+		if (files.contains(null)) {
+			return Optional.empty();
+		}
+		
 		for (String[] file : files) {
 			if (file[0].equals("graph.xml")) {
 				xml = file[1];
@@ -148,71 +164,70 @@ public class GraphIO {
 				properties = file[1];
 			}
 		}
+		
+		E3Graph graph = E3Graph.fromXML(xml);
 
-		Document document = mxXmlUtils.parseXml(xml);
-		mxCodec codec = new mxCodec(document);
+		JsonObject json = Json.createReader(new StringReader(properties)).readObject();
 		
-		E3Graph graph = new E3Graph(false);
-		
-		codec.decode(document.getDocumentElement(), graph.getModel());
-		
-		JsonParser jsonParser = Json.createParser(new StringReader(properties));
-		while (jsonParser.hasNext()) {
-			Event e = jsonParser.next();
-			if (e == Event.KEY_NAME) {
-				String keyName = jsonParser.getString();
-				Event e2 = jsonParser.next();
-				
-				if (e2.equals(Event.VALUE_STRING)) {
-					if (keyName.equals("title")) {
-						graph.title = jsonParser.getString();
-					}
-				} else if (keyName.equals("fraud")) {
-					graph.isFraud = e2.equals(Event.VALUE_TRUE);
-				}
-			} 
+		if (json.containsKey("title")) {
+			graph.title = json.getString("title");
 		}
 		
-		return graph;
+		if (json.containsKey("fraud")) {
+			graph.isFraud = json.getBoolean("fraud");
+		}
+		
+		if (json.containsKey("valueObjects")) {
+			graph.valueObjects.clear();
+			JsonArray valueObjects = json.getJsonArray("valueObjects");
+			for (int i = 0;  i < valueObjects.size(); i++) {
+				graph.valueObjects.add(valueObjects.getString(i));
+			}
+		}
+		
+		try {
+			zf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Failed to close the zip stream");
+		}
+		
+		return Optional.of(graph);
 	}
 
-	public static void saveGraph(E3Graph graph, String fileName) {
-		// info: necessary for this to work:
-		if (!registered)
-			registerCodecs();
-
-		try {
-			// taken from EditorActions class
-			mxCodec codec = new mxCodec();
-			String xml = mxXmlUtils.getXml(codec.encode(graph.getModel()));
-			
-			String properties = Json.createObjectBuilder()
-					.add("fraud", graph.isFraud)
-					.add("title", graph.title == null ? "" : graph.title)
-					.build()
-					.toString();
-			
-			ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(fileName));
-			
-			{
-				zout.putNextEntry(new ZipEntry("graph.xml"));
-				byte[] b = xml.getBytes();
-				zout.write(b, 0, b.length);
-				zout.closeEntry();
-			}
-			
-			{
-				zout.putNextEntry(new ZipEntry("properties.json"));
-				byte[] b = properties.getBytes();
-				zout.write(b, 0, b.length);
-				zout.closeEntry();
-			}
-			
-			zout.close();
-			
-			JOptionPane.showMessageDialog(Main.mainFrame, "File saved to: " + fileName);
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+	public static void saveGraph(E3Graph graph, String fileName) throws IOException {
+		String xml = graph.toXML();
+		
+		JsonArrayBuilder valueObjectsJson = Json.createArrayBuilder();
+		for (String vo : graph.valueObjects) {
+			valueObjectsJson.add(vo);
 		}
+				
+		String properties = Json.createObjectBuilder()
+				.add("fraud", graph.isFraud)
+				.add("title", graph.title == null ? "" : graph.title)
+				.add("valueObjects", valueObjectsJson)
+				.build().toString();
+		
+		// TODO: Try-with-resource here!
+		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(fileName));
+		
+		{
+			zout.putNextEntry(new ZipEntry("graph.xml"));
+			byte[] b = xml.getBytes();
+			zout.write(b, 0, b.length);
+			zout.closeEntry();
+		}
+		
+		{
+			zout.putNextEntry(new ZipEntry("properties.json"));
+			byte[] b = properties.getBytes();
+			zout.write(b, 0, b.length);
+			zout.closeEntry();
+		}
+		
+		zout.close();
+		
+		JOptionPane.showMessageDialog(Main.mainFrame, "File saved to: " + fileName);
 	}
 }

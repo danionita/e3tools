@@ -27,10 +27,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -65,7 +63,6 @@ public class Main {
     public static final JFrame mainFrame = new JFrame("e3tools editor");
     public static Object contextTarget = null;
     public static mxPoint contextPos = new mxPoint(-1, -1);
-    public static int newGraphCounter = 1;
     public static ToolComponent globalTools;
     public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = true;
     public static final boolean DEBUG = true;
@@ -85,19 +82,12 @@ public class Main {
         return (E3Graph) getCurrentGraphComponent().getGraph();
     }
 
-    public String getCurrentGraphName() {
-        return ((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex())).title;
-    }
 
     public void addNewTabAndSwitch(boolean isFraud) {
         addNewTabAndSwitch(new E3Graph(isFraud));
     }
 
     public void addNewTabAndSwitch(E3Graph graph) {
-        addNewTabAndSwitch(graph, null);
-    }
-
-    public void addNewTabAndSwitch(E3Graph graph, String title) {
         E3GraphComponent graphComponent = new E3GraphComponent(graph);
         
         graph.getModel().beginUpdate();
@@ -113,23 +103,24 @@ public class Main {
         JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(), graphComponent);
         mainpane.setResizeWeight(0.025);
 
-        if (title == null) {
-            if (graph.isFraud) {
-                title = "New fraud model " + newGraphCounter++;
-            } else {
-                title = "New value model " + newGraphCounter++;
-            }
-        }
-
         if (graph.isFraud) {
-            Utils.addClosableTab(views, title, mainpane, IconStore.getImage("/e3f.png", 25, 25));
+            Utils.addClosableTab(views, graph.title, mainpane, IconStore.getImage("/e3f.png", 25, 25));
         } else {
-            Utils.addClosableTab(views, title, mainpane, IconStore.getImage("/e3v.png", 25, 25));
+            Utils.addClosableTab(views, graph.title, mainpane, IconStore.getImage("/e3v.png", 25, 25));
         }
 
         views.setSelectedIndex(views.getTabCount() - 1);
     }
+    
+    public void setCurrentTabTitle(String title) {
+    	((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex()))
+    		.setTitle(title);
+    }
 
+    public String getCurrentGraphTitle() {
+    	return getCurrentGraph().title;
+    }
+    
     public void addToolbarButton(String icon, String keyStroke, Runnable action) {
         JButton button = new JButton();
         button.setFocusPainted(false);
@@ -197,21 +188,24 @@ public class Main {
         fileMenu.add(new JMenuItem(new AbstractAction("Open...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addNewTabAndSwitch(Utils.openFile(mainFrame));
+            	Optional<E3Graph> graph = Utils.openFile(mainFrame);
+            	if (graph.isPresent()) {
+					addNewTabAndSwitch(graph.get());
+            	}
             }
         }));
         // TODO: Implement save shortcut
         fileMenu.add(new JMenuItem(new AbstractAction("Save (ctrl+s)") {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	// TODO: Make this function save to the same path as the file was loaded from
                 Utils.saveFile(mainFrame, getCurrentGraph());
             }
         }));
-        // TODO: Implement save functionality
         JMenuItem saveAs = new JMenuItem(new AbstractAction("Save as...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(mainFrame, "Save functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
+                Utils.saveFile(mainFrame, getCurrentGraph());
             }
         });
         fileMenu.add(saveAs);
@@ -223,21 +217,22 @@ public class Main {
         JMenuItem exportRDF = new JMenuItem(new AbstractAction("RDF") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(new RDFExport(getCurrentGraph()).toString());
+                System.out.println(new RDFExport(getCurrentGraph(), true).toString());
             }
         });
         exportMenu.add(exportRDF);
         JMenuItem exportJSON = new JMenuItem(new AbstractAction("JSON") {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                new JSONExport(getCurrentGraph(), getCurrentGraphName()).generateJSON();
+                new JSONExport(getCurrentGraph(), getCurrentGraphTitle()).generateJSON();
             }
         });
         exportMenu.add(exportJSON);
+        // TODO: implement image exporting (see jgraphx manual, I think
+        // they already support png and pdf, maybe even more)
         JMenuItem exportImage = new JMenuItem(new AbstractAction("Image") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
 
             }
         });
@@ -385,21 +380,39 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getCurrentGraph().isFraud) {
-                    // TODO: Make this possible
-                    JOptionPane.showMessageDialog(
-                            Main.mainFrame,
-                            "Conversion from fraud to value model is not yet implemented",
-                            "Functionality not implemented",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
+					int response = JOptionPane.showConfirmDialog(
+							Main.mainFrame,
+							"Converting a fraud model to a value model will "
+							+ "cause information about colluded actors, hidden "
+							+ "transactions, and non-occurring transactions "
+							+ "to be lost. Continue?",
+							"Conversion confirmation",
+							JOptionPane.OK_CANCEL_OPTION,
+							JOptionPane.WARNING_MESSAGE
+							);
+                	
+					if (response == JOptionPane.OK_OPTION) {
+						addNewTabAndSwitch(getCurrentGraph().toValue());
+					}
                 } else {
-                    E3Graph newGraph = new E3Graph(getCurrentGraph());
-                    newGraph.isFraud = true;
-                    addNewTabAndSwitch(newGraph, "Fraud model of " + getCurrentGraphName());
+                    addNewTabAndSwitch(getCurrentGraph().toFraud());
                 }
             }
         });
         modelMenu.add(changeType);
+        modelMenu.add(new AbstractAction("Change title") {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String newTitle = JOptionPane.showInputDialog(
+						mainFrame, 
+						"Enter new model title",
+						"Rename \"" + getCurrentGraphTitle() + "\"",
+						JOptionPane.QUESTION_MESSAGE);
+				
+				getCurrentGraph().title = newTitle;
+				Main.this.setCurrentTabTitle(newTitle);
+			}
+        });
         modelMenu.addSeparator();
         modelMenu.add(new JMenuItem(new AbstractAction("ValueObjects...") {
             @Override
@@ -481,8 +494,8 @@ public class Main {
                     return;
                 }
 
-                JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
-                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphTitle() + "\"");
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
                 FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
                 // TODO: Maybe add icons for fraud analysis as well?
                 frame.add(fraudWindowInstance);
@@ -494,10 +507,10 @@ public class Main {
         toolMenu.add(new JMenuItem(new AbstractAction("Profitability chart...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+                RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
                 JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !getCurrentGraph().isFraud);
                 if (chart != null) {
-                    ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
+                    ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphTitle() + "\"", chart);
                     chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
                     chartframe1.pack();
                     chartframe1.setLocationByPlatform(true);
@@ -615,19 +628,24 @@ public class Main {
 
         // Change type
         addToolbarButton("page_refresh", "Change model type (e3value<->e3fraud)", null, () -> {
-            if (getCurrentGraph().isFraud) {
-                // TODO: Make this possible
-                JOptionPane.showMessageDialog(
-                        Main.mainFrame,
-                        "Conversion from fraud to value model is not yet implemented",
-                        "Functionality not implemented",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            } else {
-                E3Graph newGraph = new E3Graph(getCurrentGraph());
-                newGraph.isFraud = true;
-                addNewTabAndSwitch(newGraph, "Fraud model of " + getCurrentGraphName());
-            }
+			if (getCurrentGraph().isFraud) {
+				int response = JOptionPane.showConfirmDialog(
+						Main.mainFrame,
+						"Converting a fraud model to a value model will "
+						+ "cause information about colluded actors, hidden "
+						+ "transactions, and non-occurring transactions "
+						+ "to be lost. Continue?",
+						"Conversion confirmation",
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.WARNING_MESSAGE
+						);
+				
+				if (response == JOptionPane.OK_OPTION) {
+					addNewTabAndSwitch(getCurrentGraph().toValue());
+				}
+			} else {
+				addNewTabAndSwitch(getCurrentGraph().toFraud());
+                }
         });
 
         // Value Objects editor
@@ -657,8 +675,8 @@ public class Main {
                 return;
             }
 
-            JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphName() + "\"");
-            RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+            JFrame frame = new JFrame("Fraud analysis of \"" + getCurrentGraphTitle() + "\"");
+            RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
             FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(getCurrentGraph()), new E3Model(rdfExporter.model), Main.this, frame); //, getCurrentGraphName());
             // TODO: Maybe add icons for fraud analysis as well?
             frame.add(fraudWindowInstance);
@@ -668,10 +686,10 @@ public class Main {
 
         // profitability analysis
         addToolbarButton("chart_curve", "Profitability analysis", null, () -> {
-            RDFExport rdfExporter = new RDFExport(getCurrentGraph());
+            RDFExport rdfExporter = new RDFExport(getCurrentGraph(), true);
             JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !getCurrentGraph().isFraud);
             if (chart != null) {
-                ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphName() + "\"", chart);
+                ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + getCurrentGraphTitle() + "\"", chart);
                 chartframe1.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
                 chartframe1.pack();
                 chartframe1.setLocationByPlatform(true);

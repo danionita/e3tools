@@ -24,17 +24,23 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -43,6 +49,8 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -54,29 +62,17 @@ import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
-import design.main.Info.Base;
-import design.main.Info.EndSignal;
-import design.main.Info.LogicDot;
-import design.main.Info.SignalDot;
-import design.main.Info.StartSignal;
-import design.main.Info.ValueExchange;
-import design.main.Info.ValueInterface;
-import design.main.Info.ValuePort;
+import design.main.info.Base;
+import design.main.info.EndSignal;
+import design.main.info.Info;
+import design.main.info.LogicDot;
+import design.main.info.SignalDot;
+import design.main.info.StartSignal;
+import design.main.info.ValueExchange;
+import design.main.info.ValueInterface;
+import design.main.info.ValuePort;
 import design.vocabulary.E3value;
 import e3fraud.tools.currentTime;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Utils {
 
@@ -350,11 +346,71 @@ public class Utils {
     }
 
     public static class ClosableTabHeading extends JPanel {
-
         public final String title;
+		private ImageIcon icon;
+		private JTabbedPane container;
+		private Component tab;
+		private JLabel label;
 
-        ClosableTabHeading(String title) {
+        ClosableTabHeading(String title, ImageIcon icon, JTabbedPane container, Component tab) {
             this.title = title;
+			this.icon = icon;
+			this.container = container;
+			this.tab = tab;
+			
+			setOpaque(false);
+			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+			if (icon != null) {
+				add(new JLabel(icon));
+			}
+
+			add(Box.createHorizontalStrut(5));
+
+			label = new JLabel(title);
+			add(label);
+
+			JLabel close = new JLabel("✖");
+			Border border = close.getBorder();
+			Border insideMargin = new EmptyBorder(2, 2, 2, 2);
+			Border outsideMargin = new EmptyBorder(2, 6, 2, 0);
+			Border noLineBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+			Border lowerLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+			Border raisedLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+
+			Border normalBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(noLineBorder, insideMargin)));
+			Border hoverBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(raisedLineBorder, insideMargin)));
+			Border pressBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(lowerLineBorder, insideMargin)));
+
+			close.setBorder(normalBorder);
+
+			close.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					container.remove(tab);
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+					close.setBorder(pressBorder);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
+					close.setBorder(normalBorder);
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					close.setBorder(hoverBorder);
+				}
+			});
+
+			add(close);
+        }
+        
+        public void setTitle(String title) {
+        	label.setText(title);
         }
     }
 
@@ -369,62 +425,12 @@ public class Utils {
     public static Component addClosableTab(JTabbedPane panes, String title, Component component, ImageIcon icon) {
         Component thisTab = panes.add(component);
 
-        JPanel heading = new ClosableTabHeading(title);
-        heading.setOpaque(false);
-        heading.setLayout(new BoxLayout(heading, BoxLayout.X_AXIS));
-
-        if (icon != null) {
-            heading.add(new JLabel(icon));
-        }
-
-        heading.add(Box.createHorizontalStrut(5));
-
-        JLabel label = new JLabel(title);
-        heading.add(label);
-
-        JLabel close = new JLabel("✖");
-        Border border = close.getBorder();
-        Border insideMargin = new EmptyBorder(2, 2, 2, 2);
-        Border outsideMargin = new EmptyBorder(2, 6, 2, 0);
-        Border noLineBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-        Border lowerLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-        Border raisedLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
-
-        Border normalBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(noLineBorder, insideMargin)));
-        Border hoverBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(raisedLineBorder, insideMargin)));
-        Border pressBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(lowerLineBorder, insideMargin)));
-
-        close.setBorder(normalBorder);
-
-        close.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                panes.remove(thisTab);
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                close.setBorder(pressBorder);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                close.setBorder(normalBorder);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                close.setBorder(hoverBorder);
-            }
-        });
-
-        heading.add(close);
-
+        JPanel heading = new ClosableTabHeading(title, icon, panes, thisTab);
         panes.setTabComponentAt(panes.indexOfComponent(thisTab), heading);
 
         return thisTab;
     }
-
+    
     public static class GraphDelta {
 
         public List<Long> nonOccurringTransactions = new ArrayList<>();
@@ -530,7 +536,7 @@ public class Utils {
         ));
     }
 
-    public static E3Graph openFile(JFrame mainFrame) {
+    public static Optional<E3Graph> openFile(JFrame mainFrame) {
         JFileChooser fc = new JFileChooser();
 
         FileFilter rdfFilter = new FileNameExtensionFilter("e3tool file", "e3");
@@ -541,19 +547,23 @@ public class Utils {
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
-            FileInputStream fin = null;
 
-            try {
-				return GraphIO.loadGraph(file.getAbsolutePath());
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
+			Optional<E3Graph> result = GraphIO.loadGraph(file.getAbsolutePath());
+			
+			if (!result.isPresent()) {
+				JOptionPane.showMessageDialog(
+						mainFrame,
+						"Error during file loading. Please make sure the file destination is accesible.",
+						"Loading error",
+						JOptionPane.ERROR_MESSAGE);
 			}
+			
+			return result;
         } else {
             System.out.println(currentTime.currentTime() + " Open command cancelled by user.");
         }
         
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -601,7 +611,17 @@ public class Utils {
             	file.delete();
             }
             
-            GraphIO.saveGraph(graph, file.getAbsolutePath());
+            try {
+				GraphIO.saveGraph(graph, file.getAbsolutePath());
+			} catch (IOException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(
+						mainFrame,
+						"Error during file saving. Please make sure the file destination is accesible.",
+						"Saving error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 
             System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
         } else {
