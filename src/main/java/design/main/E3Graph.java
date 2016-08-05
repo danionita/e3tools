@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
@@ -55,6 +53,7 @@ import design.main.info.ValueActivity;
 import design.main.info.ValueExchange;
 import design.main.info.ValueInterface;
 import design.main.info.ValuePort;
+import java.io.File;
 
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
@@ -65,6 +64,8 @@ public class E3Graph extends mxGraph implements Serializable{
 	public boolean isFraud;
 	public GraphDelta delta;
 	public String title = "";
+        
+        public File file;
 	
 	public E3Graph(boolean isFraud) {
 		this(isFraud, null);

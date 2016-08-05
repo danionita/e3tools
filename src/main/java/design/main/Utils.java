@@ -346,71 +346,72 @@ public class Utils {
     }
 
     public static class ClosableTabHeading extends JPanel {
+
         public final String title;
-		private ImageIcon icon;
-		private JTabbedPane container;
-		private Component tab;
-		private JLabel label;
+        private ImageIcon icon;
+        private JTabbedPane container;
+        private Component tab;
+        private JLabel label;
 
         ClosableTabHeading(String title, ImageIcon icon, JTabbedPane container, Component tab) {
             this.title = title;
-			this.icon = icon;
-			this.container = container;
-			this.tab = tab;
-			
-			setOpaque(false);
-			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            this.icon = icon;
+            this.container = container;
+            this.tab = tab;
 
-			if (icon != null) {
-				add(new JLabel(icon));
-			}
+            setOpaque(false);
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-			add(Box.createHorizontalStrut(5));
+            if (icon != null) {
+                add(new JLabel(icon));
+            }
 
-			label = new JLabel(title);
-			add(label);
+            add(Box.createHorizontalStrut(5));
 
-			JLabel close = new JLabel("✖");
-			Border border = close.getBorder();
-			Border insideMargin = new EmptyBorder(2, 2, 2, 2);
-			Border outsideMargin = new EmptyBorder(2, 6, 2, 0);
-			Border noLineBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-			Border lowerLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-			Border raisedLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+            label = new JLabel(title);
+            add(label);
 
-			Border normalBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(noLineBorder, insideMargin)));
-			Border hoverBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(raisedLineBorder, insideMargin)));
-			Border pressBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(lowerLineBorder, insideMargin)));
+            JLabel close = new JLabel("✖");
+            Border border = close.getBorder();
+            Border insideMargin = new EmptyBorder(2, 2, 2, 2);
+            Border outsideMargin = new EmptyBorder(2, 6, 2, 0);
+            Border noLineBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+            Border lowerLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+            Border raisedLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
 
-			close.setBorder(normalBorder);
+            Border normalBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(noLineBorder, insideMargin)));
+            Border hoverBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(raisedLineBorder, insideMargin)));
+            Border pressBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(lowerLineBorder, insideMargin)));
 
-			close.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseReleased(MouseEvent e) {
-					container.remove(tab);
-				}
+            close.setBorder(normalBorder);
 
-				@Override
-				public void mousePressed(MouseEvent e) {
-					close.setBorder(pressBorder);
-				}
+            close.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    container.remove(tab);
+                }
 
-				@Override
-				public void mouseExited(MouseEvent e) {
-					close.setBorder(normalBorder);
-				}
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    close.setBorder(pressBorder);
+                }
 
-				@Override
-				public void mouseEntered(MouseEvent e) {
-					close.setBorder(hoverBorder);
-				}
-			});
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    close.setBorder(normalBorder);
+                }
 
-			add(close);
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    close.setBorder(hoverBorder);
+                }
+            });
+
+            add(close);
         }
-        
+
         public void setTitle(String title) {
-        	label.setText(title);
+            label.setText(title);
         }
     }
 
@@ -430,7 +431,7 @@ public class Utils {
 
         return thisTab;
     }
-    
+
     public static class GraphDelta {
 
         public List<Long> nonOccurringTransactions = new ArrayList<>();
@@ -536,51 +537,45 @@ public class Utils {
         ));
     }
 
-    public static Optional<E3Graph> openFile(JFrame mainFrame) {
-        JFileChooser fc = new JFileChooser();
+    public static Optional<E3Graph> openFile(JFrame mainFrame, JFileChooser fc) {
 
-        FileFilter rdfFilter = new FileNameExtensionFilter("e3tool file", "e3");
-        fc.addChoosableFileFilter(rdfFilter);
-        fc.setFileFilter(rdfFilter);
-
+  
         int returnVal = fc.showOpenDialog(mainFrame);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
 
-			Optional<E3Graph> result = GraphIO.loadGraph(file.getAbsolutePath());
-			
-			if (!result.isPresent()) {
-				JOptionPane.showMessageDialog(
-						mainFrame,
-						"Error during file loading. Please make sure the file destination is accesible.",
-						"Loading error",
-						JOptionPane.ERROR_MESSAGE);
-			}
-			
-			return result;
+            Optional<E3Graph> result = GraphIO.loadGraph(file.getAbsolutePath());
+            //set original file
+            result.get().file = file;
+
+            if (!result.isPresent()) {
+                JOptionPane.showMessageDialog(
+                        mainFrame,
+                        "Error during file loading. Please make sure the file destination is accesible.",
+                        "Loading error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+            return result;
         } else {
             System.out.println(currentTime.currentTime() + " Open command cancelled by user.");
         }
-        
+
         return Optional.empty();
     }
 
     /**
-     * TODO: Do it this way: https://forum.jgraph.com/accept_answer/4852/index.html
+     * TODO: Do it this way:
+     * https://forum.jgraph.com/accept_answer/4852/index.html
+     *
      * @param mainFrame
      * @param graph
-     * @return
      */
-    public static void saveFile(JFrame mainFrame, E3Graph graph) {
-        JFileChooser fc = new JFileChooser();
-
-        FileFilter rdfFilter = new FileNameExtensionFilter("e3tool file", "e3");
-        fc.addChoosableFileFilter(rdfFilter);
-        fc.setFileFilter(rdfFilter);
+    public static void saveAs(JFrame mainFrame, E3Graph graph, JFileChooser fc) {
 
         int returnVal = fc.showSaveDialog(mainFrame);
-        
+
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
 
@@ -590,42 +585,55 @@ public class Utils {
                 extension = file.getName().substring(i + 1);
             }
 
-            if(!extension.equals("e3")){
-				String fileWithExtension = file + ".e3";            
-				file = new File(fileWithExtension);
+            if (!extension.equals("e3")) {
+                String fileWithExtension = file + ".e3";
+                file = new File(fileWithExtension);
             }
-            
+
             if (file.exists()) {
-            	int result = JOptionPane.showConfirmDialog(
-            			mainFrame,
-            			fc.getSelectedFile() + " already exists. Would you like to overwrite it?",
-            			"File already exists",
-            			JOptionPane.OK_CANCEL_OPTION,
-            			JOptionPane.WARNING_MESSAGE);
-            	
-            	if (result != JOptionPane.OK_OPTION) {
-					System.out.println(currentTime.currentTime() + " Save command cancelled by user.");
-            		return;
-            	}
-            	
-            	file.delete();
+                int result = JOptionPane.showConfirmDialog(
+                        mainFrame,
+                        fc.getSelectedFile() + " already exists. Would you like to overwrite it?",
+                        "File already exists",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+
+                if (result != JOptionPane.OK_OPTION) {
+                    System.out.println(currentTime.currentTime() + " Save command cancelled by user.");
+                    return;
+                }
+
+                file.delete();
             }
-            
-            try {
-				GraphIO.saveGraph(graph, file.getAbsolutePath());
-			} catch (IOException e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(
-						mainFrame,
-						"Error during file saving. Please make sure the file destination is accesible.",
-						"Saving error",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			}
+
+            saveToFile(mainFrame, graph, file);
 
             System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
         } else {
             System.out.println(currentTime.currentTime() + " Save command cancelled by user.");
         }
+    }
+
+    /**
+     * TODO: Do it this way:
+     * https://forum.jgraph.com/accept_answer/4852/index.html
+     *
+     * @param mainFrame
+     * @param graph
+     * @param file
+     */
+    public static void saveToFile(JFrame mainFrame, E3Graph graph, File file) {
+        try {
+            GraphIO.saveGraph(graph, file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    mainFrame,
+                    "Error during file saving. Please make sure the file destination is accesible.",
+                    "Saving error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
     }
 }

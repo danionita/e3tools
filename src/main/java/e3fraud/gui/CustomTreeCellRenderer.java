@@ -28,6 +28,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.UIManager;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -39,8 +42,7 @@ import javax.swing.tree.TreeCellRenderer;
  */
 class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
 
-    private final Color selectionBackground;
-    private final Color background;
+    private final Color selectionBackground, background, text, selectedText,foreground;
     private final JTree tree;
     private int avaiableWidth,requiredHeight;
     private JLabel left;
@@ -50,6 +52,9 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
         DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
         selectionBackground = renderer.getBackgroundSelectionColor();
         background = renderer.getBackgroundNonSelectionColor();
+        text = renderer.getTextNonSelectionColor();
+        foreground = renderer.getForeground();
+        selectedText = renderer.getTextSelectionColor();
         this.tree = tree;
 
     }
@@ -68,34 +73,43 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
         if (node.getUserObject() instanceof E3Model) {
              model = (E3Model) node.getUserObject();
+             
             left = new JLabel(Integer.toString(node.getParent().getIndex(node) + 1));
             left.setFont(new Font("Arial", Font.BOLD, 14));
-            //JLabel right = new JLabel(model.getDescription());
-            //right.setLineWrap(true);
-            //right.setWrapStyleWord(true);
 
             right = new JEditorPane();
             right.setContentType("text/html");
             right.setEditable(false);
             
-            //calculate right pane's required height based on its content and how wide the tree is
+            //set a fixed witdh 
             avaiableWidth = tree.getParent().getWidth() - left.getPreferredSize().width-2; 
             right.setSize(avaiableWidth,Short.MAX_VALUE);
             right.setText(model.getPrefix()+"\n"+model.getDescription());
-            requiredHeight = right.getPreferredSize().height;
-            //System.out.println(requiredHeight);
 
-            right.setPreferredSize(new Dimension(avaiableWidth,requiredHeight));
             
-            //set the font of right to system defaul:
-            Font font = UIManager.getFont("Label.font");
+            //set the font of right to system default:
+            Font font = UIManager.getFont("Tree.font");
             String bodyRule = "body { font-family: " + font.getFamily() + "; "
-                    + "font-size: " + font.getSize() + "pt; }";
+                    + "font-size: " + font.getSize() + "pt; color: green;}";
             ((HTMLDocument) right.getDocument()).getStyleSheet().addRule(bodyRule);
 
-
-            panel.setBackground(selected ? selectionBackground : background);
+            //make the cells adopt the System L&F colors
             right.setBackground(selected ? selectionBackground : background);
+            panel.setBackground(selected ? selectionBackground : background);
+            left.setForeground(selected ? selectedText : text);
+           
+            //Do the same for the HTML box (right)
+            StyledDocument doc = (StyledDocument) right.getDocument();
+            SimpleAttributeSet attrs = new SimpleAttributeSet();
+            StyleConstants.setForeground(attrs, selected ? selectedText : text);
+            StyleConstants.setBackground(attrs, selected ? selectionBackground : background);
+            doc.setParagraphAttributes(0, doc.getLength(), attrs, false);
+            right.setDocument(doc);
+            
+            //calculate right pane's required height based on its content and how wide the tree is
+            requiredHeight = right.getPreferredSize().height;            
+            right.setPreferredSize(new Dimension(avaiableWidth,requiredHeight));
+            
             panel.add(left);
             panel.add(right);
 
@@ -110,15 +124,6 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
         }
     }
     
-@Override
-public Dimension getPreferredSize() {
-    //System.out.println("there");
-            avaiableWidth = tree.getParent().getWidth() - this.left.getPreferredSize().width-17;
-            right.setSize(avaiableWidth,Short.MAX_VALUE);
-            right.setText(model.getPrefix()+"\n"+model.getDescription());
-            requiredHeight = right.getPreferredSize().height;
-    return new Dimension(avaiableWidth,requiredHeight);
-}
     
     
     

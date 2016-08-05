@@ -57,6 +57,10 @@ import design.main.export.RDFExport;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
+import static design.main.Utils.openWebpage;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Main {
 
@@ -66,6 +70,8 @@ public class Main {
     public static ToolComponent globalTools;
     public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = true;
     public static final boolean DEBUG = true;
+    public JFileChooser fc;
+
 
     int CHART_WIDTH = 500;
     int CHART_HEIGHT = 400;
@@ -82,14 +88,13 @@ public class Main {
         return (E3Graph) getCurrentGraphComponent().getGraph();
     }
 
-
     public void addNewTabAndSwitch(boolean isFraud) {
         addNewTabAndSwitch(new E3Graph(isFraud));
     }
 
     public void addNewTabAndSwitch(E3Graph graph) {
         E3GraphComponent graphComponent = new E3GraphComponent(graph);
-        
+
         graph.getModel().beginUpdate();
         try {
             // Playground for custom shapes
@@ -111,16 +116,16 @@ public class Main {
 
         views.setSelectedIndex(views.getTabCount() - 1);
     }
-    
+
     public void setCurrentTabTitle(String title) {
-    	((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex()))
-    		.setTitle(title);
+        ((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex()))
+                .setTitle(title);
     }
 
     public String getCurrentGraphTitle() {
-    	return getCurrentGraph().title;
+        return getCurrentGraph().title;
     }
-    
+
     public void addToolbarButton(String icon, String keyStroke, Runnable action) {
         JButton button = new JButton();
         button.setFocusPainted(false);
@@ -155,14 +160,20 @@ public class Main {
     public Main() {
         // Silly log4j
         Logger.getRootLogger().setLevel(Level.OFF);
-
+        
         if (mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll) {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception e) {
                 System.out.println("Couldn't set Look and Feel to system");
             }
-        }
+        }       
+        
+        //create and instantiate re-usable fileChooser
+        fc = new JFileChooser();
+        FileFilter e3Filter = new FileNameExtensionFilter("e3tool file", "e3");
+        fc.addChoosableFileFilter(e3Filter);
+        fc.setFileFilter(e3Filter);
 
         // Add menubar
         JMenuBar menuBar = new JMenuBar();
@@ -188,27 +199,31 @@ public class Main {
         fileMenu.add(new JMenuItem(new AbstractAction("Open...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	Optional<E3Graph> graph = Utils.openFile(mainFrame);
-            	if (graph.isPresent()) {
-					addNewTabAndSwitch(graph.get());
-            	}
+                Optional<E3Graph> graph = Utils.openFile(mainFrame, fc);
+                if (graph.isPresent()) {
+                    addNewTabAndSwitch(graph.get());
+                }
             }
         }));
         // TODO: Implement save shortcut
         fileMenu.add(new JMenuItem(new AbstractAction("Save (ctrl+s)") {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	// TODO: Make this function save to the same path as the file was loaded from
-                Utils.saveFile(mainFrame, getCurrentGraph());
+                if (getCurrentGraph().file == null) {
+                    Utils.saveAs(mainFrame, getCurrentGraph(), fc);
+                } else {
+                    Utils.saveToFile(mainFrame, getCurrentGraph(), getCurrentGraph().file);
+                }
             }
         }));
-        JMenuItem saveAs = new JMenuItem(new AbstractAction("Save as...") {
+
+        fileMenu.add(new JMenuItem(new AbstractAction("Save as...") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Utils.saveFile(mainFrame, getCurrentGraph());
+                Utils.saveAs(mainFrame, getCurrentGraph(), fc);
             }
-        });
-        fileMenu.add(saveAs);
+        }));
+
         fileMenu.addSeparator();
 
         // TODO: Implement export functionality
@@ -380,20 +395,20 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (getCurrentGraph().isFraud) {
-					int response = JOptionPane.showConfirmDialog(
-							Main.mainFrame,
-							"Converting a fraud model to a value model will "
-							+ "cause information about colluded actors, hidden "
-							+ "transactions, and non-occurring transactions "
-							+ "to be lost. Continue?",
-							"Conversion confirmation",
-							JOptionPane.OK_CANCEL_OPTION,
-							JOptionPane.WARNING_MESSAGE
-							);
-                	
-					if (response == JOptionPane.OK_OPTION) {
-						addNewTabAndSwitch(getCurrentGraph().toValue());
-					}
+                    int response = JOptionPane.showConfirmDialog(
+                            Main.mainFrame,
+                            "Converting a fraud model to a value model will "
+                            + "cause information about colluded actors, hidden "
+                            + "transactions, and non-occurring transactions "
+                            + "to be lost. Continue?",
+                            "Conversion confirmation",
+                            JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.WARNING_MESSAGE
+                    );
+
+                    if (response == JOptionPane.OK_OPTION) {
+                        addNewTabAndSwitch(getCurrentGraph().toValue());
+                    }
                 } else {
                     addNewTabAndSwitch(getCurrentGraph().toFraud());
                 }
@@ -401,17 +416,17 @@ public class Main {
         });
         modelMenu.add(changeType);
         modelMenu.add(new AbstractAction("Change title") {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				String newTitle = JOptionPane.showInputDialog(
-						mainFrame, 
-						"Enter new model title",
-						"Rename \"" + getCurrentGraphTitle() + "\"",
-						JOptionPane.QUESTION_MESSAGE);
-				
-				getCurrentGraph().title = newTitle;
-				Main.this.setCurrentTabTitle(newTitle);
-			}
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                String newTitle = JOptionPane.showInputDialog(
+                        mainFrame,
+                        "Enter new model title",
+                        "Rename \"" + getCurrentGraphTitle() + "\"",
+                        JOptionPane.QUESTION_MESSAGE);
+
+                getCurrentGraph().title = newTitle;
+                Main.this.setCurrentTabTitle(newTitle);
+            }
         });
         modelMenu.addSeparator();
         modelMenu.add(new JMenuItem(new AbstractAction("ValueObjects...") {
@@ -582,12 +597,19 @@ public class Main {
 
         // Open
         addToolbarButton("folder", "Open model", null, () -> {
-            JOptionPane.showMessageDialog(mainFrame, "Open functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
+            Optional<E3Graph> graph = Utils.openFile(mainFrame, fc);
+            if (graph.isPresent()) {
+                addNewTabAndSwitch(graph.get());
+            }
         });
 
         // Save
-        addToolbarButton("disk", "Save model", null, () -> {
-            JOptionPane.showMessageDialog(mainFrame, "Save functionality is not implemented yet", "Error", JOptionPane.ERROR_MESSAGE);
+        addToolbarButton("disk", "Save model", "control S", () -> {
+            if (getCurrentGraph().file == null) {
+                Utils.saveAs(mainFrame, getCurrentGraph(), fc);
+            } else {
+                Utils.saveToFile(mainFrame, getCurrentGraph(), getCurrentGraph().file);
+            }
         });
 
         toolbar.addSeparator();
@@ -628,24 +650,24 @@ public class Main {
 
         // Change type
         addToolbarButton("page_refresh", "Change model type (e3value<->e3fraud)", null, () -> {
-			if (getCurrentGraph().isFraud) {
-				int response = JOptionPane.showConfirmDialog(
-						Main.mainFrame,
-						"Converting a fraud model to a value model will "
-						+ "cause information about colluded actors, hidden "
-						+ "transactions, and non-occurring transactions "
-						+ "to be lost. Continue?",
-						"Conversion confirmation",
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.WARNING_MESSAGE
-						);
-				
-				if (response == JOptionPane.OK_OPTION) {
-					addNewTabAndSwitch(getCurrentGraph().toValue());
-				}
-			} else {
-				addNewTabAndSwitch(getCurrentGraph().toFraud());
+            if (getCurrentGraph().isFraud) {
+                int response = JOptionPane.showConfirmDialog(
+                        Main.mainFrame,
+                        "Converting a fraud model to a value model will "
+                        + "cause information about colluded actors, hidden "
+                        + "transactions, and non-occurring transactions "
+                        + "to be lost. Continue?",
+                        "Conversion confirmation",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                if (response == JOptionPane.OK_OPTION) {
+                    addNewTabAndSwitch(getCurrentGraph().toValue());
                 }
+            } else {
+                addNewTabAndSwitch(getCurrentGraph().toFraud());
+            }
         });
 
         // Value Objects editor
