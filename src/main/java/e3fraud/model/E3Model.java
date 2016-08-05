@@ -802,13 +802,14 @@ public class E3Model {
         try {
             /* Step - 1: Define the data for the series  */
             //we only need 50 values so divide interval to 50
-            double step = (endValue - (double) startValue) / 50;
+            double step = ((float)endValue  -  (float) startValue) / 50;
             //calculate profit for each (occurence) value:
-            for (double i = startValue; i < endValue; i += step) {
+            for (double i = startValue; i <= endValue; i += step) {
                 this.updateNeedOccurrence(need, i);
                 this.enhance();
                 //For each actor
                 for (Resource actor : actors) {
+                    System.out.println("Actor "+actor.getProperty(E3value.e3_has_name).getString()+" O="+i+" ; v="+this.getTotalForActor(actor, ideal));
                     //add it's profit to the relevant series
                     actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
                 }

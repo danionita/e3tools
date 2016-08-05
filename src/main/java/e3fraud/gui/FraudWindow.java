@@ -235,7 +235,6 @@ public class FraudWindow extends javax.swing.JPanel {
 
         needStartField.setText("1");
         needStartField.setPreferredSize(new java.awt.Dimension(25, 22));
-        needStartField.setRequestFocusEnabled(false);
 
         needEndField.setText("500");
         needEndField.setPreferredSize(new java.awt.Dimension(25, 22));
