@@ -67,15 +67,12 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Main {
-
     public static final JFrame mainFrame = new JFrame("e3tools editor");
     public static Object contextTarget = null;
     public static mxPoint contextPos = new mxPoint(-1, -1);
     public static ToolComponent globalTools;
     public static final boolean mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll = true;
     public static final boolean DEBUG = true;
-    public JFileChooser fc;
-
 
     public static final int DEFAULT_CHART_WIDTH = 500;
     public static final int DEFAULT_CHART_HEIGHT = 400;
@@ -199,10 +196,6 @@ public class Main {
         JMenu editMenu = new JMenu("Edit");
 
         editMenu.add(new EditorActions.Cut(this));
-        // TODO: Make sure the binding of EditorActions to shortcuts is made separately 
-        // from both menuitems and icon buttons!
-        // So we need a function call like 
-        // "addEditorShortcut("ctrl+c", new EditorActions.Copy(this))" or smth
         editMenu.add(new EditorActions.Copy(this));
         editMenu.add(new EditorActions.Paste(this));
         editMenu.add(new EditorActions.Delete(this));
@@ -249,8 +242,6 @@ public class Main {
         modelMenu.add(new EditorActions.ShowValueObjectsPanel(this));
         modelMenu.add(new EditorActions.ShowValueTransactionsPanel(this));
 
-        // To change "change type" to "convert to fraud" or "convert to value" depending on current graph
-        // TODO: Put this logic in the changetype menu item (with ancestorlistener or smth?)
         modelMenu.addMenuListener(new MenuListener() {
             @Override
             public void menuSelected(MenuEvent e) {
