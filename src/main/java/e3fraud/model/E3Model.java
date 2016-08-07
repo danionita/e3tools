@@ -37,7 +37,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-import design.main.Utils;
+import design.Utils;
 import e3fraud.vocabulary.E3value;
 
 /**
