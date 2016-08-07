@@ -36,7 +36,11 @@ public class EditorActions {
 		private boolean isFraud;
 
 		public NewTab(Main main, boolean isFraud) {
-			super("New e3 " + (isFraud ? "fraud" : "value") + " value model (ctrl+n)", main);
+			super("New e3 "
+					+ (isFraud ? "fraud" : "value")
+					+ " value model (ctrl+"
+					+ (isFraud ? "n" : "m") 
+					+ ")", main);
 			this.isFraud = isFraud;
 		}
 		
@@ -411,7 +415,6 @@ public class EditorActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO: Implement this
-			// TODO: Implement shortcut
 		}
 	}
 	
@@ -423,7 +426,6 @@ public class EditorActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO: Implement this
-			// TODO: Implement shortcut
 		}
 	}
 	

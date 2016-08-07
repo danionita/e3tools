@@ -32,6 +32,7 @@ import java.util.Optional;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -40,6 +41,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
@@ -137,6 +139,14 @@ public class Main {
 
         toolbar.add(button);
 	}
+    
+    private void addGlobalShortcut(String keys, AbstractAction action) {
+    	views
+    		.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+    		.put(KeyStroke.getKeyStroke(keys), action.getValue(Action.NAME));
+    	
+    	views.getActionMap().put(action.getValue(Action.NAME), action);
+    }
 
     public Main() {
         // Silly log4j
@@ -149,6 +159,8 @@ public class Main {
                 System.out.println("Couldn't set Look and Feel to system");
             }
         }       
+        
+        views = new JTabbedPane();
         
         // Add menubar
         JMenuBar menuBar = new JMenuBar();
@@ -324,12 +336,19 @@ public class Main {
         toolbar.addSeparator();
         
         addToolbarButton("help", new EditorActions.OpenHelpWiki(this));
+        
+        // Shortcuts
+        addGlobalShortcut("ctrl N", new EditorActions.NewTab(this, false));
+        addGlobalShortcut("ctrl M", new EditorActions.NewTab(this, true));
+        addGlobalShortcut("ctrl S", new EditorActions.Save(this));
+        addGlobalShortcut("ctrl A", new EditorActions.SelectAll(this));
+        addGlobalShortcut("ctrl F", new EditorActions.ShowNetValueFlow(this));
+        addGlobalShortcut("ctrl H", new EditorActions.AnalyzeTransactions(this));
+        addGlobalShortcut("F1", new EditorActions.OpenHelpWiki(this));
 
         mainFrame.getContentPane().add(toolbar, BorderLayout.PAGE_START);
 
         globalTools = new ToolComponent();
-
-        views = new JTabbedPane();
 
         addNewTabAndSwitch(false);
 
