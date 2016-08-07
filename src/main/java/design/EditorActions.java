@@ -1,19 +1,28 @@
 package design;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.TransferHandler;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
+
+import com.mxgraph.util.mxCellRenderer;
 
 import design.export.JSONExport;
 import design.export.RDFExport;
@@ -121,7 +130,101 @@ public class EditorActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: Implement this (see jgraphx manual, it contains a few bits about images)
+			JFileChooser fc = new JFileChooser();
+			
+			// Add supported file formats as filter
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("PNG image", "png"));
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("JPEG image", "jpeg"));
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("BMP image", "gif"));
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("GIF image", "bmp"));
+			
+			// Make sure "ALl files" filter is available as well
+			fc.setAcceptAllFileFilterUsed(true);
+			// Only be able to select files
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			
+			// Return if the user does not accept a file
+			if (fc.showSaveDialog(main.mainFrame) != JFileChooser.APPROVE_OPTION) return;
+			
+			// Get the selected file
+			File targetFile = fc.getSelectedFile();
+			
+			// If the file exists get confirmation from the user
+			if (targetFile.exists()) {
+                int result = JOptionPane.showConfirmDialog(
+                        main.mainFrame,
+                        targetFile + " already exists. Would you like to overwrite it?",
+                        "File already exists",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+
+                if (result != JOptionPane.OK_OPTION) {
+                    return;
+                }
+			}
+			
+			// If an extension filter was selected, append the extension to the file path if it's not there
+			if (fc.getFileFilter() instanceof FileNameExtensionFilter) {
+				FileNameExtensionFilter ff = (FileNameExtensionFilter) fc.getFileFilter();
+				String format = ff.getExtensions()[0];
+				
+				if (!targetFile.getName().toLowerCase().replace("jpg", "jpeg").endsWith(format)) {
+					targetFile = new File(targetFile.getAbsolutePath() + "." + format);
+				}
+			}
+			
+			// Make sure the user has selected a proper format
+			String format = null;
+			if (targetFile.getName().toLowerCase().endsWith("png")) {
+				format = "PNG";
+			} else if (targetFile.getName().toLowerCase().endsWith("bmp")) {
+				format = "BMP";
+			} else if (targetFile.getName().toLowerCase().replace("jpg", "jpeg").endsWith("jpeg")) {
+				format = "JPEG";
+			} else if (targetFile.getName().toLowerCase().endsWith("gif")) {
+				format = "GIF";
+			}
+			
+			// If not, show an error
+			if (format == null) {
+                JOptionPane.showConfirmDialog(
+                        main.mainFrame,
+                        "Requested file format is not supported.",
+                        "Unsupported file format",
+                        JOptionPane.OK_OPTION,
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			
+			// Create the image
+			BufferedImage image = mxCellRenderer.createBufferedImage(main.getCurrentGraph(), null, 1, Color.WHITE, true, null);
+			
+			// Null will be returned if there are no cells to display. Show an error and return
+			if (image == null) {
+                JOptionPane.showConfirmDialog(
+                        main.mainFrame,
+                        "Cannot save an empty model",
+                        "File saving error",
+                        JOptionPane.OK_OPTION,
+                        JOptionPane.ERROR_MESSAGE);
+                
+                return;
+			}
+
+			// Try to write the file
+			try {
+				ImageIO.write(image, format, targetFile);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+
+                JOptionPane.showConfirmDialog(
+                        main.mainFrame,
+                        "Error saving file. Make sure the chosen location is accesible.",
+                        "File saving error",
+                        JOptionPane.OK_OPTION,
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+			}
 		}
 	}
 	
