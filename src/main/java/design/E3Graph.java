@@ -618,21 +618,15 @@ public class E3Graph extends mxGraph implements Serializable{
 	@Override
 	public void cellLabelChanged(Object cell, Object newValue, boolean autoSize) {
 		Object oldValue = Utils.base(this, cell);
+
 		if (oldValue instanceof Base) {
 			if (newValue instanceof String) {
 				String name = (String) newValue;
-				if (oldValue instanceof Actor) {
-					Actor actor = (Actor) oldValue;
-					actor.name = name;
-				} else if (oldValue instanceof MarketSegment) {
-					MarketSegment marketSegment = (MarketSegment) oldValue;
-					marketSegment.name = name;
-				} else if (oldValue instanceof ValueActivity) {
-					ValueActivity valueActivity = (ValueActivity) oldValue;
-					valueActivity.name = name;
-				}
+				Base base = (Base) oldValue;
+				base.name = name;
 			}			
 
+			// Newvalue is subsequently set to be the cell's value in the super call.
 			newValue = oldValue;
 		} else {
 			return;
@@ -651,6 +645,8 @@ public class E3Graph extends mxGraph implements Serializable{
 		return value instanceof Actor
 				|| value instanceof MarketSegment
 				|| value instanceof ValueActivity
+				|| value instanceof ValueExchange
+				|| value instanceof ConnectionElement
 				;
 	}
 
