@@ -19,10 +19,10 @@
 package design.info;
 
 public class Info {
-	public static long nextSUID = 0;
-	public static long getSUID() {
-		return nextSUID++;
-	}
+//	public static long nextSUID = 0;
+//	public static long getSUID() {
+//		return nextSUID++;
+//	}
 	
 	public static enum Side {
 		TOP, RIGHT, BOTTOM, LEFT;

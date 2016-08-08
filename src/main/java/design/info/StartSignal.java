@@ -5,14 +5,16 @@ public class StartSignal extends Base {
 	
 	public boolean showLabel = false;
 	
-	public StartSignal() {
-		name = "StartSignal" + getSUID();
+	public StartSignal(long SUID) {
+		super(SUID);
+		
+		name = "StartSignal" + SUID;
 		formulas.put("OCCURRENCES", "1");
 	}
 
 	@Override
 	public Base getCopy() {
-		StartSignal copy = new StartSignal();
+		StartSignal copy = new StartSignal(SUID);
 		Base.setCommons(this, copy);
 		copy.showLabel = showLabel;
 

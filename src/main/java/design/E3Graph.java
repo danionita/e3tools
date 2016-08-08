@@ -18,6 +18,7 @@
  *******************************************************************************/
 package design;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,10 +40,12 @@ import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 
 import design.Utils.GraphDelta;
+import design.Utils.IDReplacer;
 import design.info.Actor;
 import design.info.Base;
 import design.info.ConnectionElement;
 import design.info.EndSignal;
+import design.info.Info.Side;
 import design.info.LogicBase;
 import design.info.LogicDot;
 import design.info.MarketSegment;
@@ -52,9 +55,6 @@ import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
-import design.info.Info.Side;
-
-import java.io.File;
 
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
@@ -192,8 +192,8 @@ public class E3Graph extends mxGraph implements Serializable{
 
 					if (Utils.isDotValue(sourceValue) && Utils.isDotValue(targetValue)) {
 						graph.getModel().setStyle(cell, "ConnectionElement");
-						ConnectionElement value = new ConnectionElement();
-						value.name = "ConnectionElement" + value.getSUID();
+						ConnectionElement value = new ConnectionElement(Utils.getUnusedID(E3Graph.this));
+						value.name = "ConnectionElement" + value.SUID;
 						graph.getModel().setValue(cell, value);
 
 						Object[] sourceEdges = graph.getEdges(source);
@@ -224,8 +224,8 @@ public class E3Graph extends mxGraph implements Serializable{
 						try {
 							// Set ValueExchange edge properties
 							graph.getModel().setStyle(cell, new String("ValueExchange"));
-							ValueExchange value = new ValueExchange();
-							value.name = "ValueExchange" + value.getSUID();
+							ValueExchange value = new ValueExchange(Utils.getUnusedID(E3Graph.this));
+							value.name = "ValueExchange" + value.SUID;
 							graph.getModel().setValue(cell, value);
 							
 							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
@@ -583,7 +583,7 @@ public class E3Graph extends mxGraph implements Serializable{
 
 		try {
 			ValueInterface viInfo = (ValueInterface) vi.getValue();
-			ValuePort vpInfo = new ValuePort(incoming);
+			ValuePort vpInfo = new ValuePort(Utils.getUnusedID(graph), incoming);
 			mxCell valuePort = (mxCell) graph.insertVertex(vi, null, vpInfo, 0.5, 0.5, 8.66, 10);
 			valuePort.setStyle("ValuePort" + vpInfo.getDirection(viInfo));
 
@@ -652,10 +652,12 @@ public class E3Graph extends mxGraph implements Serializable{
 
 	@Override
 	public Object[] cloneCells(Object[] cells, boolean allowInvalidEdges) {
-		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
-
-		Utils.renewBasesAndIncreaseSUIDs(clones);
+		System.out.println("Cloning cells in e3graph");
 		
+		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
+		
+		new IDReplacer(Utils.getMaxID(this)).renewBases(clones);
+
 		return clones;
 	}
 	
@@ -663,13 +665,13 @@ public class E3Graph extends mxGraph implements Serializable{
 		Object[] clones = super.cloneCells(cells, true);
 
 		class H {
-			public void renewBasesAndIncreaseSUIDS(mxCell cell) {
+			public void renewBases(mxCell cell) {
 				if (cell.getValue() instanceof Base) {
 					cell.setValue(((Base) cell.getValue()).getCopy()); 
 				}
 				
 				for (int i = 0; i < cell.getChildCount(); i++) {
-					renewBasesAndIncreaseSUIDS((mxCell) cell.getChildAt(i));
+					renewBases((mxCell) cell.getChildAt(i));
 				}
 			}
 		} H h = new H();
@@ -677,7 +679,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		for ( Object obj : clones) {
 			if (model.getValue(obj) instanceof Base) {
 				mxCell cell = (mxCell) obj;
-				h.renewBasesAndIncreaseSUIDS(cell);
+				h.renewBases(cell);
 			}
 		}
 		
@@ -804,8 +806,16 @@ public class E3Graph extends mxGraph implements Serializable{
 	public static void addLogicDot(mxGraph graph, mxCell logicUnit) {
 		graph.getModel().beginUpdate();
 		try {
-			Object obj = graph.insertVertex(logicUnit, null, new LogicDot(false), 0, 0, 
-					E3Style.DOTRADIUS * 2, E3Style.DOTRADIUS * 2, "Dot");
+			Object obj = graph.insertVertex(
+					logicUnit,
+					null,
+					new LogicDot(Utils.getUnusedID(graph), false),
+					0,
+					0, 
+					E3Style.DOTRADIUS * 2,
+					E3Style.DOTRADIUS * 2,
+					"Dot"
+					);
 			mxGeometry gm = (mxGeometry) graph.getCellGeometry(obj).clone();
 			gm.setRelative(true);
 			gm.setOffset(new mxPoint(-E3Style.DOTRADIUS, -E3Style.DOTRADIUS));
@@ -820,7 +830,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object addActor(double x, double y) {
 		getModel().beginUpdate();
 		try {
-			Object ac = addCell(Main.globalTools.clone(Main.globalTools.actor));
+			Object ac = addCell(Main.globalTools.clone(Main.globalTools.actor, Utils.getMaxID(this)));
 			mxGeometry geom = Utils.geometry(this, ac);
 			geom.setX(x);
 			geom.setY(y);
@@ -834,7 +844,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object addValueInterface(Object parent, double x, double y) {
 		getModel().beginUpdate();
 		try {
-			Object vi = Main.globalTools.clone(Main.globalTools.valueInterface);
+			Object vi = Main.globalTools.clone(Main.globalTools.valueInterface, Utils.getMaxID(this));
 			mxGeometry gm = ((mxCell) vi).getGeometry();
 			gm.setX(x);
 			gm.setY(y);
@@ -846,7 +856,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	public Object addStartSignal(Object parent, double x, double y) {
-		Object ss = Main.globalTools.clone(Main.globalTools.startSignal);
+		Object ss = Main.globalTools.clone(Main.globalTools.startSignal, Utils.getMaxID(this));
 		mxGeometry gm = ((mxCell) ss).getGeometry();
 		gm.setX(x);
 		gm.setY(y);
@@ -862,7 +872,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	public Object addEndSignal(Object parent, double x, double y) {
-		Object es = Main.globalTools.clone(Main.globalTools.endSignal);
+		Object es = Main.globalTools.clone(Main.globalTools.endSignal, Utils.getMaxID(this));
 		mxGeometry gm = ((mxCell) es).getGeometry();
 		gm.setX(x);
 		gm.setY(y);
@@ -1038,7 +1048,7 @@ public class E3Graph extends mxGraph implements Serializable{
 			Object val = getModel().getValue(cell);
 			if (val instanceof Base) {
 				Base info = (Base) val;
-				if (info.getSUID() == id) {
+				if (info.SUID == id) {
 					return cell;
 				}
 			}
@@ -1147,7 +1157,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object addAnd(Object parent, int x, int y, Side targetDir) {
 		getModel().beginUpdate();
 		try {
-			Object logic = Main.globalTools.clone(Main.globalTools.andGate);
+			Object logic = Main.globalTools.clone(Main.globalTools.andGate, Utils.getMaxID(this));
 			mxGeometry gm = ((mxCell) logic).getGeometry();
 			gm.setX(x);
 			gm.setY(y);
@@ -1169,7 +1179,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object addOr(Object parent, int x, int y, Side targetDir) {
 		getModel().beginUpdate();
 		try {
-			Object logic = Main.globalTools.clone(Main.globalTools.orGate);
+			Object logic = Main.globalTools.clone(Main.globalTools.orGate, Utils.getMaxID(this));
 			mxGeometry gm = ((mxCell) logic).getGeometry();
 			gm.setX(x);
 			gm.setY(y);

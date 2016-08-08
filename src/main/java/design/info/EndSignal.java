@@ -8,14 +8,16 @@ public class EndSignal extends Base {
 	
 	public boolean showLabel = false;
 	
-	public EndSignal() {
-		name = "EndSignal" + getSUID();
+	public EndSignal(long SUID) {
+		super(SUID);
+		
+		name = "EndSignal" + SUID;
 		formulas.put("OCCURRENCES", "0");
 	}
 
 	@Override
 	public Base getCopy() {
-		EndSignal copy = new EndSignal();
+		EndSignal copy = new EndSignal(SUID);
 		Base.setCommons(this, copy);
 		
 		copy.showLabel = showLabel;

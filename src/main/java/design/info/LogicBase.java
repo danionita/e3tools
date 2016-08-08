@@ -7,9 +7,13 @@ public class LogicBase extends Base {
 	public boolean isOr = false;
 	public Side direction = Side.RIGHT;
 
+	public LogicBase(long SUID) {
+		super(SUID);
+	}
+
 	@Override
 	public Base getCopy() {
-		LogicBase lb = new LogicBase();
+		LogicBase lb = new LogicBase(SUID);
 		Base.setCommons(this, lb);
 
 		lb.isOr = isOr;

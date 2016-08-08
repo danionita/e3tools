@@ -22,6 +22,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -80,8 +81,9 @@ public class RDFExport {
 	
 	public Resource getOfferingIn(long suid) {
 		if (!offeringIn.containsKey(suid)) {
-			offeringIn.put(suid, getResource(Info.getSUID()));
+			offeringIn.put(suid, getResource(Utils.getUnusedID(graph, base, model)));
 			Resource of = offeringIn.get(suid);
+			System.out.println("offering in with uid: " + of.getProperty(E3value.e3_has_uid).getString());
 			of.addProperty(E3value.e3_has_name, "in");
 			of.addProperty(RDF.type, E3value.value_offering);
 
@@ -94,8 +96,9 @@ public class RDFExport {
 	
 	public Resource getOfferingOut(long suid) {
 		if (!offeringOut.containsKey(suid)) {
-			offeringOut.put(suid, getResource(Info.getSUID()));
+			offeringOut.put(suid, getResource(Utils.getUnusedID(graph, base, model)));
 			Resource of = offeringOut.get(suid);
+			System.out.println("offering out with uid: " + of.getProperty(E3value.e3_has_uid).getString());
 			of.addProperty(E3value.e3_has_name, "out");
 			of.addProperty(RDF.type, E3value.value_offering);
 
@@ -108,7 +111,7 @@ public class RDFExport {
 
 	public Resource getValueObject(String obj) {
 		if (!valueObject.containsKey(obj)) {
-			valueObject.put(obj, getResource(Info.getSUID()));
+			valueObject.put(obj, getResource(Utils.getUnusedID(graph, base, model)));
 			Resource reObj = valueObject.get(obj);
 			reObj.addProperty(E3value.e3_has_name, obj);
 			reObj.addProperty(RDF.type, E3value.value_object);
@@ -120,16 +123,20 @@ public class RDFExport {
 	private void convertToRdf() {
 		model = ModelFactory.createDefaultModel();
 		model.setNsPrefix("a", E3value.getURI());
+		
+		// TODO: Make sure the base url is without a hash everywhere! Also
+		// doublecheck in the Utils class
 		base = "http://www.cs.vu.nl/~gordijn/TestModel#";
 		
 		// Create model resource
-		long modelSUID = Info.getSUID();
+		long modelSUID = Utils.getUnusedID(graph, base, model);
 		modelRes = model.createResource(base + modelSUID, E3value.model);
 		modelRes.addProperty(E3value.e3_has_name, "model" + modelSUID);
 		modelRes.addProperty(E3value.e3_has_uid, "" + modelSUID);
 		
 		// Create diagram resource
-		long diagramSUID = Info.getSUID();
+		long diagramSUID = Utils.getUnusedID(graph, base, model);
+		System.out.println("DiagramSUID: " + diagramSUID);
 		diagramRes = model.createResource(base + diagramSUID, E3value.diagram);
 		diagramRes.addProperty(E3value.e3_has_name, "diagram" + diagramSUID);
 		diagramRes.addProperty(E3value.e3_has_uid, "" + diagramSUID);
@@ -138,10 +145,19 @@ public class RDFExport {
 			getValueObject(valueObject);
 		}
 
-		// TODO: Make sure there's a E3Graph.getNewSUID() method as well,
-		// and get rid of this whole global counter thing.
-		long colludedID = Info.getSUID();
+		Resource colludedResource = null;
 		Map<String, String> colludedFormulas = new HashMap<>();
+		boolean hasColludedActor = Utils.getAllCells(graph)
+				.stream()
+				.map(graph.getModel()::getValue)
+				.filter(Objects::nonNull)
+				.filter(v -> v instanceof Actor)
+				.map(v -> (Actor) v)
+				.anyMatch(ac -> ac.colluded)
+				;
+		if (hasColludedActor) {
+			colludedResource = getResource(Utils.getUnusedID(graph, base, model));
+		}
 		
 		for (Object cell : Utils.getAllCells(graph)) {
 			Object cellValue = graph.getModel().getValue(cell);
@@ -161,15 +177,13 @@ public class RDFExport {
 			
 			Base value = (Base) cellValue;
 			
-			System.out.println("Considering: \"" + value.name + "\"");
-			
 			Resource res = null;
 			
 			if (value instanceof Actor) {
 				Actor acInfo = (Actor) value;
 				
 				if (acInfo.colluded) {
-					res = getResource(colludedID);
+					res = colludedResource;
 					
 					if (res.hasProperty(E3value.e3_has_name)) {
 						String newName = res.getProperty(E3value.e3_has_name).getString() + " + " + acInfo.name;
@@ -198,7 +212,7 @@ public class RDFExport {
 			}
 			
 			if (res == null) {
-				res = getResource(value.getSUID());
+				res = getResource(value.SUID);
 
 				// Add name
 				if (value.name != null) {
@@ -208,8 +222,12 @@ public class RDFExport {
 				// Add formulas
 				// TODO: What if the value part of the formula is empty? Put zero there or just leave it empty?
 				// I guess for now we'll just leave it "empty", the parser on the other side can deal with it
-				for (String key : value.formulas.keySet()) {
-					res.addProperty(E3value.e3_has_formula, key + "=" + value.formulas.get(key));
+				// If res is the colludedResource formulas will have already been added,
+				// so that doesn't have to be done again
+				if (res != colludedResource) {
+					for (String key : value.formulas.keySet()) {
+						res.addProperty(E3value.e3_has_formula, key + "=" + value.formulas.get(key));
+					}
 				}
 			}
 			
@@ -218,7 +236,7 @@ public class RDFExport {
 				
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
 					Base childInfo = (Base) graph.getModel().getValue(child);
-					res.addProperty(E3value.ac_has_vi, getResource(childInfo.getSUID()));
+					res.addProperty(E3value.ac_has_vi, getResource(childInfo.SUID));
 				}
 				
 				// TODO: We need an extra RDF thing here, right? Like ac_consist_of_ms or smth
@@ -229,7 +247,7 @@ public class RDFExport {
 				
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueActivity.class)) {
 					ValueActivity vaInfo = (ValueActivity) graph.getModel().getValue(child);
-					Resource vaRes = getResource(vaInfo.getSUID());
+					Resource vaRes = getResource(vaInfo.SUID);
 					res.addProperty(E3value.el_performs_va, vaRes);
 					vaRes.addProperty(E3value.va_performed_by_el, res);
 				}
@@ -238,7 +256,7 @@ public class RDFExport {
 
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
 					Base childInfo = (Base) graph.getModel().getValue(child);
-					res.addProperty(E3value.ms_has_vi, getResource(childInfo.getSUID()));
+					res.addProperty(E3value.ms_has_vi, getResource(childInfo.SUID));
 				}
 
 				// TODO: Can't implement this because Dan's E3value class does not have the
@@ -254,19 +272,19 @@ public class RDFExport {
 
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
 					Base childInfo = (Base) graph.getModel().getValue(child);
-					res.addProperty(E3value.va_has_vi, getResource(childInfo.getSUID()));
+					res.addProperty(E3value.va_has_vi, getResource(childInfo.SUID));
 				}
 			} else if (value instanceof ValueInterface) {
 				res.addProperty(RDF.type, E3value.value_interface);
 				
 				Base parentValue = (Base) graph.getModel().getValue(graph.getModel().getParent(cell));
-				Resource parentRes = getResource(parentValue.getSUID());
+				Resource parentRes = getResource(parentValue.SUID);
 
 				if (parentValue instanceof Actor) {
 					Actor acInfo = (Actor) parentValue;
 					
 					if (acInfo.colluded) {
-						res.addProperty(E3value.vi_assigned_to_ac, getResource(colludedID));
+						res.addProperty(E3value.vi_assigned_to_ac, colludedResource);
 					} else {
 						res.addProperty(E3value.vi_assigned_to_ac, parentRes);
 					}
@@ -283,11 +301,11 @@ public class RDFExport {
 				ValueInterface viInfo = (ValueInterface) graph.getModel().getValue(viCell);
 
 				if (((ValuePort) value).incoming) {
-					Resource offIn = getOfferingIn(viInfo.getSUID());
+					Resource offIn = getOfferingIn(viInfo.SUID);
 					offIn.addProperty(E3value.vo_consists_of_vp, res);					
 					res.addProperty(E3value.vp_in_vo, offIn);
 				} else {
-					Resource offOut = getOfferingOut(viInfo.getSUID());
+					Resource offOut = getOfferingOut(viInfo.SUID);
 					offOut.addProperty(E3value.vo_consists_of_vp, res);					
 					res.addProperty(E3value.vp_in_vo, offOut);
 				}
@@ -300,7 +318,7 @@ public class RDFExport {
 				if (graph.getModel().getEdgeCount(cell) == 1) {
 					Object valueExchange = graph.getModel().getEdgeAt(cell, 0);
 					ValueExchange veInfo = (ValueExchange) graph.getModel().getValue(valueExchange);
-					Resource veRes = getResource(veInfo.getSUID());
+					Resource veRes = getResource(veInfo.SUID);
 					
 					if (vpInfo.incoming) {
 						res.addProperty(E3value.vp_in_connects_ve, veRes);
@@ -339,7 +357,7 @@ public class RDFExport {
 				res.addProperty(RDF.type, E3value.end_stimulus);
 			} else if (value instanceof ConnectionElement) {
 				res.addProperty(RDF.type, E3value.connection_element);
-				System.out.println("Connection element with SUID: " + value.getSUID() + " and name: " + value.name);
+				System.out.println("Connection element with SUID: " + value.SUID + " and name: " + value.name);
 			} else if (value instanceof LogicBase) {
 				System.out.println("Adding LogicBase");
 				LogicBase lbInfo = (LogicBase) value;
@@ -352,9 +370,10 @@ public class RDFExport {
 		}
 		
 		// Commit the formuals for the colluded actor
-		Resource res = getResource(colludedID);
-		for (Entry<String, String> entry : colludedFormulas.entrySet()) {
-			res.addProperty(E3value.e3_has_formula, entry.getKey() + "=" + entry.getValue());
+		if (colludedResource != null) {
+			for (Entry<String, String> entry : colludedFormulas.entrySet()) {
+				colludedResource.addProperty(E3value.e3_has_formula, entry.getKey() + "=" + entry.getValue());
+			}
 		}
 		
 		// Convert to RDF

@@ -11,13 +11,14 @@ public class LogicDot extends Base {
 	public boolean isUnit = false;
 	public int proportion = 1;
 	
-	public LogicDot(boolean isUnit) {this.isUnit = isUnit;}
-	
-	public LogicDot() {}
+	public LogicDot(long SUID, boolean isUnit) {
+		super(SUID);
+		this.isUnit = isUnit;
+	}
 
 	@Override
 	public Base getCopy() {
-		LogicDot dot = new LogicDot(false);
+		LogicDot dot = new LogicDot(SUID, false);
 		Base.setCommons(this, dot);
 		
 		dot.isUnit = isUnit;

@@ -5,7 +5,9 @@ public class Actor extends Base {
 	
 	public boolean colluded = false;
 	
-	public Actor() {
+	public Actor(long SUID) {
+		super(SUID);
+		
 		formulas.put("INVESTMENT", "0");
 		formulas.put("EXPENSES", "0");
 		formulas.put("INTEREST", "0");
@@ -13,7 +15,7 @@ public class Actor extends Base {
 	
 	@Override
 	public Base getCopy() {
-		Actor va = new Actor();
+		Actor va = new Actor(SUID);
 		Base.setCommons(this, va);
 		
 		va.colluded = colluded;

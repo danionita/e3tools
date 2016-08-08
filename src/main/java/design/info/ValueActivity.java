@@ -3,7 +3,9 @@ package design.info;
 public class ValueActivity extends Base {
 	private static final long serialVersionUID = 6344879576710522969L;
 	
-	public ValueActivity() {
+	public ValueActivity(long SUID) {
+		super(SUID);
+		
 		formulas.put("TOTAL_VARIABLE_EXPENSES", "0");
 		formulas.put("INVESTMENT", "0");
 		formulas.put("EXPENSES", "0");
@@ -11,7 +13,7 @@ public class ValueActivity extends Base {
 	
 	@Override
 	public Base getCopy() {
-		ValueActivity va = new ValueActivity();
+		ValueActivity va = new ValueActivity(SUID);
 		Base.setCommons(this, va);
 
 		return va;

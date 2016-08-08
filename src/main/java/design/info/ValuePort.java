@@ -6,19 +6,19 @@ public class ValuePort extends Base {
 	private static final long serialVersionUID = 9212361683143336826L;
 	public boolean incoming;
 	
-	public ValuePort(boolean incoming_) {
-		incoming = incoming_;
+	public ValuePort(long SUID, boolean incoming) {
+		super(SUID);
+		
+		this.incoming = incoming;
 		
 		formulas.put("VALUATION", "0");
 		formulas.put("CADINALITY", "0");
 		formulas.put("EXPENSES", "0");
 	}
 	
-	public ValuePort() { }
-	
 	@Override
 	public Base getCopy() {
-		ValuePort vp = new ValuePort(false);
+		ValuePort vp = new ValuePort(SUID, false);
 		Base.setCommons(this, vp);
 
 		vp.incoming = incoming;

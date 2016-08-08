@@ -106,7 +106,7 @@ public class E3PropertiesEditor {
 		topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
 		
-		idLabel = new JLabel(""+value.getSUID());
+		idLabel = new JLabel(""+value.SUID);
 		nameField = new JTextField(value.name);
 
 		Object[][] data = new Object[value.formulas.size()][2];

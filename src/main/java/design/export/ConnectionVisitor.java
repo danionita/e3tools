@@ -65,7 +65,7 @@ public class ConnectionVisitor {
 	void visit(Object ss, StartSignal ssInfo) throws MalformedFlowException {
 		System.out.println("Visiting StartSignal");
 		
-		Resource res = exporter.getResource(ssInfo.getSUID());
+		Resource res = exporter.getResource(ssInfo.SUID);
 		Object child = model.getChildAt(ss, 0);
 		
 		setSend(child);
@@ -74,7 +74,7 @@ public class ConnectionVisitor {
 			Object edge = model.getEdgeAt(child, 0);
 			ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
 			
-			Resource edgeRes = exporter.getResource(edgeInfo.getSUID());
+			Resource edgeRes = exporter.getResource(edgeInfo.SUID);
 			res.addProperty(E3value.de_down_ce, edgeRes);
 			
 			visit(child, edge, edgeInfo);
@@ -84,7 +84,7 @@ public class ConnectionVisitor {
 	void visit(Object upDot, Object ce, ConnectionElement ceInfo) throws MalformedFlowException {
 		System.out.println("Visiting ConnectionElement");
 		
-		Resource ceRes = exporter.getResource(ceInfo.getSUID());
+		Resource ceRes = exporter.getResource(ceInfo.SUID);
 		
 		Object downDot = Utils.getOpposite(graph, ce, upDot);
 		Object opposite = model.getParent(downDot);
@@ -93,8 +93,8 @@ public class ConnectionVisitor {
 		Object up = model.getParent(upDot);
 		Base upValue = (Base) model.getValue(up);
 		
-		ceRes.addProperty(E3value.ce_with_up_de, exporter.getResource(upValue.getSUID()));
-		ceRes.addProperty(E3value.ce_with_down_de, exporter.getResource(oppositeValue.getSUID()));
+		ceRes.addProperty(E3value.ce_with_up_de, exporter.getResource(upValue.SUID));
+		ceRes.addProperty(E3value.ce_with_down_de, exporter.getResource(oppositeValue.SUID));
 		
 		setSend(upDot);
 		setReceive(downDot);
@@ -112,7 +112,7 @@ public class ConnectionVisitor {
 		}
 		
 		if (oppositeValue instanceof ValueInterface) {
-			Resource viRes = exporter.getResource(oppositeValue.getSUID());
+			Resource viRes = exporter.getResource(oppositeValue.SUID);
 			viRes.addProperty(E3value.de_up_ce, ceRes);
 			
 			// TODO: This can be moved to its own function
@@ -122,8 +122,8 @@ public class ConnectionVisitor {
 					Object otherPort = Utils.getOpposite(graph, model.getEdgeAt(port, 0), port);
 					Object valueInterface = model.getParent(otherPort);
 					
-					System.out.println("Source value interface: " + oppositeValue.getSUID());
-					System.out.println("End value interface: " + ((Base) model.getValue(valueInterface)).getSUID());
+					System.out.println("Source value interface: " + oppositeValue.SUID);
+					System.out.println("End value interface: " + ((Base) model.getValue(valueInterface)).SUID);
 					
 					Object otherDot = Utils.getChildrenWithValue(graph, valueInterface, SignalDot.class).get(0);
 					
@@ -139,8 +139,8 @@ public class ConnectionVisitor {
 							ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
 
 							Base viInfo = (Base) model.getValue(valueInterface);
-							Resource otherViRes = exporter.getResource(viInfo.getSUID());
-							otherViRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.getSUID()));
+							Resource otherViRes = exporter.getResource(viInfo.SUID);
+							otherViRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.SUID));
 							
 							visit(otherDot, edge, edgeInfo);
 						}
@@ -177,14 +177,14 @@ public class ConnectionVisitor {
 		
 		Object unitDot = dots.remove(unitPos);
 		
-		Resource lbRes = exporter.getResource(lbInfo.getSUID());
+		Resource lbRes = exporter.getResource(lbInfo.SUID);
 		
 		if (unitDot == upDot) {
 			setReceive(upDot);
 			
 			Object ce = model.getEdgeAt(upDot, 0);
 			ConnectionElement ceInfo = (ConnectionElement) model.getValue(ce);
-			lbRes.addProperty(E3value.de_up_ce, exporter.getResource(ceInfo.getSUID()));
+			lbRes.addProperty(E3value.de_up_ce, exporter.getResource(ceInfo.SUID));
 			
 			for (Object dot : dots) {
 				if (flowMap.containsKey(dot)) {
@@ -195,7 +195,7 @@ public class ConnectionVisitor {
 					if (model.getEdgeCount(dot) == 1) {
 						Object edge = model.getEdgeAt(dot, 0);
 						ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
-						lbRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.getSUID()));
+						lbRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.SUID));
 						visit(dot, edge, edgeInfo);
 					}
 				}
@@ -209,7 +209,7 @@ public class ConnectionVisitor {
 				if (model.getEdgeCount(unitDot) == 1) {
 					Object ce = model.getEdgeAt(unitDot, 0);
 					ConnectionElement ceInfo = (ConnectionElement) model.getValue(ce);
-					lbRes.addProperty(E3value.de_down_ce, exporter.getResource(ceInfo.getSUID()));
+					lbRes.addProperty(E3value.de_down_ce, exporter.getResource(ceInfo.SUID));
 				
 					visit(unitDot, ce, ceInfo);
 				}
@@ -221,7 +221,7 @@ public class ConnectionVisitor {
 				if (model.getEdgeCount(dot) == 1) {
 					Object edge = model.getEdgeAt(dot, 0);
 					ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
-					lbRes.addProperty(E3value.de_up_ce, exporter.getResource(edgeInfo.getSUID()));
+					lbRes.addProperty(E3value.de_up_ce, exporter.getResource(edgeInfo.SUID));
 				}
 			}
 		}
@@ -233,7 +233,7 @@ public class ConnectionVisitor {
 		Object edge = model.getEdgeAt(model.getChildAt(es, 0), 0);
 		ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
 		
-		Resource endRes = exporter.getResource(esInfo.getSUID());
-		endRes.addProperty(E3value.de_up_ce, exporter.getResource(edgeInfo.getSUID()));
+		Resource endRes = exporter.getResource(esInfo.SUID);
+		endRes.addProperty(E3value.de_up_ce, exporter.getResource(edgeInfo.SUID));
 	}
 }

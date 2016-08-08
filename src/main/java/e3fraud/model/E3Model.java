@@ -172,8 +172,8 @@ public class E3Model {
     private void traverse(Resource nextElement, double occurences) {
         //While this is not the last element (i.e. an end stimulus)
         while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {
-//            System.out.println("\t\t...moved to element: " + nextElement.getProperty(E3value.e3_has_name).getString());
-//            System.out.println("\t\t...with type: " + nextElement.getProperty(RDF.type).toString());
+            System.out.println("\t\t...moved to element: " + nextElement.getProperty(E3value.e3_has_name).getString());
+            System.out.println("\t\t...with type: " + nextElement.getProperty(RDF.type).toString());
 
 //            if (nextElement.getProperty(E3value.e3_has_name).getString().equals("vp718")) {
 //            	System.exit(1);
@@ -224,7 +224,7 @@ public class E3Model {
                 //System.out.println("\t\tfound connection element");//if it's a ConnectionElement
                 nextElement = nextElement.getProperty(E3value.ce_with_down_de).getResource();//choose the next element (Value Interface or AND/OR node)
             } else if (nextElement.hasProperty(RDF.type, E3value.value_interface) && nextElement.hasProperty(E3value.de_up_ce)) { //if it's a ValueInterface with an incoming ConnectionElement (meaning we need to go down the ValueExchange)
-                //System.out.println("\t\tfound ValueInterface with an incoming ConnectionElement");
+                System.out.println("\t\tfound ValueInterface with an incoming ConnectionElement");
                 StmtIterator valueOfferings = nextElement.listProperties(E3value.vi_consists_of_of);  //get it's ValueOfferings
                 //and choose the outgoing ValueOffering
                 while (valueOfferings.hasNext()) {

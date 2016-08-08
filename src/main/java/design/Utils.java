@@ -31,8 +31,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -501,40 +505,112 @@ public class Utils {
     public static long getUnusedID(String URIbase, Model m) {
         long candidate = 1;
         Resource candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
-        //System.out.println("Start looking");
+
         while (m.contains(candidateResource, E3value.e3_has_uid, "" + candidate)) {
-            //System.out.println("Contains " + candidate);
             candidate++;
             candidateResource = ResourceFactory.createResource(URIbase + "#" + candidate);
         }
 
-        //System.out.println("Result: " + candidate);
         return candidate;
     }
+    
+    public static long getUnusedID(mxGraph graph) {
+    	Set<Long> usedIDs = getAllCells(graph)
+    		.stream()
+    		.map(c -> graph.getModel().getValue(c))
+    		.filter(Objects::nonNull)
+    		.filter(v -> v instanceof Base)
+    		.map(v -> (Base) v)
+    		.map(v -> v.SUID)
+    		.collect(Collectors.toSet())
+    		;
+    	
+    	long nextID = 0;
+    	while (usedIDs.contains(nextID)) nextID++;
+    	
+    	return nextID;
+    }
+    
+    public static long getUnusedID(mxGraph graph, String URIbase, Model m) {
+    	Set<Long> usedIDs = getAllCells(graph)
+    		.stream()
+    		.map(c -> graph.getModel().getValue(c))
+    		.filter(Objects::nonNull)
+    		.filter(v -> v instanceof Base)
+    		.map(v -> (Base) v)
+    		.map(v -> v.SUID)
+    		.collect(Collectors.toSet())
+    		;
+    	
+        long candidate = 0;
+        Resource candidateResource = ResourceFactory.createResource(URIbase + candidate);
 
-    public static void renewBasesAndIncreaseSUIDs(mxCell cell) {
-        if (cell.getValue() instanceof Base) {
-            cell.setValue(((Base) cell.getValue()).getCopy());
-            ((Base) cell.getValue()).setSUID(Info.getSUID());
+        while (m.contains(candidateResource, E3value.e3_has_uid, "" + candidate)
+        		|| usedIDs.contains(candidate)) {
+            candidate++;
+            candidateResource = ResourceFactory.createResource(URIbase + candidate);
         }
+        
+        System.out.println("Unused id: " + candidate);
 
-        for (int i = 0; i < cell.getChildCount(); i++) {
-            renewBasesAndIncreaseSUIDs((mxCell) cell.getChildAt(i));
-        }
+        return candidate;
+    }
+    
+    public static long getMaxID(mxGraph graph) {
+    	Optional<Long> maxID = getAllCells(graph)
+    		.stream()
+    		.map(c -> graph.getModel().getValue(c))
+    		.filter(Objects::nonNull)
+    		.filter(v -> v instanceof Base)
+    		.map(v -> (Base) v)
+    		.map(v -> v.SUID)
+    		.reduce(Math::max)
+    		;
+    	
+    	if (maxID.isPresent()) {
+    		return maxID.get();
+    	} else {
+    		return 0;
+    	}
     }
 
-    public static void renewBasesAndIncreaseSUIDs(mxCell[] cells) {
-        for (mxCell cell : cells) {
-            if (cell.getValue() instanceof Base) {
-                renewBasesAndIncreaseSUIDs(cell);
-            }
-        }
-    }
-
-    public static void renewBasesAndIncreaseSUIDs(Object[] cells) {
-        renewBasesAndIncreaseSUIDs(Arrays.copyOf(cells, cells.length, mxCell[].class
-        ));
-    }
+    /**
+     * Replaces the id's of all the cells
+     * in cells with id's starting from maxID + 1
+     * @author Bobe
+     *
+     */
+	public static class IDReplacer {
+		long maxID;
+		
+		public IDReplacer(long maxID) {
+			this.maxID = maxID;
+		}
+		
+		public void renewBases(mxCell cell) {
+			if (cell.getValue() instanceof Base) {
+				Base newValue = (Base) cell.getValue();
+				newValue = newValue.getCopy();
+				maxID++;
+				newValue.SUID = maxID;
+				cell.setValue(newValue); 
+			}
+			
+			for (int i = 0; i < cell.getChildCount(); i++) {
+				renewBases((mxCell) cell.getChildAt(i));
+			}
+		}
+		
+		public void renewBases(Object obj) {
+			renewBases((mxCell) obj);
+		}
+		
+		public void renewBases(Object[] cells) {
+			for (Object cell : cells) {
+				renewBases((mxCell) cell);
+			}
+		}
+	}
 
     public static Optional<E3Graph> openFile(JFrame mainFrame, JFileChooser fc) {
         int returnVal = fc.showOpenDialog(mainFrame);

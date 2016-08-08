@@ -9,14 +9,16 @@ public class ValueExchange extends Base {
 	public boolean valueObjectHidden = false;
 	public boolean labelHidden = true;
 	
-	public ValueExchange() {
+	public ValueExchange(long SUID) {
+		super(SUID);
+		
 		formulas.put("CARDINALITY", "1");
 		formulas.put("VALUATION", "0");
 	}
 
 	@Override
 	public Base getCopy() {
-		ValueExchange copy = new ValueExchange();
+		ValueExchange copy = new ValueExchange(SUID);
 		Base.setCommons(this, copy);
 		
 		copy.valueObject = valueObject;

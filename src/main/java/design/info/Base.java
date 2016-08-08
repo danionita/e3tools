@@ -10,9 +10,13 @@ import java.util.List;
 public abstract class Base implements Serializable {
 	private static final long serialVersionUID = -566615792608025058L;
 	
-	long SUID = Info.getSUID();
+	public long SUID;
 	public final HashMap<String, String> formulas = new LinkedHashMap<>();
 	public String name = "";
+	
+	public Base(long SUID) {
+		this.SUID = SUID;
+	}
 	
 	public abstract Base getCopy();
 	
@@ -24,16 +28,6 @@ public abstract class Base implements Serializable {
 		return "";
 	}
 	
-	public void setSUID(long newSUID) {
-		if (Info.nextSUID <= newSUID) Info.nextSUID = newSUID + 1;
-
-		SUID = newSUID;
-	}
-	
-	public long getSUID() {
-		return SUID;
-	}
-
 	public static final void setCommons(Base source, Base target) {
 		target.SUID = source.SUID;
 		// If non-null, copy it
