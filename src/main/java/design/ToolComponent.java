@@ -111,7 +111,6 @@ public class ToolComponent extends mxGraphComponent {
 		Object root = graph.getDefaultParent();
 		
 		graph.getModel().beginUpdate();
-		Object ess;
 		try {
 			// Simple blocks
 			{
