@@ -75,6 +75,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private String selectedNeedString;
     private String selectedActorString;
     private int sortCriteria, groupingCriteria, collusions;
+    private boolean generateHidden, generateNonOccurring, generateCollusion;
     private Double gainMin, gainMax, lossMin, lossMax;
     private int needStartValue = 0, needEndValue = 0;
     private final Map<String, Resource> actorsMap;
@@ -84,7 +85,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private ResultObject results;
     private E3GraphComponent graphPanel;
     public static FraudWindow mainWindowInstance;
-	private JFrame myFrame;
+    private JFrame myFrame;
 
     /**
      * Creates new form MainWindowV2
@@ -92,14 +93,21 @@ public class FraudWindow extends javax.swing.JPanel {
      * @param original
      * @param baseModel the model to analyze
      * @param mainFrame the parent frame
+     * @param myFrame
      */
     public FraudWindow(E3Graph original, E3Model baseModel, Main mainFrame, JFrame myFrame) {
     	this.baseGraph = original;
         this.baseModel = baseModel;
         this.mainFrame = mainFrame;
-		this.myFrame = myFrame;
+	this.myFrame = myFrame;
         actorsMap = this.baseModel.getActorsMap();
         needsMap = this.baseModel.getNeedsMap();
+        
+        //initiate default settings
+        this.generateCollusion = true;
+        this.generateHidden = true;
+        this.generateNonOccurring = true;
+        this.collusions = 1;
         initComponents();
     }
 
@@ -124,7 +132,6 @@ public class FraudWindow extends javax.swing.JPanel {
         generationSettingsSeparator1 = new javax.swing.JSeparator();
         needToLabel = new javax.swing.JLabel();
         timesLabel = new javax.swing.JLabel();
-        generationSettingsSeparator2 = new javax.swing.JSeparator();
         advancedSettingsLabel = new javax.swing.JLabel();
         resultCountLabel = new javax.swing.JLabel();
         generationSettingsLabel = new javax.swing.JLabel();
@@ -133,8 +140,6 @@ public class FraudWindow extends javax.swing.JPanel {
         progressBar = new javax.swing.JProgressBar();
         needStartField = new javax.swing.JFormattedTextField();
         needEndField = new javax.swing.JFormattedTextField();
-        collusionLabel = new javax.swing.JLabel();
-        collusionsButton = new javax.swing.JSpinner();
         listPane = new javax.swing.JSplitPane();
         listSettingsPanel = new javax.swing.JPanel();
         rankingSettingLabel = new javax.swing.JLabel();
@@ -151,8 +156,8 @@ public class FraudWindow extends javax.swing.JPanel {
         lossToLabel = new javax.swing.JLabel();
         lossEndField = new javax.swing.JFormattedTextField();
         gainEndField = new javax.swing.JFormattedTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        SortingAndGroupingLabel = new javax.swing.JLabel();
+        FiltersLabel = new javax.swing.JLabel();
         resultScrollPane = new javax.swing.JScrollPane();
         root = new DefaultMutableTreeNode("No models generated yet.");
         treeModel = new DefaultTreeModel(root);
@@ -190,6 +195,7 @@ public class FraudWindow extends javax.swing.JPanel {
 
         advancedSettingsLabel.setForeground(new java.awt.Color(6, 69, 173));
         advancedSettingsLabel.setText("Advanced settings...");
+        advancedSettingsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         advancedSettingsLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 advancedSettingsLabelMouseClicked(evt);
@@ -241,10 +247,6 @@ public class FraudWindow extends javax.swing.JPanel {
         needEndField.setText("500");
         needEndField.setPreferredSize(new java.awt.Dimension(25, 22));
 
-        collusionLabel.setText("Max. colluding actors");
-
-        collusionsButton.setModel(new javax.swing.SpinnerNumberModel(1, 0, 3, 1));
-
         javax.swing.GroupLayout generationSettingsPanelLayout = new javax.swing.GroupLayout(generationSettingsPanel);
         generationSettingsPanel.setLayout(generationSettingsPanelLayout);
         generationSettingsPanelLayout.setHorizontalGroup(
@@ -264,24 +266,19 @@ public class FraudWindow extends javax.swing.JPanel {
                                 .addComponent(needLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(needComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(generationSettingsSeparator2, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(resultCountLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(generationLayeredPane)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
-                                .addComponent(collusionLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(collusionsButton, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
                                 .addGap(2, 2, 2)
                                 .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
                                         .addComponent(occuringLabel)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(needStartField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(needStartField, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
                                         .addGap(6, 6, 6)
                                         .addComponent(needToLabel)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(needEndField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(needEndField, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(timesLabel))
                                     .addComponent(advancedSettingsLabel, javax.swing.GroupLayout.Alignment.TRAILING))))
@@ -309,17 +306,11 @@ public class FraudWindow extends javax.swing.JPanel {
                     .addComponent(needStartField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(needEndField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(timesLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(generationSettingsSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(collusionLabel)
-                    .addComponent(collusionsButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(generationLayeredPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultCountLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
                 .addComponent(advancedSettingsLabel)
                 .addContainerGap())
         );
@@ -373,11 +364,11 @@ public class FraudWindow extends javax.swing.JPanel {
         gainEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         gainEndField.setPreferredSize(new java.awt.Dimension(60, 22));
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel3.setText("Sorting and grouping");
+        SortingAndGroupingLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        SortingAndGroupingLabel.setText("Sorting and grouping");
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        jLabel4.setText("Filters");
+        FiltersLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        FiltersLabel.setText("Filters");
 
         javax.swing.GroupLayout listSettingsPanelLayout = new javax.swing.GroupLayout(listSettingsPanel);
         listSettingsPanel.setLayout(listSettingsPanelLayout);
@@ -386,7 +377,7 @@ public class FraudWindow extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listSettingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(SortingAndGroupingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
                         .addComponent(gainStartField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -414,14 +405,14 @@ public class FraudWindow extends javax.swing.JPanel {
                         .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(groupComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(sortComboBox, 0, 126, Short.MAX_VALUE)))
-                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(FiltersLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(6, 6, 6))
         );
         listSettingsPanelLayout.setVerticalGroup(
             listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(listSettingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel3)
+                .addComponent(SortingAndGroupingLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rankingSettingLabel)
@@ -433,7 +424,7 @@ public class FraudWindow extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(listSettingsSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4)
+                .addComponent(FiltersLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lossLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -553,19 +544,10 @@ public class FraudWindow extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
-        readSettings();
-        generateSortAndDisplay();
-    }//GEN-LAST:event_generateButtonActionPerformed
-
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
         readSettings();
         sortAndDisplay();
     }//GEN-LAST:event_refreshButtonActionPerformed
-
-    private void advancedSettingsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_advancedSettingsLabelMouseClicked
-        PopUps.infoBox("Nothing here yet...", "Sorry");
-    }//GEN-LAST:event_advancedSettingsLabelMouseClicked
 
     private void treeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_treeValueChanged
         JTree tree = (JTree) evt.getSource();
@@ -685,9 +667,25 @@ public class FraudWindow extends javax.swing.JPanel {
         tree.setModel(oldModel);
     }//GEN-LAST:event_resultScrollPaneComponentResized
 
+    private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
+        readSettings();
+        generateSortAndDisplay();
+    }//GEN-LAST:event_generateButtonActionPerformed
+
+    private void advancedSettingsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_advancedSettingsLabelMouseClicked
+    AdvancedGenerationSettingsDialog dialog = new AdvancedGenerationSettingsDialog(this.myFrame, true, this.generateHidden, this.generateNonOccurring, this.generateCollusion, this.collusions);
+    if (dialog.getSettings()!=null){
+        this.generateNonOccurring = dialog.getSettings().generateNonOccurring;
+        this.generateHidden = dialog.getSettings().generateHidden;
+        this.generateCollusion = dialog.getSettings().generateCollusion;
+        this.collusions = dialog.getSettings().collusions;
+        System.out.println("settings updated");
+    }
+    }//GEN-LAST:event_advancedSettingsLabelMouseClicked
+
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-        GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, sortCriteria, groupingCriteria, collusions) {
+        GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel,  selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, generateNonOccurring, generateHidden, generateCollusion ,collusions) {
             //make it so that when Worker is done
             @Override
             protected void done() {
@@ -804,7 +802,6 @@ public class FraudWindow extends javax.swing.JPanel {
         } else {
             lossMax = Double.MAX_VALUE;
         }
-        collusions = (Integer) collusionsButton.getValue();
     }
 
     public void fitMiniGraph() {
@@ -856,11 +853,11 @@ public class FraudWindow extends javax.swing.JPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel FiltersLabel;
+    private javax.swing.JLabel SortingAndGroupingLabel;
     private javax.swing.JLabel advancedSettingsLabel;
     private javax.swing.JLayeredPane bottomPane;
     private javax.swing.JPanel chartPane;
-    private javax.swing.JLabel collusionLabel;
-    private javax.swing.JSpinner collusionsButton;
     private javax.swing.ButtonGroup fraudTypeButtonGroup;
     private javax.swing.JFormattedTextField gainEndField;
     private javax.swing.JLabel gainLabel;
@@ -871,14 +868,11 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JLabel generationSettingsLabel;
     private javax.swing.JPanel generationSettingsPanel;
     private javax.swing.JSeparator generationSettingsSeparator1;
-    private javax.swing.JSeparator generationSettingsSeparator2;
     private javax.swing.JPanel graphPane;
     private javax.swing.JComboBox<String> groupComboBox;
     private javax.swing.JLabel groupSettingLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JSplitPane listPane;
     private javax.swing.JPanel listSettingsPanel;
     private javax.swing.JSeparator listSettingsSeparator;

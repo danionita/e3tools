@@ -90,25 +90,19 @@
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="needComboBox" max="32767" attributes="0"/>
                                       </Group>
-                                      <Component id="generationSettingsSeparator2" alignment="1" max="32767" attributes="0"/>
                                       <Component id="resultCountLabel" max="32767" attributes="0"/>
                                       <Component id="generationLayeredPane" alignment="0" max="32767" attributes="0"/>
-                                      <Group type="102" alignment="1" attributes="0">
-                                          <Component id="collusionLabel" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="collusionsButton" pref="51" max="32767" attributes="0"/>
-                                      </Group>
                                       <Group type="102" alignment="1" attributes="0">
                                           <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
                                           <Group type="103" groupAlignment="0" attributes="0">
                                               <Group type="102" alignment="1" attributes="0">
                                                   <Component id="occuringLabel" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace min="-2" max="-2" attributes="0"/>
-                                                  <Component id="needStartField" max="32767" attributes="0"/>
+                                                  <Component id="needStartField" pref="37" max="32767" attributes="0"/>
                                                   <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                                                   <Component id="needToLabel" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace max="-2" attributes="0"/>
-                                                  <Component id="needEndField" max="32767" attributes="0"/>
+                                                  <Component id="needEndField" pref="37" max="32767" attributes="0"/>
                                                   <EmptySpace max="-2" attributes="0"/>
                                                   <Component id="timesLabel" min="-2" max="-2" attributes="0"/>
                                               </Group>
@@ -147,18 +141,11 @@
                               <Component id="needEndField" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="timesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="generationSettingsSeparator2" min="-2" pref="10" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="collusionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="collusionsButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="32767" attributes="0"/>
                           <Component id="generationLayeredPane" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="resultCountLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="63" max="32767" attributes="0"/>
+                          <EmptySpace pref="110" max="32767" attributes="0"/>
                           <Component id="advancedSettingsLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -216,14 +203,15 @@
                     <Property name="text" type="java.lang.String" value="times"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JSeparator" name="generationSettingsSeparator2">
-                </Component>
                 <Component class="javax.swing.JLabel" name="advancedSettingsLabel">
                   <Properties>
                     <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ad" green="45" red="6" type="rgb"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Advanced settings..."/>
+                    <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                      <Color id="Hand Cursor"/>
+                    </Property>
                   </Properties>
                   <Events>
                     <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="advancedSettingsLabelMouseClicked"/>
@@ -317,18 +305,6 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="collusionLabel">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Max. colluding actors"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JSpinner" name="collusionsButton">
-                  <Properties>
-                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                      <SpinnerModel initial="1" maximum="3" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
-                    </Property>
-                  </Properties>
-                </Component>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JSplitPane" name="listPane">
@@ -365,7 +341,7 @@
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="jLabel3" max="32767" attributes="0"/>
+                                  <Component id="SortingAndGroupingLabel" max="32767" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="gainStartField" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -400,7 +376,7 @@
                                           <Component id="sortComboBox" pref="126" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <Component id="jLabel4" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="FiltersLabel" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                           </Group>
@@ -410,7 +386,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                              <Component id="SortingAndGroupingLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="rankingSettingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -424,7 +400,7 @@
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Component id="listSettingsSeparator" min="-2" pref="10" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                              <Component id="FiltersLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Component id="lossLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -557,7 +533,7 @@
                         </Property>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JLabel" name="jLabel3">
+                    <Component class="javax.swing.JLabel" name="SortingAndGroupingLabel">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Tahoma" size="11" style="1"/>
@@ -565,7 +541,7 @@
                         <Property name="text" type="java.lang.String" value="Sorting and grouping"/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JLabel" name="jLabel4">
+                    <Component class="javax.swing.JLabel" name="FiltersLabel">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Tahoma" size="11" style="1"/>
