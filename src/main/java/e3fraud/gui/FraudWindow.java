@@ -49,12 +49,12 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.view.mxGraphView;
 
-import design.main.E3Graph;
-import design.main.E3GraphComponent;
-import design.main.Main;
-import design.main.info.Actor;
-import design.main.info.MarketSegment;
-import design.main.info.ValueActivity;
+import design.E3Graph;
+import design.E3GraphComponent;
+import design.Main;
+import design.info.Actor;
+import design.info.MarketSegment;
+import design.info.ValueActivity;
 import e3fraud.model.E3Model;
 
 /**

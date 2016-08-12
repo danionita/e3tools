@@ -19,7 +19,8 @@ package e3fraud.model;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
-import design.main.Utils.GraphDelta;
+
+import design.Utils.GraphDelta;
 import e3fraud.vocabulary.E3value;
 import java.text.DecimalFormat;
 import java.util.HashSet;
