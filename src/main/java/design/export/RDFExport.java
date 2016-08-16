@@ -240,7 +240,7 @@ public class RDFExport {
 					Base childInfo = (Base) graph.getModel().getValue(child);
 					res.addProperty(E3value.ms_has_vi, getResource(childInfo.getSUID()));
 				}
-
+				
 				// TODO: Can't implement this because Dan's E3value class does not have the
 				// ms_performs_va and such. The original exporter does export this though?
 //				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueActivity.class)) {
