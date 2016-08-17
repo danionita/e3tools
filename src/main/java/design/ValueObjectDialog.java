@@ -101,7 +101,7 @@ public class ValueObjectDialog {
 					Base val = Utils.base(graph, obj);
 					if (val instanceof ValueExchange) {
 						ValueExchange ve = (ValueExchange) val;
-						if (ve.valueObject.equals(valueObject)) {
+						if (ve.valueObject != null && ve.valueObject.equals(valueObject)) {
 							graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#00FF00");
 						} else {
 							graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
