@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
+ * *****************************************************************************
  */
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -26,7 +26,6 @@ package e3fraud.gui;
 import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
@@ -34,7 +33,6 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -56,6 +54,8 @@ import design.info.Actor;
 import design.info.MarketSegment;
 import design.info.ValueActivity;
 import e3fraud.model.E3Model;
+import e3fraud.tools.GenerationWorkerV2;
+import e3fraud.tools.SortingWorker;
 
 /**
  *
@@ -96,13 +96,13 @@ public class FraudWindow extends javax.swing.JPanel {
      * @param myFrame
      */
     public FraudWindow(E3Graph original, E3Model baseModel, Main mainFrame, JFrame myFrame) {
-    	this.baseGraph = original;
+        this.baseGraph = original;
         this.baseModel = baseModel;
         this.mainFrame = mainFrame;
-	this.myFrame = myFrame;
+        this.myFrame = myFrame;
         actorsMap = this.baseModel.getActorsMap();
         needsMap = this.baseModel.getNeedsMap();
-        
+
         //initiate default settings
         this.generateCollusion = true;
         this.generateHidden = true;
@@ -310,7 +310,7 @@ public class FraudWindow extends javax.swing.JPanel {
                 .addComponent(generationLayeredPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultCountLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
                 .addComponent(advancedSettingsLabel)
                 .addContainerGap())
         );
@@ -454,10 +454,14 @@ public class FraudWindow extends javax.swing.JPanel {
             }
         });
 
-        tree.setMaximumSize(new java.awt.Dimension(9999, 9999));
         tree.setRowHeight(0);//hack to make rowHeight adjust to components instead of fixed (stupid LAF)
         tree.setCellRenderer(new CustomTreeCellRenderer(tree));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                treeComponentResized(evt);
+            }
+        });
         tree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 treeValueChanged(evt);
@@ -539,8 +543,7 @@ public class FraudWindow extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(mainPane)
-                .addContainerGap())
+                .addComponent(mainPane, javax.swing.GroupLayout.DEFAULT_SIZE, 721, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -553,7 +556,7 @@ public class FraudWindow extends javax.swing.JPanel {
         JTree tree = (JTree) evt.getSource();
         //on selection
         if (!tree.isSelectionEmpty()) {
-            //enable visualization is enabled
+            //enable visualization
             visualizationPane.setVisible(true);
             placeholderLabel.setVisible(false);
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -628,6 +631,9 @@ public class FraudWindow extends javax.swing.JPanel {
 				
 				myFrame.revalidate();
             }
+        } else {
+            visualizationPane.setVisible(false);
+            placeholderLabel.setVisible(true);
         }
     }//GEN-LAST:event_treeValueChanged
 
@@ -643,19 +649,27 @@ public class FraudWindow extends javax.swing.JPanel {
     }//GEN-LAST:event_generateButtonActionPerformed
 
     private void advancedSettingsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_advancedSettingsLabelMouseClicked
-    AdvancedGenerationSettingsDialog dialog = new AdvancedGenerationSettingsDialog(this.myFrame, true, this.generateHidden, this.generateNonOccurring, this.generateCollusion, this.collusions);
-    if (dialog.getSettings()!=null){
-        this.generateNonOccurring = dialog.getSettings().generateNonOccurring;
-        this.generateHidden = dialog.getSettings().generateHidden;
-        this.generateCollusion = dialog.getSettings().generateCollusion;
-        this.collusions = dialog.getSettings().collusions;
-        System.out.println("settings updated");
-    }
+        AdvancedGenerationSettingsDialog dialog = new AdvancedGenerationSettingsDialog(this.myFrame, true, this.generateHidden, this.generateNonOccurring, this.generateCollusion, this.collusions);
+        if (dialog.getSettings() != null) {
+            this.generateNonOccurring = dialog.getSettings().generateNonOccurring;
+            this.generateHidden = dialog.getSettings().generateHidden;
+            this.generateCollusion = dialog.getSettings().generateCollusion;
+            this.collusions = dialog.getSettings().collusions;
+            System.out.println("settings updated");
+        }
     }//GEN-LAST:event_advancedSettingsLabelMouseClicked
+
+    private void treeComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_treeComponentResized
+    	if (graphPanel != null && graphPane != null) {
+			graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
+    	
+			myFrame.revalidate();
+    	}
+    }//GEN-LAST:event_treeComponentResized
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-        GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel,  selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, generateNonOccurring, generateHidden, generateCollusion ,collusions) {
+        GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, generateNonOccurring, generateHidden, generateCollusion, collusions) {
             //make it so that when Worker is done
             @Override
             protected void done() {
@@ -699,16 +713,16 @@ public class FraudWindow extends javax.swing.JPanel {
                     //The Worker's result is retrieved
                     results = get();
                     //if there are any results to show
-                    if (results.getShownResults()>0) {
-                        root=results.getRoot();
+                    if (results.getShownResults() > 0) {
+                        root = results.getRoot();
                         //Hide root to save space
                         tree.setRootVisible(false);
                         //Update result label 
-                        resultCountLabel.setText("Showing " + results.getShownResults() + "/"+results.getTotalResults()+" results");
+                        resultCountLabel.setText("Showing " + results.getShownResults() + "/" + results.getTotalResults() + " results");
                     } else {
                         tree.setRootVisible(true);
                         root = new DefaultMutableTreeNode("No results to show (check generation settings or filters)");
-                        resultCountLabel.setText("Showing " + results.getShownResults() + "/"+results.getTotalResults()+" results");
+                        resultCountLabel.setText("Showing " + results.getShownResults() + "/" + results.getTotalResults() + " results");
                     }
                     //The result tree is populated 
                     treeModel.setRoot(root);

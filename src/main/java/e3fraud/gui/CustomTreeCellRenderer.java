@@ -26,6 +26,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.text.SimpleAttributeSet;
@@ -82,6 +83,7 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
             right.setEditable(false);
             
             //set a fixed witdh 
+           //JScrollPane parent = (JScrollPane)tree.getParent();
             avaiableWidth = tree.getParent().getWidth() - left.getPreferredSize().width-2; 
             right.setSize(avaiableWidth,Short.MAX_VALUE);
             right.setText(model.getPrefix()+"\n"+model.getDescription());

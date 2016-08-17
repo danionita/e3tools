@@ -126,7 +126,7 @@ int STEPS = 3;
     }
 
     public Set<E3Model> generateCollusions(E3Model baseModel, Resource mainActor, int maxCollusions) {
-        Set<E3Model> subIdealModels = new HashSet<E3Model>();
+        Set<E3Model> subIdealModels = new HashSet<>();
         Set<Resource> secondaryActors = baseModel.getActors();
         secondaryActors.remove(mainActor);
         

@@ -60,14 +60,15 @@ public class ChartGenerator {
             series.setKey(series.getKey()
                     + "\nAvg.\t = \t" + df.format(model.getLastKnownAverages().get(actor))
                     + "\nSlope\t = \t" + df.format(slope));
+
         }
 
         /* Step -2:Define the JFreeChart object to create line chart */
         JFreeChart lineChartObject;
         if (expected) {
-            lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Profit (in Euro)", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
+            lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
         } else {
-            lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Profit (in Euro)", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
+            lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
         }
         return lineChartObject;
     }
