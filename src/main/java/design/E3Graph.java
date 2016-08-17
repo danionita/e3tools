@@ -18,11 +18,13 @@
  *******************************************************************************/
 package design;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
@@ -43,6 +45,7 @@ import design.info.Actor;
 import design.info.Base;
 import design.info.ConnectionElement;
 import design.info.EndSignal;
+import design.info.Info.Side;
 import design.info.LogicBase;
 import design.info.LogicDot;
 import design.info.MarketSegment;
@@ -52,10 +55,10 @@ import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
-import design.info.Info.Side;
 
-import java.io.File;
-
+// TODO: use isValidConnection in E3Graph to deny certain edges and allow others
+// (Right now they are deleted after creation, which is ugly. Also this will probably fix
+// the green highlight issue)
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
 
@@ -288,7 +291,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	/**
 	 * Returns true if given cell is a fitting drop target for cells.
 	 * Hierarchy:
-	 * - Actor can contain market segments, value activities, actors
+	 * - Actor can contain market segments and actors, or ONLY value activities
 	 * - Market segment can contain value activities
 	 * - Value activities cannot contain anything
 	 * As of 2016-8-16. This function is only called if a node is dropped
@@ -304,18 +307,41 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		Base droppeeValue = Utils.base(this, cells[0]);
 		
+		Function<Object, Boolean> isEmptyOrContainsNoValueActivities = obj -> {
+			List<Object> objChildren = Utils.getChildren(this, cell);
+			boolean allValueInterfaces = objChildren.stream().anyMatch(o -> getModel().getValue(o) instanceof ValueActivity);
+			return objChildren.size() == 0 || !allValueInterfaces;
+		};
+		
+		Function<Object, Boolean> isEmptyOrContainsOnlyValueActivities = obj -> {
+			List<Object> objChildren = Utils.getChildren(this, cell);
+			boolean allValueInterfaces = objChildren.stream().allMatch(o -> getModel().getValue(o) instanceof ValueActivity);
+			return objChildren.size() == 0 || allValueInterfaces;
+		};
+		
 		if (droppeeValue instanceof ValueInterface
 				|| droppeeValue instanceof StartSignal
 				|| droppeeValue instanceof EndSignal
 				|| droppeeValue instanceof LogicBase) {
 			return value instanceof Actor || value instanceof ValueActivity || value instanceof MarketSegment;
 		} else if (droppeeValue instanceof MarketSegment){
-			return value instanceof Actor;
+			if (value instanceof Actor) {
+				// Only allow a marketsegment to be a child of an actor
+				// When the actor is empty or only contains other things than value interfaces
+				return isEmptyOrContainsNoValueActivities.apply(cell);
+			}
+
+			return false;
 		} else if (droppeeValue instanceof Actor) {
-			return value instanceof Actor;
+			if (value instanceof Actor) {
+				return isEmptyOrContainsNoValueActivities.apply(cell);
+			}
+
+			return false;
 		} else if (droppeeValue instanceof ValueActivity) {
-			return value instanceof Actor || value instanceof MarketSegment;
+			return isEmptyOrContainsOnlyValueActivities.apply(cell);
 		} else {
+			// It's a start signal, and port, or something.
 			return value instanceof Actor 
 					|| value instanceof ValueActivity 
 					|| value instanceof MarketSegment;
@@ -594,7 +620,15 @@ public class E3Graph extends mxGraph implements Serializable{
 			ValuePort vpInfo = new ValuePort(incoming);
 			mxCell valuePort = (mxCell) graph.insertVertex(vi, null, vpInfo, 0.5, 0.5, 8.66, 10);
 			valuePort.setStyle("ValuePort" + vpInfo.getDirection(viInfo));
-
+			
+			// If the vi is on top or the side, move the vp to the beginning of the mxCell's (internal)
+			// child array. This is to make sure that it looks nice when ports are added (so the edges
+			// are straight instead of crossed between linked vi's)
+			if (viInfo.side == Side.TOP || viInfo.side == Side.RIGHT) {
+				vi.remove(valuePort);
+				vi.insert(valuePort, 0);
+			}
+			
 			mxGeometry vpGm = Utils.geometry(graph, valuePort);
 			vpGm.setRelative(true);
 			vpGm.setOffset(new mxPoint(-vpGm.getCenterX(), -vpGm.getCenterY()));
