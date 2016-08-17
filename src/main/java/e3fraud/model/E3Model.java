@@ -797,7 +797,11 @@ public class E3Model {
         for (Resource actor : actors) {
             XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());
             actorSeriesMap.put(actor, actorSeries);
+            System.out.println("actor.getProperty(E3value.e3_has_name)= "+actor.getProperty(E3value.e3_has_name).getString()+" actorSeries.getKey()"+actorSeries.getKey());
         }
+        
+        
+
                 int initialOccurenceRate = this.getNeedOccurrence(need);
         try {
             /* Step - 1: Define the data for the series  */
@@ -809,7 +813,7 @@ public class E3Model {
                 this.enhance();
                 //For each actor
                 for (Resource actor : actors) {
-                    System.out.println("Actor "+actor.getProperty(E3value.e3_has_name).getString()+" O="+i+" ; v="+this.getTotalForActor(actor, ideal));
+                    //System.out.println("Actor "+actor.getProperty(E3value.e3_has_name).getString()+" O="+i+" ; v="+this.getTotalForActor(actor, ideal));
                     //add it's profit to the relevant series
                     actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
                 }

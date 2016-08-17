@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package e3fraud.gui;
+package e3fraud.tools;
 
 /**
  *
  * @author Dan
  */
 import com.hp.hpl.jena.rdf.model.Resource;
+import e3fraud.gui.ResultObject;
 import e3fraud.model.E3Model;
 import e3fraud.model.ModelRanker;
 import e3fraud.tools.currentTime;

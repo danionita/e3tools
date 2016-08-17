@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
+ * *****************************************************************************
  */
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -23,6 +23,8 @@
  */
 package e3fraud.gui;
 
+import e3fraud.tools.SortingWorker;
+import e3fraud.tools.GenerationWorkerV2;
 import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -96,13 +98,13 @@ public class FraudWindow extends javax.swing.JPanel {
      * @param myFrame
      */
     public FraudWindow(E3Graph original, E3Model baseModel, Main mainFrame, JFrame myFrame) {
-    	this.baseGraph = original;
+        this.baseGraph = original;
         this.baseModel = baseModel;
         this.mainFrame = mainFrame;
-	this.myFrame = myFrame;
+        this.myFrame = myFrame;
         actorsMap = this.baseModel.getActorsMap();
         needsMap = this.baseModel.getNeedsMap();
-        
+
         //initiate default settings
         this.generateCollusion = true;
         this.generateHidden = true;
@@ -310,7 +312,7 @@ public class FraudWindow extends javax.swing.JPanel {
                 .addComponent(generationLayeredPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultCountLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
                 .addComponent(advancedSettingsLabel)
                 .addContainerGap())
         );
@@ -454,10 +456,14 @@ public class FraudWindow extends javax.swing.JPanel {
             }
         });
 
-        tree.setMaximumSize(new java.awt.Dimension(9999, 9999));
         tree.setRowHeight(0);//hack to make rowHeight adjust to components instead of fixed (stupid LAF)
         tree.setCellRenderer(new CustomTreeCellRenderer(tree));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                treeComponentResized(evt);
+            }
+        });
         tree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 treeValueChanged(evt);
@@ -539,8 +545,7 @@ public class FraudWindow extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(mainPane)
-                .addContainerGap())
+                .addComponent(mainPane, javax.swing.GroupLayout.DEFAULT_SIZE, 721, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -553,7 +558,7 @@ public class FraudWindow extends javax.swing.JPanel {
         JTree tree = (JTree) evt.getSource();
         //on selection
         if (!tree.isSelectionEmpty()) {
-            //enable visualization is enabled
+            //enable visualization
             visualizationPane.setVisible(true);
             placeholderLabel.setVisible(false);
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -565,9 +570,9 @@ public class FraudWindow extends javax.swing.JPanel {
                 //create a graph
                 graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
                 System.out.println("CHANGES:");
-                System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
-                System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
-                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
+                System.out.println("\t colludedActors:" + selectedModel.getFraudChanges().colludedActors);
+                System.out.println("\t hiddenTransactions:" + selectedModel.getFraudChanges().hiddenTransactions);
+                System.out.println("\t nonOccurringTransactions:" + selectedModel.getFraudChanges().nonOccurringTransactions);
                 //then, 
                 // if the chartPanel exists, update it
                 if (chartPanel != null) {
@@ -585,79 +590,84 @@ public class FraudWindow extends javax.swing.JPanel {
                 }
 
                 // Then just create a graph panel from scratch
-				graphPanel = new E3GraphComponent(graph);
-				// Disable right mouse clicks
-				graphPanel.setPopupTriggerEnabled(false);
-				// Prevent other funny business
-				graphPanel.setEnabled(false);
-				// Apparently mxGraphControl takes care of mouse business of
-				// mxGraph (which is the parent of E3Graph)
-				graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						System.out.println("Mouse clicked on graph!");
-						// On doubleclick
-						if (e.getClickCount() == 2) {
-							// Create a new tab with the current graph
-							FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
-							// Switch to the screen
-							FraudWindow.this.mainFrame.mainFrame.requestFocus();
-						}
-					}
-				});
+                graphPanel = new E3GraphComponent(graph);
+                // Disable right mouse clicks
+                graphPanel.setPopupTriggerEnabled(false);
+                // Prevent other funny business
+                graphPanel.setEnabled(false);
+                // Apparently mxGraphControl takes care of mouse business of
+                // mxGraph (which is the parent of E3Graph)
+                graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        System.out.println("Mouse clicked on graph!");
+                        // On doubleclick
+                        if (e.getClickCount() == 2) {
+                            // Create a new tab with the current graph
+                            FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
+                            // Switch to the screen
+                            FraudWindow.this.mainFrame.mainFrame.requestFocus();
+                        }
+                    }
+                });
 
-				// Refresh E3GraphComponent to make sure E3Style is used
-				graphPanel.refresh();
-				// Add it 
-				graphPane.add(graphPanel);  
-				// Set it visible if it isn't already
-				graphPanel.setVisible(true);
+                // Refresh E3GraphComponent to make sure E3Style is used
+                graphPanel.refresh();
+                // Add it 
+                graphPane.add(graphPanel);
+                // Set it visible if it isn't already
+                graphPanel.setVisible(true);
 
-				// Graph scaling code
-				// To ensure that the size is not 0
-				if (graphPane.getVisibleRect().getWidth() < 10) {
-					myFrame.pack();
-				}
-				
-				mxGraphView view = graphPanel.getGraph().getView();
-				
-				double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
-						maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
-				
-				for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
-					// Only look at the positions from top-level elements
-					if (!(graph.getModel().getValue(obj) instanceof ValueActivity
-							|| graph.getModel().getValue(obj) instanceof MarketSegment
-							|| graph.getModel().getValue(obj) instanceof Actor)) continue;
-					
-					// Gather the bounds
-					mxGeometry gm = graph.getCellGeometry(obj);
-					minX = Math.min(minX, gm.getX());
-					minY = Math.min(minY, gm.getY());			
-					maxX = Math.max(maxX, gm.getX() + gm.getWidth());
-					maxY = Math.max(maxY, gm.getY() + gm.getHeight());
-				}
-				
-				double graphWidth = maxX - minX;
-				double graphHeight = maxY - minY;
-				
-				double scale = 1;
-				
-				// We add 10 to ad a tiny border of white around the graph
-				if (graphWidth > graphHeight) {
-					scale = graphPane.getVisibleRect().getWidth() / (graphWidth + 10);
-				} else {
-					scale = graphPane.getVisibleRect().getHeight() / (graphHeight + 10);
-				}
-					   
-				view.scaleAndTranslate(scale, -minX, -minY);
-				
-				// Make the scrollbars disappear
-				graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-				graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-				
-				myFrame.pack();
+                // Graph scaling code
+                // To ensure that the size is not 0
+                if (graphPane.getVisibleRect().getWidth() < 10) {
+                    myFrame.pack();
+                }
+
+                mxGraphView view = graphPanel.getGraph().getView();
+
+                double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
+                        maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
+
+                for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
+                    // Only look at the positions from top-level elements
+                    if (!(graph.getModel().getValue(obj) instanceof ValueActivity
+                            || graph.getModel().getValue(obj) instanceof MarketSegment
+                            || graph.getModel().getValue(obj) instanceof Actor)) {
+                        continue;
+                    }
+
+                    // Gather the bounds
+                    mxGeometry gm = graph.getCellGeometry(obj);
+                    minX = Math.min(minX, gm.getX());
+                    minY = Math.min(minY, gm.getY());
+                    maxX = Math.max(maxX, gm.getX() + gm.getWidth());
+                    maxY = Math.max(maxY, gm.getY() + gm.getHeight());
+                }
+
+                double graphWidth = maxX - minX;
+                double graphHeight = maxY - minY;
+
+                double scale = 1;
+
+                // We add 10 to ad a tiny border of white around the graph
+                if (graphWidth > graphHeight) {
+                    scale = graphPane.getVisibleRect().getWidth() / (graphWidth + 10);
+                } else {
+                    scale = graphPane.getVisibleRect().getHeight() / (graphHeight + 10);
+                }
+
+                view.scaleAndTranslate(scale, -minX, -minY);
+
+                // Make the scrollbars disappear
+                graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+
+                myFrame.pack();
             }
+        } else {
+            visualizationPane.setVisible(false);
+            placeholderLabel.setVisible(true);
         }
     }//GEN-LAST:event_treeValueChanged
 
@@ -673,19 +683,23 @@ public class FraudWindow extends javax.swing.JPanel {
     }//GEN-LAST:event_generateButtonActionPerformed
 
     private void advancedSettingsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_advancedSettingsLabelMouseClicked
-    AdvancedGenerationSettingsDialog dialog = new AdvancedGenerationSettingsDialog(this.myFrame, true, this.generateHidden, this.generateNonOccurring, this.generateCollusion, this.collusions);
-    if (dialog.getSettings()!=null){
-        this.generateNonOccurring = dialog.getSettings().generateNonOccurring;
-        this.generateHidden = dialog.getSettings().generateHidden;
-        this.generateCollusion = dialog.getSettings().generateCollusion;
-        this.collusions = dialog.getSettings().collusions;
-        System.out.println("settings updated");
-    }
+        AdvancedGenerationSettingsDialog dialog = new AdvancedGenerationSettingsDialog(this.myFrame, true, this.generateHidden, this.generateNonOccurring, this.generateCollusion, this.collusions);
+        if (dialog.getSettings() != null) {
+            this.generateNonOccurring = dialog.getSettings().generateNonOccurring;
+            this.generateHidden = dialog.getSettings().generateHidden;
+            this.generateCollusion = dialog.getSettings().generateCollusion;
+            this.collusions = dialog.getSettings().collusions;
+            System.out.println("settings updated");
+        }
     }//GEN-LAST:event_advancedSettingsLabelMouseClicked
+
+    private void treeComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_treeComponentResized
+        // TODO add your handling code here:
+    }//GEN-LAST:event_treeComponentResized
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-        GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel,  selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, generateNonOccurring, generateHidden, generateCollusion ,collusions) {
+        GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, generateNonOccurring, generateHidden, generateCollusion, collusions) {
             //make it so that when Worker is done
             @Override
             protected void done() {
@@ -729,16 +743,16 @@ public class FraudWindow extends javax.swing.JPanel {
                     //The Worker's result is retrieved
                     results = get();
                     //if there are any results to show
-                    if (results.getShownResults()>0) {
-                        root=results.getRoot();
+                    if (results.getShownResults() > 0) {
+                        root = results.getRoot();
                         //Hide root to save space
                         tree.setRootVisible(false);
                         //Update result label 
-                        resultCountLabel.setText("Showing " + results.getShownResults() + "/"+results.getTotalResults()+" results");
+                        resultCountLabel.setText("Showing " + results.getShownResults() + "/" + results.getTotalResults() + " results");
                     } else {
                         tree.setRootVisible(true);
                         root = new DefaultMutableTreeNode("No results to show (check generation settings or filters)");
-                        resultCountLabel.setText("Showing " + results.getShownResults() + "/"+results.getTotalResults()+" results");
+                        resultCountLabel.setText("Showing " + results.getShownResults() + "/" + results.getTotalResults() + " results");
                     }
                     //The result tree is populated 
                     treeModel.setRoot(root);
