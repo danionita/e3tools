@@ -235,8 +235,36 @@ public class RDFExport {
 				res = getResource(value.getSUID());
 
 				// Add name
-				if (value.name != null) {
+				if (value.name != null && !value.name.isEmpty()) {
 					res.addProperty(E3value.e3_has_name, value.name);
+				} else {
+					String name = "";
+
+					if (value instanceof Actor) {
+						name += "ac";
+					} else if (value instanceof MarketSegment) {
+						name += "ms";
+					} else if (value instanceof ValueActivity) {
+						name += "va";
+					} else if (value instanceof ValueInterface) {
+						name += "vi";
+					} else if (value instanceof ValuePort) {
+						name += "vp";
+					} else if (value instanceof ValueExchange) {
+						name += "ve";
+					} else if (value instanceof ConnectionElement) {
+						name += "ce";
+					} else if (value instanceof StartSignal) {
+						name += "ss";
+					} else if (value instanceof EndSignal) {
+						name += "es";
+					} else {
+						name += "uknown";
+					}
+					
+					name += value.getSUID();
+
+					res.addProperty(E3value.e3_has_name, name);
 				}
 			
 				// Add formulas
