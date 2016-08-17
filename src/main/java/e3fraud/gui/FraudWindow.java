@@ -562,12 +562,6 @@ public class FraudWindow extends javax.swing.JPanel {
                 selectedModel = (E3Model) node.getUserObject();
                 //create a chart 
                 chart = ChartGenerator.generateChart(selectedModel, selectedNeed, needStartValue, needEndValue, false);
-                //create a graph
-                graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
-                System.out.println("CHANGES:");
-                System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
-                System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
-                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
                 //then, 
                 // if the chartPanel exists, update it
                 if (chartPanel != null) {
@@ -583,6 +577,13 @@ public class FraudWindow extends javax.swing.JPanel {
                 if (graphPane.getComponentCount() > 1) {
                     graphPane.remove(1);
                 }
+
+                //create a graph
+                graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
+                System.out.println("CHANGES:");
+                System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
+                System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
+                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
 
                 // Then just create a graph panel from scratch
 				graphPanel = new E3GraphComponent(graph);
@@ -616,47 +617,16 @@ public class FraudWindow extends javax.swing.JPanel {
 				// Graph scaling code
 				// To ensure that the size is not 0
 				if (graphPane.getVisibleRect().getWidth() < 10) {
-					myFrame.pack();
+					myFrame.revalidate();
 				}
 				
-				mxGraphView view = graphPanel.getGraph().getView();
-				
-				double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
-						maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
-				
-				for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
-					// Only look at the positions from top-level elements
-					if (!(graph.getModel().getValue(obj) instanceof ValueActivity
-							|| graph.getModel().getValue(obj) instanceof MarketSegment
-							|| graph.getModel().getValue(obj) instanceof Actor)) continue;
-					
-					// Gather the bounds
-					mxGeometry gm = graph.getCellGeometry(obj);
-					minX = Math.min(minX, gm.getX());
-					minY = Math.min(minY, gm.getY());			
-					maxX = Math.max(maxX, gm.getX() + gm.getWidth());
-					maxY = Math.max(maxY, gm.getY() + gm.getHeight());
-				}
-				
-				double graphWidth = maxX - minX;
-				double graphHeight = maxY - minY;
-				
-				double scale = 1;
-				
-				// We add 10 to ad a tiny border of white around the graph
-				if (graphWidth > graphHeight) {
-					scale = graphPane.getVisibleRect().getWidth() / (graphWidth + 10);
-				} else {
-					scale = graphPane.getVisibleRect().getHeight() / (graphHeight + 10);
-				}
-					   
-				view.scaleAndTranslate(scale, -minX, -minY);
+				graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
 				
 				// Make the scrollbars disappear
 				graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 				graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 				
-				myFrame.pack();
+				myFrame.revalidate();
             }
         }
     }//GEN-LAST:event_treeValueChanged

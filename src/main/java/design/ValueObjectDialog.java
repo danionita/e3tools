@@ -81,7 +81,7 @@ public class ValueObjectDialog {
 			listModel.addElement(valueObject + " (" + count.getOrDefault(valueObject, 0) + "x)");
 		}
 		
-		JList valueObjectsList = new JList(listModel);
+		JList<String> valueObjectsList = new JList<String>(listModel);
 		valueObjectsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		valueObjectsList.addListSelectionListener(new ListSelectionListener() {
 			@Override

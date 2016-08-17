@@ -332,6 +332,10 @@ public class Utils {
         Object right;
         Base rightValue;
     }
+    
+    public static List<Object> getChildren(mxGraph graph, Object parent) {
+    	return getChildrenWithValue(graph, parent, Object.class);
+    }
 
     public static List<Object> getChildrenWithValue(mxGraph graph, Object parent, Class<?> c) {
         ArrayList<Object> children = new ArrayList<>();

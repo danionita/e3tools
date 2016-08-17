@@ -36,6 +36,7 @@ import com.mxgraph.util.mxUndoManager;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraphView;
 
 import design.info.Actor;
 import design.info.Base;
@@ -263,5 +264,40 @@ public class E3GraphComponent extends mxGraphComponent {
 				return false;
 			}
 		};
+	}
+	
+	public void centerAndScaleView(double viewportWidth, double viewportHeight) {
+		mxGraphView view = getGraph().getView();
+		
+		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
+				maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
+		
+		for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
+			// Only look at the positions from top-level elements
+			if (!(graph.getModel().getValue(obj) instanceof ValueActivity
+					|| graph.getModel().getValue(obj) instanceof MarketSegment
+					|| graph.getModel().getValue(obj) instanceof Actor)) continue;
+			
+			// Gather the bounds
+			mxGeometry gm = graph.getCellGeometry(obj);
+			minX = Math.min(minX, gm.getX());
+			minY = Math.min(minY, gm.getY());			
+			maxX = Math.max(maxX, gm.getX() + gm.getWidth());
+			maxY = Math.max(maxY, gm.getY() + gm.getHeight());
+		}
+		
+		double graphWidth = maxX - minX;
+		double graphHeight = maxY - minY;
+		
+		double scale = 1;
+		
+		// We add 10 to ad a tiny border of white around the graph
+		if (graphWidth > graphHeight) {
+			scale = viewportWidth / (graphWidth + 10);
+		} else {
+			scale = viewportHeight / (graphHeight + 10);
+		}
+			   
+		view.scaleAndTranslate(scale, -minX, -minY);
 	}
 }
