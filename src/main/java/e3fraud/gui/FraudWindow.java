@@ -665,15 +665,14 @@ public class FraudWindow extends javax.swing.JPanel {
     }//GEN-LAST:event_advancedSettingsLabelMouseClicked
 
     private void treeComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_treeComponentResized
+    }//GEN-LAST:event_treeComponentResized
+
+    private void graphPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_graphPaneComponentResized
     	if (graphPanel != null && graphPane != null) {
 			graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
     	
 			myFrame.revalidate();
     	}
-    }//GEN-LAST:event_treeComponentResized
-
-    private void graphPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_graphPaneComponentResized
-        // TODO add your handling code here:
     }//GEN-LAST:event_graphPaneComponentResized
 
     private void generateSortAndDisplay() {
