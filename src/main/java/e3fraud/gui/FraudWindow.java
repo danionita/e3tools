@@ -492,6 +492,11 @@ public class FraudWindow extends javax.swing.JPanel {
         chartPane.getAccessibleContext().setAccessibleDescription("");
 
         graphPane.setPreferredSize(new java.awt.Dimension(500, 400));
+        graphPane.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                graphPaneComponentResized(evt);
+            }
+        });
         graphPane.setLayout(new java.awt.BorderLayout());
 
         jLabel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -696,6 +701,10 @@ public class FraudWindow extends javax.swing.JPanel {
     private void treeComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_treeComponentResized
         // TODO add your handling code here:
     }//GEN-LAST:event_treeComponentResized
+
+    private void graphPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_graphPaneComponentResized
+        // TODO add your handling code here:
+    }//GEN-LAST:event_graphPaneComponentResized
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
