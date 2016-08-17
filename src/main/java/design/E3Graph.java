@@ -56,6 +56,9 @@ import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
 
+// TODO: use isValidConnection in E3Graph to deny certain edges and allow others
+// (Right now they are deleted after creation, which is ugly. Also this will probably fix
+// the green highlight issue)
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
 
@@ -617,7 +620,15 @@ public class E3Graph extends mxGraph implements Serializable{
 			ValuePort vpInfo = new ValuePort(incoming);
 			mxCell valuePort = (mxCell) graph.insertVertex(vi, null, vpInfo, 0.5, 0.5, 8.66, 10);
 			valuePort.setStyle("ValuePort" + vpInfo.getDirection(viInfo));
-
+			
+			// If the vi is on top or the side, move the vp to the beginning of the mxCell's (internal)
+			// child array. This is to make sure that it looks nice when ports are added (so the edges
+			// are straight instead of crossed between linked vi's)
+			if (viInfo.side == Side.TOP || viInfo.side == Side.RIGHT) {
+				vi.remove(valuePort);
+				vi.insert(valuePort, 0);
+			}
+			
 			mxGeometry vpGm = Utils.geometry(graph, valuePort);
 			vpGm.setRelative(true);
 			vpGm.setOffset(new mxPoint(-vpGm.getCenterX(), -vpGm.getCenterY()));
