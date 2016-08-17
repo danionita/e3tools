@@ -18,17 +18,22 @@
  *******************************************************************************/
 package design;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JColorChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
@@ -37,6 +42,7 @@ import javax.swing.event.PopupMenuListener;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 
 import design.info.Actor;
@@ -647,6 +653,42 @@ public class ContextMenus {
 				} finally {
 					graph.getModel().endUpdate();
 				}
+			}
+		}));
+	}
+
+	public static void addBackgroundColorMenu(JPopupMenu menu, mxGraph graph) {
+		menu.add(new JMenuItem(new AbstractAction("Change background color...") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JColorChooser cc = new JColorChooser(new Color(192, 192, 192));
+				// Disables preview panel
+				cc.setPreviewPanel(new JPanel());
+				for (AbstractColorChooserPanel acc : cc.getChooserPanels()) {
+					System.out.println(acc.getDisplayName());
+					if (!acc.getDisplayName().equals("RGB")) {
+						System.out.println("Removing " + acc.getDisplayName());
+						cc.removeChooserPanel(acc);
+					}
+				}
+
+				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
+				
+				JColorChooser.createDialog(Main.mainFrame, "Pick a color for " + value.name, true, cc, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						Color newColor = cc.getColor();
+						String hex = String.format("#%02x%02x%02x", newColor.getRed(), newColor.getGreen(), newColor.getBlue());
+						
+						graph.getModel().beginUpdate();
+						try {
+							graph.setCellStyles(mxConstants.STYLE_GRADIENTCOLOR, hex, new Object[]{Main.contextTarget});
+							graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, hex, new Object[]{Main.contextTarget});
+						} finally {
+							graph.getModel().endUpdate();
+						}
+					}
+				}, null).setVisible(true);;
 			}
 		}));
 	}

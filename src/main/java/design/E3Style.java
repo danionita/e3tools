@@ -75,6 +75,8 @@ public class E3Style {
 		
 		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_SHAPE, "MarketSegmentStencil"); // We added this above in the try block
+		style.put(mxConstants.STYLE_STROKECOLOR, "#FF0000");
+		style.put(mxConstants.STYLE_FILLCOLOR, "#FF0000");
 		stylesheet.putCellStyle("MarketSegment", style);
 
 		// ArcSize is not taken into account by JGraphX
