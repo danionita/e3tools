@@ -400,7 +400,14 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: Implement this
+			E3Graph graph = main.getCurrentGraph();
+			
+			graph.getModel().beginUpdate();
+			try {
+//				Utils.getAllCells(graph).stream()
+			} finally {
+				graph.getModel().endUpdate();
+			}
 		}
 	}
 	

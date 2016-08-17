@@ -286,9 +286,15 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	/**
-	 * Returns true if given cell is a fitting drop target for cells. This means the
-	 * drop target should be an actor or a value activity.
-	 * TODO: What entities can be dropped in what entities? (Market segment into value activities, etc.)
+	 * Returns true if given cell is a fitting drop target for cells.
+	 * Hierarchy:
+	 * - Actor can contain market segments, value activities, actors
+	 * - Market segment can contain value activities
+	 * - Value activities cannot contain anything
+	 * As of 2016-8-16. This function is only called if a node is dropped
+	 * inside another node. The top level filtering (that makes sure
+	 * you cannot have a top level start signal) happens in
+	 * {@link #addStandardEventListeners()}.
 	 */
 	@Override
 	public boolean isValidDropTarget(Object cell, Object[] cells) {
@@ -306,11 +312,13 @@ public class E3Graph extends mxGraph implements Serializable{
 		} else if (droppeeValue instanceof MarketSegment){
 			return value instanceof Actor;
 		} else if (droppeeValue instanceof Actor) {
-			return false;
+			return value instanceof Actor;
 		} else if (droppeeValue instanceof ValueActivity) {
 			return value instanceof Actor || value instanceof MarketSegment;
 		} else {
-			return value instanceof Actor || value instanceof ValueActivity;
+			return value instanceof Actor 
+					|| value instanceof ValueActivity 
+					|| value instanceof MarketSegment;
 		}
 	}
 

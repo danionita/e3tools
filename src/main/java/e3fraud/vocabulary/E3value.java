@@ -83,6 +83,12 @@ public class E3value {
     
     public static final Property ms_has_vi = m_model.createProperty( "http://www.cs.vu.nl/~gordijn/e3value#ms-has-vi" );
     
+    // The next two properties (ms_performs_va and va_performed_by_ms) were added by Dan & Bob at 2016-8-16
+    // Since we deemed them needed to properly generate RDF models (also the old editor output them just fine)
+    public static final Property ms_performs_va = m_model.createProperty( "http://www.cs.vu.nl/~gordijn/e3value#ms-performs-va" ); 
+
+    public static final Property va_performed_by_ms = m_model.createProperty( "http://www.cs.vu.nl/~gordijn/e3value#ms-performs-va" ); 
+    
     public static final Property va_has_vi = m_model.createProperty( "http://www.cs.vu.nl/~gordijn/e3value#va-has-vi" );
     
     public static final Property va_performed_by_el = m_model.createProperty( "http://www.cs.vu.nl/~gordijn/e3value#va-performed-by-el" );
