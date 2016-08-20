@@ -5,6 +5,8 @@ public class ConnectionElement extends Base {
 	
 	public ConnectionElement() {
 		name = "ConnectionElement" + getSUID();
+		
+		formulas.put("OCCURRENCES", "1");
 	}
 
 	@Override

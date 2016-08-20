@@ -4,7 +4,6 @@ public class ValueActivity extends Base {
 	private static final long serialVersionUID = 6344879576710522969L;
 	
 	public ValueActivity() {
-		formulas.put("TOTAL_VARIABLE_EXPENSES", "0");
 		formulas.put("INVESTMENT", "0");
 		formulas.put("EXPENSES", "0");
 	}

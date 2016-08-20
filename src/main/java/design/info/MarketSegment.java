@@ -8,7 +8,6 @@ public class MarketSegment extends Base {
 		formulas.put("INVESTMENT", "0");
 		formulas.put("EXPENSES", "0");
 		formulas.put("INTEREST", "0");
-		formulas.put("MS_TYPE", "0");
 	}
 	
 	@Override

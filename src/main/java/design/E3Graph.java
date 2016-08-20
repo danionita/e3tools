@@ -32,7 +32,6 @@ import org.w3c.dom.Document;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
@@ -50,6 +49,7 @@ import design.info.Info.Side;
 import design.info.LogicBase;
 import design.info.LogicDot;
 import design.info.MarketSegment;
+import design.info.Note;
 import design.info.SignalDot;
 import design.info.StartSignal;
 import design.info.ValueActivity;
@@ -312,6 +312,8 @@ public class E3Graph extends mxGraph implements Serializable{
 			return false;
 		} else if (droppeeValue instanceof ValueActivity) {
 			return isEmptyOrContainsOnlyValueActivities.apply(cell);
+		} else if (droppeeValue instanceof Note) {
+			return false;
 		} else {
 			// It's a start signal, and port, or something.
 			return value instanceof Actor 
@@ -661,6 +663,7 @@ public class E3Graph extends mxGraph implements Serializable{
 				|| value instanceof ValueActivity
 				|| value instanceof ValueExchange
 				|| value instanceof ConnectionElement
+				|| value instanceof Note
 				;
 	}
 
@@ -1431,7 +1434,7 @@ public class E3Graph extends mxGraph implements Serializable{
 			}
 		}
 		
-		return error; // + super.getCellValidationError(cell);
+		return error; 
 	}
 	
 	/**

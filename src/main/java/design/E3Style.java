@@ -75,7 +75,6 @@ public class E3Style {
 		
 		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_SHAPE, "MarketSegmentStencil"); // We added this above in the try block
-		style.put(mxConstants.STYLE_FILLCOLOR, "#C0C0C0");
 		stylesheet.putCellStyle("MarketSegment", style);
 
 		// ArcSize is not taken into account by JGraphX
@@ -220,10 +219,17 @@ public class E3Style {
 		// style.put(mxConstants.STYLE_RESIZABLE, 0);
 		stylesheet.putCellStyle("NameText", style);
 		
+		style = new Hashtable<>();
+		style.put(mxConstants.STYLE_SHAPE, "NoteStencil");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#808080");
+		style.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_LEFT);
+		style.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_TOP);
+		stylesheet.putCellStyle("Note", style);
+		
 		// Aw yeah '90
 		graphComponent.getViewport().setOpaque(true);
-		style.put(mxConstants.STYLE_FILLCOLOR, "#00FF00");
 		graphComponent.getViewport().setBackground(Color.WHITE);
+		graphComponent.setGridVisible(true);
 		
 		// To get rid of the folding icon
 		graphComponent.setFoldingEnabled(false);
@@ -239,6 +245,7 @@ public class E3Style {
 		addStencil("southtriangle.shape");
 		addStencil("westtriangle.shape");
 		addStencil("northtriangle.shape");
+		addStencil("note.shape");
 	}
 	
 	public static Set<String> loadedStencils = new HashSet<String>();

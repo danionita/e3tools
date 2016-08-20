@@ -10,7 +10,7 @@ public class ValuePort extends Base {
 		incoming = incoming_;
 		
 		formulas.put("VALUATION", "0");
-		formulas.put("CADINALITY", "0");
+		formulas.put("CADINALITY", "1");
 		formulas.put("EXPENSES", "0");
 	}
 	

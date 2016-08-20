@@ -327,7 +327,7 @@ public class Main {
 
         // Show main screen
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setSize(1024, 768);
+        mainFrame.setSize(1024, 800);
         mainFrame.setVisible(true);
     }
 

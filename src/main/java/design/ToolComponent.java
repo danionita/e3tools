@@ -20,7 +20,6 @@ package design;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxEvent;
@@ -30,14 +29,15 @@ import com.mxgraph.view.mxGraph;
 import design.info.Actor;
 import design.info.Base;
 import design.info.EndSignal;
+import design.info.Info.Side;
 import design.info.LogicBase;
 import design.info.LogicDot;
 import design.info.MarketSegment;
+import design.info.Note;
 import design.info.SignalDot;
 import design.info.StartSignal;
 import design.info.ValueActivity;
 import design.info.ValueInterface;
-import design.info.Info.Side;
 import design.listeners.ProxySelection;
 
 public class ToolComponent extends mxGraphComponent {
@@ -51,6 +51,7 @@ public class ToolComponent extends mxGraphComponent {
 	public final Object endSignal;
 	public final Object orGate;
 	public final Object andGate;
+	public final Object note;
 	
 	public Object clone(Object cell) {
 		return graph.cloneCells(new Object[]{cell}, true)[0];
@@ -158,7 +159,7 @@ public class ToolComponent extends mxGraphComponent {
 			
 			// End signal
 			{
-				endSignal = (mxCell) graph.insertVertex(root, null, new EndSignal(), 55, 420, 35, 35, "EndSignal");
+				endSignal = (mxCell) graph.insertVertex(root, null, new EndSignal(), 60, 420, 35, 35, "EndSignal");
 				mxGeometry sgm = graph.getModel().getGeometry(endSignal);
 				// Magic number to get the label to float nicely above
 				sgm.setOffset(new mxPoint(0, -21));
@@ -212,6 +213,12 @@ public class ToolComponent extends mxGraphComponent {
 				}
 			}
 			
+			// Note thing
+			{
+				Note noteInfo = new Note();
+				note = graph.insertVertex(root, null, noteInfo, 50, 600, 50, 50, "Note");
+			}
+			
 			// Add some fancy labels
 			graph.insertVertex(root, null, "Value Activity", 120, 20, 100, 100, "NameText");
 			graph.insertVertex(root, null, "Actor", 120, 120, 100, 100, "NameText");
@@ -221,6 +228,7 @@ public class ToolComponent extends mxGraphComponent {
 			graph.insertVertex(root, null, "End signal", 120, 420, 100, 45, "NameText");
 			graph.insertVertex(root, null, "And gate", 120, 475, 100, 50, "NameText");
 			graph.insertVertex(root, null, "Or gate", 120, 535, 100, 50, "NameText");
+			graph.insertVertex(root, null, "Note", 120, 600, 100, 50, "NameText");
 
 		} finally {
 			graph.getModel().endUpdate();
