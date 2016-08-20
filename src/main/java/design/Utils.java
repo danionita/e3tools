@@ -136,22 +136,22 @@ public class Utils {
      * Returns true if the given value interface or value port is situated on a
      * top-level actor. That is, it is not nested.
      *
-     * @param cell
+     * @param cell The cell object to check. Can be either value interface or value port.
      * @return
      */
-    public static boolean isToplevelValueInterface(mxGraph graph, mxICell cell) {
+    public static boolean isToplevelValueInterface(mxGraph graph, Object cell) {
         Base value = Utils.base(graph, cell);
 
         if (value instanceof ValuePort) {
-            return isToplevelValueInterface(graph, cell.getParent());
+            return isToplevelValueInterface(graph, graph.getModel().getParent(cell));
         } else if (value instanceof ValueInterface) {
-            mxICell parent = cell.getParent();
+            Object parent = graph.getModel().getParent(cell);
 
             if (parent == null) {
                 return false;
             }
 
-            return parent.getParent() == graph.getDefaultParent();
+            return graph.getModel().getParent(parent) == graph.getDefaultParent();
         }
 
         return false;

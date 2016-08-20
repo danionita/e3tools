@@ -32,6 +32,7 @@ import org.w3c.dom.Document;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
@@ -194,35 +195,16 @@ public class E3Graph extends mxGraph implements Serializable{
 					Base targetValue = Utils.base(graph, target);
 
 					if (Utils.isDotValue(sourceValue) && Utils.isDotValue(targetValue)) {
-						graph.getModel().setStyle(cell, "ConnectionElement");
-						ConnectionElement value = new ConnectionElement();
-						value.name = "ConnectionElement" + value.getSUID();
-						graph.getModel().setValue(cell, value);
-
-						Object[] sourceEdges = graph.getEdges(source);
-						Object[] targetEdges = graph.getEdges(target);
-						
-						if (sourceEdges.length + targetEdges.length > 2) {
-							graph.getModel().beginUpdate();
-							try {
-								// TODO: If this ever gives problems, change to graph.removeCells
-								graph.removeCells(new Object[]{cell});
-							} finally {
-								graph.getModel().endUpdate();
-							}
+						graph.getModel().beginUpdate();
+						try {
+							graph.getModel().setStyle(cell, "ConnectionElement");
+							ConnectionElement value = new ConnectionElement();
+							value.name = "ConnectionElement" + value.getSUID();
+							graph.getModel().setValue(cell, value);
+						} finally {
+							graph.getModel().endUpdate();
 						}
 					} else if (sourceValue instanceof ValuePort && targetValue instanceof ValuePort) {
-						boolean sourceIncoming = ((ValuePort) sourceValue).incoming;
-						boolean targetIncoming = ((ValuePort) targetValue).incoming;
-						
-						// Reverse engineered from the original editor:
-						// For two top level actors, one should be incoming and one
-						// Should be outgoing. If one of them is nested, anything goes.
-						boolean sourceIsTopLevel = Utils.isToplevelValueInterface(graph, source);
-						boolean targetIsTopLevel = Utils.isToplevelValueInterface(graph, target);
-						
-						// One should be an incoming value interface, other one should be outgoing
-						// But only if they are both top-level
 						graph.getModel().beginUpdate();
 						try {
 							// Set ValueExchange edge properties
@@ -230,21 +212,10 @@ public class E3Graph extends mxGraph implements Serializable{
 							ValueExchange value = new ValueExchange();
 							value.name = "ValueExchange" + value.getSUID();
 							graph.getModel().setValue(cell, value);
-							
-							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
-								graph.removeCells(new Object[]{cell});
-							}
 						} finally {
 							graph.getModel().endUpdate();
 						}
-					} else {
-						graph.getModel().beginUpdate();
-						try {
-							graph.removeCells(new Object[]{cell});
-						} finally {
-							graph.getModel().endUpdate();
-						}
-					}
+					} 
 				}
 			}
 		});
@@ -1392,5 +1363,53 @@ public class E3Graph extends mxGraph implements Serializable{
 		}
 		
 		return super.isLabelMovable(cell);
+	}
+	
+	/**
+	 * Returns the container (actor/market segment/value activity) of a
+	 * value port.
+	 * @param vp
+	 * @return
+	 */
+	public Object getContainerOfValuePort(Object vp) {
+		return model.getParent(model.getParent(vp));
+	}
+	
+	@Override
+	public boolean isValidConnection(Object source, Object target) {
+		Base sourceVal = Utils.base(this, source);
+		Base targetVal = Utils.base(this, target);
+		
+		if (sourceVal instanceof ValuePort && targetVal instanceof ValuePort) {
+			ValuePort sourceInfo = (ValuePort) sourceVal;
+			ValuePort targetInfo = (ValuePort) targetVal;
+			
+			// If the source and target are in the same VI do not allow an edge
+			if (model.getParent(source) == model.getParent(target)) {
+				return false;
+			}
+
+			// If the "containers" of the value ports have the same parent the
+			// directions have to be different (one incoming, one outgoing)
+			if (model.getParent(getContainerOfValuePort(source)) == model.getParent(getContainerOfValuePort(target))) {
+				return sourceInfo.incoming != targetInfo.incoming;
+			} 
+			
+			// Otherwise everything is probably fine
+			return true;
+		} else if (Utils.isDotValue(sourceVal) && Utils.isDotValue(targetVal)) {
+			// If source and target are in the same logic element (and/or gate)
+			// Do not allow an edge
+			if (sourceVal instanceof LogicDot && targetVal instanceof LogicDot) {
+				if (model.getParent(source) == model.getParent(target)) {
+					return false;
+				}
+			}
+
+			// Otherwise everything is probably fine
+			return true;
+		}
+		
+		return false;
 	}
 }
