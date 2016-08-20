@@ -349,6 +349,8 @@ public class E3GraphComponent extends mxGraphComponent {
 			bounds.height += 1;
 			setBounds(bounds);
 			
+			System.out.println("DRAWING");
+			
 			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
 		}
 

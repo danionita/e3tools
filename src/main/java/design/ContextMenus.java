@@ -127,6 +127,7 @@ public class ContextMenus {
 			}
 		}));
 		
+		@SuppressWarnings("serial")
 		class SetPortsAction extends AbstractAction {
 			final int n;
 			

@@ -1424,14 +1424,20 @@ public class E3Graph extends mxGraph implements Serializable{
 		Base info = (Base) value;
 		String error = "";
 		
-		if (info instanceof ValuePort) {
-			if (model.getEdgeCount(cell) == 0) {
+		if (info instanceof ValueInterface) {
+			if (Utils.getChildrenWithValue(this, cell, ValuePort.class)
+				.stream()
+				.map(model::getEdgeCount)
+				.anyMatch(c -> c == 0)) {
 				error += "Every Value Port should be connected to another ValuePort.\n";
-			}
-		} else if (Utils.isDotValue(info)) {
-			if (model.getEdgeCount(cell) == 0) {
+			};
+
+			if (Utils.getChildren(this, cell).stream()
+				.filter(obj -> Utils.isDotValue((Base) getModel().getValue(obj)))
+				.map(model::getEdgeCount)
+				.anyMatch(c -> c == 0)) {
 				error += "Every Signal Dot should be connected to another Signal Dot.\n";
-			}
+			};
 		}
 		
 		return error; 
