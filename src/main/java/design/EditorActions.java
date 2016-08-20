@@ -16,7 +16,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.TransferHandler;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartFrame;
@@ -26,6 +25,10 @@ import com.mxgraph.util.mxCellRenderer;
 
 import design.export.JSONExport;
 import design.export.RDFExport;
+import design.info.Base;
+import design.info.EndSignal;
+import design.info.StartSignal;
+import design.info.ValueExchange;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
@@ -404,7 +407,29 @@ public class EditorActions {
 			
 			graph.getModel().beginUpdate();
 			try {
-//				Utils.getAllCells(graph).stream()
+				for (Object cell : Utils.getAllCells(graph)) {
+					Base value = (Base) Utils.base(graph, cell);
+					Base oldValue = value;
+
+					if (value instanceof StartSignal) {
+						StartSignal startSignal = (StartSignal) value.getCopy();
+						startSignal.showLabel = makeVisible;
+						value = startSignal;
+					} else if (value instanceof EndSignal) {
+						EndSignal endSignal = (EndSignal) value.getCopy();
+						endSignal.showLabel = makeVisible;
+						value = endSignal;
+					} else if (value instanceof ValueExchange) {
+						ValueExchange valueExchange = (ValueExchange) value.getCopy();
+						valueExchange.labelHidden = !makeVisible;
+						value = valueExchange;
+					}
+					
+					if (value != oldValue) {
+						graph.getModel().setValue(cell, value);
+					}
+				}
+				
 			} finally {
 				graph.getModel().endUpdate();
 			}
@@ -421,7 +446,22 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: Implement this
+			E3Graph graph = main.getCurrentGraph();
+			
+			graph.getModel().beginUpdate();
+			try {
+				for (Object cell : Utils.getAllCells(graph)) {
+					Base value = (Base) Utils.base(graph, cell);
+
+					if (value instanceof ValueExchange) {
+						ValueExchange valueExchange = (ValueExchange) value.getCopy();
+						valueExchange.valueObjectHidden = !makeVisible;
+						graph.getModel().setValue(cell, valueExchange);
+					}
+				}
+			} finally {
+				graph.getModel().endUpdate();
+			}
 		}
 	}
 	
@@ -571,7 +611,7 @@ public class EditorActions {
 			JFrame frame = new JFrame("Fraud analysis of \"" + main.getCurrentGraphTitle() + "\"");
 			RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
 			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(main.getCurrentGraph()), new E3Model(rdfExporter.model), main, frame); //, getCurrentGraphName());
-			// TODO: Maybe add icons for fraud analysis as well?
+
 			frame.add(fraudWindowInstance);
 			frame.pack();
 			frame.setVisible(true);
