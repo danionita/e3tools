@@ -18,23 +18,33 @@
  *******************************************************************************/
 package design;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.ScrollPaneConstants;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.handler.mxGraphHandler;
+import com.mxgraph.swing.util.mxICellOverlay;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUndoManager;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
+import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
@@ -77,9 +87,6 @@ public class E3GraphComponent extends mxGraphComponent {
     	component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     	component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
     	
-    	// TODO: Do some scaling and translation here? See MainWindow.java
-    	// TODO: Make it so the user can scroll around and such
-		
 		return component;
 	}
 
@@ -193,6 +200,13 @@ public class E3GraphComponent extends mxGraphComponent {
 				}
 			}
 		});
+		
+		graph.getModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				validateGraph();
+			}
+		});
 	}
 	
 	public boolean isPopupTriggerEnabled() {
@@ -303,5 +317,60 @@ public class E3GraphComponent extends mxGraphComponent {
 		}
 			   
 		view.scaleAndTranslate(scale, -minX, -minY);
+	}
+	
+	public static class Highlighter extends JComponent implements mxICellOverlay {
+
+		private Object cell;
+		private mxGraphComponent graphComponent;
+
+		public Highlighter(Object cell, String tooltip, mxGraphComponent graphComponent) {
+			this.graphComponent = graphComponent;
+			this.cell = cell;
+			
+			// Setting tooltips causes mouse events to be captured, causing
+			// valueports to be unclickable.
+			// if (tooltip != null && !tooltip.isEmpty()) {
+			// 	setToolTipText(tooltip);
+			// }
+		}
+
+		public void paint(Graphics g) {
+			g.setColor(Color.RED);
+			
+			if (g instanceof Graphics2D) {
+				((Graphics2D) g).setStroke(new BasicStroke(2));
+			}
+			
+			mxCellState state = graphComponent.getGraph().getView().getState(cell);
+			Rectangle bounds = state.getRectangle();
+			bounds.grow(3, 3);
+			bounds.width += 1;
+			bounds.height += 1;
+			setBounds(bounds);
+			
+			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+		}
+
+		@Override
+		public mxRectangle getBounds(mxCellState state) {
+			return state.getBoundingBox();
+		}
+	}
+
+	@Override
+	public mxICellOverlay setCellWarning(final Object cell, String warning,
+			ImageIcon icon, boolean select)
+	{
+		if (warning != null && warning.length() > 0)
+		{
+			return addCellOverlay(cell, new Highlighter(cell, warning, this));
+		}
+		else
+		{
+			removeCellOverlays(cell);
+		}
+
+		return null;
 	}
 }

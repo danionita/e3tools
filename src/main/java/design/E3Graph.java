@@ -60,6 +60,7 @@ import design.info.ValuePort;
 // TODO: use isValidConnection in E3Graph to deny certain edges and allow others
 // (Right now they are deleted after creation, which is ugly. Also this will probably fix
 // the green highlight issue)
+// TODO: Use mxRubberband for multi select actors and stuff (see Validiation.java in mxGraph examples)
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
 
@@ -1411,5 +1412,29 @@ public class E3Graph extends mxGraph implements Serializable{
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public String getCellValidationError(Object cell) {
+		Object value = model.getValue(cell);
+		
+		if (!(value instanceof Base)) {
+			return super.getCellValidationError(cell);
+		}
+		
+		Base info = (Base) value;
+		String error = "";
+		
+		if (info instanceof ValuePort) {
+			if (model.getEdgeCount(cell) == 0) {
+				error += "Every Value Port should be connected to another ValuePort.\n";
+			}
+		} else if (Utils.isDotValue(info)) {
+			if (model.getEdgeCount(cell) == 0) {
+				error += "Every Signal Dot should be connected to another Signal Dot.\n";
+			}
+		}
+		
+		return error + super.getCellValidationError(cell);
 	}
 }
