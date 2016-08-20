@@ -555,6 +555,18 @@ public class EditorActions {
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
+			
+			if (!main.getCurrentGraph().isValid()) {
+				int choice = JOptionPane.showConfirmDialog(
+						Main.mainFrame,
+						"The current model contains errors. This might cause fraud generation to function incorrectly. Do you wish to continue?",
+						"Model is not well formed.",
+						JOptionPane.YES_NO_OPTION);
+				
+				if (choice == JOptionPane.NO_OPTION) {
+					return;
+				}
+			}
 
 			JFrame frame = new JFrame("Fraud analysis of \"" + main.getCurrentGraphTitle() + "\"");
 			RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
@@ -574,6 +586,18 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (!main.getCurrentGraph().isValid()) {
+				int choice = JOptionPane.showConfirmDialog(
+						Main.mainFrame,
+						"The current model contains errors. This might cause the profitability analysis to function incorrectly. Do you wish to continue?",
+						"Model is not well formed.",
+						JOptionPane.YES_NO_OPTION);
+				
+				if (choice == JOptionPane.NO_OPTION) {
+					return;
+				}
+			}
+
 			RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
 			JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !main.getCurrentGraph().isFraud);
 			if (chart != null) {

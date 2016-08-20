@@ -1418,10 +1418,6 @@ public class E3Graph extends mxGraph implements Serializable{
 	public String getCellValidationError(Object cell) {
 		Object value = model.getValue(cell);
 		
-		if (!(value instanceof Base)) {
-			return super.getCellValidationError(cell);
-		}
-		
 		Base info = (Base) value;
 		String error = "";
 		
@@ -1435,6 +1431,30 @@ public class E3Graph extends mxGraph implements Serializable{
 			}
 		}
 		
-		return error + super.getCellValidationError(cell);
+		return error; // + super.getCellValidationError(cell);
+	}
+	
+	/**
+	 * Returns true if the graph is valid, false if not. At the moment only
+	 * checks vertices for correctness.
+	 */
+	public boolean isValid() {
+		return Utils.getAllCells(this).stream()
+			.map(obj -> {
+				if (E3Graph.this.getModel().isVertex(obj)) {
+					return E3Graph.this.getCellValidationError(obj);		
+				}
+
+				return null;
+			})
+			.noneMatch(s -> {
+				if (s == null) {
+					return false;
+				} else if (s.length() > 0) {
+					return true;
+				}
+
+				return false;
+			});
 	}
 }

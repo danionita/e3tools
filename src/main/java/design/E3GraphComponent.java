@@ -319,8 +319,8 @@ public class E3GraphComponent extends mxGraphComponent {
 		view.scaleAndTranslate(scale, -minX, -minY);
 	}
 	
+	@SuppressWarnings("serial")
 	public static class Highlighter extends JComponent implements mxICellOverlay {
-
 		private Object cell;
 		private mxGraphComponent graphComponent;
 
