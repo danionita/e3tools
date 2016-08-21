@@ -207,6 +207,8 @@ public class Main {
         viewMenu.add(new EditorActions.ToggleLabels(this, false));
         viewMenu.add(new EditorActions.ToggleValueObjects(this, true));
         viewMenu.add(new EditorActions.ToggleValueObjects(this, false));
+        viewMenu.add(new EditorActions.ToggleValuationLabels(this, true));
+        viewMenu.add(new EditorActions.ToggleValuationLabels(this, false));
 
         menuBar.add(viewMenu);
 

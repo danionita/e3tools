@@ -20,11 +20,13 @@ package design;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -218,6 +220,7 @@ public class E3GraphComponent extends mxGraphComponent {
 	}
 		
 	public void triggerContextMenu(MouseEvent e) {
+		// TODO: Use getCells() here to do some kind of fuzzy selection/snapping here?
 		Object obj = getCellAt(e.getX(), e.getY());
 		String style = graph.getModel().getStyle(obj);
 		JPopupMenu menu = null;
@@ -328,19 +331,16 @@ public class E3GraphComponent extends mxGraphComponent {
 			this.graphComponent = graphComponent;
 			this.cell = cell;
 			
-			// Setting tooltips causes mouse events to be captured, causing
+			// TODO: Setting tooltips causes mouse events to be captured, causing
 			// valueports to be unclickable.
-			// if (tooltip != null && !tooltip.isEmpty()) {
-			// 	setToolTipText(tooltip);
-			// }
 		}
 
-		public void paint(Graphics g) {
+		public void paint(Graphics g1) {
+			Graphics2D g = (Graphics2D) g1;
+			
 			g.setColor(Color.RED);
 			
-			if (g instanceof Graphics2D) {
-				((Graphics2D) g).setStroke(new BasicStroke(2));
-			}
+			g.setStroke(new BasicStroke(2));
 			
 			mxCellState state = graphComponent.getGraph().getView().getState(cell);
 			Rectangle bounds = state.getRectangle();
@@ -358,6 +358,11 @@ public class E3GraphComponent extends mxGraphComponent {
 		}
 	}
 
+	/**
+	 * Overrides setCellWarning to add a Highlighter overlay (instead of a
+	 * blinking yellow triangle). If warning == null or as length zero all highlighter
+	 * overlays are removed from the cell.
+	 */
 	@Override
 	public mxICellOverlay setCellWarning(final Object cell, String warning,
 			ImageIcon icon, boolean select)
@@ -368,9 +373,95 @@ public class E3GraphComponent extends mxGraphComponent {
 		}
 		else
 		{
-			removeCellOverlays(cell);
+			removeCellOverlaysOfClass(cell, Highlighter.class);
 		}
 
 		return null;
+	}
+	
+	@SuppressWarnings("serial")
+	public static class ValuationOverlay extends JComponent implements mxICellOverlay {
+		private Object cell;
+		private mxGraphComponent graphComponent;
+
+		public ValuationOverlay(Object cell, mxGraphComponent graphComponent) {
+			this.graphComponent = graphComponent;
+			this.cell = cell;
+		}
+
+		public void paint(Graphics g1) {
+			Graphics2D g = (Graphics2D) g1;
+			
+			Base value = (Base) graphComponent.getGraph().getModel().getValue(cell);
+			
+			if (value == null || !value.formulas.containsKey("VALUATION")) {
+				return;
+			}
+			
+			String valuation = value.formulas.get("VALUATION");
+			if (valuation.trim().isEmpty()) {
+				valuation = "0";
+			}
+
+			mxCellState state = graphComponent.getGraph().getView().getState(cell);
+			Rectangle bounds = state.getRectangle();
+			bounds.grow(3, 3);
+			bounds.width += 1;
+			bounds.height += 1;
+			
+			// Move the rectangle to the top right of the value port
+			bounds.x += bounds.width;
+			bounds.y -= bounds.height;
+			
+			int fontsize = bounds.height;
+			
+			bounds.width = (int) (g.getFontMetrics().stringWidth(valuation) * 1.5);			
+			
+			int border = (int) (bounds.height * 0.2);
+			
+			bounds.grow(border, border);
+
+			setBounds(bounds);
+			
+			// Draw rectangle with border
+			g.setColor(Color.GREEN);
+			g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+			g.setColor(Color.BLACK);
+			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+			
+			// Draw text
+			// TODO: Put some sort of reusing facility in place here. We
+			// don't want the place crawling with fonts in no time.
+			g.setFont(new Font("Serif", Font.PLAIN, fontsize));
+			System.out.println("Fontsize: " + fontsize + " getHeight(): " + getHeight());
+			g.drawString(valuation, border, border + fontsize);
+		}
+
+		@Override
+		public mxRectangle getBounds(mxCellState state) {
+			return state.getBoundingBox();
+		}
+	}
+
+	public void toggleValuationLabels(boolean on) {
+		if (on) {
+			Utils.getAllCells(getGraph()).stream()
+				.filter(s -> E3GraphComponent.this.getGraph().getModel().getValue(s) instanceof ValuePort)
+				.forEach(s -> addCellOverlay(s, new ValuationOverlay(s, E3GraphComponent.this)));
+		} else {
+			Utils.getAllCells(getGraph()).stream()
+				.filter(s -> E3GraphComponent.this.getGraph().getModel().getValue(s) instanceof ValuePort)
+				.forEach(s -> removeCellOverlays(s));
+		}
+	}
+	
+	public void removeCellOverlaysOfClass(Object cell, Class<?> c) {
+		mxICellOverlay[] overlays = getCellOverlays(cell);
+		
+		if (overlays == null)  return;
+
+		Arrays.stream(overlays)
+			.filter(o -> c.isInstance(o))
+			.forEach(o -> removeCellOverlay(cell, o));
 	}
 }
