@@ -61,6 +61,7 @@ import design.info.ValuePort;
 // (Right now they are deleted after creation, which is ugly. Also this will probably fix
 // the green highlight issue)
 // TODO: Use mxRubberband for multi select actors and stuff (see Validiation.java in mxGraph examples)
+// TODO: extendParent from mxGraph smells fishy (the issue with weird extending)
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
 
@@ -221,18 +222,49 @@ public class E3Graph extends mxGraph implements Serializable{
 			}
 		});
 
+		// When an object is resized
 		graph.addListener(mxEvent.RESIZE_CELLS, new mxIEventListener() {
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
+				// We ignore all other hypothetical cells
 				Object[] cells = ((Object[]) evt.getProperty("cells"));
 				mxCell cell = (mxCell) cells[0];
 				
+				// If it's a logic unit we rearrange its logic dots appropriately
 				if (Utils.base(graph, cell) instanceof LogicBase) {
 					E3Graph.straightenLogicUnit(graph, cell);
 				} else {
+					// Otherwise we check for all its children if they need to be constrained
 					graph.getModel().beginUpdate();
 					try {
 						for (int i = 0; i < cell.getChildCount(); i++) {
+							Object child = cell.getChildAt(i);
+							Base info = Utils.base(E3Graph.this, child);
+							
+							// If something is a value interface, make sure it sticks
+							// to the side it was assigned to.
+							if (info instanceof ValueInterface) {
+								mxGeometry parentGeom = getModel().getGeometry(cell);
+								ValueInterface viInfo = (ValueInterface) info;
+								mxGeometry geom = Utils.geometry(E3Graph.this, child);
+								
+								switch (viInfo.side) {
+								case LEFT:
+									geom.setX(-geom.getWidth() / 2);
+									break;
+								case TOP:
+									geom.setY(-geom.getHeight() / 2);
+									break;
+								case RIGHT:
+									geom.setX(parentGeom.getWidth() - geom.getWidth() / 2);
+									break;
+								case BOTTOM:
+									geom.setY(parentGeom.getHeight() - geom.getHeight() / 2);
+								}
+								
+								getModel().setGeometry(child, geom);
+							}
+							
 							// Straighten ports & constrain cell if needed
 							graph.constrainChild(cell.getChildAt(i));
 						}
@@ -1465,5 +1497,13 @@ public class E3Graph extends mxGraph implements Serializable{
 
 				return false;
 			});
+	}
+	
+	/**
+	 * Never extend something when something is added to it.
+	 */
+	@Override
+	public boolean isExtendParent(Object cell) {
+		return false;
 	}
 }
