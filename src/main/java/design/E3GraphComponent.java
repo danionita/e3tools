@@ -27,6 +27,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -221,7 +222,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		
 	public void triggerContextMenu(MouseEvent e) {
 		// TODO: Use getCells() here to do some kind of fuzzy selection/snapping here?
-		Object obj = getCellAt(e.getX(), e.getY());
+		Object obj = getCellAtFuzzy(e.getX(), e.getY());
 		String style = graph.getModel().getStyle(obj);
 		JPopupMenu menu = null;
 		
@@ -229,7 +230,6 @@ public class E3GraphComponent extends mxGraphComponent {
 		Main.contextPos = new mxPoint(e.getX(), e.getY());
 		
 		if (obj == null) {
-			obj = graph.getDefaultParent();
 			menu = defaultMenu;
 			Main.contextTarget = new mxPoint(e.getX(), e.getY());
 		} else if (style != null) {
@@ -262,10 +262,69 @@ public class E3GraphComponent extends mxGraphComponent {
 		}
 			
 		if (e.isPopupTrigger() && menu != null && popupTriggerEnabled) {
-			menu.show(e.getComponent(), e.getX(), e.getY());
+			if (obj == null) {
+				menu.show(e.getComponent(), e.getX(), e.getY());
+			} else {
+				
+				mxPoint menuPos = new mxPoint(e.getX(), e.getY());
+				Rectangle bounds = graph.getView().getState(obj).getRectangle();
+				
+				Base val = (Base) graph.getModel().getValue(Main.contextTarget);
+				if (Utils.isDotValue(val)) {
+					menuPos.setX(bounds.getCenterX());
+					menuPos.setY(bounds.getCenterY());
+				}
+				
+				menu.show(e.getComponent(), (int) menuPos.getX(), (int) menuPos.getY());
+			}
 		}
 	}
 	
+	/**
+	 * Gets a cell in a rectangular radius of 13 pixels
+	 * (scaled with the view's getScale()) around x and y.
+	 * Prefers the closest LogicDot. If there are none, it just returns the
+	 * value of getCellAt.
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private Object getCellAtFuzzy(int x, int y) {
+		Object trivialCell = getCellAt(x, y);
+		
+		int areaSize = (int) (13 * getGraph().getView().getScale());
+		Rectangle areaOfInterest = new Rectangle(x, y, 0, 0);
+		areaOfInterest.grow(areaSize, areaSize);
+		Object[] candidates = getCells(areaOfInterest);
+		
+		mxPoint mousePos = new mxPoint(x, y);
+		
+		trivialCell = Arrays.stream(candidates)
+					.filter(s -> graph.getModel().getValue(s) instanceof LogicDot)
+					.sorted(new Comparator<Object>() {
+						@Override
+						public int compare(Object left, Object right) {
+							mxCellState leftState = graph.getView().getState(left);
+							mxPoint leftPos = new mxPoint(leftState.getCenterX(), leftState.getCenterY());
+							
+							mxCellState rightState = graph.getView().getState(right);
+							mxPoint rightPos = new mxPoint(rightState.getCenterX(), rightState.getCenterY());
+							
+							double leftDist2 = Math.pow(leftPos.getX() - mousePos.getX(), 2) 
+									+ Math.pow(leftPos.getY() - mousePos.getY(), 2);
+
+							double rightDist2 = Math.pow(rightPos.getX() - mousePos.getX(), 2) 
+									+ Math.pow(rightPos.getY() - mousePos.getY(), 2);
+							
+							return (int) (leftDist2 - rightDist2);
+						}
+					})
+					.findFirst()
+					.orElse(trivialCell);
+		
+		return trivialCell;
+	}
+
 	/**
 	 * Makes sure that only actors can be moved out of parents.
 	 */
@@ -433,7 +492,6 @@ public class E3GraphComponent extends mxGraphComponent {
 			// TODO: Put some sort of reusing facility in place here. We
 			// don't want the place crawling with fonts in no time.
 			g.setFont(new Font("Serif", Font.PLAIN, fontsize));
-			System.out.println("Fontsize: " + fontsize + " getHeight(): " + getHeight());
 			g.drawString(valuation, border, border + fontsize);
 		}
 
@@ -461,7 +519,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		if (overlays == null)  return;
 
 		Arrays.stream(overlays)
-			.filter(o -> c.isInstance(o))
+			.filter(c::isInstance)
 			.forEach(o -> removeCellOverlay(cell, o));
 	}
 }
