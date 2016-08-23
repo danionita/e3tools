@@ -228,6 +228,8 @@ public class ExampleModels {
 
 				graph.connectCE(userBVI, userBES);
 				
+                                graph.title = "Flat-rate telephony";
+                                main.setCurrentTabTitle("Flat-rate telephony");
 			} finally {
 				model.endUpdate();
 			}	

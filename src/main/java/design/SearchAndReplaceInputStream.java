@@ -63,7 +63,7 @@ public class SearchAndReplaceInputStream extends InputStream {
 
             if (pos == len) {
                 buf = new char[Math.max(this.search.length, this.replace.length)];
-                //System.arraycopy(replace, 0, buf, 0, replace.length);
+                System.arraycopy(replace, 0, buf, 0, replace.length);
             }
 
             pos = 0;

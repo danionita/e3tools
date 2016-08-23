@@ -608,7 +608,7 @@ public class FraudWindow extends javax.swing.JPanel {
 						// On doubleclick
 						if (e.getClickCount() == 2) {
 							// Create a new tab with the current graph
-							FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph()));
+							FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph(), false));
 							// Switch to the screen
 							FraudWindow.this.mainFrame.mainFrame.requestFocus();
 						}

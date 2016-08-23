@@ -473,7 +473,7 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			main.addNewTabAndSwitch(new E3Graph(main.getCurrentGraph()));
+			main.addNewTabAndSwitch(new E3Graph(main.getCurrentGraph(), true));
 		}
 	}
 	
@@ -610,7 +610,7 @@ public class EditorActions {
 
 			JFrame frame = new JFrame("Fraud analysis of \"" + main.getCurrentGraphTitle() + "\"");
 			RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
-			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(main.getCurrentGraph()), new E3Model(rdfExporter.model), main, frame); //, getCurrentGraphName());
+			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(main.getCurrentGraph(),false), new E3Model(rdfExporter.model), main, frame); //, getCurrentGraphName());
 
 			frame.add(fraudWindowInstance);
 			frame.pack();

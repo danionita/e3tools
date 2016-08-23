@@ -93,9 +93,10 @@ public class E3Graph extends mxGraph implements Serializable{
 		addStandardEventListeners();
 	}
 
-	public E3Graph(E3Graph original) {
+	public E3Graph(E3Graph original, boolean duplicate) {
 		isFraud = original.isFraud;
-		title = "Copy of " + original.title;
+		if (duplicate) {title = "Copy of " + original.title;}
+                else{title = original.title;}
 		
 		getModel().beginUpdate();
 		try {
@@ -110,7 +111,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	public E3Graph(E3Graph original, GraphDelta delta) {
-		this(original);
+		this(original, false);
 		
 		this.isFraud = true;
 		this.title = "Fraud instance of " + original.title;
@@ -1324,10 +1325,10 @@ public class E3Graph extends mxGraph implements Serializable{
 	 */
 	public E3Graph toFraud() {
 		if (isFraud) {
-			return new E3Graph(this);
+			return new E3Graph(this, true);
 		} 
 		
-		E3Graph fraud = new E3Graph(this);
+		E3Graph fraud = new E3Graph(this, false);
 		fraud.title = "Fraud model of " + title;
 		fraud.isFraud = true;
 		
@@ -1344,10 +1345,10 @@ public class E3Graph extends mxGraph implements Serializable{
 	 */
 	public E3Graph toValue() {
 		if (!isFraud) {
-			return new E3Graph(this);
+			return new E3Graph(this, true);
 		}
 		
-		E3Graph value = new E3Graph(this);
+		E3Graph value = new E3Graph(this, false);
 		value.title = "Value model of " + title;
 		value.isFraud = false;
 		
