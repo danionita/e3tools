@@ -89,7 +89,7 @@ public class ProfitabilityAnalyser {
                     selectedNeed = needsMap.get(selectedNeedString);
                     selectedActor = actorsMap.get(selectedActorString);
                     baseModel.getAveragesForActors(selectedNeed, needStartValue, needEndValue, ideal);
-                    System.out.println("Generating chart for ideal model: " + ideal);
+                    //System.out.println("Generating chart for ideal model: " + ideal);
                     try {
                         chart = ChartGenerator.generateChart(baseModel, selectedNeed, needStartValue, needEndValue, ideal);//expected graph 
                         return chart;

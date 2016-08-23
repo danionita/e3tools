@@ -63,7 +63,7 @@ public class ConnectionVisitor {
 	}
 	
 	void visit(Object ss, StartSignal ssInfo) throws MalformedFlowException {
-		System.out.println("Visiting StartSignal");
+		//System.out.println("Visiting StartSignal");
 		
 		Resource res = exporter.getResource(ssInfo.getSUID());
 		Object child = model.getChildAt(ss, 0);
@@ -82,7 +82,7 @@ public class ConnectionVisitor {
 	}
 	
 	void visit(Object upDot, Object ce, ConnectionElement ceInfo) throws MalformedFlowException {
-		System.out.println("Visiting ConnectionElement");
+		//System.out.println("Visiting ConnectionElement");
 		
 		Resource ceRes = exporter.getResource(ceInfo.getSUID());
 		
@@ -122,8 +122,8 @@ public class ConnectionVisitor {
 					Object otherPort = Utils.getOpposite(graph, model.getEdgeAt(port, 0), port);
 					Object valueInterface = model.getParent(otherPort);
 					
-					System.out.println("Source value interface: " + oppositeValue.getSUID());
-					System.out.println("End value interface: " + ((Base) model.getValue(valueInterface)).getSUID());
+					//System.out.println("Source value interface: " + oppositeValue.getSUID());
+					//System.out.println("End value interface: " + ((Base) model.getValue(valueInterface)).getSUID());
 					
 					Object otherDot = Utils.getChildrenWithValue(graph, valueInterface, SignalDot.class).get(0);
 					
@@ -159,7 +159,7 @@ public class ConnectionVisitor {
 	}
 	
 	void visit(Object upDot, Object lb, LogicBase lbInfo) throws MalformedFlowException {
-		System.out.println("Visiting logicbase");
+		//System.out.println("Visiting logicbase");
 		// AND/OR just have de_up_ce and de_down_de's for incoming and outgoing edges.
 		
 		List<Object> dots = Utils.getChildrenWithValue(graph, lb, LogicDot.class);
@@ -228,7 +228,7 @@ public class ConnectionVisitor {
 	}
 	
 	void visit(Object es, EndSignal esInfo) {
-		System.out.println("Visiting end-signal");
+		//System.out.println("Visiting end-signal");
 		
 		Object edge = model.getEdgeAt(model.getChildAt(es, 0), 0);
 		ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);

@@ -141,7 +141,7 @@ public class E3Model {
         //for each Start Stimulus        
         while (startStimuli.hasNext()) {
             Resource startStimulus = startStimuli.next();
-            System.err.println(startStimulus.getProperty(E3value.e3_has_name));
+            //System.err.println(startStimulus.getProperty(E3value.e3_has_name));
             double occurences = 0;
             //get occurences of this stimuli
             StmtIterator startStimulusFormulas = startStimulus.listProperties(E3value.e3_has_formula);
@@ -155,7 +155,7 @@ public class E3Model {
             Resource nextElement = startStimulus.getProperty(E3value.de_down_ce).getResource();
             //and go down the depdendecy path until the end
             traverse(nextElement, occurences);
-            System.out.println("\t...Finished!\n");
+            //System.out.println("\t...Finished!\n");
         }
 
     }
@@ -172,16 +172,16 @@ public class E3Model {
     private void traverse(Resource nextElement, double occurences) {
         //While this is not the last element (i.e. an end stimulus)
         while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {
-            System.out.println("\t\t...moved to element: " + nextElement.getProperty(E3value.e3_has_name).getString());
-            System.out.println("\t\t...with type: " + nextElement.getProperty(RDF.type).toString());
+            //System.out.println("\t\t...moved to element: " + nextElement.getProperty(E3value.e3_has_name).getString());
+            //System.out.println("\t\t...with type: " + nextElement.getProperty(RDF.type).toString());
 
             //then depending on the type element, decide what to do next:
             if (nextElement.hasProperty(RDF.type, E3value.OR_node)) { //if it's a OR node
-                System.out.println("OR NODE!");
+                //System.out.println("OR NODE!");
                 StmtIterator nodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
                 if (nodes.hasNext()) {
                     List<Statement> nodeList = nodes.toList();//get list() of outgoing elements (for more control)
-                    System.out.println("\t\t\t ...found OR node with " + nodeList.size() + " outgoing ports");
+                    //System.out.println("\t\t\t ...found OR node with " + nodeList.size() + " outgoing ports");
                     //First, sum up the fractions of all outgoing Connection Elements
                     double totalFractions = 0;
                     for (Statement node : nodeList) {
@@ -195,11 +195,11 @@ public class E3Model {
                 }
 
             } else if (nextElement.hasProperty(RDF.type, E3value.AND_node)) { //if it's a AND node
-                System.out.println("AND NODE");
+                //System.out.println("AND NODE");
                 StmtIterator nodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
                 if (nodes.hasNext()) {
                     List<Statement> nodeList = nodes.toList();//get list() of outgoing elements (for more control)
-                    System.out.println("\t\t\t ...found AND  node with " + nodeList.size() + " outgoing ports");
+                    //System.out.println("\t\t\t ...found AND  node with " + nodeList.size() + " outgoing ports");
                     //Second, go down each path using occurence = OCCURENCE*fraction)
                     for (Statement node : nodeList) {
                         traverse(node.getResource(), occurences * node.getResource().getProperty(E3value.up_fraction).getFloat());
@@ -208,13 +208,13 @@ public class E3Model {
                 }
 
             } else if (nextElement.hasProperty(RDF.type, E3value.connection_element)) {//if it's a ConnectionElement
-                System.out.println("\t\tfound connection element");
+                //System.out.println("\t\tfound connection element");
                 nextElement = nextElement.getProperty(E3value.ce_with_down_de).getResource();//choose the next element (Value Interface or AND/OR node)
 
             } else if (nextElement.hasProperty(RDF.type, E3value.value_interface) && nextElement.hasProperty(E3value.de_up_ce)) { //if it's a ValueInterface with an incoming ConnectionElement (meaning we need to go down the ValueExchange)
                 //add occurrences to it (before taking count into consideration)
                 updateValueInterfaceOccurrences(nextElement, occurences);
-                System.out.println("\t\tfound ValueInterface with an incoming ConnectionElement");
+                //System.out.println("\t\tfound ValueInterface with an incoming ConnectionElement");
                 //if the Value Interface was part of a MarketSegment, multiply the occurence by the count of this MarketSegment
                 if (nextElement.hasProperty(E3value.vi_assigned_to_ms)) {
                     Resource marketSegment = nextElement.getPropertyResourceValue(E3value.vi_assigned_to_ms);
@@ -226,7 +226,7 @@ public class E3Model {
                             count = Integer.valueOf(formula.getString().split("=", 2)[1]);
                         }
                     }
-                    System.out.println("\t\tExiting MS. Multiplying occurences by " + count);
+                    //System.out.println("\t\tExiting MS. Multiplying occurences by " + count);
                     occurences = occurences * count;
                 }
                 StmtIterator valueOfferings = nextElement.listProperties(E3value.vi_consists_of_of);  //get it's ValueOfferings
@@ -240,14 +240,14 @@ public class E3Model {
 
             } else if (nextElement.hasProperty(RDF.type, E3value.value_offering) && nextElement.getProperty(E3value.e3_has_name).getString().equals("out")) {//if it's a (outgoing) ValueOffering
                 //and it has ports
-                System.out.println("\t\tfound ValueInterface with an (outgoing) ValueOffering");
+                //System.out.println("\t\tfound ValueInterface with an (outgoing) ValueOffering");
                 if (nextElement.getProperty(E3value.vo_consists_of_vp) != null) {
-                    System.out.println("\t\tand it has outgoing ports");
+                    //System.out.println("\t\tand it has outgoing ports");
                     nextElement = nextElement.getProperty(E3value.vo_consists_of_vp).getResource();//choose one of it's ports                    
 //                    System.out.println("Name of next element: " + nextElement.getProperty(E3value.e3_has_name).getString());
                 } //otherwise, (this happens when the transaction is non-reciprocal so there are no out nodes)
                 else {
-                    System.out.println("\t\tand it does not have outgoing ports");
+                    //System.out.println("\t\tand it does not have outgoing ports");
                     //we must go back to its respective Value Interface,
                     nextElement = nextElement.getProperty(E3value.vo_in_vi).getResource();
                     //choose the incoming ValueOffering
@@ -284,7 +284,7 @@ public class E3Model {
                             count = Integer.valueOf(formula.getString().split("=", 2)[1]);
                         }
                     }
-                    System.out.println("\t\tEntering MS. Dividing occurences by " + count);
+                    //System.out.println("\t\tEntering MS. Dividing occurences by " + count);
                     occurences = occurences / count;
                 }
                 //add occurrences to it (after taking count into consideration)
@@ -292,7 +292,7 @@ public class E3Model {
                 nextElement = nextElement.getProperty(E3value.de_down_ce).getResource();//choose the next Connection Element                
             }
         }
-        System.out.println("\t...reached end stimulus!");
+        //System.out.println("\t...reached end stimulus!");
     }
 
     public Model getJenaModel() {
@@ -459,10 +459,10 @@ public class E3Model {
         //add the respective OCCURRENCE rate
         if (valueInterface.hasProperty(E3value.e3_has_formula)) {
             valueInterface.getProperty(E3value.e3_has_formula).changeObject("OCCURRENCES=" + newOccurrence);
-            System.out.println("\t\t\t...updated OCCURRENCES=" + newOccurrence + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());
+            //System.out.println("\t\t\t...updated OCCURRENCES=" + newOccurrence + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());
         } else {
             valueInterface.addProperty(E3value.e3_has_formula, "OCCURRENCES=" + newOccurrence);
-            System.out.println("\t\t\t...added OCCURRENCES=" + newOccurrence + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());
+            //System.out.println("\t\t\t...added OCCURRENCES=" + newOccurrence + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());
         }
     }
 
@@ -720,7 +720,7 @@ public class E3Model {
                 StmtIterator valueInterfaceFormulas = valueInterface.getResource().listProperties(E3value.e3_has_formula);
                 while (valueInterfaceFormulas.hasNext()) {
                     Statement formula = valueInterfaceFormulas.next();
-                    System.out.println(formula.getString());
+                    //System.out.println(formula.getString());
                     if (formula.getString().split("=", 2)[0].equals("OCCURRENCES")) {
                         occurences = Float.valueOf(formula.getString().split("=", 2)[1]);
                     }
@@ -777,10 +777,10 @@ public class E3Model {
 
                         //and then multiplying them with the occurence rate
                         valuePortValuation = valuePortValuation * occurences;
-                        System.out.println(valuePortValuation);
+                        //System.out.println(valuePortValuation);
                         //add it up to determine valueOfferingValuation
                         valueOfferingValuation += valuePortValuation;
-                        System.out.println(valueOfferingValuation);
+                        //System.out.println(valueOfferingValuation);
                     }
                     //finally, if it was an incoming ValueOFfering,
                     if (valueOffering.getResource().getProperty(E3value.e3_has_name).getString().equals("in")) {
@@ -791,11 +791,11 @@ public class E3Model {
                         //deduct it from the actor's profit.
                         result -= valueOfferingValuation;
                     }
-                    System.out.println(result);
+                    //System.out.println(result);
                 }
             }
         }
-        System.out.println("result = " + result);
+        //System.out.println("result = " + result);
         return result;
     }
 
@@ -828,7 +828,7 @@ public class E3Model {
             actorSeries.add(i, this.getTotalForActor(actor, ideal));
         }
         this.setNeedOccurrence(need, initialOccurenceRate);
-        System.out.println("Setting occurence back to " + initialOccurenceRate);//reset the occurence rates to initial ones (in case multiple analyses are to be ran on the same baseModel
+        //System.out.println("Setting occurence back to " + initialOccurenceRate);//reset the occurence rates to initial ones (in case multiple analyses are to be ran on the same baseModel
 
         return actorSeries;
     }

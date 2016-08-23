@@ -41,13 +41,13 @@ int STEPS = 3;
 
     public Set<E3Model> generateAll(E3Model baseModel, Resource mainActor, int maxCollusions) {
 
-        System.out.println("GENERATING MODELS...\n\n\n");
+        //System.out.println("GENERATING MODELS...\n\n\n");
         Set<E3Model> subIdealModels = new HashSet<>();
-        System.out.println("GENERATING collusions...");
+        //System.out.println("GENERATING collusions...");
         Set<E3Model> colludedModels = generateCollusions(baseModel, mainActor, maxCollusions);
-        System.out.println("GENERATING hidden...");
+        //System.out.println("GENERATING hidden...");
         Set<E3Model> hiddenModels = generateHiddenTransactions(baseModel, mainActor);
-        System.out.println("GENERATING nonOcurring...");
+        //System.out.println("GENERATING nonOcurring...");
         Set<E3Model> nonOccuringModels = generateNonoccurringTransactions(baseModel);
         Set<E3Model> colludedAndNonOccuringModels = new HashSet<>();
         Set<E3Model> hiddenAndNonOccuringModels = new HashSet<>();
@@ -108,19 +108,19 @@ int STEPS = 3;
 //        }
         //*******END OF TEST STUFF*************
         subIdealModels.addAll(colludedModels);
-        System.out.println("colludedModels.size()= " + colludedModels.size());
+        //System.out.println("colludedModels.size()= " + colludedModels.size());
         subIdealModels.addAll(hiddenModels);
-        System.out.println("hiddenModels.size()= " + hiddenModels.size());
+        //System.out.println("hiddenModels.size()= " + hiddenModels.size());
         subIdealModels.addAll(nonOccuringModels);
-        System.out.println("nonOccuringModels.size()= " + nonOccuringModels.size());
+        //System.out.println("nonOccuringModels.size()= " + nonOccuringModels.size());
         subIdealModels.addAll(hiddenAndNonOccuringModels);
-        System.out.println("hiddenAndNonOccuringModels.size()= " + hiddenAndNonOccuringModels.size());
+        //System.out.println("hiddenAndNonOccuringModels.size()= " + hiddenAndNonOccuringModels.size());
         subIdealModels.addAll(colludedAndNonOccuringModels);
-        System.out.println("colludedAndNonOccuringModels.size()= " + colludedAndNonOccuringModels.size());
+        //System.out.println("colludedAndNonOccuringModels.size()= " + colludedAndNonOccuringModels.size());
         subIdealModels.addAll(colludedAndHiddenModels);
-        System.out.println("colludedAndHiddenModels.size()= " + colludedAndHiddenModels.size());
+        //System.out.println("colludedAndHiddenModels.size()= " + colludedAndHiddenModels.size());
         subIdealModels.addAll(colludedHiddenAndNonOccuringModels);
-        System.out.println("colludedHiddenAndNonOccuringModels.size()= " + colludedHiddenAndNonOccuringModels.size());
+        //System.out.println("colludedHiddenAndNonOccuringModels.size()= " + colludedHiddenAndNonOccuringModels.size());
 
         return subIdealModels;
     }

@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.utwente.e3fraud</groupId>
     <artifactId>e3tools</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.2-FIRSTBETA</version>
     <dependencies>
         <dependency>
             <groupId>org.tinyjee.jgraphx</groupId>
@@ -65,21 +65,9 @@
 			<artifactId>javax.json</artifactId>
 			<version>1.0.4</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.json/javax.json-api -->
-		<dependency>
-			<groupId>javax.json</groupId>
-			<artifactId>javax.json-api</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.glassfish/javax.json -->
-		<dependency>
-			<groupId>org.glassfish</groupId>
-			<artifactId>javax.json</artifactId>
-			<version>1.0.4</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/xstream/xstream -->
 		<dependency>
-			<groupId>xstream</groupId>
+			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
 			<version>1.2.2</version>
 		</dependency>
@@ -116,7 +104,7 @@
                         </descriptorRefs>
                         <archive>
                             <manifest>
-                                <mainClass>design.main.Main</mainClass>
+                                <mainClass>design.Main</mainClass>
                             </manifest>
                         </archive>
                     </configuration>

@@ -137,7 +137,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
                 computeTopGain(subIdealModel, baseModel, mainActor);
             }
             size += subIdealModels.size();
-            System.out.println("\t\tGenerated " + subIdealModels.size() + " sub-ideal models for category " + category + ":");
+            //System.out.println("\t\tGenerated " + subIdealModels.size() + " sub-ideal models for category " + category + ":");
             groupedSubIdealModels.put(category, subIdealModels);
         }
         // generation done

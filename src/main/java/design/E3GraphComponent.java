@@ -188,7 +188,7 @@ public class E3GraphComponent extends mxGraphComponent {
 				
 				if (graph.getModel().getValue(cell) instanceof Base) {
 					Base base = (Base) graph.getModel().getValue(cell);
-					System.out.println(base.getSUID());
+					//System.out.println(base.getSUID());
 				}
 
 				if (e.isPopupTrigger()) {

@@ -471,7 +471,7 @@ public class Utils {
 
         public void addColludedActor(long id) {
             this.colludedActors.add(id);
-            System.out.println("Adding collusion to changes");
+            //System.out.println("Adding collusion to changes");
         }
     }
 

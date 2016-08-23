@@ -195,7 +195,7 @@ public class RDFExport {
 			
 			Base value = (Base) cellValue;
 			
-			System.out.println("Considering: \"" + value.name + "\"");
+			//System.out.println("Considering: \"" + value.name + "\"");
 			
 			Resource res = null;
 			
@@ -417,7 +417,7 @@ public class RDFExport {
 				
 				ConnectionVisitor cv = new ConnectionVisitor(this);
 				try {
-					System.out.println("Starting visitor");
+					//System.out.println("Starting visitor");
 					cv.accept(cell);
 				} catch (MalformedFlowException e) {
 					System.out.println("Malformed flow! Cause: " + e.subject);
@@ -427,9 +427,9 @@ public class RDFExport {
 				res.addProperty(RDF.type, E3value.end_stimulus);
 			} else if (value instanceof ConnectionElement) {
 				res.addProperty(RDF.type, E3value.connection_element);
-				System.out.println("Connection element with SUID: " + value.getSUID() + " and name: " + value.name);
+				//System.out.println("Connection element with SUID: " + value.getSUID() + " and name: " + value.name);
 			} else if (value instanceof LogicBase) {
-				System.out.println("Adding LogicBase");
+				//System.out.println("Adding LogicBase");
 				LogicBase lbInfo = (LogicBase) value;
 				if (((LogicBase) value).isOr) {
 					res.addProperty(RDF.type, E3value.OR_node);
@@ -450,7 +450,7 @@ public class RDFExport {
 		model.write(out, "RDF/XML");
 		result = out.toString();
 		
-		System.out.println(result);
+		//System.out.println(result);
 	}
 	
 	@Override

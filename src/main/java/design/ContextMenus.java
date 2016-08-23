@@ -666,9 +666,9 @@ public class ContextMenus {
 				// Disables preview panel
 				cc.setPreviewPanel(new JPanel());
 				for (AbstractColorChooserPanel acc : cc.getChooserPanels()) {
-					System.out.println(acc.getDisplayName());
+					//System.out.println(acc.getDisplayName());
 					if (!acc.getDisplayName().equals("RGB")) {
-						System.out.println("Removing " + acc.getDisplayName());
+						//System.out.println("Removing " + acc.getDisplayName());
 						cc.removeChooserPanel(acc);
 					}
 				}

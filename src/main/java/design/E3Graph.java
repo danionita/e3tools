@@ -125,7 +125,7 @@ public class E3Graph extends mxGraph implements Serializable{
 				Object ve = getCellFromId(id);
 				setValueExchangeNonOcurring(ve, true);
 				
-				System.out.println("Set to non-occurring: " + id);
+				//System.out.println("Set to non-occurring: " + id);
 			}
 
 			for (long[] valueInterfaces : delta.hiddenTransactions) {
@@ -139,14 +139,14 @@ public class E3Graph extends mxGraph implements Serializable{
 
 				setValueExchangeHidden(newVE, true);
 				
-				System.out.println("Added hidden transaction: " + valueInterfaces[0]);
+				//System.out.println("Added hidden transaction: " + valueInterfaces[0]);
 			}
 			
 			for (long id : delta.colludedActors) {
 				Object ac = getCellFromId(id);
 				setColludingActor(ac, true);
 				
-				System.out.println("Colluding: " + id);
+				//System.out.println("Colluding: " + id);
 			} 
 		} finally {
 			getModel().endUpdate();
@@ -1014,8 +1014,8 @@ public class E3Graph extends mxGraph implements Serializable{
 			}
 		}
 		
-		System.out.println(startInfo.getClass().getSimpleName());
-		System.out.println(endInfo.getClass().getSimpleName());
+		//System.out.println(startInfo.getClass().getSimpleName());
+		//System.out.println(endInfo.getClass().getSimpleName());
 		
 		Object startDot = Utils.getChildrenWithValue(this, start, SignalDot.class).get(0);
 		Object endDot = Utils.getChildrenWithValue(this, end, SignalDot.class).get(0);
@@ -1282,7 +1282,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		for (Object dot : logicDots) {
 			if (getModel().getEdgeCount(dot) == 0) {
-				System.out.println("Connecting " + dot + " and " + signalDot);
+				//System.out.println("Connecting " + dot + " and " + signalDot);
 				return connectCE(signalDot, dot);
 			}
 		}
