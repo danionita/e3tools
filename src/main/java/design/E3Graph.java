@@ -128,19 +128,23 @@ public class E3Graph extends mxGraph implements Serializable{
 				
 				//System.out.println("Set to non-occurring: " + id);
 			}
-
+                        
+                        int i=0;
 			for (long[] valueInterfaces : delta.hiddenTransactions) {
 				Object leftValueInterface = getCellFromId(valueInterfaces[0]);
 				Object rightValueInterface = getCellFromId(valueInterfaces[1]);
+
 
 				Object leftVP = addValuePort(this, (mxICell) leftValueInterface, false);
 				Object rightVP = addValuePort(this, (mxICell) rightValueInterface, true);
 
 				Object newVE = connectVP(leftVP, rightVP);
+                                
 
 				setValueExchangeHidden(newVE, true);
-				
+				setFormula(newVE, "VALUATION", String.valueOf(delta.hiddenTransferValues.get(i)));
 				//System.out.println("Added hidden transaction: " + valueInterfaces[0]);
+                                i++;
 			}
 			
 			for (long id : delta.colludedActors) {

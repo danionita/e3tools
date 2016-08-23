@@ -41,7 +41,10 @@ public class ChartGenerator {
         //Get list of actors
         Set<Resource> actors = model.getActors();
         //generate a series
+        
         Map<Resource, XYSeries> actorSeriesMap = model.getTotalForActors(need, startValue, endValue, expected);
+        
+        
 
         //for each actor
         XYSeriesCollection line_chart_dataset = new XYSeriesCollection();
@@ -51,6 +54,7 @@ public class ChartGenerator {
             XYSeries series = actorSeriesMap.get(actor);
             line_chart_dataset.addSeries(series);
             double slope;
+            System.out.println("itemcount=" +series.getItemCount());
             if (series.getItemCount() > 1) {
                 slope = (series.getY(0).doubleValue() - series.getY(1).doubleValue()) / (series.getX(0).doubleValue() - series.getX(1).doubleValue());
             } else {

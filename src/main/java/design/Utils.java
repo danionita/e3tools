@@ -439,7 +439,8 @@ public class Utils {
 
         public List<Long> nonOccurringTransactions = new ArrayList<>();
         public List<long[]> hiddenTransactions = new ArrayList<>();
-        public List<Long> colludedActors = new ArrayList<>();
+        public List<Long> colludedActors = new ArrayList<>();        
+        public List<Double> hiddenTransferValues = new ArrayList<>();
 
         public GraphDelta(GraphDelta oldGraphDelta) {
             if (oldGraphDelta != null) {
@@ -451,6 +452,9 @@ public class Utils {
                 }
                 if (oldGraphDelta.colludedActors != null) {
                     this.colludedActors.addAll(oldGraphDelta.colludedActors);
+                }                
+                if (oldGraphDelta.hiddenTransferValues != null) {
+                    this.hiddenTransferValues .addAll(oldGraphDelta.hiddenTransferValues );
                 }
             }
         }
@@ -467,7 +471,12 @@ public class Utils {
 
         public void addHiddenTransaction(long from, long to) {
             this.hiddenTransactions.add(new long[]{from, to});
+        }        
+        public void addHiddenTransaction(long from, long to, double value) {
+            this.hiddenTransactions.add(new long[]{from, to});
+            this.hiddenTransferValues.add(value);
         }
+        
 
         public void addColludedActor(long id) {
             this.colludedActors.add(id);

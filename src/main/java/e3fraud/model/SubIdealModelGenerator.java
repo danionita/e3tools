@@ -300,7 +300,7 @@ int STEPS = 3;
                             generatedModel.addTransfer(interface1, interface2, (float)value);
                             int interface1ID = interface1.getProperty(E3value.e3_has_uid).getInt(); // Integer.parseInt(interface1.getProperty(E3value.e3_has_uid).toString());
                             int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
-                            generatedModel.getFraudChanges().addHiddenTransaction(interface1ID,interface2ID);
+                            generatedModel.getFraudChanges().addHiddenTransaction(interface1ID,interface2ID, value);
                             generatedModel.appendDescription("<b>Hidden</b> transfer of value " + df.format(value) + " (out of " + df.format(actor1Total) + ") per occurence from \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
                             
                             //System.out.println("\t\t\t\t\t\tadding the new model to the list"); 
@@ -334,7 +334,7 @@ int STEPS = 3;
                             generatedModel.addTransfer(interface2, interface1, value);
                             int interface1ID = interface1.getProperty(E3value.e3_has_uid).getInt(); // Integer.parseInt(interface1.getProperty(E3value.e3_has_uid).toString());
                             int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
-                            generatedModel.getFraudChanges().addHiddenTransaction(interface2ID,interface1ID);
+                            generatedModel.getFraudChanges().addHiddenTransaction(interface2ID,interface1ID, value);
                             generatedModel.appendDescription("<b>Hidden</b>  transfer of value " + df.format(value) + " (out of " + df.format(actor2Total) + ") from \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
                             subIdealModels.add(generatedModel);
                         }

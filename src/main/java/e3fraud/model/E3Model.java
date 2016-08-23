@@ -38,6 +38,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 import design.Utils;
+import e3fraud.gui.PopUps;
 import e3fraud.vocabulary.E3value;
 
 /**
@@ -742,10 +743,13 @@ public class E3Model {
                         double valuePortValuation = 0;
                         StmtIterator valuePortFormulas = valuePort.getResource().listProperties(E3value.e3_has_formula);
                         //adding them up
-                        while (valuePortFormulas.hasNext()) {
+                        while (valuePortFormulas.hasNext()) {                            
                             Statement formula = valuePortFormulas.next();
+                            String formulaString = formula.getString();
+                            if (formulaString.split("=", 2)[0].equals("VALUATION") || formulaString.split("=", 2)[0].equals("EXPENSES")){
                             double value = Float.valueOf(formula.getString().split("=", 2)[1]);
                             valuePortValuation += value;
+                            }
                         }
 
                         //multiplying it with the CARDINALITY of the Port's associated Value Exchange and nullifying if necessary
@@ -859,6 +863,7 @@ public class E3Model {
     //    try {
             /* Step - 1: Define the data for the series  */
             //we only need 50 values so divide interval to 50
+            if(startValue < endValue){
             double step = ((float) endValue - (float) startValue) / 50;
             //calculate profit for each (occurence) value:
             for (double i = startValue; i <= endValue; i += step) {
@@ -871,7 +876,8 @@ public class E3Model {
                     actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
                 }
             }
-            if (startValue == endValue) {
+            }
+            else if (startValue == endValue) {
                 double i = startValue;
                 this.updateNeedOccurrence(need, i);
                 this.enhance();
@@ -880,6 +886,9 @@ public class E3Model {
                     //add it's profit to the relevant series
                     actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
                 }
+            }
+            else{
+                PopUps.infoBox("Start value must be lower than end value!", "Error");
             }
         //} catch (Exception e) {
        //     System.err.println(e);
@@ -1270,6 +1279,7 @@ public class E3Model {
 
         need = model.getResource(need.getURI());
         Map<Resource, Double> averagesMap = new HashMap<>();
+        
         Map<Resource, XYSeries> seriesMap = getTotalForActors(need, startValue, endValue, ideal);
 
         for (Resource actor : seriesMap.keySet()) {

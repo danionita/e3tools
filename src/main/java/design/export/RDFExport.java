@@ -458,7 +458,7 @@ public class RDFExport {
 		model.write(out, "RDF/XML");
 		result = out.toString();
 		
-		//System.out.println(result);
+		System.out.println(result);
 	}
 	
 	@Override
