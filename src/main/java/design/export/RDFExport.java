@@ -142,6 +142,14 @@ public class RDFExport {
 					// Or consist of only ValueActivities
 					.allMatch(children -> {
 						return children.stream()
+								// Get the value of each child
+								.map(child -> graph.getModel().getValue(child))
+								// Only keep actors, market segments, value activities
+								.filter(value -> value instanceof ValueActivity
+										|| value instanceof MarketSegment
+										|| value instanceof Actor)
+								// Either it is empty (returning true)
+								// Or it is not empty, and then the values should all be value activities
 								.allMatch(child -> graph.getModel().getValue(child) instanceof ValueActivity);
 					});
 			
