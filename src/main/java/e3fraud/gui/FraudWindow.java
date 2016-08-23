@@ -588,10 +588,10 @@ public class FraudWindow extends javax.swing.JPanel {
 
                 //create a graph
                 graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
-                //System.out.println("CHANGES:");
-                //System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
-                //System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
-                //System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
+                System.out.println("CHANGES:");
+                System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
+                System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
+                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
 
                 // Then just create a graph panel from scratch
 				graphPanel = new E3GraphComponent(graph);

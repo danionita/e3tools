@@ -307,7 +307,6 @@ int STEPS = 3;
                             subIdealModels.add(generatedModel);
                         }
                     }
-
                     //if actor2 has a positive financial result
                     if (actor2Total > 0) {
                         //divide this result into 10 values
@@ -333,6 +332,9 @@ int STEPS = 3;
                             
                             //add a transfer from actor1 to actor 2 of the value
                             generatedModel.addTransfer(interface2, interface1, value);
+                            int interface1ID = interface1.getProperty(E3value.e3_has_uid).getInt(); // Integer.parseInt(interface1.getProperty(E3value.e3_has_uid).toString());
+                            int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
+                            generatedModel.getFraudChanges().addHiddenTransaction(interface2ID,interface1ID);
                             generatedModel.appendDescription("<b>Hidden</b>  transfer of value " + df.format(value) + " (out of " + df.format(actor2Total) + ") from \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
                             subIdealModels.add(generatedModel);
                         }
