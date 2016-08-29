@@ -51,6 +51,13 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import design.info.Base;
 import design.info.ValueExchange;
 
+/**
+ * Value object dialog that shows an overview of all value objects in the current graph,
+ * how often they are used, and allows to "batch-assign" value objects to value exchanges.
+ * The dialog refreshes appropriately when tabs are switched.
+ * @author Bobe
+ *
+ */
 public class ValueObjectDialog {
 	private E3Graph graph;
 	private Main main;
