@@ -18,24 +18,38 @@
  *******************************************************************************/
 package design;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.ScrollPaneConstants;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.handler.mxGraphHandler;
+import com.mxgraph.swing.util.mxICellOverlay;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUndoManager;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
+import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraphView;
 
 import design.info.Actor;
 import design.info.Base;
@@ -76,9 +90,6 @@ public class E3GraphComponent extends mxGraphComponent {
     	component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     	component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
     	
-    	// TODO: Do some scaling and translation here? See MainWindow.java
-    	// TODO: Make it so the user can scroll around and such
-		
 		return component;
 	}
 
@@ -99,9 +110,13 @@ public class E3GraphComponent extends mxGraphComponent {
 		
 		ContextMenus.addE3PropertiesMenu(actorMenu, graph);
 		ContextMenus.addActorMenu(actorMenu, graph);
+		ContextMenus.addBackgroundColorMenu(actorMenu, graph);
 		
 		ContextMenus.addE3PropertiesMenu(valueActivityMenu, graph);
+		ContextMenus.addBackgroundColorMenu(valueActivityMenu, graph);
+
 		ContextMenus.addE3PropertiesMenu(marketSegmentMenu, graph);
+		ContextMenus.addBackgroundColorMenu(marketSegmentMenu, graph);
 		
 		ContextMenus.addE3PropertiesMenu(startSignalMenu, graph);
 		ContextMenus.addStartSignalMenu(startSignalMenu, graph);
@@ -173,7 +188,7 @@ public class E3GraphComponent extends mxGraphComponent {
 				
 				if (graph.getModel().getValue(cell) instanceof Base) {
 					Base base = (Base) graph.getModel().getValue(cell);
-					System.out.println(base.SUID);
+					//System.out.println(base.getSUID());
 				}
 
 				if (e.isPopupTrigger()) {
@@ -188,6 +203,13 @@ public class E3GraphComponent extends mxGraphComponent {
 				}
 			}
 		});
+		
+		graph.getModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				validateGraph();
+			}
+		});
 	}
 	
 	public boolean isPopupTriggerEnabled() {
@@ -199,7 +221,8 @@ public class E3GraphComponent extends mxGraphComponent {
 	}
 		
 	public void triggerContextMenu(MouseEvent e) {
-		Object obj = getCellAt(e.getX(), e.getY());
+		// TODO: Use getCells() here to do some kind of fuzzy selection/snapping here?
+		Object obj = getCellAtFuzzy(e.getX(), e.getY());
 		String style = graph.getModel().getStyle(obj);
 		JPopupMenu menu = null;
 		
@@ -207,7 +230,6 @@ public class E3GraphComponent extends mxGraphComponent {
 		Main.contextPos = new mxPoint(e.getX(), e.getY());
 		
 		if (obj == null) {
-			obj = graph.getDefaultParent();
 			menu = defaultMenu;
 			Main.contextTarget = new mxPoint(e.getX(), e.getY());
 		} else if (style != null) {
@@ -240,10 +262,69 @@ public class E3GraphComponent extends mxGraphComponent {
 		}
 			
 		if (e.isPopupTrigger() && menu != null && popupTriggerEnabled) {
-			menu.show(e.getComponent(), e.getX(), e.getY());
+			if (obj == null) {
+				menu.show(e.getComponent(), e.getX(), e.getY());
+			} else {
+				
+				mxPoint menuPos = new mxPoint(e.getX(), e.getY());
+				Rectangle bounds = graph.getView().getState(obj).getRectangle();
+				
+				Base val = (Base) graph.getModel().getValue(Main.contextTarget);
+				if (Utils.isDotValue(val)) {
+					menuPos.setX(bounds.getCenterX());
+					menuPos.setY(bounds.getCenterY());
+				}
+				
+				menu.show(e.getComponent(), (int) menuPos.getX(), (int) menuPos.getY());
+			}
 		}
 	}
 	
+	/**
+	 * Gets a cell in a rectangular radius of 13 pixels
+	 * (scaled with the view's getScale()) around x and y.
+	 * Prefers the closest LogicDot. If there are none, it just returns the
+	 * value of getCellAt.
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private Object getCellAtFuzzy(int x, int y) {
+		Object trivialCell = getCellAt(x, y);
+		
+		int areaSize = (int) (13 * getGraph().getView().getScale());
+		Rectangle areaOfInterest = new Rectangle(x, y, 0, 0);
+		areaOfInterest.grow(areaSize, areaSize);
+		Object[] candidates = getCells(areaOfInterest);
+		
+		mxPoint mousePos = new mxPoint(x, y);
+		
+		trivialCell = Arrays.stream(candidates)
+					.filter(s -> graph.getModel().getValue(s) instanceof LogicDot)
+					.sorted(new Comparator<Object>() {
+						@Override
+						public int compare(Object left, Object right) {
+							mxCellState leftState = graph.getView().getState(left);
+							mxPoint leftPos = new mxPoint(leftState.getCenterX(), leftState.getCenterY());
+							
+							mxCellState rightState = graph.getView().getState(right);
+							mxPoint rightPos = new mxPoint(rightState.getCenterX(), rightState.getCenterY());
+							
+							double leftDist2 = Math.pow(leftPos.getX() - mousePos.getX(), 2) 
+									+ Math.pow(leftPos.getY() - mousePos.getY(), 2);
+
+							double rightDist2 = Math.pow(rightPos.getX() - mousePos.getX(), 2) 
+									+ Math.pow(rightPos.getY() - mousePos.getY(), 2);
+							
+							return (int) (leftDist2 - rightDist2);
+						}
+					})
+					.findFirst()
+					.orElse(trivialCell);
+		
+		return trivialCell;
+	}
+
 	/**
 	 * Makes sure that only actors can be moved out of parents.
 	 */
@@ -263,5 +344,182 @@ public class E3GraphComponent extends mxGraphComponent {
 				return false;
 			}
 		};
+	}
+	
+	public void centerAndScaleView(double viewportWidth, double viewportHeight) {
+		mxGraphView view = getGraph().getView();
+		
+		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
+				maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
+		
+		for (Object obj : graph.getChildCells(graph.getDefaultParent())) {
+			// Only look at the positions from top-level elements
+			if (!(graph.getModel().getValue(obj) instanceof ValueActivity
+					|| graph.getModel().getValue(obj) instanceof MarketSegment
+					|| graph.getModel().getValue(obj) instanceof Actor)) continue;
+			
+			// Gather the bounds
+			mxGeometry gm = graph.getCellGeometry(obj);
+			minX = Math.min(minX, gm.getX());
+			minY = Math.min(minY, gm.getY());			
+			maxX = Math.max(maxX, gm.getX() + gm.getWidth());
+			maxY = Math.max(maxY, gm.getY() + gm.getHeight());
+		}
+		
+		double graphWidth = maxX - minX;
+		double graphHeight = maxY - minY;
+		
+		double scale = 1;
+		
+		// We add 10 to ad a tiny border of white around the graph
+		if (graphWidth > graphHeight) {
+			scale = viewportWidth / (graphWidth + 10);
+		} else {
+			scale = viewportHeight / (graphHeight + 10);
+		}
+			   
+		view.scaleAndTranslate(scale, -minX, -minY);
+	}
+	
+	@SuppressWarnings("serial")
+	public static class Highlighter extends JComponent implements mxICellOverlay {
+		private Object cell;
+		private mxGraphComponent graphComponent;
+
+		public Highlighter(Object cell, String tooltip, mxGraphComponent graphComponent) {
+			this.graphComponent = graphComponent;
+			this.cell = cell;
+			
+			// TODO: Setting tooltips causes mouse events to be captured, causing
+			// valueports to be unclickable.
+		}
+
+		public void paint(Graphics g1) {
+			Graphics2D g = (Graphics2D) g1;
+			
+			g.setColor(Color.RED);
+			
+			g.setStroke(new BasicStroke(2));
+			
+			mxCellState state = graphComponent.getGraph().getView().getState(cell);
+			Rectangle bounds = state.getRectangle();
+			bounds.grow(3, 3);
+			bounds.width += 1;
+			bounds.height += 1;
+			setBounds(bounds);
+			
+			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+		}
+
+		@Override
+		public mxRectangle getBounds(mxCellState state) {
+			return state.getBoundingBox();
+		}
+	}
+
+	/**
+	 * Overrides setCellWarning to add a Highlighter overlay (instead of a
+	 * blinking yellow triangle). If warning == null or as length zero all highlighter
+	 * overlays are removed from the cell.
+	 */
+	@Override
+	public mxICellOverlay setCellWarning(final Object cell, String warning,
+			ImageIcon icon, boolean select)
+	{
+		if (warning != null && warning.length() > 0)
+		{
+			return addCellOverlay(cell, new Highlighter(cell, warning, this));
+		}
+		else
+		{
+			removeCellOverlaysOfClass(cell, Highlighter.class);
+		}
+
+		return null;
+	}
+	
+	@SuppressWarnings("serial")
+	public static class ValuationOverlay extends JComponent implements mxICellOverlay {
+		private Object cell;
+		private mxGraphComponent graphComponent;
+
+		public ValuationOverlay(Object cell, mxGraphComponent graphComponent) {
+			this.graphComponent = graphComponent;
+			this.cell = cell;
+		}
+
+		public void paint(Graphics g1) {
+			Graphics2D g = (Graphics2D) g1;
+			
+			Base value = (Base) graphComponent.getGraph().getModel().getValue(cell);
+			
+			if (value == null || !value.formulas.containsKey("VALUATION")) {
+				return;
+			}
+			
+			String valuation = value.formulas.get("VALUATION");
+			if (valuation.trim().isEmpty()) {
+				valuation = "0";
+			}
+
+			mxCellState state = graphComponent.getGraph().getView().getState(cell);
+			Rectangle bounds = state.getRectangle();
+			bounds.grow(3, 3);
+			bounds.width += 1;
+			bounds.height += 1;
+			
+			// Move the rectangle to the top right of the value port
+			bounds.x += bounds.width;
+			bounds.y -= bounds.height;
+			
+			int fontsize = bounds.height;
+			
+			bounds.width = (int) (g.getFontMetrics().stringWidth(valuation) * 1.5);			
+			
+			int border = (int) (bounds.height * 0.2);
+			
+			bounds.grow(border, border);
+
+			setBounds(bounds);
+			
+			// Draw rectangle with border
+			g.setColor(Color.GREEN);
+			g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+			g.setColor(Color.BLACK);
+			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+			
+			// Draw text
+			// TODO: Put some sort of reusing facility in place here. We
+			// don't want the place crawling with fonts in no time.
+			g.setFont(new Font("Serif", Font.PLAIN, fontsize));
+			g.drawString(valuation, border, border + fontsize);
+		}
+
+		@Override
+		public mxRectangle getBounds(mxCellState state) {
+			return state.getBoundingBox();
+		}
+	}
+
+	public void toggleValuationLabels(boolean on) {
+		if (on) {
+			Utils.getAllCells(getGraph()).stream()
+				.filter(s -> E3GraphComponent.this.getGraph().getModel().getValue(s) instanceof ValuePort)
+				.forEach(s -> addCellOverlay(s, new ValuationOverlay(s, E3GraphComponent.this)));
+		} else {
+			Utils.getAllCells(getGraph()).stream()
+				.filter(s -> E3GraphComponent.this.getGraph().getModel().getValue(s) instanceof ValuePort)
+				.forEach(s -> removeCellOverlays(s));
+		}
+	}
+	
+	public void removeCellOverlaysOfClass(Object cell, Class<?> c) {
+		mxICellOverlay[] overlays = getCellOverlays(cell);
+		
+		if (overlays == null)  return;
+
+		Arrays.stream(overlays)
+			.filter(c::isInstance)
+			.forEach(o -> removeCellOverlay(cell, o));
 	}
 }

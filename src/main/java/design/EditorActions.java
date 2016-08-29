@@ -16,7 +16,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.TransferHandler;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartFrame;
@@ -26,6 +25,10 @@ import com.mxgraph.util.mxCellRenderer;
 
 import design.export.JSONExport;
 import design.export.RDFExport;
+import design.info.Base;
+import design.info.EndSignal;
+import design.info.StartSignal;
+import design.info.ValueExchange;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
@@ -400,7 +403,36 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: Implement this
+			E3Graph graph = main.getCurrentGraph();
+			
+			graph.getModel().beginUpdate();
+			try {
+				for (Object cell : Utils.getAllCells(graph)) {
+					Base value = (Base) Utils.base(graph, cell);
+					Base oldValue = value;
+
+					if (value instanceof StartSignal) {
+						StartSignal startSignal = (StartSignal) value.getCopy();
+						startSignal.showLabel = makeVisible;
+						value = startSignal;
+					} else if (value instanceof EndSignal) {
+						EndSignal endSignal = (EndSignal) value.getCopy();
+						endSignal.showLabel = makeVisible;
+						value = endSignal;
+					} else if (value instanceof ValueExchange) {
+						ValueExchange valueExchange = (ValueExchange) value.getCopy();
+						valueExchange.labelHidden = !makeVisible;
+						value = valueExchange;
+					}
+					
+					if (value != oldValue) {
+						graph.getModel().setValue(cell, value);
+					}
+				}
+				
+			} finally {
+				graph.getModel().endUpdate();
+			}
 		}
 	}
 	
@@ -414,7 +446,22 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: Implement this
+			E3Graph graph = main.getCurrentGraph();
+			
+			graph.getModel().beginUpdate();
+			try {
+				for (Object cell : Utils.getAllCells(graph)) {
+					Base value = (Base) Utils.base(graph, cell);
+
+					if (value instanceof ValueExchange) {
+						ValueExchange valueExchange = (ValueExchange) value.getCopy();
+						valueExchange.valueObjectHidden = !makeVisible;
+						graph.getModel().setValue(cell, valueExchange);
+					}
+				}
+			} finally {
+				graph.getModel().endUpdate();
+			}
 		}
 	}
 	
@@ -426,7 +473,7 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			main.addNewTabAndSwitch(new E3Graph(main.getCurrentGraph()));
+			main.addNewTabAndSwitch(new E3Graph(main.getCurrentGraph(), true));
 		}
 	}
 	
@@ -548,11 +595,23 @@ public class EditorActions {
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
+			
+			if (!main.getCurrentGraph().isValid()) {
+				int choice = JOptionPane.showConfirmDialog(
+						Main.mainFrame,
+						"The current model contains errors. This might cause fraud generation to function incorrectly. Do you wish to continue?",
+						"Model is not well formed.",
+						JOptionPane.YES_NO_OPTION);
+				
+				if (choice == JOptionPane.NO_OPTION) {
+					return;
+				}
+			}
 
 			JFrame frame = new JFrame("Fraud analysis of \"" + main.getCurrentGraphTitle() + "\"");
 			RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
-			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(main.getCurrentGraph()), new E3Model(rdfExporter.model), main, frame); //, getCurrentGraphName());
-			// TODO: Maybe add icons for fraud analysis as well?
+			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(main.getCurrentGraph(),false), new E3Model(rdfExporter.model), main, frame); //, getCurrentGraphName());
+
 			frame.add(fraudWindowInstance);
 			frame.pack();
 			frame.setVisible(true);
@@ -567,6 +626,18 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (!main.getCurrentGraph().isValid()) {
+				int choice = JOptionPane.showConfirmDialog(
+						Main.mainFrame,
+						"The current model contains errors. This might cause the profitability analysis to function incorrectly. Do you wish to continue?",
+						"Model is not well formed.",
+						JOptionPane.YES_NO_OPTION);
+				
+				if (choice == JOptionPane.NO_OPTION) {
+					return;
+				}
+			}
+
 			RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
 			JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !main.getCurrentGraph().isFraud);
 			if (chart != null) {
@@ -617,6 +688,20 @@ public class EditorActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JOptionPane.showMessageDialog(null, "The e3tool integrates the e3value value modelling and e-business analysis methodology developed by Jaap Gordjin with the e3fraud fraud assessment methodology developed by Dan Ionita. \n This tool was developed at the University of Twente by Dan Ionita and Bob Rubbens. \n Icons from the famfamfam Silk icon pack (http://www.famfamfam.com/lab/icons/silk/) owned by Mark James.");
+		}
+	}
+	
+	public static class ToggleValuationLabels extends BaseAction {
+		private boolean on;
+
+		public ToggleValuationLabels(Main main, boolean on) {
+			super((on ? "Show" : "Hide") + " valuation labels", main);
+			this.on = on;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			main.getCurrentGraphComponent().toggleValuationLabels(on);
 		}
 	}
 }

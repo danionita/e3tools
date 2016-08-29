@@ -41,13 +41,13 @@ int STEPS = 3;
 
     public Set<E3Model> generateAll(E3Model baseModel, Resource mainActor, int maxCollusions) {
 
-        System.out.println("GENERATING MODELS...\n\n\n");
+        //System.out.println("GENERATING MODELS...\n\n\n");
         Set<E3Model> subIdealModels = new HashSet<>();
-        System.out.println("GENERATING collusions...");
+        //System.out.println("GENERATING collusions...");
         Set<E3Model> colludedModels = generateCollusions(baseModel, mainActor, maxCollusions);
-        System.out.println("GENERATING hidden...");
+        //System.out.println("GENERATING hidden...");
         Set<E3Model> hiddenModels = generateHiddenTransactions(baseModel, mainActor);
-        System.out.println("GENERATING nonOcurring...");
+        //System.out.println("GENERATING nonOcurring...");
         Set<E3Model> nonOccuringModels = generateNonoccurringTransactions(baseModel);
         Set<E3Model> colludedAndNonOccuringModels = new HashSet<>();
         Set<E3Model> hiddenAndNonOccuringModels = new HashSet<>();
@@ -108,25 +108,25 @@ int STEPS = 3;
 //        }
         //*******END OF TEST STUFF*************
         subIdealModels.addAll(colludedModels);
-        System.out.println("colludedModels.size()= " + colludedModels.size());
+        //System.out.println("colludedModels.size()= " + colludedModels.size());
         subIdealModels.addAll(hiddenModels);
-        System.out.println("hiddenModels.size()= " + hiddenModels.size());
+        //System.out.println("hiddenModels.size()= " + hiddenModels.size());
         subIdealModels.addAll(nonOccuringModels);
-        System.out.println("nonOccuringModels.size()= " + nonOccuringModels.size());
+        //System.out.println("nonOccuringModels.size()= " + nonOccuringModels.size());
         subIdealModels.addAll(hiddenAndNonOccuringModels);
-        System.out.println("hiddenAndNonOccuringModels.size()= " + hiddenAndNonOccuringModels.size());
+        //System.out.println("hiddenAndNonOccuringModels.size()= " + hiddenAndNonOccuringModels.size());
         subIdealModels.addAll(colludedAndNonOccuringModels);
-        System.out.println("colludedAndNonOccuringModels.size()= " + colludedAndNonOccuringModels.size());
+        //System.out.println("colludedAndNonOccuringModels.size()= " + colludedAndNonOccuringModels.size());
         subIdealModels.addAll(colludedAndHiddenModels);
-        System.out.println("colludedAndHiddenModels.size()= " + colludedAndHiddenModels.size());
+        //System.out.println("colludedAndHiddenModels.size()= " + colludedAndHiddenModels.size());
         subIdealModels.addAll(colludedHiddenAndNonOccuringModels);
-        System.out.println("colludedHiddenAndNonOccuringModels.size()= " + colludedHiddenAndNonOccuringModels.size());
+        //System.out.println("colludedHiddenAndNonOccuringModels.size()= " + colludedHiddenAndNonOccuringModels.size());
 
         return subIdealModels;
     }
 
     public Set<E3Model> generateCollusions(E3Model baseModel, Resource mainActor, int maxCollusions) {
-        Set<E3Model> subIdealModels = new HashSet<E3Model>();
+        Set<E3Model> subIdealModels = new HashSet<>();
         Set<Resource> secondaryActors = baseModel.getActors();
         secondaryActors.remove(mainActor);
         
@@ -300,14 +300,13 @@ int STEPS = 3;
                             generatedModel.addTransfer(interface1, interface2, (float)value);
                             int interface1ID = interface1.getProperty(E3value.e3_has_uid).getInt(); // Integer.parseInt(interface1.getProperty(E3value.e3_has_uid).toString());
                             int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
-                            generatedModel.getFraudChanges().addHiddenTransaction(interface1ID,interface2ID);
+                            generatedModel.getFraudChanges().addHiddenTransaction(interface1ID,interface2ID, value);
                             generatedModel.appendDescription("<b>Hidden</b> transfer of value " + df.format(value) + " (out of " + df.format(actor1Total) + ") per occurence from \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
                             
                             //System.out.println("\t\t\t\t\t\tadding the new model to the list"); 
                             subIdealModels.add(generatedModel);
                         }
                     }
-
                     //if actor2 has a positive financial result
                     if (actor2Total > 0) {
                         //divide this result into 10 values
@@ -333,6 +332,9 @@ int STEPS = 3;
                             
                             //add a transfer from actor1 to actor 2 of the value
                             generatedModel.addTransfer(interface2, interface1, value);
+                            int interface1ID = interface1.getProperty(E3value.e3_has_uid).getInt(); // Integer.parseInt(interface1.getProperty(E3value.e3_has_uid).toString());
+                            int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
+                            generatedModel.getFraudChanges().addHiddenTransaction(interface2ID,interface1ID, value);
                             generatedModel.appendDescription("<b>Hidden</b>  transfer of value " + df.format(value) + " (out of " + df.format(actor2Total) + ") from \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
                             subIdealModels.add(generatedModel);
                         }

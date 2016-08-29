@@ -19,7 +19,9 @@
 package design.export;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -36,7 +38,6 @@ import design.info.Actor;
 import design.info.Base;
 import design.info.ConnectionElement;
 import design.info.EndSignal;
-import design.info.Info;
 import design.info.LogicBase;
 import design.info.MarketSegment;
 import design.info.StartSignal;
@@ -121,6 +122,42 @@ public class RDFExport {
 	}
 	
 	private void convertToRdf() {
+		// Check if no non-colludable actors are colluded
+		{
+			boolean noBadColluders = Utils.getAllCells(graph).stream()
+					// Only keep the actors that are colluding
+					.filter(o -> {
+						Object val = graph.getModel().getValue(o);
+						if (val instanceof Actor) {
+							Actor actor = (Actor) val;
+							return actor.colluded;
+						}
+						return false;
+					})
+					// Get the children of each colluding actor
+					.map(o -> Utils.getChildren(graph, o))
+					// The list of children has to be either empty
+					// Or consist of only ValueActivities
+					.allMatch(children -> {
+						return children.stream()
+								// Get the value of each child
+								.map(child -> graph.getModel().getValue(child))
+								// Only keep actors, market segments, value activities
+								.filter(value -> value instanceof ValueActivity
+										|| value instanceof MarketSegment
+										|| value instanceof Actor)
+								// Either it is empty (returning true)
+								// Or it is not empty, and then the values should all be value activities
+								.allMatch(child -> graph.getModel().getValue(child) instanceof ValueActivity);
+					});
+			
+			if (!noBadColluders) {
+				// TODO: Actual error handling
+				System.out.println("An actor is colluding which has something else than just value activities as children. Error, aborting!");
+				return;
+			}
+		}
+		
 		model = ModelFactory.createDefaultModel();
 		model.setNsPrefix("a", E3value.getURI());
 		
@@ -177,6 +214,8 @@ public class RDFExport {
 			
 			Base value = (Base) cellValue;
 			
+			//System.out.println("Considering: \"" + value.name + "\"");
+			
 			Resource res = null;
 			
 			if (value instanceof Actor) {
@@ -215,8 +254,36 @@ public class RDFExport {
 				res = getResource(value.SUID);
 
 				// Add name
-				if (value.name != null) {
+				if (value.name != null && !value.name.isEmpty()) {
 					res.addProperty(E3value.e3_has_name, value.name);
+				} else {
+					String name = "";
+
+					if (value instanceof Actor) {
+						name += "ac";
+					} else if (value instanceof MarketSegment) {
+						name += "ms";
+					} else if (value instanceof ValueActivity) {
+						name += "va";
+					} else if (value instanceof ValueInterface) {
+						name += "vi";
+					} else if (value instanceof ValuePort) {
+						name += "vp";
+					} else if (value instanceof ValueExchange) {
+						name += "ve";
+					} else if (value instanceof ConnectionElement) {
+						name += "ce";
+					} else if (value instanceof StartSignal) {
+						name += "ss";
+					} else if (value instanceof EndSignal) {
+						name += "es";
+					} else {
+						name += "uknown";
+					}
+					
+					name += value.SUID;
+
+					res.addProperty(E3value.e3_has_name, name);
 				}
 			
 				// Add formulas
@@ -232,24 +299,48 @@ public class RDFExport {
 			}
 			
 			if (value instanceof Actor) {
-				res.addProperty(RDF.type, E3value.elementary_actor);
-				
-				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
-					Base childInfo = (Base) graph.getModel().getValue(child);
-					res.addProperty(E3value.ac_has_vi, getResource(childInfo.SUID));
+				{
+					List<Object> vaChildren = Utils.getChildrenWithValue(graph, cell, ValueActivity.class);
+					List<Object> msChildren = Utils.getChildrenWithValue(graph, cell, MarketSegment.class);
+					List<Object> acChildren = Utils.getChildrenWithValue(graph, cell, Actor.class);
+					
+					boolean isElementary = vaChildren.size() >= 0
+							&& msChildren.size() == 0
+							&& acChildren.size() == 0;
+					
+					if (isElementary) {
+						res.addProperty(RDF.type, E3value.elementary_actor);
+					} else {
+						res.addProperty(RDF.type, E3value.composite_actor);
+					}
 				}
 				
-				// TODO: We need an extra RDF thing here, right? Like ac_consist_of_ms or smth
-//				for (Object child : Utils.getChildrenWithValue(graph, cell, MarketSegment.class)) {
-//					Base childInfo = (Base) graph.getModel().getValue(child);
-//					res.addProperty(E3value.consis, o)
-//				}
+				List<Resource> viResources = new ArrayList<>();
+				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
+					Base childInfo = (Base) graph.getModel().getValue(child);
+					Resource childRes = getResource(childInfo.SUID);
+					res.addProperty(E3value.ac_has_vi, childRes);
+					childRes.addProperty(E3value.vi_assigned_to_ac, res);
+					
+					viResources.add(childRes);
+				}
 				
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueActivity.class)) {
 					ValueActivity vaInfo = (ValueActivity) graph.getModel().getValue(child);
 					Resource vaRes = getResource(vaInfo.SUID);
 					res.addProperty(E3value.el_performs_va, vaRes);
 					vaRes.addProperty(E3value.va_performed_by_el, res);
+				}
+				
+				Object parent = graph.getModel().getParent(cell);
+				while (parent != null && parent != graph.getDefaultParent()) {
+					Base parentValue = (Base) graph.getModel().getValue(parent);
+					Resource parentRes = getResource(parentValue.SUID);
+					for (Resource viRes : viResources) {
+						parentRes.addProperty(E3value.ca_consists_of_vi, viRes);
+					}
+					
+					parent = graph.getModel().getParent(parent);
 				}
 			} else if (value instanceof MarketSegment) {
 				res.addProperty(RDF.type, E3value.market_segment);
@@ -258,15 +349,13 @@ public class RDFExport {
 					Base childInfo = (Base) graph.getModel().getValue(child);
 					res.addProperty(E3value.ms_has_vi, getResource(childInfo.SUID));
 				}
-
-				// TODO: Can't implement this because Dan's E3value class does not have the
-				// ms_performs_va and such. The original exporter does export this though?
-//				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueActivity.class)) {
-//					ValueActivity vaInfo = (ValueActivity) graph.getModel().getValue(child);
-//					Resource vaRes = getResource.apply(vaInfo.getSUID());
-//					res.addProperty(E3value.ms_performs_va, vaRes);
-//					vaRes.addProperty(E3value.va_perormed_by_ms, res);
-//				}
+				
+				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueActivity.class)) {
+					ValueActivity vaInfo = (ValueActivity) graph.getModel().getValue(child);
+					Resource vaRes = getResource(vaInfo.SUID);
+					res.addProperty(E3value.ms_performs_va, vaRes);
+					vaRes.addProperty(E3value.va_performed_by_ms, res);
+				}
 			} else if (value instanceof ValueActivity) {
 				res.addProperty(RDF.type, E3value.value_activity);
 
@@ -275,6 +364,7 @@ public class RDFExport {
 					res.addProperty(E3value.va_has_vi, getResource(childInfo.SUID));
 				}
 			} else if (value instanceof ValueInterface) {
+				ValueInterface viInfo = (ValueInterface) value;
 				res.addProperty(RDF.type, E3value.value_interface);
 				
 				Base parentValue = (Base) graph.getModel().getValue(graph.getModel().getParent(cell));
@@ -293,6 +383,9 @@ public class RDFExport {
 				} else if (parentValue instanceof ValueActivity) {
 					res.addProperty(E3value.vi_assigned_to_va, parentRes);
 				}
+				
+				getOfferingIn(viInfo.SUID);
+				getOfferingOut(viInfo.SUID);
 			} else if (value instanceof ValuePort) {
 				res.addProperty(RDF.type, E3value.value_port);
 				ValuePort vpInfo = (ValuePort) value;
@@ -347,7 +440,7 @@ public class RDFExport {
 				
 				ConnectionVisitor cv = new ConnectionVisitor(this);
 				try {
-					System.out.println("Starting visitor");
+					//System.out.println("Starting visitor");
 					cv.accept(cell);
 				} catch (MalformedFlowException e) {
 					System.out.println("Malformed flow! Cause: " + e.subject);
@@ -357,9 +450,9 @@ public class RDFExport {
 				res.addProperty(RDF.type, E3value.end_stimulus);
 			} else if (value instanceof ConnectionElement) {
 				res.addProperty(RDF.type, E3value.connection_element);
-				System.out.println("Connection element with SUID: " + value.SUID + " and name: " + value.name);
+				//System.out.println("Connection element with SUID: " + value.getSUID() + " and name: " + value.name);
 			} else if (value instanceof LogicBase) {
-				System.out.println("Adding LogicBase");
+				//System.out.println("Adding LogicBase");
 				LogicBase lbInfo = (LogicBase) value;
 				if (((LogicBase) value).isOr) {
 					res.addProperty(RDF.type, E3value.OR_node);

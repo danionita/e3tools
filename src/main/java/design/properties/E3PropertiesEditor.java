@@ -366,7 +366,7 @@ public class E3PropertiesEditor {
 		c.insets = new Insets(5, 5, 5, 5);
 		bottomPanel.add(editPane, c);
 
-		dialog = new JDialog(owner, "Edit object");
+		dialog = new JDialog(owner, "Edit object", true);
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topPanel, bottomPanel);
 		splitPane.setResizeWeight(0.8);
 		

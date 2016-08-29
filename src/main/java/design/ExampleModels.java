@@ -50,7 +50,7 @@ public class ExampleModels {
 			
 			model.beginUpdate();
 			try {
-				System.out.println("Adding small tricky graph");
+				//System.out.println("Adding small tricky graph");
 				Object tl = graph.addActor(100, 100);
 				Object bl = graph.addActor(100, 250);
 				
@@ -228,6 +228,8 @@ public class ExampleModels {
 
 				graph.connectCE(userBVI, userBES);
 				
+                                graph.title = "Flat-rate telephony";
+                                main.setCurrentTabTitle("Flat-rate telephony");
 			} finally {
 				model.endUpdate();
 			}	

@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package e3fraud.gui;
+package e3fraud.tools;
 
 /**
  *
  * @author Dan
  */
 import com.hp.hpl.jena.rdf.model.Resource;
+import e3fraud.gui.ResultObject;
 import e3fraud.model.E3Model;
 import e3fraud.model.ModelRanker;
 import e3fraud.tools.currentTime;
@@ -100,7 +101,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
         if (groupingCriteria == 1) {
             if (sortCriteria == 1) {
                 //sort by gain only, then loss
-                System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                //System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
                     DefaultMutableTreeNode category = new DefaultMutableTreeNode(cursor.getKey());
@@ -133,7 +134,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                 }
             } else if (sortCriteria == 0) {
                 //sort by loss first, then gain
-                System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                //System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
                 i = 0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
@@ -176,8 +177,8 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
             //then rank
             if (sortCriteria == 1) {
                 //by gain then loss
-                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "...");
-                System.out.println(currentTime.currentTime() + " Only displaying models with " + gainMin + "<gain<"+gainMax+" and "+lossMin+"<loss<"+lossMax);
+                //System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "...");
+                //System.out.println(currentTime.currentTime() + " Only displaying models with " + gainMin + "<gain<"+gainMax+" and "+lossMin+"<loss<"+lossMax);
                 sortedSubIdealModels = ModelRanker.sortByGainThenLoss(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     Resource topDeltaActor = subIdealModel.getTopDeltaActor();
@@ -205,7 +206,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                 }
             } else if (sortCriteria == 0) {
                 //by loss then gain
-                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model...");
+                //System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model...");
                 sortedSubIdealModels = ModelRanker.sortByLossThenGain(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     Double topDelta = subIdealModel.getLastKnownTopDelta();

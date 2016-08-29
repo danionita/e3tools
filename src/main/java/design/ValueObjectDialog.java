@@ -81,7 +81,7 @@ public class ValueObjectDialog {
 			listModel.addElement(valueObject + " (" + count.getOrDefault(valueObject, 0) + "x)");
 		}
 		
-		JList valueObjectsList = new JList(listModel);
+		JList<String> valueObjectsList = new JList<String>(listModel);
 		valueObjectsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		valueObjectsList.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -101,7 +101,7 @@ public class ValueObjectDialog {
 					Base val = Utils.base(graph, obj);
 					if (val instanceof ValueExchange) {
 						ValueExchange ve = (ValueExchange) val;
-						if (ve.valueObject.equals(valueObject)) {
+						if (ve.valueObject != null && ve.valueObject.equals(valueObject)) {
 							graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#00FF00");
 						} else {
 							graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");

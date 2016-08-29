@@ -34,12 +34,11 @@ import org.jfree.chart.JFreeChart;
  *
  * @author Dan
  */
-public class ProfitabilityAnalyser{
+public class ProfitabilityAnalyser {
 
     private static int needStartValue = 0, needEndValue = 0;
     private static Resource selectedNeed, selectedActor;
     private static JFreeChart chart;
-
 
     public static JFreeChart getProfitabilityAnalysis(E3Model baseModel, boolean ideal) {
         System.out.println(currentTime.currentTime() + " Starting profitability analysis...");
@@ -88,11 +87,15 @@ public class ProfitabilityAnalyser{
                     needStartValue = Integer.parseInt(xField.getText());
                     needEndValue = Integer.parseInt(yField.getText());
                     selectedNeed = needsMap.get(selectedNeedString);
-                    selectedActor = actorsMap.get(selectedActorString);                    
+                    selectedActor = actorsMap.get(selectedActorString);
                     baseModel.getAveragesForActors(selectedNeed, needStartValue, needEndValue, ideal);
-                    System.out.println("Generating chart for ideal model: "+ideal );
-                    chart = ChartGenerator.generateChart(baseModel, selectedNeed, needStartValue, needEndValue, ideal);//expected graph 
-                    return chart;                       
+                    //System.out.println("Generating chart for ideal model: " + ideal);
+                    try {
+                        chart = ChartGenerator.generateChart(baseModel, selectedNeed, needStartValue, needEndValue, ideal);//expected graph 
+                        return chart;
+                    } catch (java.lang.IllegalArgumentException e) {
+                        PopUps.infoBox("Duplicate actors are not supported. Please make sure all actors have unique names", "Error");
+                    }
                 }
 
             }

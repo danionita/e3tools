@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
@@ -49,6 +50,7 @@ import design.info.Info.Side;
 import design.info.LogicBase;
 import design.info.LogicDot;
 import design.info.MarketSegment;
+import design.info.Note;
 import design.info.SignalDot;
 import design.info.StartSignal;
 import design.info.ValueActivity;
@@ -56,6 +58,11 @@ import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
 
+// TODO: use isValidConnection in E3Graph to deny certain edges and allow others
+// (Right now they are deleted after creation, which is ugly. Also this will probably fix
+// the green highlight issue)
+// TODO: Use mxRubberband for multi select actors and stuff (see Validiation.java in mxGraph examples)
+// TODO: extendParent from mxGraph smells fishy (the issue with weird extending)
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
 
@@ -87,9 +94,10 @@ public class E3Graph extends mxGraph implements Serializable{
 		addStandardEventListeners();
 	}
 
-	public E3Graph(E3Graph original) {
+	public E3Graph(E3Graph original, boolean duplicate) {
 		isFraud = original.isFraud;
-		title = "Copy of " + original.title;
+		if (duplicate) {title = "Copy of " + original.title;}
+                else{title = original.title;}
 		
 		getModel().beginUpdate();
 		try {
@@ -104,7 +112,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	public E3Graph(E3Graph original, GraphDelta delta) {
-		this(original);
+		this(original, false);
 		
 		this.isFraud = true;
 		this.title = "Fraud instance of " + original.title;
@@ -119,28 +127,32 @@ public class E3Graph extends mxGraph implements Serializable{
 				Object ve = getCellFromId(id);
 				setValueExchangeNonOcurring(ve, true);
 				
-				System.out.println("Set to non-occurring: " + id);
+				//System.out.println("Set to non-occurring: " + id);
 			}
-
+                        
+                        int i=0;
 			for (long[] valueInterfaces : delta.hiddenTransactions) {
 				Object leftValueInterface = getCellFromId(valueInterfaces[0]);
 				Object rightValueInterface = getCellFromId(valueInterfaces[1]);
+
 
 				Object leftVP = addValuePort(this, (mxICell) leftValueInterface, false);
 				Object rightVP = addValuePort(this, (mxICell) rightValueInterface, true);
 
 				Object newVE = connectVP(leftVP, rightVP);
+                                
 
 				setValueExchangeHidden(newVE, true);
-				
-				System.out.println("Added hidden transaction: " + valueInterfaces[0]);
+				setFormula(newVE, "VALUATION", String.valueOf(delta.hiddenTransferValues.get(i)));
+				//System.out.println("Added hidden transaction: " + valueInterfaces[0]);
+                                i++;
 			}
 			
 			for (long id : delta.colludedActors) {
 				Object ac = getCellFromId(id);
 				setColludingActor(ac, true);
 				
-				System.out.println("Colluding: " + id);
+				//System.out.println("Colluding: " + id);
 			} 
 		} finally {
 			getModel().endUpdate();
@@ -191,35 +203,16 @@ public class E3Graph extends mxGraph implements Serializable{
 					Base targetValue = Utils.base(graph, target);
 
 					if (Utils.isDotValue(sourceValue) && Utils.isDotValue(targetValue)) {
-						graph.getModel().setStyle(cell, "ConnectionElement");
-						ConnectionElement value = new ConnectionElement(Utils.getUnusedID(E3Graph.this));
-						value.name = "ConnectionElement" + value.SUID;
-						graph.getModel().setValue(cell, value);
-
-						Object[] sourceEdges = graph.getEdges(source);
-						Object[] targetEdges = graph.getEdges(target);
-						
-						if (sourceEdges.length + targetEdges.length > 2) {
-							graph.getModel().beginUpdate();
-							try {
-								// TODO: If this ever gives problems, change to graph.removeCells
-								graph.removeCells(new Object[]{cell});
-							} finally {
-								graph.getModel().endUpdate();
-							}
+						graph.getModel().beginUpdate();
+						try {
+							graph.getModel().setStyle(cell, "ConnectionElement");
+							ConnectionElement value = new ConnectionElement(Utils.getUnusedID(E3Graph.this));
+							value.name = "ConnectionElement" + value.SUID;
+							graph.getModel().setValue(cell, value);
+						} finally {
+							graph.getModel().endUpdate();
 						}
 					} else if (sourceValue instanceof ValuePort && targetValue instanceof ValuePort) {
-						boolean sourceIncoming = ((ValuePort) sourceValue).incoming;
-						boolean targetIncoming = ((ValuePort) targetValue).incoming;
-						
-						// Reverse engineered from the original editor:
-						// For two top level actors, one should be incoming and one
-						// Should be outgoing. If one of them is nested, anything goes.
-						boolean sourceIsTopLevel = Utils.isToplevelValueInterface(graph, source);
-						boolean targetIsTopLevel = Utils.isToplevelValueInterface(graph, target);
-						
-						// One should be an incoming value interface, other one should be outgoing
-						// But only if they are both top-level
 						graph.getModel().beginUpdate();
 						try {
 							// Set ValueExchange edge properties
@@ -227,37 +220,57 @@ public class E3Graph extends mxGraph implements Serializable{
 							ValueExchange value = new ValueExchange(Utils.getUnusedID(E3Graph.this));
 							value.name = "ValueExchange" + value.SUID;
 							graph.getModel().setValue(cell, value);
-							
-							if (!(sourceIncoming ^ targetIncoming) && (sourceIsTopLevel && targetIsTopLevel)) {
-								graph.removeCells(new Object[]{cell});
-							}
 						} finally {
 							graph.getModel().endUpdate();
 						}
-					} else {
-						graph.getModel().beginUpdate();
-						try {
-							graph.removeCells(new Object[]{cell});
-						} finally {
-							graph.getModel().endUpdate();
-						}
-					}
+					} 
 				}
 			}
 		});
 
+		// When an object is resized
 		graph.addListener(mxEvent.RESIZE_CELLS, new mxIEventListener() {
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
+				// We ignore all other hypothetical cells
 				Object[] cells = ((Object[]) evt.getProperty("cells"));
 				mxCell cell = (mxCell) cells[0];
 				
+				// If it's a logic unit we rearrange its logic dots appropriately
 				if (Utils.base(graph, cell) instanceof LogicBase) {
 					E3Graph.straightenLogicUnit(graph, cell);
 				} else {
+					// Otherwise we check for all its children if they need to be constrained
 					graph.getModel().beginUpdate();
 					try {
 						for (int i = 0; i < cell.getChildCount(); i++) {
+							Object child = cell.getChildAt(i);
+							Base info = Utils.base(E3Graph.this, child);
+							
+							// If something is a value interface, make sure it sticks
+							// to the side it was assigned to.
+							if (info instanceof ValueInterface) {
+								mxGeometry parentGeom = getModel().getGeometry(cell);
+								ValueInterface viInfo = (ValueInterface) info;
+								mxGeometry geom = Utils.geometry(E3Graph.this, child);
+								
+								switch (viInfo.side) {
+								case LEFT:
+									geom.setX(-geom.getWidth() / 2);
+									break;
+								case TOP:
+									geom.setY(-geom.getHeight() / 2);
+									break;
+								case RIGHT:
+									geom.setX(parentGeom.getWidth() - geom.getWidth() / 2);
+									break;
+								case BOTTOM:
+									geom.setY(parentGeom.getHeight() - geom.getHeight() / 2);
+								}
+								
+								getModel().setGeometry(child, geom);
+							}
+							
 							// Straighten ports & constrain cell if needed
 							graph.constrainChild(cell.getChildAt(i));
 						}
@@ -286,9 +299,15 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	/**
-	 * Returns true if given cell is a fitting drop target for cells. This means the
-	 * drop target should be an actor or a value activity.
-	 * TODO: What entities can be dropped in what entities? (Market segment into value activities, etc.)
+	 * Returns true if given cell is a fitting drop target for cells.
+	 * Hierarchy:
+	 * - Actor can contain market segments and actors, or ONLY value activities
+	 * - Market segment can contain value activities
+	 * - Value activities cannot contain anything
+	 * As of 2016-8-16. This function is only called if a node is dropped
+	 * inside another node. The top level filtering (that makes sure
+	 * you cannot have a top level start signal) happens in
+	 * {@link #addStandardEventListeners()}.
 	 */
 	@Override
 	public boolean isValidDropTarget(Object cell, Object[] cells) {
@@ -298,19 +317,46 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		Base droppeeValue = Utils.base(this, cells[0]);
 		
+		Function<Object, Boolean> isEmptyOrContainsNoValueActivities = obj -> {
+			List<Object> objChildren = Utils.getChildren(this, cell);
+			boolean allValueInterfaces = objChildren.stream().anyMatch(o -> getModel().getValue(o) instanceof ValueActivity);
+			return objChildren.size() == 0 || !allValueInterfaces;
+		};
+		
+		Function<Object, Boolean> isEmptyOrContainsOnlyValueActivities = obj -> {
+			List<Object> objChildren = Utils.getChildren(this, cell);
+			boolean allValueInterfaces = objChildren.stream().allMatch(o -> getModel().getValue(o) instanceof ValueActivity);
+			return objChildren.size() == 0 || allValueInterfaces;
+		};
+		
 		if (droppeeValue instanceof ValueInterface
 				|| droppeeValue instanceof StartSignal
 				|| droppeeValue instanceof EndSignal
 				|| droppeeValue instanceof LogicBase) {
 			return value instanceof Actor || value instanceof ValueActivity || value instanceof MarketSegment;
 		} else if (droppeeValue instanceof MarketSegment){
-			return value instanceof Actor;
+			if (value instanceof Actor) {
+				// Only allow a marketsegment to be a child of an actor
+				// When the actor is empty or only contains other things than value interfaces
+				return isEmptyOrContainsNoValueActivities.apply(cell);
+			}
+
+			return false;
 		} else if (droppeeValue instanceof Actor) {
+			if (value instanceof Actor) {
+				return isEmptyOrContainsNoValueActivities.apply(cell);
+			}
+
 			return false;
 		} else if (droppeeValue instanceof ValueActivity) {
-			return value instanceof Actor || value instanceof MarketSegment;
+			return isEmptyOrContainsOnlyValueActivities.apply(cell);
+		} else if (droppeeValue instanceof Note) {
+			return false;
 		} else {
-			return value instanceof Actor || value instanceof ValueActivity;
+			// It's a start signal, and port, or something.
+			return value instanceof Actor 
+					|| value instanceof ValueActivity 
+					|| value instanceof MarketSegment;
 		}
 	}
 
@@ -586,7 +632,15 @@ public class E3Graph extends mxGraph implements Serializable{
 			ValuePort vpInfo = new ValuePort(Utils.getUnusedID(graph), incoming);
 			mxCell valuePort = (mxCell) graph.insertVertex(vi, null, vpInfo, 0.5, 0.5, 8.66, 10);
 			valuePort.setStyle("ValuePort" + vpInfo.getDirection(viInfo));
-
+			
+			// If the vi is on top or the side, move the vp to the beginning of the mxCell's (internal)
+			// child array. This is to make sure that it looks nice when ports are added (so the edges
+			// are straight instead of crossed between linked vi's)
+			if (viInfo.side == Side.TOP || viInfo.side == Side.RIGHT) {
+				vi.remove(valuePort);
+				vi.insert(valuePort, 0);
+			}
+			
 			mxGeometry vpGm = Utils.geometry(graph, valuePort);
 			vpGm.setRelative(true);
 			vpGm.setOffset(new mxPoint(-vpGm.getCenterX(), -vpGm.getCenterY()));
@@ -647,6 +701,7 @@ public class E3Graph extends mxGraph implements Serializable{
 				|| value instanceof ValueActivity
 				|| value instanceof ValueExchange
 				|| value instanceof ConnectionElement
+				|| value instanceof Note
 				;
 	}
 
@@ -975,8 +1030,8 @@ public class E3Graph extends mxGraph implements Serializable{
 			}
 		}
 		
-		System.out.println(startInfo.getClass().getSimpleName());
-		System.out.println(endInfo.getClass().getSimpleName());
+		//System.out.println(startInfo.getClass().getSimpleName());
+		//System.out.println(endInfo.getClass().getSimpleName());
 		
 		Object startDot = Utils.getChildrenWithValue(this, start, SignalDot.class).get(0);
 		Object endDot = Utils.getChildrenWithValue(this, end, SignalDot.class).get(0);
@@ -1243,7 +1298,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		for (Object dot : logicDots) {
 			if (getModel().getEdgeCount(dot) == 0) {
-				System.out.println("Connecting " + dot + " and " + signalDot);
+				//System.out.println("Connecting " + dot + " and " + signalDot);
 				return connectCE(signalDot, dot);
 			}
 		}
@@ -1285,10 +1340,10 @@ public class E3Graph extends mxGraph implements Serializable{
 	 */
 	public E3Graph toFraud() {
 		if (isFraud) {
-			return new E3Graph(this);
+			return new E3Graph(this, true);
 		} 
 		
-		E3Graph fraud = new E3Graph(this);
+		E3Graph fraud = new E3Graph(this, false);
 		fraud.title = "Fraud model of " + title;
 		fraud.isFraud = true;
 		
@@ -1305,10 +1360,10 @@ public class E3Graph extends mxGraph implements Serializable{
 	 */
 	public E3Graph toValue() {
 		if (!isFraud) {
-			return new E3Graph(this);
+			return new E3Graph(this, true);
 		}
 		
-		E3Graph value = new E3Graph(this);
+		E3Graph value = new E3Graph(this, false);
 		value.title = "Value model of " + title;
 		value.isFraud = false;
 		
@@ -1360,5 +1415,111 @@ public class E3Graph extends mxGraph implements Serializable{
 		}
 		
 		return super.isLabelMovable(cell);
+	}
+	
+	/**
+	 * Returns the container (actor/market segment/value activity) of a
+	 * value port.
+	 * @param vp
+	 * @return
+	 */
+	public Object getContainerOfValuePort(Object vp) {
+		return model.getParent(model.getParent(vp));
+	}
+	
+	@Override
+	public boolean isValidConnection(Object source, Object target) {
+		Base sourceVal = Utils.base(this, source);
+		Base targetVal = Utils.base(this, target);
+		
+		if (sourceVal instanceof ValuePort && targetVal instanceof ValuePort) {
+			ValuePort sourceInfo = (ValuePort) sourceVal;
+			ValuePort targetInfo = (ValuePort) targetVal;
+			
+			// If the source and target are in the same VI do not allow an edge
+			if (model.getParent(source) == model.getParent(target)) {
+				return false;
+			}
+
+			// If the "containers" of the value ports have the same parent the
+			// directions have to be different (one incoming, one outgoing)
+			if (model.getParent(getContainerOfValuePort(source)) == model.getParent(getContainerOfValuePort(target))) {
+				return sourceInfo.incoming != targetInfo.incoming;
+			} 
+			
+			// Otherwise everything is probably fine
+			return true;
+		} else if (Utils.isDotValue(sourceVal) && Utils.isDotValue(targetVal)) {
+			// If source and target are in the same logic element (and/or gate)
+			// Do not allow an edge
+			if (sourceVal instanceof LogicDot && targetVal instanceof LogicDot) {
+				if (model.getParent(source) == model.getParent(target)) {
+					return false;
+				}
+			}
+
+			// Otherwise everything is probably fine
+			return true;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public String getCellValidationError(Object cell) {
+		Object value = model.getValue(cell);
+		
+		Base info = (Base) value;
+		String error = "";
+		
+		if (info instanceof ValueInterface) {
+			if (Utils.getChildrenWithValue(this, cell, ValuePort.class)
+				.stream()
+				.map(model::getEdgeCount)
+				.anyMatch(c -> c == 0)) {
+				error += "Every Value Port should be connected to another ValuePort.\n";
+			};
+
+			if (Utils.getChildren(this, cell).stream()
+				.filter(obj -> Utils.isDotValue((Base) getModel().getValue(obj)))
+				.map(model::getEdgeCount)
+				.anyMatch(c -> c == 0)) {
+				error += "Every Signal Dot should be connected to another Signal Dot.\n";
+			};
+		}
+		
+		return error; 
+	}
+	
+	/**
+	 * Returns true if the graph is valid, false if not. At the moment only
+	 * checks vertices for correctness.
+	 */
+	public boolean isValid() {
+		return Utils.getAllCells(this).stream()
+			.map(obj -> {
+				if (E3Graph.this.getModel().isVertex(obj)) {
+					return E3Graph.this.getCellValidationError(obj);		
+				}
+
+				return null;
+			})
+			.noneMatch(s -> {
+				if (s == null) {
+					return false;
+				} else if (s.length() > 0) {
+					return true;
+				}
+
+				return false;
+			});
+	}
+	
+	/**
+	 * Never extend something when something is added to it.
+	 */
+	@Override
+	public boolean isExtendParent(Object cell) {
+		return false;
 	}
 }

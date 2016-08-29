@@ -20,14 +20,8 @@
  */
 package design;
 
-import static design.Utils.openWebpage;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Optional;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -37,34 +31,20 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.JFreeChart;
 
 import com.mxgraph.util.mxPoint;
 
-import design.EditorActions.NewTab;
 import design.Utils.ClosableTabHeading;
-import design.export.JSONExport;
-import design.export.RDFExport;
-import e3fraud.gui.FraudWindow;
-import e3fraud.gui.ProfitabilityAnalyser;
-import e3fraud.model.E3Model;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Main {
     public static final JFrame mainFrame = new JFrame("e3tools editor");
@@ -227,6 +207,8 @@ public class Main {
         viewMenu.add(new EditorActions.ToggleLabels(this, false));
         viewMenu.add(new EditorActions.ToggleValueObjects(this, true));
         viewMenu.add(new EditorActions.ToggleValueObjects(this, false));
+        viewMenu.add(new EditorActions.ToggleValuationLabels(this, true));
+        viewMenu.add(new EditorActions.ToggleValuationLabels(this, false));
 
         menuBar.add(viewMenu);
 
@@ -347,7 +329,7 @@ public class Main {
 
         // Show main screen
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setSize(1024, 768);
+        mainFrame.setSize(1024, 800);
         mainFrame.setVisible(true);
     }
 

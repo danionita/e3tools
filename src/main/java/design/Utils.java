@@ -140,22 +140,22 @@ public class Utils {
      * Returns true if the given value interface or value port is situated on a
      * top-level actor. That is, it is not nested.
      *
-     * @param cell
+     * @param cell The cell object to check. Can be either value interface or value port.
      * @return
      */
-    public static boolean isToplevelValueInterface(mxGraph graph, mxICell cell) {
+    public static boolean isToplevelValueInterface(mxGraph graph, Object cell) {
         Base value = Utils.base(graph, cell);
 
         if (value instanceof ValuePort) {
-            return isToplevelValueInterface(graph, cell.getParent());
+            return isToplevelValueInterface(graph, graph.getModel().getParent(cell));
         } else if (value instanceof ValueInterface) {
-            mxICell parent = cell.getParent();
+            Object parent = graph.getModel().getParent(cell);
 
             if (parent == null) {
                 return false;
             }
 
-            return parent.getParent() == graph.getDefaultParent();
+            return graph.getModel().getParent(parent) == graph.getDefaultParent();
         }
 
         return false;
@@ -336,6 +336,10 @@ public class Utils {
         Object right;
         Base rightValue;
     }
+    
+    public static List<Object> getChildren(mxGraph graph, Object parent) {
+    	return getChildrenWithValue(graph, parent, Object.class);
+    }
 
     public static List<Object> getChildrenWithValue(mxGraph graph, Object parent, Class<?> c) {
         ArrayList<Object> children = new ArrayList<>();
@@ -439,7 +443,8 @@ public class Utils {
 
         public List<Long> nonOccurringTransactions = new ArrayList<>();
         public List<long[]> hiddenTransactions = new ArrayList<>();
-        public List<Long> colludedActors = new ArrayList<>();
+        public List<Long> colludedActors = new ArrayList<>();        
+        public List<Double> hiddenTransferValues = new ArrayList<>();
 
         public GraphDelta(GraphDelta oldGraphDelta) {
             if (oldGraphDelta != null) {
@@ -451,6 +456,9 @@ public class Utils {
                 }
                 if (oldGraphDelta.colludedActors != null) {
                     this.colludedActors.addAll(oldGraphDelta.colludedActors);
+                }                
+                if (oldGraphDelta.hiddenTransferValues != null) {
+                    this.hiddenTransferValues .addAll(oldGraphDelta.hiddenTransferValues );
                 }
             }
         }
@@ -467,11 +475,16 @@ public class Utils {
 
         public void addHiddenTransaction(long from, long to) {
             this.hiddenTransactions.add(new long[]{from, to});
+        }        
+        public void addHiddenTransaction(long from, long to, double value) {
+            this.hiddenTransactions.add(new long[]{from, to});
+            this.hiddenTransferValues.add(value);
         }
+        
 
         public void addColludedActor(long id) {
             this.colludedActors.add(id);
-            System.out.println("Adding collusion to changes");
+            //System.out.println("Adding collusion to changes");
         }
     }
 

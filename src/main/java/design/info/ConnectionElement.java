@@ -7,6 +7,8 @@ public class ConnectionElement extends Base {
 		super(SUID);
 		
 		name = "ConnectionElement" + SUID;
+		
+		formulas.put("OCCURRENCES", "1");
 	}
 
 	@Override
