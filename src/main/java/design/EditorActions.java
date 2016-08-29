@@ -541,7 +541,7 @@ public class EditorActions {
 				return;
 			}
 
-			new ValueObjectDialog(main.getCurrentGraph()).show();;
+			new ValueObjectDialog(main).show();;
 		}
 	}
 	

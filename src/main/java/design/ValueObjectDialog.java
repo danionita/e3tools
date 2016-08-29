@@ -20,6 +20,8 @@ package design;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -37,23 +39,190 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.mxgraph.util.mxConstants;
+import com.mxgraph.util.mxEventObject;
+import com.mxgraph.util.mxEventSource.mxIEventListener;
 
 import design.info.Base;
 import design.info.ValueExchange;
 
 public class ValueObjectDialog {
 	private E3Graph graph;
+	private Main main;
+	private JDialog dialog;
+	private DefaultListModel<String> listModel;
+	private mxIEventListener modelListener;
+	private MouseAdapter selectionListener;
+	private JList<String> valueObjectsList;
+	private E3GraphComponent component;
 
-	public ValueObjectDialog(E3Graph graph) {
-		this.graph = graph;
+	/**
+	 * Creates a ValueObjectDialog that keeps an eye on the editor window
+	 * if the graph is switched. If the graph is switched, the object window
+	 * is refreshed to show the proper value objects. When a value object is selected
+	 * you can click on edges to assign the value object to edges.
+	 * @param main
+	 * @param graph
+	 */
+	public ValueObjectDialog(Main main) {
+		// Save the main so we can use it everywhere
+		this.main = main;
+		
+		// This should refresh the window everytime the user switches to a new tab
+		main.views.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				setFocusToCurrentGraph();
+			}
+		});
+		
+		// Constructs the dialog
+		buildDialog();
+		
+		// This listener is attached to the current graph and rebuilds the list every
+		// time something changes in the graph (mostly to keep the value object counts
+		// in sync)
+		modelListener = new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				rebuildList();
+			}
+		};
+		
+		// This listener applies the currently selected value object to the clicked
+		// value exchange
+		selectionListener = new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// Get the currently selected value object.
+				// If nothing is selected, we don't have to do anything.
+				int index = valueObjectsList.getSelectedIndex();
+				if (index == -1) return;
+				String newVO = graph.valueObjects.get(index);
+
+				// Get the info object of the cell below the click position
+				Object cell = main.getCurrentGraphComponent().getCellAt(e.getX(), e.getY());
+				// Get the info object and copy it implicitly
+				Base value = Utils.base(graph, cell);
+
+				// If it is a value exchange...
+				if (value instanceof ValueExchange) {
+					ValueExchange veInfo = (ValueExchange) value;
+
+					// If the valueexchange already has the value object, remove it.
+					// Otherwise assign it. This way you can "toggle" value objects
+					// by clicking.
+					if (veInfo.valueObject != null && veInfo.valueObject.equals(newVO)) {
+						veInfo.valueObject = null;
+					} else {
+						veInfo.valueObject = newVO;
+					}
+					
+					// Update the graph with the new value exchange info object
+					graph.getModel().beginUpdate();
+					try {
+						graph.getModel().setValue(cell, veInfo);
+					} finally {
+						graph.getModel().endUpdate();
+					}
+				}
+			}
+		};
+		
+		setFocusToCurrentGraph();
 	}
 	
-	public void show() {
-		JDialog dialog = new JDialog(Main.mainFrame, "ValueObjects", Dialog.ModalityType.DOCUMENT_MODAL);
+	/**
+	 * Removes listeners from the old graph(component) (if applicable), and adds them to
+	 * the new graph(component). Also refreshes the list of value objects.
+	 */
+	public void setFocusToCurrentGraph() {
+		// If there was a graph, remove all listeners from it & reset the highlighting
+		if (graph != null) {
+			cleanupGraph();
+		}
+		
+		// Get and save the new current graph & component
+		graph = main.getCurrentGraph();
+		component = main.getCurrentGraphComponent();
+
+		// Add the listeners
+		graph.getModel().addListener("change", modelListener);
+		component.getGraphControl().addMouseListener(selectionListener);
+		
+		// Refresh the list
+		rebuildList();
+	}
+	
+	/**
+	 * Removes all listeners from the graph and resets the highlighting of the graph
+	 */
+	private void cleanupGraph() {
+		// For all cells...
+		for (Object obj : Utils.getAllCells(graph)) {
+			Base val = Utils.base(graph, obj);
+			// If they are a value exchange...
+			if (val instanceof ValueExchange) {
+				// Set their stroke color to blue
+				graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
+			}
+		}
+		
+		graph.repaint();
+
+		// Remove the listeners
+		graph.getModel().removeListener(modelListener);
+		component.getGraphControl().removeMouseListener(selectionListener);
+	}
+
+	/**
+	 * Rebuilds the list with the current graph's value objects & statistics
+	 */
+	public void rebuildList() {
+		// A map to keep track of the appearances of the value objects
+		Map<String, Integer> count = new HashMap<>();
+		
+		// For every cell...
+		for (Object cell : Utils.getAllCells(graph)) {
+			Object val = graph.getModel().getValue(cell);
+			// If it is a value exchange
+			if (val instanceof ValueExchange) {
+				ValueExchange ve = (ValueExchange) val;
+				// That has a value object...
+				if (ve.valueObject != null) {
+					// Increase the count of that value object by one.
+					count.put(ve.valueObject, count.getOrDefault(ve.valueObject, 0) + 1);
+				}
+			}
+		}
+
+		// Save the old selected index
+		int oldIndex = valueObjectsList.getSelectedIndex();
+
+		// Clear the list and repopulate it
+		listModel.clear();
+		for (String valueObject : graph.valueObjects) {
+			listModel.addElement(valueObject + " (" + count.getOrDefault(valueObject, 0) + "x)");
+		}
+		
+		// Since the order of the value objects cannot be changed (it is controlled by the graph)
+		// we can just reselect the old index. Also, this triggers an event on the list object,
+		// which causes the possibly added value exchange to be highlighted as well.
+		valueObjectsList.setSelectedIndex(oldIndex);
+	}
+	
+	/**
+	 * This builds the actual swing dialog. Basically boring swing stuff.
+	 * It is also the place where the edge coloring is done.
+	 */
+	@SuppressWarnings("serial")
+	private void buildDialog() {
+		dialog = new JDialog(Main.mainFrame, "ValueObjects", Dialog.ModalityType.MODELESS);
 		dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.Y_AXIS));
 		
 		JPanel buttonPanel = new JPanel();
@@ -63,25 +232,10 @@ public class ValueObjectDialog {
 		JButton deleteButton = new JButton();
 		buttonPanel.add(deleteButton);
 		dialog.add(buttonPanel);
+		
+		listModel = new DefaultListModel<>();
 
-		Map<String, Integer> count = new HashMap<>();
-		for (Object cell : Utils.getAllCells(graph)) {
-			Object val = graph.getModel().getValue(cell);
-			if (val instanceof ValueExchange) {
-				ValueExchange ve = (ValueExchange) val;
-				if (ve.valueObject != null) {
-					count.put(ve.valueObject, count.getOrDefault(ve.valueObject, 0) + 1);
-				}
-			}
-		}
-		
-		List<String> valueObjects = graph.valueObjects;
-		DefaultListModel<String> listModel = new DefaultListModel<>();
-		for (String valueObject : valueObjects) {
-			listModel.addElement(valueObject + " (" + count.getOrDefault(valueObject, 0) + "x)");
-		}
-		
-		JList<String> valueObjectsList = new JList<String>(listModel);
+		valueObjectsList = new JList<String>(listModel);
 		valueObjectsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		valueObjectsList.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -92,11 +246,11 @@ public class ValueObjectDialog {
 				// such that only the explicit style of a cell is changed.
 				// I don't like messing with this state thing
 				// (Altough it worked almost immediately. Maybe this is the right way?)
-				// A benefit of this method is that it does not affect undo history (but is that actually true?).
+				// A benefit of this method is that it does not affect undo history 
 				int selectedIndex = valueObjectsList.getSelectedIndex();
 				if (selectedIndex == -1) return;
 
-				String valueObject = valueObjects.get(selectedIndex);
+				String valueObject = graph.valueObjects.get(selectedIndex);
 				for (Object obj : Utils.getAllCells(graph)) {
 					Base val = Utils.base(graph, obj);
 					if (val instanceof ValueExchange) {
@@ -125,10 +279,10 @@ public class ValueObjectDialog {
 						"New ValueObject",
 						JOptionPane.QUESTION_MESSAGE);
 				if (newName == null || newName.trim().length() == 0) return;
-				if (valueObjects.indexOf(newName) != -1) return;
+				if (graph.valueObjects.indexOf(newName) != -1) return;
 
 				listModel.addElement(newName + " (0x)");
-				valueObjects.add(newName);
+				graph.valueObjects.add(newName);
 			}
 		});
 		
@@ -137,7 +291,7 @@ public class ValueObjectDialog {
 			public void actionPerformed(ActionEvent e) {
 				int index = valueObjectsList.getSelectedIndex();
 				if (index == -1) return;
-				String valueObjectName = valueObjects.get(index);
+				String valueObjectName = graph.valueObjects.get(index);
 
 				List<Object> usingCells = new ArrayList<>();
 				for (Object cell : Utils.getAllCells(graph)) {
@@ -175,7 +329,7 @@ public class ValueObjectDialog {
 					}
 
 					listModel.remove(valueObjectsList.getSelectedIndex());
-					valueObjects.remove(index);
+					graph.valueObjects.remove(index);
 				}
 			}
 		});
@@ -184,18 +338,15 @@ public class ValueObjectDialog {
 		dialog.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				for (Object obj : Utils.getAllCells(graph)) {
-					Base val = Utils.base(graph, obj);
-					if (val instanceof ValueExchange) {
-						ValueExchange ve = (ValueExchange) val;
-						graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
-					}
-				}
-				
-				graph.repaint();
+				cleanupGraph();
 			}
 		});
-		
+	}
+
+	/**
+	 * Shows the swing dialog.
+	 */
+	public void show() {
 		dialog.setSize(300, 320);
 		dialog.setVisible(true);
 	}

@@ -296,6 +296,13 @@ public class E3Graph extends mxGraph implements Serializable{
 				}
 			}
 		});
+		
+		graph.getModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				System.out.println("Change " + evt.getName());
+			}
+		});
 	}
 	
 	/**
