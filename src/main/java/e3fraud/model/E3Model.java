@@ -213,8 +213,6 @@ public class E3Model {
                 nextElement = nextElement.getProperty(E3value.ce_with_down_de).getResource();//choose the next element (Value Interface or AND/OR node)
 
             } else if (nextElement.hasProperty(RDF.type, E3value.value_interface) && nextElement.hasProperty(E3value.de_up_ce)) { //if it's a ValueInterface with an incoming ConnectionElement (meaning we need to go down the ValueExchange)
-                System.out.println("\t\tfound ValueInterface with an incoming ConnectionElement");
-
                 //add occurrences to it (before taking count into consideration)
                 updateValueInterfaceOccurrences(nextElement, occurences);
                 //System.out.println("\t\tfound ValueInterface with an incoming ConnectionElement");

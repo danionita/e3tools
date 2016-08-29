@@ -586,7 +586,6 @@ public class EditorActions {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: Convert this option to something greyed out, just like in the file menu?
 			if (main.views.getTabCount() == 0) {
 				JOptionPane.showMessageDialog(
 						Main.mainFrame,
@@ -607,10 +606,27 @@ public class EditorActions {
 					return;
 				}
 			}
+			
+			E3Graph targetGraph = main.getCurrentGraph();
+			
+			if (main.getCurrentGraph().isFraud) {
+				int choice = JOptionPane.showConfirmDialog(
+						Main.mainFrame,
+						"At the moment analyzing a fraud model is not supported. Would you like to"
+						+ " convert the current model to a value model for analysis?",
+						"Unsupported model type",
+						JOptionPane.YES_NO_OPTION);
+				
+				if (choice == JOptionPane.NO_OPTION) {
+					return;
+				}
+				
+				targetGraph = targetGraph.toValue();
+			} 
 
 			JFrame frame = new JFrame("Fraud analysis of \"" + main.getCurrentGraphTitle() + "\"");
-			RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
-			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(main.getCurrentGraph(),false), new E3Model(rdfExporter.model), main, frame); //, getCurrentGraphName());
+			RDFExport rdfExporter = new RDFExport(targetGraph, true);
+			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(targetGraph, false), new E3Model(rdfExporter.model), main, frame); //, getCurrentGraphName());
 
 			frame.add(fraudWindowInstance);
 			frame.pack();
