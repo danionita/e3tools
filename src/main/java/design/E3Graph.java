@@ -1453,10 +1453,32 @@ public class E3Graph extends mxGraph implements Serializable{
 			if (model.getParent(source) == model.getParent(target)) {
 				return false;
 			}
+			
+			Object sourceContainer = getContainerOfValuePort(source);
+			Object targetContainer = getContainerOfValuePort(target);
+			Base sourceContainerValue = (Base) model.getValue(sourceContainer);
+			Base targetContainerValue = (Base) model.getValue(targetContainer);
+			
+			if ((model.getParent(sourceContainer) != getDefaultParent() && sourceContainerValue instanceof ValueActivity)
+				|| (model.getParent(targetContainer) != getDefaultParent() && targetContainerValue instanceof ValueActivity)) {
+				// If either one is a non-toplevel value activity it can only connect to its containing actor or market segment.
 
+				boolean areAncestors = model.isAncestor(sourceContainer, targetContainer) || model.isAncestor(targetContainer, sourceContainer);
+				boolean bothActorOrMarketSegmentAndValueActivity = (sourceContainerValue instanceof ValueActivity && (targetContainerValue instanceof Actor || targetContainerValue instanceof MarketSegment))
+								|| ((sourceContainerValue instanceof Actor || targetContainerValue instanceof MarketSegment) && targetContainerValue instanceof ValueActivity);
+				
+				if (areAncestors && bothActorOrMarketSegmentAndValueActivity) {
+					// Only if the ports point the same way
+					return sourceInfo.incoming == targetInfo.incoming;
+				}
+			
+				// Else it's not allowed
+				return false;
+			}
+			
 			// If the "containers" of the value ports have the same parent the
 			// directions have to be different (one incoming, one outgoing)
-			if (model.getParent(getContainerOfValuePort(source)) == model.getParent(getContainerOfValuePort(target))) {
+			if (model.getParent(sourceContainer) == model.getParent(targetContainer)) {
 				return sourceInfo.incoming != targetInfo.incoming;
 			} 
 			
