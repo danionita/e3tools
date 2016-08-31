@@ -22,9 +22,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
+import org.w3c.dom.Document;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxUtils;
+import com.mxgraph.util.mxXmlUtils;
 
 import design.export.JSONExport;
 import design.export.RDFExport;
@@ -194,6 +197,16 @@ public class EditorActions {
 
 				return;
 			}
+			
+			// SVG test
+			// TODO: Use this sometime for SVG export when JGraphX supports stencils.
+//			Document doc = mxCellRenderer.createSvgDocument(main.getCurrentGraph(), null, 1, Color.WHITE, null);
+//			
+//			try {
+//				mxUtils.writeFile(mxXmlUtils.getXml(doc), "C:\\Users\\Bobe\\Desktop\\test.svg");
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
 		}
 	}
 	

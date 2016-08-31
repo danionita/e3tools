@@ -28,6 +28,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -521,5 +522,22 @@ public class E3GraphComponent extends mxGraphComponent {
 		Arrays.stream(overlays)
 			.filter(c::isInstance)
 			.forEach(o -> removeCellOverlay(cell, o));
+	}
+	
+	/**
+	 * If the label to be edited belongs to a ValueExchange, only the name is returned,
+	 * not the result of the toString() method. This is because otherwise
+	 * the value object also becomes part of the name, unless the user removes
+	 * it while editing. This is tedious.
+	 */
+	@Override
+	public String getEditingValue(Object cell, EventObject trigger) {
+		Object value = graph.getModel().getValue(cell);
+		
+		if (value instanceof ValueExchange) {
+			return ((ValueExchange) value).name;
+		}
+		
+		return super.getEditingValue(cell, trigger);
 	}
 }

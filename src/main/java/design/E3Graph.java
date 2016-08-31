@@ -662,8 +662,9 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	/**
-	 * Valueports should not have a label, so they are silenced (by returning
-	 * an empty string). Anything else should just excert default behaviour.
+	 * Returns the toString() method of Info objects. These override their
+	 * toString() methods to return a nice name for a label. Everything else should
+	 * use the default behaviour.
 	 */
 	@Override
 	public String convertValueToString(Object obj) {
@@ -676,6 +677,11 @@ public class E3Graph extends mxGraph implements Serializable{
 		return super.convertValueToString(cell);
 	}
 	
+	/**
+	 * If it is a base, and the new label is a string, the base is cloned and
+	 * the name is set to the given string. Everything else does the default
+	 * behaviour.
+	 */
 	@Override
 	public void cellLabelChanged(Object cell, Object newValue, boolean autoSize) {
 		Object oldValue = Utils.base(this, cell);
@@ -683,12 +689,12 @@ public class E3Graph extends mxGraph implements Serializable{
 		if (oldValue instanceof Base) {
 			if (newValue instanceof String) {
 				String name = (String) newValue;
-				Base base = (Base) oldValue;
+				Base base = ((Base) oldValue).getCopy();
+				
 				base.name = name;
+				
+				newValue = base;
 			}			
-
-			// Newvalue is subsequently set to be the cell's value in the super call.
-			newValue = oldValue;
 		} else {
 			return;
 		}
