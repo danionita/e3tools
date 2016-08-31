@@ -5,7 +5,10 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
@@ -111,7 +114,86 @@ public class EditorActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println(new RDFExport(main.getCurrentGraph(), true).toString());
+			Optional<String> result = new RDFExport(main.getCurrentGraph(), true).getResult();
+			
+			if (!result.isPresent()) {
+				JOptionPane.showMessageDialog(
+						Main.mainFrame,
+						"An error occurred while exporting to RDF. Please ensure that the model has no errors.",
+						"Invalid model",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			String resultRDF = result.get();
+			
+			JFileChooser fc = new JFileChooser();
+			
+			// Add supported file formats as filter
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("RDF", "rdf"));
+			
+			// Make sure "All files" filter is available as well
+			fc.setAcceptAllFileFilterUsed(true);
+			// Only be able to select files
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			
+			// Return if the user does not accept a file
+			if (fc.showSaveDialog(main.mainFrame) != JFileChooser.APPROVE_OPTION) return;
+			
+			// Get the selected file
+			File targetFile = fc.getSelectedFile();
+			
+			// Check if the file already exists, abort at user request
+			if (targetFile.exists()) {
+				if (JOptionPane.showConfirmDialog(
+						Main.mainFrame, 
+						"The selected location already exists. Would you like to overwrite it?",
+						"Location already exists",
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.INFORMATION_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+					return;
+				};
+			}
+			
+			// If an extension filter was selected, append the extension to the file path if it's not there
+			if (fc.getFileFilter() instanceof FileNameExtensionFilter) {
+				// We know the RDF filter was selected here
+				
+				// Append .rdf if it's not there
+				if (!targetFile.getName().toLowerCase().endsWith(".rdf")) {
+					targetFile = new File(targetFile.getAbsolutePath() + ".rdf");
+				}
+			}
+			
+			// Try to open an output stream (which is automatically closed
+			try (PrintWriter out = new PrintWriter(targetFile)) {
+				out.write(resultRDF);
+			} catch (FileNotFoundException e1) {
+				// Show a message that the location is unaccessible
+				JOptionPane.showMessageDialog(
+						Main.mainFrame,
+						"Selected location \"" + targetFile.getAbsolutePath() + "\" does not exist. Please try again.",
+						"Invalid location",
+						JOptionPane.ERROR_MESSAGE
+						);
+
+				// Retry by launching the same action
+				new ExportRDF(main).actionPerformed(e);
+				
+				return;
+			} catch (IOException e1) {
+				// Show a message with debug information if this happens
+				JOptionPane.showMessageDialog(
+						Main.mainFrame,
+						"An unexpected error occurred. Please contact the developers with the following information:\n" + e1.getMessage() + "\n" + e1.getStackTrace(),
+						"Unexpected error",
+						JOptionPane.ERROR_MESSAGE
+						);
+
+				e1.printStackTrace();
+
+				return;
+			}
 		}
 	}
 	

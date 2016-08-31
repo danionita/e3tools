@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -50,7 +51,7 @@ import e3fraud.vocabulary.E3value;
 public class RDFExport {
 	
 	public final E3Graph graph;
-	private String result;
+	Optional<String> result;
 	
 	Map<Long, Resource> offeringIn = new HashMap<>();
 	Map<Long, Resource> offeringOut = new HashMap<>();
@@ -152,7 +153,6 @@ public class RDFExport {
 					});
 			
 			if (!noBadColluders) {
-				// TODO: Actual error handling
 				System.out.println("An actor is colluding which has something else than just value activities as children. Error, aborting!");
 				return;
 			}
@@ -192,6 +192,7 @@ public class RDFExport {
 				.map(v -> (Actor) v)
 				.anyMatch(ac -> ac.colluded)
 				;
+
 		if (hasColludedActor) {
 			colludedResource = getResource(Utils.getUnusedID(graph, base, model));
 		}
@@ -472,13 +473,12 @@ public class RDFExport {
 		// Convert to RDF
 		StringWriter out = new StringWriter();
 		model.write(out, "RDF/XML");
-		result = out.toString();
+		result = Optional.of(out.toString());
 		
-		System.out.println(result);
+		System.out.println(result.get());
 	}
 	
-	@Override
-	public String toString() {
+	public Optional<String> getResult() {
 		return result;
 	}
 }
