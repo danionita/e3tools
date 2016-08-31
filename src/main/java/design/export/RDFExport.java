@@ -52,11 +52,12 @@ public class RDFExport {
 	
 	public final E3Graph graph;
 	Optional<String> result;
+	Optional<Model> modelResult;
 	
 	Map<Long, Resource> offeringIn = new HashMap<>();
 	Map<Long, Resource> offeringOut = new HashMap<>();
 	Map<String, Resource> valueObject = new HashMap<>();
-	public Model model;
+	private Model model;
 	private Resource modelRes;
 	private Resource diagramRes;
 	private String base;
@@ -475,10 +476,16 @@ public class RDFExport {
 		model.write(out, "RDF/XML");
 		result = Optional.of(out.toString());
 		
+		modelResult = Optional.of(model);
+		
 		System.out.println(result.get());
 	}
 	
 	public Optional<String> getResult() {
 		return result;
+	}
+	
+	public Optional<Model> getModel() {
+		return modelResult;
 	}
 }

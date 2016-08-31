@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -24,6 +23,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.util.mxCellRenderer;
 
 import design.export.JSONExport;
@@ -705,10 +705,21 @@ public class EditorActions {
 				
 				targetGraph = targetGraph.toValue();
 			} 
+			
+			RDFExport rdfExporter = new RDFExport(targetGraph, true);
+			if (!rdfExporter.getModel().isPresent()) {
+				JOptionPane.showMessageDialog(
+						Main.mainFrame,
+						"An error occurred while converting to an internal format. Please make sure the model contains no errors.",
+						"Invalid model",
+						JOptionPane.ERROR_MESSAGE
+						);
+				return;
+			}
+			Model model = rdfExporter.getModel().get();
 
 			JFrame frame = new JFrame("Fraud analysis of \"" + main.getCurrentGraphTitle() + "\"");
-			RDFExport rdfExporter = new RDFExport(targetGraph, true);
-			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(targetGraph, false), new E3Model(rdfExporter.model), main, frame); //, getCurrentGraphName());
+			FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(targetGraph, false), new E3Model(model), main, frame); 
 
 			frame.add(fraudWindowInstance);
 			frame.pack();
@@ -737,7 +748,21 @@ public class EditorActions {
 			}
 
 			RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
-			JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(rdfExporter.model), !main.getCurrentGraph().isFraud);
+			
+			if (!rdfExporter.getModel().isPresent()) {
+				JOptionPane.showMessageDialog(
+						Main.mainFrame,
+						"An error occurred while converting to an internal format. Please make sure the model contains no errors.",
+						"Invalid model",
+						JOptionPane.ERROR_MESSAGE
+						);
+				
+				return;
+			}
+			
+			Model model = rdfExporter.getModel().get();
+			
+			JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(model), !main.getCurrentGraph().isFraud);
 			if (chart != null) {
 				ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + main.getCurrentGraphTitle() + "\"", chart);
 				chartframe1.setPreferredSize(new Dimension(Main.DEFAULT_CHART_WIDTH, Main.DEFAULT_CHART_HEIGHT));
