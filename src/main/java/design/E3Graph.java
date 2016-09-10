@@ -58,11 +58,7 @@ import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
 
-// TODO: use isValidConnection in E3Graph to deny certain edges and allow others
-// (Right now they are deleted after creation, which is ugly. Also this will probably fix
-// the green highlight issue)
 // TODO: Use mxRubberband for multi select actors and stuff (see Validiation.java in mxGraph examples)
-// TODO: extendParent from mxGraph smells fishy (the issue with weird extending)
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
 
@@ -73,7 +69,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public GraphDelta delta;
 	public String title = "";
         
-        public File file;
+	public File file;
 	
 	public E3Graph(boolean isFraud) {
 		this(isFraud, null);
@@ -294,13 +290,6 @@ public class E3Graph extends mxGraph implements Serializable{
 				} finally {
 					graph.getModel().endUpdate();
 				}
-			}
-		});
-		
-		graph.getModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
-			@Override
-			public void invoke(Object sender, mxEventObject evt) {
-				System.out.println("Change " + evt.getName());
 			}
 		});
 	}

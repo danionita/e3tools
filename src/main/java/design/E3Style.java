@@ -75,6 +75,8 @@ public class E3Style {
 		
 		style = new Hashtable<>(baseStyle);
 		style.put(mxConstants.STYLE_SHAPE, "MarketSegmentStencil"); // We added this above in the try block
+		style.put(mxConstants.STYLE_FILLCOLOR, "#C0C0C0");
+		style.put(mxConstants.STYLE_GRADIENTCOLOR, "#C0C0C0");
 		stylesheet.putCellStyle("MarketSegment", style);
 
 		// ArcSize is not taken into account by JGraphX
@@ -236,7 +238,6 @@ public class E3Style {
 			
 		// Add custom stencils
 		addStencil("valueport.shape");
-		addStencil("marketsegment.shape");
 		addStencil("startsignal.shape");
 		addStencil("endsignal.shape");
 		addStencil("dot.shape");
@@ -246,31 +247,109 @@ public class E3Style {
 		addStencil("westtriangle.shape");
 		addStencil("northtriangle.shape");
 		addStencil("note.shape");
+		addMarketSegmentColor("", "#C0C0C0");
 	}
 	
-	public static Set<String> loadedStencils = new HashSet<String>();
+	// Keeps track of all the names of the stencils that are loaded
+	public static Set<String> loadedStencils = new HashSet<>();
 	
+	/**
+	 * Reads the file at filename and adds it as a stencil
+	 * @param filename
+	 */
 	public static void addStencil(String filename) {
 		try {
-			if (loadedStencils.contains(filename)) return;
-                    
-			String nodeXml = mxUtils.readInputStream(
+			// Read the file
+			String xmlString = mxUtils.readInputStream(
                                 E3Style.class.getResourceAsStream("/" + filename));
 			
-			// Find first occurrence of < to avoid unicode BOM
-			int lessThanIndex = nodeXml.indexOf("<");
-			if (lessThanIndex != -1) {
-				nodeXml = nodeXml.substring(lessThanIndex);
-			}
-			mxStencilShape newShape = new mxStencilShape(nodeXml);
-			String name = newShape.getName();
-			
-			mxGraphics2DCanvas.putShape(name, newShape);
-			
-			loadedStencils.add(filename);
+			// Add it
+			addStringStencil(xmlString);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("Unable to load stencil " + filename);
 		}
+	}
+	
+	/**
+	 * Adds the stencil in xmlString
+	 * @param xmlString
+	 */
+	public static void addStringStencil(String xmlString) {
+		// Find first occurrence of < to avoid unicode BOM
+		int lessThanIndex = xmlString.indexOf("<");
+		if (lessThanIndex != -1) {
+			xmlString = xmlString.substring(lessThanIndex);
+		}
+		mxStencilShape newShape = new mxStencilShape(xmlString);
+
+		// Don't add it if we already know that name
+		if (loadedStencils.contains(newShape.getName())) return;
+
+		// Add it to the known names list
+		loadedStencils.add(newShape.getName());
+		
+		// Add it to mxGraph
+		mxGraphics2DCanvas.putShape(newShape.getName(), newShape);
+	}
+	
+	/**
+	 * Adds a specific market segment color. The name of the stencil
+	 * will be "MarketSegment#FFFFFF", where "#FFFFFF" is equal
+	 * to hexColor.
+	 * @param hexColor
+	 */
+	public static void addMarketSegmentColor(String hexColor) {
+		addMarketSegmentColor(hexColor.toUpperCase(), hexColor.toUpperCase());
+	}
+	
+	/**
+	 * Adds a market segment color, but does not add the hexcolor as postfix.
+	 * Instead you can choose your own postfix. This can be used to implement aliases
+	 * for colors.
+	 * @param postfix
+	 * @param hexColor
+	 */
+	private static void addMarketSegmentColor(String postfix, String hexColor) {
+		// Cast every hex color to upper case, that way the names are consistent
+		hexColor = hexColor.toUpperCase();
+		
+		String templateMarketSegment = "";
+		
+		// Get the template market segment stencil
+		try {
+			templateMarketSegment = mxUtils.readInputStream(
+					E3Style.class.getResourceAsStream("/marketsegment_template.shape"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		// Put the postfix and hexcolor in there
+		String marketSegmentXML = String.format(templateMarketSegment, postfix, hexColor, hexColor, hexColor);
+		
+		// Add it
+		addStringStencil(marketSegmentXML);
+	}
+	
+	/**
+	 * This returns a shape name to be used with mxConstants.STYLE_SHAPE. Example:
+	 * 
+	 * model.beginUpdate();
+	 * try {
+	 * 		String backgroundColor = "#FF0000";
+	 * 		E3Style.addMarketSegmentColor(backgroundColor);
+	 * 		graph.setCellStyles(mxConstants.STYLE_SHAPE, E3Style.getMarketSegmentShapeName(backgroundColor), new Object[]{aCell});
+	 * } finally {
+	 * 		model.endUpdate();
+	 * }
+	 * 
+	 * Should "Just Work (TM)".
+	 * 
+	 * @param hexColor
+	 * @return
+	 */
+	public static String getMarketSegmentShapeName(String hexColor) {
+		return "MarketSegmentStencil" + hexColor.toUpperCase();
 	}
 }

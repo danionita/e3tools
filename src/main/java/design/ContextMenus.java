@@ -53,6 +53,7 @@ import design.info.Actor;
 import design.info.Base;
 import design.info.EndSignal;
 import design.info.LogicDot;
+import design.info.MarketSegment;
 import design.info.StartSignal;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
@@ -60,6 +61,9 @@ import design.info.ValuePort;
 import design.properties.E3PropertiesEditor;
 import design.properties.E3PropertiesEvent;
 import design.properties.E3PropertiesEventListener;
+import design.style.E3StyleEditor;
+import design.style.E3StyleEvent;
+import design.style.E3StyleEventListener;
 
 public class ContextMenus {
 	public static void addDefaultMenu(JPopupMenu menu, mxGraph graph) {
@@ -675,38 +679,46 @@ public class ContextMenus {
 		}));
 	}
 
-	public static void addBackgroundColorMenu(JPopupMenu menu, mxGraph graph) {
-		menu.add(new JMenuItem(new AbstractAction("Change background color...") {
+	public static void addStyleMenu(JPopupMenu menu, mxGraph graph) {
+		menu.add(new JMenuItem(new AbstractAction("Change style...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JColorChooser cc = new JColorChooser(new Color(192, 192, 192));
-				// Disables preview panel
-				cc.setPreviewPanel(new JPanel());
-				for (AbstractColorChooserPanel acc : cc.getChooserPanels()) {
-					//System.out.println(acc.getDisplayName());
-					if (!acc.getDisplayName().equals("RGB")) {
-						//System.out.println("Removing " + acc.getDisplayName());
-						cc.removeChooserPanel(acc);
-					}
-				}
-
-				Base value = (Base) graph.getModel().getValue(Main.contextTarget);
-				
-				JColorChooser.createDialog(Main.mainFrame, "Pick a color for " + value.name, true, cc, new ActionListener() {
+				// We save the context target
+				Object subject = Main.contextTarget;
+				// And make an editor
+				E3StyleEditor editor = new E3StyleEditor(graph, subject);
+				editor.addListener(new E3StyleEventListener() {
 					@Override
-					public void actionPerformed(ActionEvent e) {
-						Color newColor = cc.getColor();
-						String hex = String.format("#%02x%02x%02x", newColor.getRed(), newColor.getGreen(), newColor.getBlue());
-						
+					public void invoke(E3StyleEvent event) {
+						// When the ok button is clicked...
 						graph.getModel().beginUpdate();
 						try {
-							graph.setCellStyles(mxConstants.STYLE_GRADIENTCOLOR, hex, new Object[]{Main.contextTarget});
-							graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, hex, new Object[]{Main.contextTarget});
+							// Get the colors in hex format
+							String backgroundColor = Utils.colorToHex(event.fillColor);
+							String fontColor = Utils.colorToHex(event.fontColor);
+
+							// Set the appropriate styles
+							graph.setCellStyles(mxConstants.STYLE_GRADIENTCOLOR, backgroundColor, new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, backgroundColor, new Object[]{subject});
+
+							graph.setCellStyles(mxConstants.STYLE_FONTCOLOR, fontColor, new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FONTSIZE, event.fontSize + "", new Object[]{subject});
+							
+							// If it's a market segment we have to invoke a special stencil generation function
+							if (graph.getModel().getValue(subject) instanceof MarketSegment) {
+								// This generates the stencil and adds it to mxGraph
+								E3Style.addMarketSegmentColor(backgroundColor);
+								// And this sets the style appropriately
+								graph.setCellStyles(mxConstants.STYLE_SHAPE, E3Style.getMarketSegmentShapeName(backgroundColor), new Object[]{subject});
+							}
 						} finally {
 							graph.getModel().endUpdate();
 						}
 					}
-				}, null).setVisible(true);;
+				});
+				
+				// If everything set we show the dialog :)
+				editor.setVisible(true);
 			}
 		}));
 	}

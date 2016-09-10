@@ -20,6 +20,7 @@
  */
 package design;
 
+import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -628,5 +629,9 @@ public class Utils {
 		fc.setFileFilter(e3Filter);
 		
 		return fc;
+    }
+    
+    public static String colorToHex(Color color) {
+		return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 }
