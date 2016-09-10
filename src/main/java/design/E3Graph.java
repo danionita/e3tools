@@ -326,14 +326,30 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		Function<Object, Boolean> isEmptyOrContainsNoValueActivities = obj -> {
 			List<Object> objChildren = Utils.getChildren(this, cell);
-			boolean allValueInterfaces = objChildren.stream().anyMatch(o -> getModel().getValue(o) instanceof ValueActivity);
-			return objChildren.size() == 0 || !allValueInterfaces;
+
+			objChildren = objChildren.stream().filter(child -> {
+				Base info = (Base) getModel().getValue(child);
+				return info instanceof ValueActivity
+						|| info instanceof Actor
+						|| info instanceof MarketSegment;
+			}).collect(Collectors.toList());
+
+			boolean allValueActivities = objChildren.stream().anyMatch(o -> getModel().getValue(o) instanceof ValueActivity);
+			return objChildren.size() == 0 || !allValueActivities;
 		};
 		
 		Function<Object, Boolean> isEmptyOrContainsOnlyValueActivities = obj -> {
 			List<Object> objChildren = Utils.getChildren(this, cell);
-			boolean allValueInterfaces = objChildren.stream().allMatch(o -> getModel().getValue(o) instanceof ValueActivity);
-			return objChildren.size() == 0 || allValueInterfaces;
+
+			objChildren = objChildren.stream().filter(child -> {
+				Base info = (Base) getModel().getValue(child);
+				return info instanceof ValueActivity
+						|| info instanceof Actor
+						|| info instanceof MarketSegment;
+			}).collect(Collectors.toList());
+
+			boolean allValueActivities = objChildren.stream().allMatch(o -> getModel().getValue(o) instanceof ValueActivity);
+			return objChildren.size() == 0 || allValueActivities;
 		};
 		
 		if (droppeeValue instanceof ValueInterface
