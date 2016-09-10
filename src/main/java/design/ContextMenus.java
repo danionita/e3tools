@@ -34,6 +34,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
@@ -351,22 +355,28 @@ public class ContextMenus {
 		JMenuItem flipPortMenu = new JMenuItem(new AbstractAction("Flip port") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mxICell vp = (mxICell) Main.contextTarget;
-				mxICell vi = (mxICell) vp.getParent();
-				ValuePort vpInfo = (ValuePort) Utils.base(graph, vp);
-				ValueInterface viInfo = (ValueInterface) Utils.base(graph, vi);
-	
-				vpInfo.incoming ^= true;
-				
 				graph.getModel().beginUpdate();
 				try {
-					graph.getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
-					graph.getModel().setValue(vp, vpInfo);
+					E3Graph e3graph = (E3Graph) graph;
+					
+					mxICell vp = (mxICell) Main.contextTarget;
+					
+					e3graph.setValuePortDirection(vp, !e3graph.getValuePortDirection(vp));
+					
+					Object[] edges = mxGraphModel.getEdges(graph.getModel(), Main.contextTarget);
+
+					if (edges.length == 1) {
+						Object edge = edges[0];
+						Object otherVP = Utils.getOpposite(graph, edge, Main.contextTarget);
+						
+						e3graph.setValuePortDirection(otherVP, !e3graph.getValuePortDirection(otherVP));
+					}
 				} finally {
 					graph.getModel().endUpdate();
 				}
 			}
 		});
+		
 		menu.add(flipPortMenu);
 		
 		// Should grey out the "Flip port" menu item if the valueport has a valueexchange attached to it
@@ -374,13 +384,20 @@ public class ContextMenus {
 			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
 				Object[] edges = mxGraphModel.getEdges(graph.getModel(), Main.contextTarget);
-				if (edges.length == 0) flipPortMenu.setEnabled(true);
-				else flipPortMenu.setEnabled(false);
+				if (edges.length == 0) {
+					flipPortMenu.setEnabled(true);
+					flipPortMenu.setText("Flip port");
+				} else if (edges.length == 1) {
+					flipPortMenu.setEnabled(true);
+					flipPortMenu.setText("Flip port and port on other ends");
+				} else {
+					flipPortMenu.setEnabled(false);
+					flipPortMenu.setText("Flip port");
+				}
 			}
 			
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) { }
-			
 			@Override
 			public void popupMenuCanceled(PopupMenuEvent arg0) { }
 		});

@@ -1557,4 +1557,29 @@ public class E3Graph extends mxGraph implements Serializable{
 	public boolean isExtendParent(Object cell) {
 		return false;
 	}
+
+	/**
+	 * Returns whether or not a value port is incoming.
+	 * @param vp The value port to check
+	 * @return True if incoming, false if not.
+	 */
+	public boolean getValuePortDirection(Object vp) {
+		ValuePort vpInfo = (ValuePort) Utils.base(this, vp);
+		return vpInfo.incoming;
+	}
+
+	public void setValuePortDirection(Object vp, boolean incoming) {
+		ValuePort vpInfo = (ValuePort) Utils.base(this, vp);
+		ValueInterface viInfo = (ValueInterface) Utils.base(this, getModel().getParent(vp));
+		
+		getModel().beginUpdate();
+		try {
+			vpInfo.incoming = incoming;
+			
+			getModel().setStyle(vp, "ValuePort" + vpInfo.getDirection(viInfo));
+			getModel().setValue(vp, vpInfo);
+		} finally {
+			getModel().endUpdate();
+		}
+	}
 }
