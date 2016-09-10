@@ -20,10 +20,7 @@
  */
 package design;
 
-import java.awt.Component;
 import java.awt.Desktop;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -31,27 +28,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -67,7 +52,6 @@ import com.mxgraph.view.mxGraph;
 
 import design.info.Base;
 import design.info.EndSignal;
-import design.info.Info;
 import design.info.LogicDot;
 import design.info.SignalDot;
 import design.info.StartSignal;
@@ -350,93 +334,6 @@ public class Utils {
             }
         }
         return children;
-    }
-
-    public static class ClosableTabHeading extends JPanel {
-
-        public final String title;
-        private ImageIcon icon;
-        private JTabbedPane container;
-        private Component tab;
-        private JLabel label;
-
-        ClosableTabHeading(String title, ImageIcon icon, JTabbedPane container, Component tab) {
-            this.title = title;
-            this.icon = icon;
-            this.container = container;
-            this.tab = tab;
-
-            setOpaque(false);
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-
-            if (icon != null) {
-                add(new JLabel(icon));
-            }
-
-            add(Box.createHorizontalStrut(5));
-
-            label = new JLabel(title);
-            add(label);
-
-            JLabel close = new JLabel("✖");
-            Border border = close.getBorder();
-            Border insideMargin = new EmptyBorder(2, 2, 2, 2);
-            Border outsideMargin = new EmptyBorder(2, 6, 2, 0);
-            Border noLineBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-            Border lowerLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-            Border raisedLineBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
-
-            Border normalBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(noLineBorder, insideMargin)));
-            Border hoverBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(raisedLineBorder, insideMargin)));
-            Border pressBorder = new CompoundBorder(border, new CompoundBorder(outsideMargin, new CompoundBorder(lowerLineBorder, insideMargin)));
-
-            close.setBorder(normalBorder);
-
-            close.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                    container.remove(tab);
-                }
-
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    close.setBorder(pressBorder);
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    close.setBorder(normalBorder);
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    close.setBorder(hoverBorder);
-                }
-            });
-
-            add(close);
-        }
-
-        public void setTitle(String title) {
-            label.setText(title);
-        }
-    }
-
-    /**
-     *
-     * @param panes
-     * @param title
-     * @param component
-     * @param icon Null if no icon is desired
-     * @return
-     */
-    public static Component addClosableTab(JTabbedPane panes, String title, Component component, ImageIcon icon) {
-        Component thisTab = panes.add(component);
-
-        JPanel heading = new ClosableTabHeading(title, icon, panes, thisTab);
-        panes.setTabComponentAt(panes.indexOfComponent(thisTab), heading);
-
-        return thisTab;
     }
 
     public static class GraphDelta {

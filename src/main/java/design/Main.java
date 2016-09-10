@@ -46,8 +46,6 @@ import org.apache.log4j.Logger;
 
 import com.mxgraph.util.mxPoint;
 
-import design.Utils.ClosableTabHeading;
-
 public class Main {
     public static final JFrame mainFrame = new JFrame("e3tools editor");
     public static Object contextTarget = null;
@@ -92,16 +90,16 @@ public class Main {
         mainpane.setResizeWeight(0.025);
 
         if (graph.isFraud) {
-            Utils.addClosableTab(views, graph.title, mainpane, IconStore.getImage("/e3f.png", 25, 25));
+            ModelTab.addClosableTab(views, mainpane, IconStore.getImage("/e3f.png", 25, 25));
         } else {
-            Utils.addClosableTab(views, graph.title, mainpane, IconStore.getImage("/e3v.png", 25, 25));
+            ModelTab.addClosableTab(views, mainpane, IconStore.getImage("/e3v.png", 25, 25));
         }
-
+        
         views.setSelectedIndex(views.getTabCount() - 1);
     }
 
     public void setCurrentTabTitle(String title) {
-        ((ClosableTabHeading) views.getTabComponentAt(views.getSelectedIndex()))
+        ((ModelTab) views.getTabComponentAt(views.getSelectedIndex()))
                 .setTitle(title);
     }
 
