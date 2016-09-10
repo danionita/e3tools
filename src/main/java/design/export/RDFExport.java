@@ -162,9 +162,7 @@ public class RDFExport {
 		model = ModelFactory.createDefaultModel();
 		model.setNsPrefix("a", E3value.getURI());
 		
-		// TODO: Make sure the base url is without a hash everywhere! Also
-		// doublecheck in the Utils class
-		base = "http://www.cs.vu.nl/~gordijn/TestModel#";
+		base = "http://www.cs.vu.nl/~gordijn/" + graph.title + "#";
 		
 		// Create model resource
 		long modelSUID = Utils.getUnusedID(graph, base, model);
