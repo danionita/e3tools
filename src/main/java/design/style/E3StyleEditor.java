@@ -7,8 +7,6 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -25,10 +23,14 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.EventListenerList;
 
 import com.mxgraph.util.mxConstants;
-import com.mxgraph.util.svg.NumberParser;
 import com.mxgraph.view.mxGraph;
 
 import design.Main;
+import design.info.Actor;
+import design.info.Base;
+import design.info.MarketSegment;
+import design.info.ValueActivity;
+import design.info.ValueExchange;
 
 public class E3StyleEditor extends JDialog {
 
@@ -40,11 +42,29 @@ public class E3StyleEditor extends JDialog {
 	 * Create the dialog.
 	 */
 	public E3StyleEditor(mxGraph graph, Object cell) {
+		Base info = (Base) graph.getModel().getValue(cell);
+		
+		boolean isEntity = info instanceof Actor
+				|| info instanceof MarketSegment
+				|| info instanceof ValueActivity;
+		
+		boolean isVE = info instanceof ValueExchange;
+		
 		Map<String, Object> style = graph.getCellStyle(cell);
 
-		Color currentFillColor = Color.decode("#C0C0C0"); 
-		if (style.containsKey(mxConstants.STYLE_FILLCOLOR)) {
-			currentFillColor = Color.decode((String) style.get(mxConstants.STYLE_FILLCOLOR));
+		Color currentFillColor;
+		if (isEntity) {
+			currentFillColor = Color.decode("#C0C0C0"); 
+			if (style.containsKey(mxConstants.STYLE_FILLCOLOR)) {
+				currentFillColor = Color.decode((String) style.get(mxConstants.STYLE_FILLCOLOR));
+			}
+		} else if (isVE) {
+			currentFillColor = Color.decode("#0000FF");
+			if (style.containsKey(mxConstants.STYLE_STROKECOLOR)) {
+				currentFillColor = Color.decode((String) style.get(mxConstants.STYLE_STROKECOLOR));
+			}
+		} else {
+			throw new RuntimeException("Unsupported cell type passed to editor");
 		}
 		
 		Color currentFontColor = Color.BLACK;
@@ -72,6 +92,10 @@ public class E3StyleEditor extends JDialog {
 		JLabel backgroundColorLabel;
 		JLabel fontColorLabel;
 		JSpinner spinner;
+		String backgroundColorLabelContents = "";
+		
+		if (isEntity) backgroundColorLabelContents = "Background color";
+		if (isVE) backgroundColorLabelContents = "Color";
 		
 		setTitle("Style editor");
 		setBounds(100, 100, 309, 204);
@@ -88,7 +112,7 @@ public class E3StyleEditor extends JDialog {
 			contentPanel.add(panel);
 			panel.setLayout(new GridLayout(3, 2, 0, 20));
 			{
-				JLabel lblNewLabel = new JLabel("Background color");
+				JLabel lblNewLabel = new JLabel(backgroundColorLabelContents);
 				panel.add(lblNewLabel);
 			}
 			{
@@ -185,10 +209,6 @@ public class E3StyleEditor extends JDialog {
 				});
 			}
 		}
-	}
-	
-	public static JColorChooser getColorChooser() {
-		return getColorChooser(Color.GRAY);
 	}
 	
 	public static JColorChooser getColorChooser(Color initialColor) {

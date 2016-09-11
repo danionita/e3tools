@@ -20,24 +20,16 @@ package design;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JColorChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.colorchooser.AbstractColorChooserPanel;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
@@ -56,7 +48,6 @@ import design.info.LogicDot;
 import design.info.MarketSegment;
 import design.info.StartSignal;
 import design.info.ValueExchange;
-import design.info.ValueInterface;
 import design.info.ValuePort;
 import design.properties.E3PropertiesEditor;
 import design.properties.E3PropertiesEvent;
@@ -609,6 +600,33 @@ public class ContextMenus {
 				hideNameMenu.setEnabled(ve.name != null && !ve.name.trim().isEmpty());
 			}
 		});
+		
+		menu.add(new JMenuItem(new AbstractAction("Change style...") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Object subject = Main.contextTarget;
+				E3StyleEditor editor = new E3StyleEditor(graph, subject);
+				editor.addListener(new E3StyleEventListener() {
+					@Override
+					public void invoke(E3StyleEvent event) {
+						String strokeColor = Utils.colorToHex(event.fillColor);
+						String fontColor = Utils.colorToHex(event.fontColor);
+						int fontSize = event.fontSize;
+						
+						graph.getModel().beginUpdate();
+						try {
+							graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, strokeColor, new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FONTCOLOR, fontColor, new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FONTSIZE, ""+fontSize, new Object[]{subject});
+						} finally {
+							graph.getModel().endUpdate();
+						}
+					}
+				});
+				
+				editor.setVisible(true);
+			}
+		}));
 	}
 	
 	public static void addActorMenu(JPopupMenu menu, mxGraph graph) {

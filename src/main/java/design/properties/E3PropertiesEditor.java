@@ -62,6 +62,11 @@ import javax.swing.table.DefaultTableModel;
 import design.Main;
 import design.info.Base;
 
+/**
+ * TODO: Rewrite this window with the WindowBuilder Pro from Eclipse
+ * @author Bobe
+ *
+ */
 public class E3PropertiesEditor {
 	private JLabel idLabel;
 	private JTextField nameField;

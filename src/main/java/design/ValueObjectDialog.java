@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
@@ -97,6 +98,7 @@ public class ValueObjectDialog {
 		modelListener = new mxIEventListener() {
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
+				System.out.println("A change!");
 				rebuildList();
 			}
 		};
@@ -175,8 +177,11 @@ public class ValueObjectDialog {
 			Base val = Utils.base(graph, obj);
 			// If they are a value exchange...
 			if (val instanceof ValueExchange) {
-				// Set their stroke color to blue
-				graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
+				// Set their stroke color to their original color
+				graph.getView().getState(obj).getStyle().put(
+						mxConstants.STYLE_STROKECOLOR,
+						graph.getCellStyle(obj).get(mxConstants.STYLE_STROKECOLOR)
+						);
 			}
 		}
 		
@@ -262,10 +267,14 @@ public class ValueObjectDialog {
 					Base val = Utils.base(graph, obj);
 					if (val instanceof ValueExchange) {
 						ValueExchange ve = (ValueExchange) val;
+
 						if (ve.valueObject != null && ve.valueObject.equals(valueObject)) {
 							graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#00FF00");
 						} else {
-							graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#0000FF");
+							graph.getView().getState(obj).getStyle().put(
+									mxConstants.STYLE_STROKECOLOR,
+									graph.getCellStyle(obj).get(mxConstants.STYLE_STROKECOLOR)
+									);
 						}
 					}
 				}
