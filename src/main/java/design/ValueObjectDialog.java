@@ -229,7 +229,7 @@ public class ValueObjectDialog {
 	}
 	
 	/**
-	 * This builds the actual swing dialog. Basically boring swing stuff.
+	 * This builds the actual swing dialog. Basically boring swing stuff. (except the coloring stuff, that's interesting)
 	 * It is also the place where the edge coloring is done.
 	 */
 	@SuppressWarnings("serial")
@@ -254,23 +254,28 @@ public class ValueObjectDialog {
 			public void valueChanged(ListSelectionEvent e) {
 				if (e.getValueIsAdjusting()) return; // We only do something if the event is final, i.e. if the event is the last one
 
-				// TODO: If cell recognition is no longer done with styles, refactor this
-				// such that only the explicit style of a cell is changed.
 				// I don't like messing with this state thing
 				// (Altough it worked almost immediately. Maybe this is the right way?)
-				// A benefit of this method is that it does not affect undo history 
+				// A benefit of this method is that it does not affect undo history. It
+				// also doesn't change the "actual" color of the edge, which means we can
+				// change it and just get the original color back by asking the graph
 				int selectedIndex = valueObjectsList.getSelectedIndex();
 				if (selectedIndex == -1) return;
 
 				String valueObject = graph.valueObjects.get(selectedIndex);
+				// For every cell...
 				for (Object obj : Utils.getAllCells(graph)) {
 					Base val = Utils.base(graph, obj);
+					// If it's a value exchange
 					if (val instanceof ValueExchange) {
 						ValueExchange ve = (ValueExchange) val;
 
+						// If it has a value object
 						if (ve.valueObject != null && ve.valueObject.equals(valueObject)) {
+							// Make it green
 							graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, "#00FF00");
 						} else {
+							// Otherwise set it to its original color
 							graph.getView().getState(obj).getStyle().put(
 									mxConstants.STYLE_STROKECOLOR,
 									graph.getCellStyle(obj).get(mxConstants.STYLE_STROKECOLOR)
@@ -279,6 +284,7 @@ public class ValueObjectDialog {
 					}
 				}
 				
+				// Trigger repaint because we're kick-ass swing programmers.
 				graph.repaint();
 			}
 		});
@@ -350,7 +356,7 @@ public class ValueObjectDialog {
 			}
 		});
 		
-		// Makes all edges in the graph blue again in case they've been highlighted
+		// Clean up the graph when the window closes
 		dialog.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -360,7 +366,7 @@ public class ValueObjectDialog {
 	}
 
 	/**
-	 * Shows the swing dialog.
+	 * Shows the dialog.
 	 */
 	public void show() {
 		dialog.setSize(300, 320);

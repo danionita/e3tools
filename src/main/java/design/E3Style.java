@@ -43,6 +43,21 @@ public class E3Style {
 		mxStylesheet stylesheet = graph.getStylesheet();
 		Hashtable<String, Object> style;
 		Hashtable<String, Object> baseStyle = new Hashtable<>();
+		
+		// Gonna need this at some point:
+//				mxGraphComponent graphComponent = (mxGraphComponent) e
+//						.getSource();
+//				mxGraph graph = graphComponent.getGraph();
+//				mxCodec codec = new mxCodec();
+//				Document doc = mxUtils.loadDocument(EditorActions.class
+//						.getResource(stylesheet).toString());
+//
+//				if (doc != null)
+//				{
+//					codec.decode(doc.getDocumentElement(),
+//							graph.getStylesheet());
+//					graph.refresh();
+//				}
 
 		baseStyle.put(mxConstants.STYLE_STROKECOLOR,  "#000000");
 		baseStyle.put(mxConstants.STYLE_STROKEWIDTH, 1.0);
