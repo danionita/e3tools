@@ -86,7 +86,7 @@ public class EditorActions {
 	
 	public static class Save extends BaseAction {
 		public Save(Main main) {
-			super("Save... (ctrl+s)", main);
+			super("Save (ctrl+s)", main);
 		}
 
 		@Override
