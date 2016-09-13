@@ -1555,6 +1555,19 @@ public class E3Graph extends mxGraph implements Serializable{
 			});
 	}
 	
+        /**
+	 * Returns true if the graph contains at least two actors actors false if not. 
+	 */
+	public boolean hasActors() {
+            List<Object> cells = Utils.getAllCells(this);
+            int i = 0;
+            i = cells.stream()
+                    .filter((cell) -> (cell instanceof ValuePort))
+                    .map((_item) -> 1)
+                    .reduce(i, Integer::sum);
+        return i>1;
+	}
+        
 	/**
 	 * Never extend something when something is added to it.
 	 */
