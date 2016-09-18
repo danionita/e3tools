@@ -68,14 +68,15 @@ public class E3Graph extends mxGraph implements Serializable{
 	public boolean isFraud;
 	public GraphDelta delta;
 	public String title = "";
-        
 	public File file;
+	public E3Style style;
 	
-	public E3Graph(boolean isFraud) {
-		this(isFraud, null);
+	public E3Graph(E3Style style, boolean isFraud) {
+		this(style, isFraud, null);
 	}
 	
-	public E3Graph(boolean isFraud, String title) {
+	public E3Graph(E3Style style, boolean isFraud, String title) {
+		this.style = style;
 		this.isFraud = isFraud;
 		this.title = title;
 		
@@ -91,6 +92,8 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 
 	public E3Graph(E3Graph original, boolean duplicate) {
+		style = original.style;
+
 		isFraud = original.isFraud;
 		if (duplicate) {title = "Copy of " + original.title;}
                 else{title = original.title;}
@@ -831,6 +834,8 @@ public class E3Graph extends mxGraph implements Serializable{
 			double width = logicUnit.getGeometry().getWidth();
 			double height = logicUnit.getGeometry().getHeight();
 			
+			// TODO: Do something with E3Style here (below mostly)
+			
 			if (side == Side.TOP) {
 				gm.setY(0);
 				barGm.setX(0);
@@ -1411,6 +1416,11 @@ public class E3Graph extends mxGraph implements Serializable{
 		return mxXmlUtils.getXml(codec.encode(getModel()));
 	}
 	
+	/**
+	 * Expects the user to fill in the style afterwards!
+	 * @param xml
+	 * @return
+	 */
 	public static E3Graph fromXML(String xml) {
 		GraphIO.assureRegistered();
 		
@@ -1418,7 +1428,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		mxCodec codec = new mxCodec(document);
 		
-		E3Graph graph = new E3Graph(false);
+		E3Graph graph = new E3Graph((E3Style) null, false);
 		
 		codec.decode(document.getDocumentElement(), graph.getModel());
 		
@@ -1595,6 +1605,15 @@ public class E3Graph extends mxGraph implements Serializable{
 			getModel().setValue(vp, vpInfo);
 		} finally {
 			getModel().endUpdate();
+		}
+	}
+	
+	public void doUpdate(Runnable runnable) {
+		model.beginUpdate();
+		try {
+			runnable.run();
+		} finally {
+			model.endUpdate();
 		}
 	}
 }

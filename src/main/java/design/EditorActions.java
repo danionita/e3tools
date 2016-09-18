@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 
 import javax.imageio.ImageIO;
@@ -22,12 +23,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
-import org.w3c.dom.Document;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.util.mxCellRenderer;
-import com.mxgraph.util.mxUtils;
-import com.mxgraph.util.mxXmlUtils;
 
 import design.export.JSONExport;
 import design.export.RDFExport;
@@ -917,5 +915,52 @@ public class EditorActions {
         public void actionPerformed(ActionEvent arg0) {
             main.getCurrentGraphComponent().toggleValuationLabels(on);
         }
+    }
+    
+    public static class ChangeTheme extends BaseAction {
+		public ChangeTheme(Main main) {
+			super("Change theme...", main);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			List<String> choicesList = E3Style.getAvailableThemes();
+			String[] choices = new String[choicesList.size()];
+			choicesList.toArray(choices);
+			
+			String result = (String) JOptionPane.showInputDialog(
+					Main.mainFrame,
+					"Select a theme to use with the current model",
+					"Select a theme", 
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					choices,
+					choices[0]
+					);
+			
+			if (result == null) return;
+			
+			Optional <E3Style> newStyle = Optional.empty();
+			if (choicesList.contains(result)) {
+				newStyle = E3Style.loadInternal(result);
+			} else {
+				// TODO: Load an external one here
+			}
+			
+			if (!newStyle.isPresent()) {
+				JOptionPane.showMessageDialog(
+						Main.mainFrame,
+						"Could not load theme \"" + result + "\"",
+						"Error loading theme",
+						JOptionPane.ERROR_MESSAGE);
+				
+				return;
+			}
+			
+			// TODO: Make this undoable
+			main.getCurrentGraph().style = newStyle.get();
+			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent());
+			newStyle.get().styleGraphComponent(main.getCurrentToolComponent());
+		}
     }
 }

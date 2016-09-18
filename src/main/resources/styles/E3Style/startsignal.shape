@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<shape xmlns="http://www.utwente.nl/e3fraud"
+       xmlns:svg="http://www.w3.org/2000/svg">
+  <name>StartSignalStencil</name>
+  <description>A node where a signal starts</description>
+  <icon>startsignal.png</icon>
+  <aspectratio type="fixed"/>
+  <!-- <textbox x1="1" y1="1" x2="9" y2="9"/> -->
+  <svg:svg width="10" height="10" style="stroke: #000000; fill: #FF0000">
+	  <svg:circle cx="5" cy="5" r="4" style="fill: #FF0000" />
+	  <svg:circle cx="5" cy="5" r="0.75" style="fill: #000000" />
+  </svg:svg>
+</shape>
+

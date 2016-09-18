@@ -53,6 +53,8 @@ public class ToolComponent extends mxGraphComponent {
 	public final Object orGate;
 	public final Object andGate;
 	public final Object note;
+
+	private E3Style style;
 	
 	public Object clone(Object cell, long maxID) {
 		Object clone = graph.cloneCells(new Object[]{cell}, true)[0];
@@ -62,7 +64,7 @@ public class ToolComponent extends mxGraphComponent {
 		return clone;
 	}
 
-	public ToolComponent() {
+	public ToolComponent(E3Style style) {
 		super(new mxGraph() {
 			/**
 			 * To prevent the labels from being selected
@@ -90,7 +92,9 @@ public class ToolComponent extends mxGraphComponent {
 			}
 		});
 		
-		E3Style.styleGraphComponent(this);
+		this.style = style; 
+		
+		style.styleGraphComponent(this);
 
 		// To make sure cells are immovable and unresizable and such
 		graph.setCellsLocked(true);

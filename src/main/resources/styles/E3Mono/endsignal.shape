@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<shape xmlns="http://www.utwente.nl/e3fraud"
+       xmlns:svg="http://www.w3.org/2000/svg">
+  <name>EndSignalStencil</name>
+  <description>A node where a signal ends</description>
+  <icon>endsignal.png</icon>
+  <aspectratio type="fixed"/>
+  <svg:svg width="12" height="12" style="stroke: #000000; fill: #FFFFFF">
+	  <svg:circle cx="5" cy="5" r="4" style="fill: #FFFFFF" />
+	  <svg:circle cx="5" cy="5" r="0.75" style="fill: #000000" />
+	  <svg:circle cx="5" cy="5" r="6" />
+  </svg:svg>
+</shape>
+

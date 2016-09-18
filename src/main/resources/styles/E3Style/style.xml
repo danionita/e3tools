@@ -1,0 +1,199 @@
+<!--
+    Copyright (C) 2016 Bob Rubbens
+     
+     
+    This file is part of e3tool.
+     
+    e3tool is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+     
+    e3tool is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with e3tool.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<mxStylesheet>
+	<!--
+		Name under which it will be listed and referenced
+		internally. 
+		*** Must not contain spaces! ***
+	-->
+	<name>E3Style</name>
+	
+	<!-- view settings -->
+	<!-- Background color, can only be a hexadecimal color. -->
+	<background>#FFFFFF</background>
+	<!-- Whether or not to show the grid. Must be either "true" or "false". -->
+	<grid>true</grid>
+
+	<!-- Component styles -->
+	<add as="baseStyle">
+		<add as="strokeColor" value="#000000" />
+		<add as="strokeWidth" value="1" />
+		<add as="fontColor" value="#000000" />
+		<add as="align" value="left" />
+		<add as="verticalAlign" value="top" />
+		<add as="fontSize" value="12" />
+	</add>
+	
+	<add as="ValueActivity" extend="baseStyle">
+		<add as="rounded" value="1" />
+		<add as="shape" value="rectangle" />
+		<add as="perimeter" value="rectanglePerimeter" />
+		<add as="fillColor" value="#C0C0C0" />
+		<add as="gradientColor" value="#C0C0C0" />
+	</add>
+	
+	<add as="Actor" extend="baseStyle">
+		<add as="shape" value="rectangle" />
+		<add as="fillColor" value="#C0C0C0" />
+		<add as="gradientColor" value="#C0C0C0" />
+	</add>
+		
+	<add as="ColludedActor" extend="baseStyle">
+		<add as="shape" value="rectangle" />
+		<add as="fillColor" value="#C0C0C0" />
+		<add as="gradientColor" value="#C0C0C0" />
+		<add as="strokeColor" value="#CC0000" />
+		<add as="strokeWidth" value="3" />
+	</add>
+	
+	<add as="MarketSegment" extend="baseStyle">
+		<add as="shape" value="{!name}_MarketSegmentStencil" />
+		<add as="fillColor" value="#C0C0C0" />
+		<add as="gradientColor" value="#C0C0C0" />
+	</add>
+	
+	<add as="ValueInterface" extend="baseStyle">
+		<add as="rounded" value="1" />
+		<add as="arcSize" value="50" />
+		<add as="fillColor" value="#FFFFFF" />
+		<add as="gradientColor" value="#FFFFFF" />
+		<add as="resizable" value="0" />
+	</add>
+	
+	<add as="ValuePortWest" extend="baseStyle">
+		<add as="fillColor" value="#FFFFFF" />
+		<add as="gradientColor" value="#FFFFFF" />
+		<add as="shape" value="{!name}_ValuePortStencil" />
+		<add as="resizable" value="0" />
+	</add>
+	
+	<add as="ValuePortEast" extend="ValuePortWest">
+		<add as="rotation" value="180" />
+	</add>
+	
+	<add as="ValuePortNorth" extend="ValuePortWest">
+		<add as="rotation" value="90" />
+	</add>
+	
+	<add as="ValuePortSouth" extend="ValuePortWest">
+		<add as="rotation" value="270" />
+	</add>
+	
+	<add as="ValueExchange">
+		<add as="strokeWidth" value="3" />
+		<add as="endArrow" value="none" />
+		<add as="strokeColor" value="#0000FF" />
+		<add as="fontColor" value="#444444" />
+		<add as="fontSize" value="12" />
+	</add>
+	
+	<add as="NonOccurringValueExchange" extend="ValueExchange">
+		<add as="dashed" value="1" />
+	</add>
+	
+	<add as="HiddenValueExchange" extend="ValueExchange">
+		<add as="dashed" value="1" />
+		<add as="dashPattern" value="1 1" />
+	</add>
+	
+	<add as="ConnectionElement">
+		<add as="strokeWidth" value="3" />
+		<add as="fontSize" value="12" />
+		<add as="strokeColor" value="#000000" />
+		<add as="dashed" value="true" />
+		<add as="endArrow" value="none" />
+	</add>
+
+	<add as="StartSignal">
+		<add as="verticalAlign" value="top" />
+		<add as="strokeColor" value="#000000" />
+		<add as="labelBackgroundColor" value="#FAFAD2" />
+		<add as="fontColor" value="#000000" />
+		<add as="resizable" value="0" />
+		<add as="shape" value="{!name}_StartSignalStencil" />
+	</add>
+
+	<add as="EndSignal">
+		<add as="verticalAlign" value="top" />
+		<add as="strokeColor" value="#000000" />
+		<add as="labelBackgroundColor" value="#FAFAD2" />
+		<add as="fontColor" value="#000000" />
+		<add as="resizable" value="0" />
+		<add as="shape" value="{!name}_EndSignalStencil" />
+	</add>
+
+	<add as="Dot">
+		<add as="strokeColor" value="#000000" />
+		<add as="shape" value="{!name}_DotStencil" />
+	</add>
+
+	<add as="Bar">
+		<add as="strokeColor" value="#000000" />
+		<add as="shape" value="{!name}_BarStencil" />
+	</add>
+
+	<add as="LogicBase">
+		<add as="opacity" value="0" />
+	</add>
+
+	<add as="SouthTriangle">
+		<add as="fillColor" value="#000000" />
+		<add as="strokeWidth" value="2" />
+		<add as="strokeColor" value="#000000" />
+		<add as="perimeter" value="trianglePerimeter" />
+		<add as="shape" value="{!name}_SouthTriangleStencil" />
+	</add>
+
+	<add as="WestTriangle">
+		<add as="fillColor" value="#000000" />
+		<add as="strokeWidth" value="2" />
+		<add as="strokeColor" value="#000000" />
+		<add as="perimeter" value="trianglePerimeter" />
+		<add as="shape" value="{!name}_WestTriangleStencil" />
+	</add>
+
+	<add as="NorthTriangle">
+		<add as="fillColor" value="#000000" />
+		<add as="strokeWidth" value="2" />
+		<add as="strokeColor" value="#000000" />
+		<add as="perimeter" value="trianglePerimeter" />
+		<add as="shape" value="{!name}_NorthTriangleStencil" />
+	</add>
+
+	<add as="EastTriangle">
+		<add as="fillColor" value="#000000" />
+		<add as="strokeWidth" value="2" />
+		<add as="strokeColor" value="#000000" />
+		<add as="perimeter" value="trianglePerimeter" />
+		<add as="shape" value="{!name}_EastTriangleStencil" />
+	</add>
+
+	<add as="NameText">
+		<add as="align" value="left" />
+		<add as="fontColor" value="#000000" />
+		<add as="opacity" value="0" />
+	</add>
+
+	<add as="Note">
+		<add as="verticalAlign" value="top" />
+		<add as="align" value="left" />
+		<add as="strokeColor" value="#808080" />
+		<add as="shape" value="{!name}_NoteStencil" />
+	</add>
+</mxStylesheet>

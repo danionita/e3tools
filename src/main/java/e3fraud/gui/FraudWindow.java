@@ -49,6 +49,7 @@ import com.mxgraph.view.mxGraphView;
 
 import design.E3Graph;
 import design.E3GraphComponent;
+import design.E3Style;
 import design.Main;
 import design.info.Actor;
 import design.info.MarketSegment;

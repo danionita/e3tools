@@ -697,10 +697,11 @@ public class ContextMenus {
 		}));
 	}
 
-	public static void addStyleMenu(JPopupMenu menu, mxGraph graph) {
+	public static void addStyleMenu(JPopupMenu menu, mxGraph graph_) {
 		menu.add(new JMenuItem(new AbstractAction("Change style...") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				E3Graph graph = (E3Graph) graph_;
 				// We save the context target
 				Object subject = Main.contextTarget;
 				// And make an editor
@@ -725,9 +726,9 @@ public class ContextMenus {
 							// If it's a market segment we have to invoke a special stencil generation function
 							if (graph.getModel().getValue(subject) instanceof MarketSegment) {
 								// This generates the stencil and adds it to mxGraph
-								E3Style.addMarketSegmentColor(backgroundColor);
+								graph.style.addMarketSegmentColor(backgroundColor);
 								// And this sets the style appropriately
-								graph.setCellStyles(mxConstants.STYLE_SHAPE, E3Style.getMarketSegmentShapeName(backgroundColor), new Object[]{subject});
+								graph.setCellStyles(mxConstants.STYLE_SHAPE, graph.style.getMarketSegmentShapeName(backgroundColor), new Object[]{subject});
 							}
 						} finally {
 							graph.getModel().endUpdate();

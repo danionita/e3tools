@@ -68,12 +68,20 @@ public class Main {
     public E3Graph getCurrentGraph() {
         return (E3Graph) getCurrentGraphComponent().getGraph();
     }
+    
+    public ToolComponent getCurrentToolComponent() {
+        JSplitPane pane = (JSplitPane) views.getComponentAt(views.getSelectedIndex());
+        return (ToolComponent) pane.getLeftComponent();
+    }
 
     public void addNewTabAndSwitch(boolean isFraud) {
-        addNewTabAndSwitch(new E3Graph(isFraud));
+        addNewTabAndSwitch(new E3Graph(E3Style.loadInternal("E3Style").get(), isFraud));
     }
 
     public void addNewTabAndSwitch(E3Graph graph) {
+    	// Allowed here because it's the default style which is always there
+    	E3Style style = E3Style.loadInternal("E3Style").get();
+    	
         E3GraphComponent graphComponent = new E3GraphComponent(graph);
 
         graph.getModel().beginUpdate();
@@ -86,7 +94,7 @@ public class Main {
         graphComponent.refresh();
 
         // Create split view
-        JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(), graphComponent);
+        JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(style), graphComponent);
         mainpane.setResizeWeight(0.025);
 
         if (graph.isFraud) {
@@ -223,6 +231,7 @@ public class Main {
         JMenuItem changeType = new JMenuItem(new EditorActions.ChangeModelType(this));
         modelMenu.add(changeType);
         modelMenu.add(new EditorActions.ChangeModelTitle(this));
+        modelMenu.add(new EditorActions.ChangeTheme(this));
 
         modelMenu.addSeparator();
 
@@ -325,7 +334,7 @@ public class Main {
 
         mainFrame.getContentPane().add(toolbar, BorderLayout.PAGE_START);
 
-        globalTools = new ToolComponent();
+        globalTools = new ToolComponent(E3Style.loadInternal("E3Mono").get());
 
         addNewTabAndSwitch(false);
 

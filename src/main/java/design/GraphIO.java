@@ -236,7 +236,8 @@ public class GraphIO {
 
 			if (parts.length != 2) return;
 			String hexCode = "#" + parts[1];
-			E3Style.addMarketSegmentColor(hexCode);
+			// TODO: Enable style loading
+//			E3Style.addMarketSegmentColor(hexCode);
 		});
 		
 		return Optional.of(graph);

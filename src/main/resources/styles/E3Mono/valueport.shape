@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<shape xmlns="http://www.utwente.nl/e3fraud"
+       xmlns:svg="http://www.w3.org/2000/svg">
+  <name>ValuePortStencil</name>
+  <description>ValuePort for a ValueInterface pointing west</description>
+  <icon>valueinterfacewest.png</icon>
+  <!-- <connections>
+    <point x="0" y="0"/>
+    <point x="0" y="3"/>
+    <point x="0" y="6"/>
+    <point x="3" y="0"/>
+    <point x="6" y="0"/>
+    <point x="3" y="9"/>
+    <point x="6" y="9"/>
+    <point x="9" y="3"/>
+    <point x="9" y="6"/>
+    <point x="9" y="9"/>
+  </connections> -->
+  <aspectratio type="fixed"/>
+  <!-- <textbox x1="1" y1="1" x2="9" y2="9"/> -->
+  <svg:svg width="10" height="10" style="stroke: #000000">
+	<svg:polygon points="0,5 10,0 10,10" style="fill: #FFFFFF"/>
+  </svg:svg>
+</shape>
