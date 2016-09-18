@@ -613,9 +613,11 @@ public class EditorActions {
 					"Enter new model title",
 					"Rename \"" + main.getCurrentGraphTitle() + "\"",
 					JOptionPane.QUESTION_MESSAGE);
-
-			main.getCurrentGraph().title = newTitle;
-			main.setCurrentTabTitle(newTitle);
+			
+			if (newTitle != null) {
+				main.getCurrentGraph().title = newTitle;
+				main.setCurrentTabTitle(newTitle);
+			}
 		}
 	}
 	
