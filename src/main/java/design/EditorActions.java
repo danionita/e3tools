@@ -765,7 +765,7 @@ public class EditorActions {
                 }
             }
 
-            if (!main.getCurrentGraph().hasActors()) {
+            if (main.getCurrentGraph().countActors() < 2) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
                         "Fraud generation requires at least two actors. Please add more actors to the model",
