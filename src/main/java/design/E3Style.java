@@ -150,7 +150,11 @@ public class E3Style {
 		}
 		
 		// Put the postfix and hexcolor in there
-		String marketSegmentXML = String.format(templateMarketSegment, postfix, hexColor, hexColor, hexColor);
+//		String marketSegmentXML = String.format(templateMarketSegment, postfix, hexColor, hexColor, hexColor);
+		
+		String marketSegmentXML = templateMarketSegment
+				.replace("{!postfix}", postfix)
+				.replace("{!bg_color}", hexColor);
 		
 		// Add it
 		addStringStencil(marketSegmentXML);
