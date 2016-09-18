@@ -61,9 +61,10 @@ import design.info.ValueInterface;
 import design.info.ValuePort;
 import e3fraud.tools.currentTime;
 import e3fraud.vocabulary.E3value;
+import javax.swing.JFileChooser;
 
 public class Utils {
-
+    private static JFileChooser previousFc;
     public static boolean overlap(mxRectangle a, mxRectangle b) {
         if (a.getX() > b.getX()) {
             mxRectangle dummy = a;
@@ -619,16 +620,21 @@ public class Utils {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+        graph.file = file;
         System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
     }
     
     public static JFileChooser getE3FileChooser() {
+        if (previousFc == null){
 		JFileChooser fc = new JFileChooser();
 		FileFilter e3Filter = new FileNameExtensionFilter("e3tool file", "e3");
 		fc.addChoosableFileFilter(e3Filter);
 		fc.setFileFilter(e3Filter);
+                previousFc=fc;
+        }     
+
 		
-		return fc;
+		return previousFc;
     }
     
     public static String colorToHex(Color color) {

@@ -14,7 +14,12 @@ public class IconStore {
 	public static Map<String, ImageIcon> icons = new HashMap<>();
 	
 	public static ImageIcon getIcon(String id) {
-		return getImage("/icons/" + id + ".png");
+            return getImage("/icons/" + id + ".png");
+	}
+        
+        public static ImageIcon getOldIcon(String id) {
+            return getImage("/icons/" + id + ".gif");
+   
 	}
 	
 	public static ImageIcon getImage(String path, int w, int h) {

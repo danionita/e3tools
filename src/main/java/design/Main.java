@@ -111,7 +111,12 @@ public class Main {
 		JButton button = new JButton(action);
 		button.setText("");
         button.setFocusPainted(false);
-        button.setIcon(IconStore.getIcon(icon));
+        if (icon.contains("old/")){            
+            button.setIcon(IconStore.getOldIcon(icon));
+        }
+        else{
+            button.setIcon(IconStore.getIcon(icon));
+        }
         button.setToolTipText((String) action.getValue(Action.NAME));
 
         toolbar.add(button);
@@ -296,14 +301,13 @@ public class Main {
         
         addToolbarButton("page_copy", new EditorActions.DuplicateModel(this));
         addToolbarButton("page_refresh", new EditorActions.ChangeModelType(this));
-        addToolbarButton("cross", new EditorActions.ShowValueObjectsPanel(this));
-        addToolbarButton("cross", new EditorActions.ShowValueTransactionsPanel(this));
+        addToolbarButton("old/vo", new EditorActions.ShowValueObjectsPanel(this));
+        addToolbarButton("old/vt", new EditorActions.ShowValueTransactionsPanel(this));
 
         toolbar.addSeparator();
         
-        addToolbarButton("cross", new EditorActions.ShowNetValueFlow(this));
-        addToolbarButton("cross", new EditorActions.AnalyzeTransactions(this));
-        addToolbarButton("cross", new EditorActions.FraudGeneration(this));
+        addToolbarButton("old/nvf", new EditorActions.ShowNetValueFlow(this));
+        addToolbarButton("old/e3fraud", new EditorActions.FraudGeneration(this));
         addToolbarButton("chart_curve", new EditorActions.ProfitabilityChart(this));
 
         toolbar.addSeparator();
