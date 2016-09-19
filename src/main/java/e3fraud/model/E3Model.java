@@ -615,8 +615,11 @@ public class E3Model {
                             //adding them up
                             while (valuePortFormulas.hasNext()) {
                                 Statement formula = valuePortFormulas.next();
-                                double value = Float.valueOf(formula.getString().split("=", 2)[1]);
-                                valuePortValuation += value;
+                                String formulaString = formula.getString();
+                                if (formulaString.split("=", 2)[0].equals("VALUATION") || formulaString.split("=", 2)[0].equals("EXPENSES")) {
+                                    double value = Float.valueOf(formula.getString().split("=", 2)[1]);
+                                    valuePortValuation += value;
+                                }
                             }
 
                             //multiplying it with the CARDINALITY of the Port's associated Value Exchange and nullifying if necessary
@@ -626,11 +629,9 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                {
-                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
+                                 if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
-                                }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                             } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                                 if (ideal == true) {//If we want the expected case
@@ -638,11 +639,9 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                {
-                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
+                                 if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
-                                }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                             }
 
@@ -744,12 +743,12 @@ public class E3Model {
                         double valuePortValuation = 0;
                         StmtIterator valuePortFormulas = valuePort.getResource().listProperties(E3value.e3_has_formula);
                         //adding them up
-                        while (valuePortFormulas.hasNext()) {                            
+                        while (valuePortFormulas.hasNext()) {
                             Statement formula = valuePortFormulas.next();
                             String formulaString = formula.getString();
-                            if (formulaString.split("=", 2)[0].equals("VALUATION") || formulaString.split("=", 2)[0].equals("EXPENSES")){
-                            double value = Float.valueOf(formula.getString().split("=", 2)[1]);
-                            valuePortValuation += value;
+                            if (formulaString.split("=", 2)[0].equals("VALUATION") || formulaString.split("=", 2)[0].equals("EXPENSES")) {
+                                double value = Float.valueOf(formula.getString().split("=", 2)[1]);
+                                valuePortValuation += value;
                             }
                         }
 
@@ -760,11 +759,9 @@ public class E3Model {
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                            {
-                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
+                             if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
-                            }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                         } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                             if (ideal == true) {//If we want the expected case
@@ -772,11 +769,9 @@ public class E3Model {
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                            {
-                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
+                             if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
-                            }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                         }
 
@@ -861,10 +856,10 @@ public class E3Model {
         }
 
         int initialOccurenceRate = this.getNeedOccurrence(need);
-    //    try {
-            /* Step - 1: Define the data for the series  */
-            //we only need 50 values so divide interval to 50
-            if(startValue < endValue){
+        //    try {
+        /* Step - 1: Define the data for the series  */
+        //we only need 50 values so divide interval to 50
+        if (startValue < endValue) {
             double step = ((float) endValue - (float) startValue) / 50;
             //calculate profit for each (occurence) value:
             for (double i = startValue; i <= endValue; i += step) {
@@ -877,23 +872,21 @@ public class E3Model {
                     actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
                 }
             }
+        } else if (startValue == endValue) {
+            double i = startValue;
+            this.updateNeedOccurrence(need, i);
+            this.enhance();
+            //For each actor
+            for (Resource actor : actors) {
+                //add it's profit to the relevant series
+                actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
             }
-            else if (startValue == endValue) {
-                double i = startValue;
-                this.updateNeedOccurrence(need, i);
-                this.enhance();
-                //For each actor
-                for (Resource actor : actors) {
-                    //add it's profit to the relevant series
-                    actorSeriesMap.get(actor).add(i, this.getTotalForActor(actor, ideal));
-                }
-            }
-            else{
-                PopUps.infoBox("Start value must be lower than end value!", "Error");
-            }
+        } else {
+            PopUps.infoBox("Start value must be lower than end value!", "Error");
+        }
         //} catch (Exception e) {
-       //     System.err.println(e);
-       // }
+        //     System.err.println(e);
+        // }
 
         this.setNeedOccurrence(need, initialOccurenceRate);
         return actorSeriesMap;
@@ -1280,7 +1273,7 @@ public class E3Model {
 
         need = model.getResource(need.getURI());
         Map<Resource, Double> averagesMap = new HashMap<>();
-        
+
         Map<Resource, XYSeries> seriesMap = getTotalForActors(need, startValue, endValue, ideal);
 
         for (Resource actor : seriesMap.keySet()) {
