@@ -788,8 +788,9 @@ public class EditorActions {
                 if (choice == JOptionPane.NO_OPTION) {
                     return;
                 }
-
+                
                 targetGraph = targetGraph.toValue();
+                main.addNewTabAndSwitch(targetGraph);                
             }
 
             RDFExport rdfExporter = new RDFExport(targetGraph, true);
@@ -824,7 +825,7 @@ public class EditorActions {
             if (!main.getCurrentGraph().isValid()) {
                 int choice = JOptionPane.showConfirmDialog(
                         Main.mainFrame,
-                        "The current model contains errors. This might cause the profitability analysis to function incorrectly. Do you wish to continue?",
+                        "The current model contains unconnected ports. This might cause the profitability analysis to function incorrectly. Do you wish to continue?",
                         "Model is not well formed.",
                         JOptionPane.YES_NO_OPTION);
 
