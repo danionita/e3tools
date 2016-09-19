@@ -42,6 +42,17 @@ import e3fraud.model.E3Model;
 @SuppressWarnings(value = {"serial"})
 public class EditorActions {
 
+    private static String conversionMessage[] = {"Converting a fraud model to a value model will "
+        + "cause fraud annotations such as colluded actors, hidden "
+        + "transactions, and non-occurring transactions "
+        + "to be lost."
+        + "\nContinue? (a duplicate will be created "
+        + "before conversion)"};
+
+    private static String invalidModelMessage[] = {"The current model contains unconnected "
+        + "ports. This might cause unexpected results.",
+        "Do you wish to continue?"};
+
     public static abstract class BaseAction extends AbstractAction {
 
         public Main main;
@@ -625,10 +636,7 @@ public class EditorActions {
             if (main.getCurrentGraph().isFraud) {
                 int response = JOptionPane.showConfirmDialog(
                         Main.mainFrame,
-                        "Converting a fraud model to a value model will "
-                        + "cause information about colluded actors, hidden "
-                        + "transactions, and non-occurring transactions "
-                        + "to be lost. Continue?",
+                        conversionMessage,
                         "Conversion confirmation",
                         JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.WARNING_MESSAGE
@@ -643,25 +651,26 @@ public class EditorActions {
         }
     }
 
-	public static class ChangeModelTitle extends BaseAction {
-		public ChangeModelTitle(Main main) {
-			super("Change title", main);
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			String newTitle = JOptionPane.showInputDialog(
-					main.mainFrame,
-					"Enter new model title",
-					"Rename \"" + main.getCurrentGraphTitle() + "\"",
-					JOptionPane.QUESTION_MESSAGE);
-			
-			if (newTitle != null) {
-				main.getCurrentGraph().title = newTitle;
-				main.setCurrentTabTitle(newTitle);
-			}
-		}
-	}
+    public static class ChangeModelTitle extends BaseAction {
+
+        public ChangeModelTitle(Main main) {
+            super("Change title", main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String newTitle = JOptionPane.showInputDialog(
+                    main.mainFrame,
+                    "Enter new model title",
+                    "Rename \"" + main.getCurrentGraphTitle() + "\"",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            if (newTitle != null) {
+                main.getCurrentGraph().title = newTitle;
+                main.setCurrentTabTitle(newTitle);
+            }
+        }
+    }
 
     public static class ShowValueObjectsPanel extends BaseAction {
 
@@ -715,7 +724,7 @@ public class EditorActions {
                     Main.mainFrame,
                     "This feature is not yet implemented",
                     "Feature not implemented",
-                    JOptionPane.ERROR_MESSAGE);            
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -756,7 +765,7 @@ public class EditorActions {
             if (!main.getCurrentGraph().isValid()) {
                 int choice = JOptionPane.showConfirmDialog(
                         Main.mainFrame,
-                        "The current model contains errors. This might cause fraud generation to function incorrectly. Do you wish to continue?",
+                        invalidModelMessage,
                         "Model is not well formed.",
                         JOptionPane.YES_NO_OPTION);
 
@@ -780,17 +789,29 @@ public class EditorActions {
             if (main.getCurrentGraph().isFraud) {
                 int choice = JOptionPane.showConfirmDialog(
                         Main.mainFrame,
-                        "At the moment analyzing a fraud model is not supported. Would you like to"
-                        + " convert the current model to a value model for analysis? (all fraud annotations will be removed)",
+                        "Fraud generation currently only works on value models. Do you want to"
+                        + "convert this fraud model to a value model?",
                         "Unsupported model type",
                         JOptionPane.YES_NO_OPTION);
 
                 if (choice == JOptionPane.NO_OPTION) {
                     return;
                 }
-                
+
+                int confirmation = JOptionPane.showConfirmDialog(
+                        Main.mainFrame,
+                        conversionMessage,
+                        "Conversion confirmation",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                if (confirmation == JOptionPane.CANCEL_OPTION) {
+                    return;
+                }
+
                 targetGraph = targetGraph.toValue();
-                main.addNewTabAndSwitch(targetGraph);                
+                main.addNewTabAndSwitch(targetGraph);
             }
 
             RDFExport rdfExporter = new RDFExport(targetGraph, true);
@@ -825,7 +846,7 @@ public class EditorActions {
             if (!main.getCurrentGraph().isValid()) {
                 int choice = JOptionPane.showConfirmDialog(
                         Main.mainFrame,
-                        "The current model contains unconnected ports. This might cause the profitability analysis to function incorrectly. Do you wish to continue?",
+                        invalidModelMessage,
                         "Model is not well formed.",
                         JOptionPane.YES_NO_OPTION);
 
