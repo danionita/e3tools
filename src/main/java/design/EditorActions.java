@@ -643,24 +643,25 @@ public class EditorActions {
         }
     }
 
-    public static class ChangeModelTitle extends BaseAction {
-
-        public ChangeModelTitle(Main main) {
-            super("Change title", main);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String newTitle = JOptionPane.showInputDialog(
-                    main.mainFrame,
-                    "Enter new model title",
-                    "Rename \"" + main.getCurrentGraphTitle() + "\"",
-                    JOptionPane.QUESTION_MESSAGE);
-
-            main.getCurrentGraph().title = newTitle;
-            main.setCurrentTabTitle(newTitle);
-        }
-    }
+	public static class ChangeModelTitle extends BaseAction {
+		public ChangeModelTitle(Main main) {
+			super("Change title", main);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String newTitle = JOptionPane.showInputDialog(
+					main.mainFrame,
+					"Enter new model title",
+					"Rename \"" + main.getCurrentGraphTitle() + "\"",
+					JOptionPane.QUESTION_MESSAGE);
+			
+			if (newTitle != null) {
+				main.getCurrentGraph().title = newTitle;
+				main.setCurrentTabTitle(newTitle);
+			}
+		}
+	}
 
     public static class ShowValueObjectsPanel extends BaseAction {
 
@@ -764,8 +765,8 @@ public class EditorActions {
                 }
             }
 
-            if (!main.getCurrentGraph().hasActors()) {
-                int choice = JOptionPane.showConfirmDialog(
+            if (main.getCurrentGraph().countActors() < 2) {
+                JOptionPane.showMessageDialog(
                         Main.mainFrame,
                         "Fraud generation requires at least two actors. Please add more actors to the model",
                         "Not enough actors.",
