@@ -246,8 +246,8 @@ public class Main {
 
         JMenu toolMenu = new JMenu("Tools");
 
-        toolMenu.add(new EditorActions.ShowNetValueFlow(this));
-        toolMenu.add(new EditorActions.AnalyzeTransactions(this));
+        toolMenu.add(new EditorActions.ShowNetValueFlow(this)).setEnabled(false);
+        toolMenu.add(new EditorActions.AnalyzeTransactions(this)).setEnabled(false);
 
         toolMenu.addSeparator();
 
@@ -302,11 +302,11 @@ public class Main {
         addToolbarButton("page_copy", new EditorActions.DuplicateModel(this));
         addToolbarButton("page_refresh", new EditorActions.ChangeModelType(this));
         addToolbarButton("old/vo", new EditorActions.ShowValueObjectsPanel(this));
-        addToolbarButton("old/vt", new EditorActions.ShowValueTransactionsPanel(this));
+        //addToolbarButton("old/vt", new EditorActions.ShowValueTransactionsPanel(this));
 
         toolbar.addSeparator();
         
-        addToolbarButton("old/nvf", new EditorActions.ShowNetValueFlow(this));
+        //addToolbarButton("old/nvf", new EditorActions.ShowNetValueFlow(this));
         addToolbarButton("old/e3fraud", new EditorActions.FraudGeneration(this));
         addToolbarButton("chart_curve", new EditorActions.ProfitabilityChart(this));
 

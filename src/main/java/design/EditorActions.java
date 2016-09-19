@@ -704,7 +704,7 @@ public class EditorActions {
     public static class ShowNetValueFlow extends BaseAction {
 
         public ShowNetValueFlow(Main main) {
-            super("Net value flow... (ctrl+f)", main);
+            super("Net value flow... (coming soon)", main);
         }
 
         @Override
@@ -721,7 +721,7 @@ public class EditorActions {
     public static class AnalyzeTransactions extends BaseAction {
 
         public AnalyzeTransactions(Main main) {
-            super("Analyze transactions (ctrl+h)", main);
+            super("Analyze transactions (coming soon)", main);
         }
 
         @Override
