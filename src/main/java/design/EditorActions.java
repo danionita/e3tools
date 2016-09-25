@@ -82,6 +82,9 @@ public class EditorActions {
             Optional<E3Graph> graph = Utils.openFile(main.mainFrame, fc);
             if (graph.isPresent()) {
                 main.addNewTabAndSwitch(graph.get());
+                
+                graph.get().style.styleGraphComponent(main.getCurrentGraphComponent());
+                main.getCurrentGraphComponent().refresh();
             }
         }
     }

@@ -531,8 +531,6 @@ public class Utils {
             File file = fc.getSelectedFile();
 
             Optional<E3Graph> result = GraphIO.loadGraph(file.getAbsolutePath());
-            //set original file
-            result.get().file = file;
 
             if (!result.isPresent()) {
                 JOptionPane.showMessageDialog(
@@ -540,7 +538,12 @@ public class Utils {
                         "Error during file loading. Please make sure the file destination is accesible.",
                         "Loading error",
                         JOptionPane.ERROR_MESSAGE);
+                
+                return Optional.empty();
             }
+
+            // Set original file
+            result.get().file = file;
 
             return result;
         } else {

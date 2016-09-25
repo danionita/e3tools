@@ -1421,14 +1421,14 @@ public class E3Graph extends mxGraph implements Serializable{
 	 * @param xml
 	 * @return
 	 */
-	public static E3Graph fromXML(String xml) {
+	public static E3Graph fromXML(String xml, E3Style style) {
 		GraphIO.assureRegistered();
 		
 		Document document = mxXmlUtils.parseXml(xml);
 		
 		mxCodec codec = new mxCodec(document);
 		
-		E3Graph graph = new E3Graph((E3Style) null, false);
+		E3Graph graph = new E3Graph(style, false);
 		
 		codec.decode(document.getDocumentElement(), graph.getModel());
 		

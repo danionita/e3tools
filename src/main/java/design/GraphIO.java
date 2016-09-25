@@ -6,14 +6,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import javax.help.Map;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -26,7 +27,6 @@ import com.mxgraph.util.mxConstants;
 
 import design.export.ObjectXStreamCodec;
 import design.info.Actor;
-import design.info.Base;
 import design.info.ConnectionElement;
 import design.info.EndSignal;
 import design.info.LogicBase;
@@ -145,12 +145,12 @@ public class GraphIO {
 	 * @return
 	 */
 	public static Optional<E3Graph> loadGraph(String fileName) {
-		List<String[]> files = null;
+		Map<String, String> files = new HashMap<>();
 		
 		// Get all files from the zip file
 		try (ZipFile zf = new ZipFile(fileName)) {
 			// For each file
-			files = zf.stream().map(entry -> {
+			files.putAll(zf.stream().collect(Collectors.toMap(ZipEntry::getName, entry -> {
 				try {
 					// Construct the file from the stream
 					BufferedReader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
@@ -163,17 +163,18 @@ public class GraphIO {
 					}
 					reader.close();
 					
-					return new String[]{entry.getName(), out.toString()};
+					return out.toString();
 				} catch (IOException e) {
 					// If it fails, print a stacktrace and return null
 					e.printStackTrace();
 				}
 				
 				return null;
-			}).collect(Collectors.toList());
-			
+			})));
+
 			// If one file failed, just abort.
-			if (files.contains(null)) {
+			if (files.values().contains(null)) {
+				System.out.println("Null");
 				return Optional.empty();
 			}
 		} catch (IOException e1) {
@@ -181,26 +182,56 @@ public class GraphIO {
 			e1.printStackTrace();
 			return Optional.empty();
 		}
+		
+		// If either wasn't found, abort.
+		if ((!files.containsKey("graph.xml") || files.get("graph.xml") == null)
+			|| (!files.containsKey("properties.json") || files.get("properties.json") == null)) {
+			System.out.println("Error: Could not find graph.xml or properties.json");
 			
-		// Find the xml file and property file in the zip files
-		String xml = null;
-		String properties = null;
-		for (String[] file : files) {
-			if (file[0].equals("graph.xml")) {
-				xml = file[1];
-			} else if (file[0].equals("properties.json")) {
-				properties = file[1];
+			return Optional.empty();
+		}
+
+		// Load the default style as backup
+		E3Style style = E3Style.loadInternal("E3Style").orElseThrow(() -> {throw new RuntimeException("Basic E3Style not found internally");});
+		if (files.containsKey("style/style.xml") || files.get("style/style.xml") != null) {
+			List<String> styleFiles = E3Style.requiredFiles
+				.stream()
+				// Would use optional here, but that got me compile errors
+				// somehow.
+				.map(file -> {
+					String contents = files.getOrDefault("style/" + file, null);
+					if (contents == null) System.out.println("Null: " + file);
+					return contents;
+				})
+				.filter(c -> c != null)
+				.collect(Collectors.toList());
+			
+			// The order of static variable requiredFiles matches the constructor
+			// Doesn't make it any less ugly though
+			
+			if (styleFiles.size() == 12) {
+				style = new E3Style(
+						styleFiles.get(0),
+						styleFiles.get(1),
+						styleFiles.get(2),
+						styleFiles.get(3),
+						styleFiles.get(4),
+						styleFiles.get(5),
+						styleFiles.get(6),
+						styleFiles.get(7),
+						styleFiles.get(8),
+						styleFiles.get(9),
+						styleFiles.get(10),
+						styleFiles.get(11)
+						);
 			}
 		}
 		
-		// If either wasn't found, abort.
-		if (xml == null || properties == null) return Optional.empty();
-		
 		// Create a graph from XML
-		E3Graph graph = E3Graph.fromXML(xml);
+		E3Graph graph = E3Graph.fromXML(files.get("graph.xml"), style);
 
 		// Create a JSON object
-		JsonObject json = Json.createReader(new StringReader(properties)).readObject();
+		JsonObject json = Json.createReader(new StringReader(files.get("properties.json"))).readObject();
 		
 		// Find basic information
 		if (json.containsKey("title")) {
@@ -224,21 +255,20 @@ public class GraphIO {
 		// For each market segment, if it has a MarketSegmentStencil#FFFFFF
 		// shape, add that color shape to the registry
 		Utils.getAllCells(graph).stream()
-		.filter(obj -> graph.getModel().getValue(obj) instanceof MarketSegment)
-		.forEach(obj -> {
-			java.util.Map<String, Object> style = graph.getCellStyle(obj);
+			.filter(obj -> graph.getModel().getValue(obj) instanceof MarketSegment)
+			.forEach(obj -> {
+				java.util.Map<String, Object> styleMap = graph.getCellStyle(obj);
 
-			if (!style.containsKey(mxConstants.STYLE_SHAPE)) return;
-			String shape = (String) style.get(mxConstants.STYLE_SHAPE);
+				if (!styleMap.containsKey(mxConstants.STYLE_SHAPE)) return;
+				String shape = (String) styleMap.get(mxConstants.STYLE_SHAPE);
 
-			if (!shape.contains("#")) return;
-			String[] parts = shape.split("#");
+				if (!shape.contains("#")) return;
+				String[] parts = shape.split("#");
 
-			if (parts.length != 2) return;
-			String hexCode = "#" + parts[1];
-			// TODO: Enable style loading
-//			E3Style.addMarketSegmentColor(hexCode);
-		});
+				if (parts.length != 2) return;
+				String hexCode = "#" + parts[1];
+				graph.style.addMarketSegmentColor(hexCode);
+			});
 		
 		return Optional.of(graph);
 	}
@@ -267,18 +297,34 @@ public class GraphIO {
 		// Create a zip
 		try (ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(fileName))) {
 			// Print the graph xml to a zip file entry
-			zout.putNextEntry(new ZipEntry("graph.xml"));
-			byte[] b = xml.getBytes();
-			zout.write(b, 0, b.length);
-			zout.closeEntry();
+			writeFileToZip(zout, "graph.xml", xml);
 
 			// Print the json to a zip file entry
-			zout.putNextEntry(new ZipEntry("properties.json"));
-			b = properties.getBytes();
-			zout.write(b, 0, b.length);
-			zout.closeEntry();
+			writeFileToZip(zout, "properties.json", properties);
+			
+			// Print the style to the zip
+			E3Style style = graph.style;
+			writeFileToZip(zout, "style/style.xml", style.xml);
+			writeFileToZip(zout, "style/marketsegment_template.shape", style.marketSegment_template);
+			writeFileToZip(zout, "style/startsignal.shape", style.startSignal);
+			writeFileToZip(zout, "style/endsignal.shape", style.endSignal);
+			writeFileToZip(zout, "style/valueport.shape", style.valuePort);
+			writeFileToZip(zout, "style/note.shape", style.note);
+			writeFileToZip(zout, "style/northtriangle.shape", style.northTriangle);
+			writeFileToZip(zout, "style/easttriangle.shape", style.eastTriangle);
+			writeFileToZip(zout, "style/southtriangle.shape", style.southTriangle);
+			writeFileToZip(zout, "style/westtriangle.shape", style.westTriangle);
+			writeFileToZip(zout, "style/bar.shape", style.bar);
+			writeFileToZip(zout, "style/dot.shape", style.dot);
 		}
 		
 		JOptionPane.showMessageDialog(Main.mainFrame, "File saved to: " + fileName);
+	}
+	
+	private static void writeFileToZip(ZipOutputStream zout, String path, String contents) throws IOException {
+		zout.putNextEntry(new ZipEntry(path));
+		byte[] b = contents.getBytes();
+		zout.write(b, 0, b.length);
+		zout.closeEntry();
 	}
 }

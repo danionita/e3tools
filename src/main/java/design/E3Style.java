@@ -48,10 +48,79 @@ import design.info.MarketSegment;
 import design.info.ValueActivity;
 import design.info.ValueInterface;
 
+/**
+ * Class that contains and can apply a style to a graph.
+ * 
+ * ----- Format of an E3Editor style
+ * A folder with the following files:
+ * - style.xml - The mxStyleSheet with a few extensions. See below
+ * - marketsegment_template.shape - A shape file for the market segment. It is special as well. See below.
+ * - startsignal.shape - Start signal shape file
+ * - endsignal.shape - End signal shape file
+ * - valueport.shape - Value port shape file
+ * - note.shape - Note shape file
+ * - northtriangle.shape - Triangle pointing up shape file (For or gate)
+ * - easttriangle.shape - Triangle pointing east shape file
+ * - southtriangle.shape - Triangle pointing south shape file
+ * - westtriangle.shape - Triangle pointing west shape file
+ * - bar.shape - Shape file of a black bar. Used for the and gate
+ * - dot.shape - Dot shape used for dot-like things (start/end signal, value interface dots)
+ * 
+ * Each file must be present in the folder or the theme will be invalid.
+ * 
+ * ----- Format of the style.xml file -----
+ * It is  basically an mxStylesheet from jgraphx with a few extras.
+ * 
+ * - There is a name tag which is the name of the style. This should be the
+ *   same as the folder name. It cannot contain spaces.
+ * - There is a background tag. This contains the background color of the editor.
+ * - There is a grid tag. This contains true or false, indicating whether the
+ *   grid should be shown or not.
+ * - Throughout the xml file you can use {!name}. This will be search-replaced upon
+ *   loading the xml file with the name in the name tag plus a nonce. This is to
+ *   prevent name clashes in mxGraph's internal style management, more specifically
+ *   w.r.t. stencils. If you want to refer to a stencil within the xml, use:
+ * 
+ *   <code>{!name}_NameOfYourStencil</code>
+ * 
+ *   Where NameOfYourStencil is defined in the shape file itself.
+ *   
+ * ----- Format of the marketSegment_template.shape file -----
+ * The marketsegment shape file is mostly a shape file. It has however two special parts:
+ * the {!postfix} and {!bg_color} words. Upon loading the marketsegment shape, these two
+ * words will be replaced with (most likely) uppercase hexadecimal colors. That way a specialized stencil is
+ * loaded for each color needed. This is because it is (afaik) impossible to style a stencil
+ * with just style.xml. Probably because fore- and backgroundcolor are defined in the
+ * shape file itself. (Sometimes it does seem to be possible to some extent;
+ * but this is not reliable enough for our purposes. See: https://github.com/jgraph/jgraphx/issues/60).
+ * 
+ * ----- General remarks -----
+ * If you want something to be egally colored, make sure you set both the
+ * fillColor attribute and the gradientColor attribute (both in the xml and the shape).
+ * Apparently jgraphx always has gradientColor set to some shade of blue, so if you don't
+ * set it the same as your fillColor it'll look messy.
+ * 
+ * @author Bobe
+ *
+ */
 public class E3Style {
 	public static final double DOTRADIUS = 4;
-	public static final int LABEL_FONTSIZE = 12;
 	public static int idCounter = 0;
+	// Must be kept in same order as constructor!
+	public static List<String> requiredFiles = Arrays.asList(
+		"style.xml",
+		"marketsegment_template.shape",
+		"startsignal.shape",
+		"endsignal.shape",
+		"valueport.shape",
+		"note.shape",
+		"northtriangle.shape",
+		"easttriangle.shape",
+		"southtriangle.shape",
+		"westtriangle.shape",
+		"bar.shape",
+		"dot.shape"
+		);
 
 	public String xml;
 	public String marketSegment_template;
@@ -72,32 +141,26 @@ public class E3Style {
 	private boolean showGrid;
 	private final int ID = idCounter++;
 	
+	/**
+	 * Loads a style from local resources. Given a name, tries to
+	 * look for /styles/name/style.xml. Returns empty upon error.
+	 */
 	public static Optional<E3Style> loadInternal(String name) {
-		List<String> files = Arrays.asList(
-				"style.xml",
-				"marketsegment_template.shape",
-				"startsignal.shape",
-				"endsignal.shape",
-				"valueport.shape",
-				"note.shape",
-				"northtriangle.shape",
-				"easttriangle.shape",
-				"southtriangle.shape",
-				"westtriangle.shape",
-				"bar.shape",
-				"dot.shape"
-				)
+		// Get all the files
+		List<String> files = requiredFiles
 			.stream()
 			.map(f -> Utils.readInternal("/styles/" + name + "/" + f))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toList());
 		
+		// If one if them failed return empty
 		if (files.size() != 12) {
 			return Optional.empty();
 		}
 		
 		// TODO: This looks ugly!
+		// Construct and return the style
 		return Optional.of(new E3Style(
 				files.get(0),
 				files.get(1),
@@ -114,7 +177,11 @@ public class E3Style {
 				));
 	}
 	
-	public static E3Style load(File file) {
+	/**
+	 * Loads a style located in folder indicated by file. If an error
+	 * occurs, returns empty.
+	 */
+	public static Optional<E3Style> load(File file) {
 		throw new RuntimeException("E3Style loading not yet implemented!");
 	}
 	
@@ -132,6 +199,7 @@ public class E3Style {
 			String bar,
 			String dot) {
 		// Store all the strings
+		// Need them for saving the theme
 		this.xml = xml;
 		this.marketSegment_template = marketSegment_template;
 		this.startSignal = startSignal;
@@ -158,8 +226,7 @@ public class E3Style {
 		name = name + "_" + ID;
 		
 		// Apply the naming subsitution in the XML
-		xml = xml.replace("{!name}", name);
-		doc = mxXmlUtils.parseXml(xml);
+		doc = mxXmlUtils.parseXml(xml.replace("{!name}", name));
 
 		// Get the rest of the info
 		backgroundColor = Color.decode(doc
@@ -176,6 +243,7 @@ public class E3Style {
 				.equals("true");
 		
 		// Get the market segment color from the xml
+		// TODO: Maybe factor this into a function?
 		String marketSegmentColor = "#C0C0C0";
 		{
 			NodeList nl = doc.getDocumentElement().getChildNodes();
@@ -241,6 +309,10 @@ public class E3Style {
 		addMarketSegmentColor("", marketSegmentColor); 
 	}
 
+	/**
+	 * Adds a market segment stencil with color hexColot to mxGraph's stencil registry.
+	 * @param hexColor
+	 */
 	public void addMarketSegmentColor(String hexColor) {
 		addMarketSegmentColor(hexColor.toUpperCase(), hexColor.toUpperCase());
 	}
@@ -258,14 +330,18 @@ public class E3Style {
 		addStringStencil(name + "_", marketSegmentXML);
 	}
 	
+	/**
+	 * Styles a graph component with this style, and removes all actor/marketsegment/
+	 * valueactivity specific styling.
+	 * @param graphComponent
+	 */
 	public void styleGraphComponent(mxGraphComponent graphComponent) {
 		System.out.println("Styling graph with " + name);
 		
 		mxGraph graph = graphComponent.getGraph();
 		
-		// Register styles
+		// Apply the style
 		mxCodec codec = new mxCodec();
-		
 		graph.setStylesheet(new mxStylesheet());
 
 		if (doc != null) {
@@ -275,6 +351,7 @@ public class E3Style {
 			return;
 		}
 		
+		// Set the editor-specific settings
 		graphComponent.getViewport().setOpaque(true);
 		graphComponent.getViewport().setBackground(backgroundColor);
 		graphComponent.setGridVisible(showGrid);
@@ -306,29 +383,12 @@ public class E3Style {
 				});
 		}); 
 		
+		// Refresh to propagate changes
 		graph.refresh();
 	}
 	
 	// Keeps track of all the names of the stencils that are loaded
 	public static Set<String> loadedStencils = new HashSet<>();
-	
-	/**
-	 * Reads the file at filename and adds it as a stencil
-	 * @param filename
-	 */
-	public static void addStencil(String filename) {
-		try {
-			// Read the file
-			String xmlString = mxUtils.readInputStream(
-                                E3Style.class.getResourceAsStream("/" + filename));
-			
-			// Add it
-			addStringStencil(xmlString);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Unable to load stencil " + filename);
-		}
-	}
 	
 	/**
 	 * Adds the stencil in xmlString. The name of the stencil
@@ -398,6 +458,10 @@ public class E3Style {
 		return name + "_MarketSegmentStencil" + hexColor.toUpperCase();
 	}
 	
+	/**
+	 * Returns a list of all themes available in both local resources and
+	 * whatever's located in the e3editor settings folder on the current pc.
+	 */
 	public static List<String> getAvailableThemes() {
 		List includedWithEditor = Arrays.asList(
 				"E3Style",
@@ -405,7 +469,7 @@ public class E3Style {
 				);
 		
 		// TODO: Read a bunch of dirs in my documents
-		// TODO: Handle duplicates
+		// TODO: Handle duplicates (or not)
 
 		return includedWithEditor;
 	}
