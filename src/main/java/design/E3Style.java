@@ -150,7 +150,6 @@ public class E3Style {
 		
 		// Get the name of the style
 		// TODO: Error handling here as well
-		System.out.println(xml);
 		name = doc
 				.getDocumentElement()
 				.getElementsByTagName("name")
@@ -162,8 +161,6 @@ public class E3Style {
 		xml = xml.replace("{!name}", name);
 		doc = mxXmlUtils.parseXml(xml);
 
-		System.out.println(xml);
-		
 		// Get the rest of the info
 		backgroundColor = Color.decode(doc
 				.getDocumentElement()
@@ -222,8 +219,6 @@ public class E3Style {
 				}
 			}
 		}
-		
-		System.out.println("MarketSegmentColor: " + marketSegmentColor);
 		
 		// TODO: Fall back to default style somehow here and show an error box
 		// (if there is a space in the name - spaces are a recipe for disaster
@@ -287,56 +282,31 @@ public class E3Style {
 		// To get rid of the folding icon
 		graphComponent.setFoldingEnabled(false);
 		
-		// Make sure all the market segments look neutral
+		// Make sure all the actor-ish cells take the color of the theme
 		Utils.update(graph, () -> {
 			Utils.getAllCells(graph)
 				.stream()
 				.forEach(o -> {
-					if (!(o instanceof Base)) return;
-
-					Base val = (Base) graph.getModel().getValue(o);
+					Object val = graph.getModel().getValue(o);
+					
+					Object[] cells = new Object[]{o};
+					
 					if (val instanceof MarketSegment) {
-						graph.setCellStyle(name + "_MarketSegment");
-					} 
+						graph.setCellStyle("MarketSegment", cells);
+					} else if (val instanceof Actor) {
+						Actor actor = (Actor) val;
+						if (actor.colluded) {
+							graph.setCellStyle("ColludedActor", cells);
+						} else {
+							graph.setCellStyle("Actor", cells);
+						}
+					} else if (val instanceof ValueActivity) {
+						graph.setCellStyle("ValueActivity", cells);
+					}
 				});
 		}); 
 		
 		graph.refresh();
-			
-		// Add custom stencils
-//		addStencil("valueport.shape");
-//		addStencil("startsignal.shape");
-//		addStencil("endsignal.shape");
-//		addStencil("dot.shape");
-//		addStencil("bar.shape");
-//		addStencil("easttriangle.shape");
-//		addStencil("southtriangle.shape");
-//		addStencil("westtriangle.shape");
-//		addStencil("northtriangle.shape");
-//		addStencil("note.shape");
-		
-		// Set appropriate per-cell style names
-//		Utils.update(graph, () -> {
-//			Utils.getAllCells(graph)
-//				.stream()
-//				.forEach(o -> {
-//					Base val = (Base) graph.getModel().getValue(o);
-//					if (val instanceof Actor) {
-//						Actor acInfo = (Actor) val;
-//						if (acInfo.colluded) {
-//							graph.setCellStyle(name + "_ColludedActor");
-//						} else {
-//							graph.setCellStyle(name + "_Actor");
-//						}
-//					} else if (val instanceof ValueActivity) {
-//						graph.setCellStyle(name + "_ValueActivity");
-//					} else if (val instanceof MarketSegment) {
-//						graph.setCellStyle(name + "_MarketSegment");
-//					} else if (val instanceof ValueInterface) {
-//						graph.setCellStyle(name + "_ValueInterface");
-//					} else if (val instanceof )
-//				});
-//		}); 
 	}
 	
 	// Keeps track of all the names of the stencils that are loaded
