@@ -20,7 +20,6 @@
  */
 package design;
 
-
 import java.awt.BorderLayout;
 
 import javax.swing.AbstractAction;
@@ -47,6 +46,7 @@ import org.apache.log4j.Logger;
 import com.mxgraph.util.mxPoint;
 
 public class Main {
+
     public static final JFrame mainFrame = new JFrame("e3tools editor");
     public static Object contextTarget = null;
     public static mxPoint contextPos = new mxPoint(-1, -1);
@@ -66,7 +66,11 @@ public class Main {
     }
 
     public E3Graph getCurrentGraph() {
-        return (E3Graph) getCurrentGraphComponent().getGraph();
+        try {
+            return (E3Graph) getCurrentGraphComponent().getGraph();
+        } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+            return null;
+        }
     }
     
     public ToolComponent getCurrentToolComponent() {
@@ -102,7 +106,7 @@ public class Main {
         } else {
             ModelTab.addClosableTab(views, mainpane, IconStore.getImage("/e3v.png", 25, 25));
         }
-        
+
         views.setSelectedIndex(views.getTabCount() - 1);
     }
 
@@ -116,42 +120,41 @@ public class Main {
     }
 
     private void addToolbarButton(String icon, AbstractAction action) {
-		JButton button = new JButton(action);
-		button.setText("");
+        JButton button = new JButton(action);
+        button.setText("");
         button.setFocusPainted(false);
-        if (icon.contains("old/")){            
+        if (icon.contains("old/")) {
             button.setIcon(IconStore.getOldIcon(icon));
-        }
-        else{
+        } else {
             button.setIcon(IconStore.getIcon(icon));
         }
         button.setToolTipText((String) action.getValue(Action.NAME));
 
         toolbar.add(button);
-	}
-    
+    }
+
     private void addGlobalShortcut(String keys, AbstractAction action) {
-    	views
-    		.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-    		.put(KeyStroke.getKeyStroke(keys), action.getValue(Action.NAME));
-    	
-    	views.getActionMap().put(action.getValue(Action.NAME), action);
+        views
+                .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(keys), action.getValue(Action.NAME));
+
+        views.getActionMap().put(action.getValue(Action.NAME), action);
     }
 
     public Main() {
         // Silly log4j
         Logger.getRootLogger().setLevel(Level.OFF);
-        
+
         if (mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll) {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception e) {
                 System.out.println("Couldn't set Look and Feel to system");
             }
-        }       
-        
+        }
+
         views = new JTabbedPane();
-        
+
         // Add menubar
         JMenuBar menuBar = new JMenuBar();
 
@@ -241,22 +244,34 @@ public class Main {
         modelMenu.addMenuListener(new MenuListener() {
             @Override
             public void menuSelected(MenuEvent e) {
-                if (getCurrentGraph().isFraud) {
-                    changeType.setText("Convert to e3value model");
+                if (getCurrentGraph() == null) {
+                    changeType.setText("Convert");
+                    changeType.setEnabled(false);
                 } else {
-                    changeType.setText("Convert to e3fraud model");
+                    if (getCurrentGraph().isFraud) {
+                        changeType.setText("Convert to e3value model");
+                    } else {
+                        changeType.setText("Convert to e3fraud model");
+                    }
+                    changeType.setEnabled(true);
                 }
             }
 
-            @Override public void menuDeselected(MenuEvent e) { } @Override public void menuCanceled(MenuEvent e) { }
+            @Override
+            public void menuDeselected(MenuEvent e) {
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent e) {
+            }
         });
 
         menuBar.add(modelMenu);
 
         JMenu toolMenu = new JMenu("Tools");
 
-        toolMenu.add(new EditorActions.ShowNetValueFlow(this));
-        toolMenu.add(new EditorActions.AnalyzeTransactions(this));
+        toolMenu.add(new EditorActions.ShowNetValueFlow(this)).setEnabled(false);
+        toolMenu.add(new EditorActions.AnalyzeTransactions(this)).setEnabled(false);
 
         toolMenu.addSeparator();
 
@@ -296,33 +311,33 @@ public class Main {
         addToolbarButton("disk", new EditorActions.Save(this));
 
         toolbar.addSeparator();
-        
+
         addToolbarButton("cut", new EditorActions.Cut(this));
         addToolbarButton("page_white_copy", new EditorActions.Copy(this));
         addToolbarButton("paste_plain", new EditorActions.Paste(this));
 
         toolbar.addSeparator();
-        
+
         addToolbarButton("magnifier_zoom_in", new EditorActions.ZoomIn(this));
         addToolbarButton("magnifier_zoom_out", new EditorActions.ZoomOut(this));
 
         toolbar.addSeparator();
-        
+
         addToolbarButton("page_copy", new EditorActions.DuplicateModel(this));
         addToolbarButton("page_refresh", new EditorActions.ChangeModelType(this));
         addToolbarButton("old/vo", new EditorActions.ShowValueObjectsPanel(this));
-        addToolbarButton("old/vt", new EditorActions.ShowValueTransactionsPanel(this));
+        //addToolbarButton("old/vt", new EditorActions.ShowValueTransactionsPanel(this));
 
         toolbar.addSeparator();
-        
-        addToolbarButton("old/nvf", new EditorActions.ShowNetValueFlow(this));
+
+        //addToolbarButton("old/nvf", new EditorActions.ShowNetValueFlow(this));
         addToolbarButton("old/e3fraud", new EditorActions.FraudGeneration(this));
         addToolbarButton("chart_curve", new EditorActions.ProfitabilityChart(this));
 
         toolbar.addSeparator();
-        
+
         addToolbarButton("help", new EditorActions.OpenHelpWiki(this));
-        
+
         // Shortcuts
         addGlobalShortcut("ctrl N", new EditorActions.NewTab(this, false));
         addGlobalShortcut("ctrl M", new EditorActions.NewTab(this, true));
@@ -348,7 +363,7 @@ public class Main {
         mainFrame.setVisible(true);
     }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         Main t = new Main();
     }
 }

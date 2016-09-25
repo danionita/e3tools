@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -103,7 +104,43 @@ public class ModelTab extends JPanel {
         			inputBox.setText(getTitleOfModel());
         			((CardLayout) headingText.getLayout()).show(headingText, "input");
         			inputBox.requestFocusInWindow();
+        		} else {
+        			container.dispatchEvent(SwingUtilities.convertMouseEvent(ModelTab.this, e, container));
         		}
+        	}
+        	
+        	// This mess is needed because otherwise the heading JPanel (ModelTab)
+        	// will block all mouse clicks, causing the valuable tab switching
+        	// feature to be disabled.
+        	
+        	@Override
+        	public void mousePressed(MouseEvent e) {
+				container.dispatchEvent(SwingUtilities.convertMouseEvent(ModelTab.this, e, container));
+        	}
+        	
+        	@Override
+        	public void mouseExited(MouseEvent e) {
+				container.dispatchEvent(SwingUtilities.convertMouseEvent(ModelTab.this, e, container));
+        	}
+        	
+        	@Override
+        	public void mouseReleased(MouseEvent e) {
+				container.dispatchEvent(SwingUtilities.convertMouseEvent(ModelTab.this, e, container));
+        	}
+        	
+        	@Override
+        	public void mouseEntered(MouseEvent e) {
+				container.dispatchEvent(SwingUtilities.convertMouseEvent(ModelTab.this, e, container));
+        	}
+        	
+        	@Override
+        	public void mouseDragged(MouseEvent e) {
+				container.dispatchEvent(SwingUtilities.convertMouseEvent(ModelTab.this, e, container));
+        	}
+        	
+        	@Override
+        	public void mouseMoved(MouseEvent e) {
+				container.dispatchEvent(SwingUtilities.convertMouseEvent(ModelTab.this, e, container));
         	}
 		});
 
