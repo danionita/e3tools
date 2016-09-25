@@ -178,30 +178,59 @@ public class E3Style {
 				.getTextContent()
 				.equals("true");
 		
+		// Get the market segment color from the xml
+		String marketSegmentColor = "#C0C0C0";
+		{
+			NodeList nl = doc.getDocumentElement().getChildNodes();
+			
+			Node n = null;
+			for (int i = 0; i < nl.getLength(); i++) {
+				Node candidate = nl.item(i);
+				if (!candidate.getNodeName().equals("add")) continue;
+				
+				String as = candidate
+						.getAttributes()
+						.getNamedItem("as")
+						.getTextContent();
+				
+				if (as.equals("MarketSegment")) {
+					n = nl.item(i);
+					break;
+				}
+			}
+			
+			if (n != null) {
+				nl = n.getChildNodes();
+				
+				for (int i = 0; i < nl.getLength(); i++) {
+					Node candidate = nl.item(i);
+					
+					if (!candidate.getNodeName().equals("add")) continue;
+					
+					String as = candidate
+							.getAttributes()
+							.getNamedItem("as")
+							.getTextContent();
+					
+					if (as.equals("fillColor")) {
+						n = nl.item(i);
+					}
+				}
+				
+				if (n != null) {
+					marketSegmentColor = n.getAttributes().getNamedItem("value").getTextContent();
+				}
+			}
+		}
+		
+		System.out.println("MarketSegmentColor: " + marketSegmentColor);
+		
 		// TODO: Fall back to default style somehow here and show an error box
 		// (if there is a space in the name - spaces are a recipe for disaster
 		if (name.contains(" ")) {
 			System.out.println("Error: name of style contains spaces!");
+			return;
 		}
-		
-		// Prepend name_ to all the node's as and extend attributes, s.t.
-		// the styles remain separate by namespace from eachother
-//		NodeList addNodes = doc.getDocumentElement().getElementsByTagName("add");
-//
-//		for (int i = 0; i < addNodes.getLength(); i++) {
-//			Node node = addNodes.item(i);
-//			NamedNodeMap nnm = node.getAttributes();
-//			
-//			Node asNode = nnm.getNamedItem("as");
-//			if (asNode != null) {
-//				asNode.setTextContent(name + "_" + asNode.getTextContent());
-//			}
-//			
-//			Node extendNode = nnm.getNamedItem("extend");
-//			if (extendNode != null) {
-//				extendNode.setTextContent(name + "_" + asNode.getTextContent());
-//			}
-//		}
 		
 		// Add all the stencils
 		addStringStencil(name + "_", startSignal);
@@ -214,8 +243,7 @@ public class E3Style {
 		addStringStencil(name + "_", westTriangle);
 		addStringStencil(name + "_", bar);
 		addStringStencil(name + "_", dot);
-		addMarketSegmentColor("", "#C0C0C0"); // Makes sure the default one has standard color
-		// TODO: Take standard color from xml, not constant #C0C0C0
+		addMarketSegmentColor("", marketSegmentColor); 
 	}
 
 	public void addMarketSegmentColor(String hexColor) {

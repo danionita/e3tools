@@ -44,28 +44,28 @@
 		<add as="rounded" value="1" />
 		<add as="shape" value="rectangle" />
 		<add as="perimeter" value="rectanglePerimeter" />
-		<add as="fillColor" value="#C0C0C0" />
-		<add as="gradientColor" value="#C0C0C0" />
+		<add as="fillColor" value="#FFFFFF" />
+		<add as="gradientColor" value="#FFFFFF" />
 	</add>
 	
 	<add as="Actor" extend="baseStyle">
 		<add as="shape" value="rectangle" />
-		<add as="fillColor" value="#C0C0C0" />
-		<add as="gradientColor" value="#C0C0C0" />
+		<add as="fillColor" value="#FFFFFF" />
+		<add as="gradientColor" value="#FFFFFF" />
 	</add>
 		
 	<add as="ColludedActor" extend="baseStyle">
 		<add as="shape" value="rectangle" />
-		<add as="fillColor" value="#C0C0C0" />
-		<add as="gradientColor" value="#C0C0C0" />
+		<add as="fillColor" value="#FFFFFF" />
+		<add as="gradientColor" value="#FFFFFF" />
 		<add as="strokeColor" value="#CCCCCC" />
 		<add as="strokeWidth" value="3" />
 	</add>
 	
 	<add as="MarketSegment" extend="baseStyle">
 		<add as="shape" value="{!name}_MarketSegmentStencil" />
-		<add as="fillColor" value="#C0C0C0" />
-		<add as="gradientColor" value="#C0C0C0" />
+		<add as="fillColor" value="#FFFFFF" />
+		<add as="gradientColor" value="#FFFFFF" />
 	</add>
 	
 	<add as="ValueInterface" extend="baseStyle">
@@ -193,7 +193,6 @@
 	<add as="Note">
 		<add as="verticalAlign" value="top" />
 		<add as="align" value="left" />
-		<add as="strokeColor" value="#808080" />
 		<add as="shape" value="{!name}_NoteStencil" />
 	</add>
 </mxStylesheet>

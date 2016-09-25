@@ -18,7 +18,7 @@
   <aspectratio type="fixed"/>
   <textbox x1="1" y1="1" x2="9" y2="9"/>
   <svg:svg width="10" height="10" style="stroke: #000000">
-    <svg:polygon points="0,0 0,10 9,10 9,9 10,9 10,0" style="fill: #AAAAAA; stroke: #000000"/>
+    <svg:polygon points="0,0 0,10 9,10 9,9 10,9 10,0" style="fill: #FFFFFF; stroke: #000000"/>
     <svg:polygon points="9,10 10,9 9,9" style="fill: #ffffff"/>
   </svg:svg>
 </shape>
