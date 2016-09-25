@@ -93,9 +93,8 @@ public class EditorActions {
             Optional<E3Graph> graph = Utils.openFile(main.mainFrame, fc);
             if (graph.isPresent()) {
                 main.addNewTabAndSwitch(graph.get());
-                
-                graph.get().style.styleGraphComponent(main.getCurrentGraphComponent());
-                main.getCurrentGraphComponent().refresh();
+//                graph.get().style.styleGraphComponent(main.getCurrentGraphComponent());
+//                main.getCurrentGraphComponent().refresh();
             }
         }
     }
@@ -984,8 +983,8 @@ public class EditorActions {
 			
 			// TODO: Make this undoable
 			main.getCurrentGraph().style = newStyle.get();
-			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent());
-			newStyle.get().styleGraphComponent(main.getCurrentToolComponent());
+			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent(), false);
+			newStyle.get().styleGraphComponent(main.getCurrentToolComponent(), false);
 		}
     }
 }

@@ -177,7 +177,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		new KeyboardHandler(this, undoManager);
 		
 		// Set styling of nodes, background color, etc.
-		((E3Graph) graph).style.styleGraphComponent(this);
+		((E3Graph) graph).style.styleGraphComponent(this, true);
 		
 		graph.getSelectionModel().addListener(mxEvent.CHANGE, new ProxySelection(graph));		
 
