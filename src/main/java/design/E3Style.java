@@ -21,6 +21,7 @@ package design;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -182,7 +183,42 @@ public class E3Style {
 	 * occurs, returns empty.
 	 */
 	public static Optional<E3Style> load(File file) {
-		throw new RuntimeException("E3Style loading not yet implemented!");
+		List<String> files = E3Style.requiredFiles.stream()
+			.map(entry -> Utils.readExternal(Utils.makePath(file.getPath(), entry)))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(Collectors.toList());
+		
+		// If one if them failed return empty
+		if (files.size() != 12) {
+			return Optional.empty();
+		}
+		
+		// Construct and return the style
+		return Optional.of(new E3Style(
+				files.get(0),
+				files.get(1),
+				files.get(2),
+				files.get(3),
+				files.get(4),
+				files.get(5),
+				files.get(6),
+				files.get(7),
+				files.get(8),
+				files.get(9),
+				files.get(10),
+				files.get(11)
+				));
+	}
+	
+	public static Optional<E3Style> load(String name) {
+		File file = new File(Utils.makePath(Main.e3styleDir.getPath(), name));
+		System.out.println("Checking: " + file.getPath());
+		if (file.exists() && file.isDirectory()) {
+			return load(file);
+		} else {
+			return loadInternal(name);
+		}
 	}
 	
 	public E3Style(
@@ -465,14 +501,24 @@ public class E3Style {
 	 * whatever's located in the e3editor settings folder on the current pc.
 	 */
 	public static List<String> getAvailableThemes() {
-		List includedWithEditor = Arrays.asList(
+		// Included with editor
+		List<String> candidates = new ArrayList<String>(Arrays.asList(
 				"E3Style",
 				"E3Mono"
-				);
+				));
 		
-		// TODO: Read a bunch of dirs in my documents
-		// TODO: Handle duplicates (or not)
-
-		return includedWithEditor;
+		File[] files = Main.e3styleDir.listFiles();
+		for (File file : files) {
+			if (!file.isDirectory()) continue;
+			
+			File[] dirFiles = file.listFiles();
+			if (Arrays.asList(dirFiles).stream()
+				.filter(dirFile -> dirFile.getName().equals("style.xml"))
+				.count() == 1) {
+				candidates.add(file.getName());
+			}
+		}
+		
+		return candidates;
 	}
 }

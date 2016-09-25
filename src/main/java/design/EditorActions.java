@@ -90,12 +90,10 @@ public class EditorActions {
         public void actionPerformed(ActionEvent e) {
             JFileChooser fc = Utils.getE3FileChooser();
 
-            Optional<E3Graph> graph = Utils.openFile(main.mainFrame, fc);
-            if (graph.isPresent()) {
-                main.addNewTabAndSwitch(graph.get());
-//                graph.get().style.styleGraphComponent(main.getCurrentGraphComponent());
-//                main.getCurrentGraphComponent().refresh();
-            }
+            Utils.openFile(main.mainFrame, fc).ifPresent(graph -> {
+                main.addNewTabAndSwitch(graph);
+                graph.style.styleGraphComponent(main.getCurrentToolComponent(), false);
+            });
         }
     }
 
@@ -966,7 +964,7 @@ public class EditorActions {
 			
 			Optional <E3Style> newStyle = Optional.empty();
 			if (choicesList.contains(result)) {
-				newStyle = E3Style.loadInternal(result);
+				newStyle = E3Style.load(result);
 			} else {
 				// TODO: Load an external one here
 			}

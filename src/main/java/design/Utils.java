@@ -23,10 +23,12 @@ package design;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -646,12 +648,22 @@ public class Utils {
     
     public static Optional<String> readInternal(String path) {
 		try {
-			String xmlString = mxUtils.readInputStream(E3Style.class.getResourceAsStream(path));
-			return Optional.of(xmlString);
+			String contents = mxUtils.readInputStream(E3Style.class.getResourceAsStream(path));
+			return Optional.of(contents);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return Optional.empty();
 		}
+    }
+    
+    public static Optional<String> readExternal(String path) {
+    	try {
+    		String contents = mxUtils.readInputStream(new FileInputStream(new File(path)));
+    		return Optional.of(contents);
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    		return Optional.empty();
+    	}
     }
     
     public static void update(mxGraph graph, Runnable runnable) {
@@ -663,4 +675,20 @@ public class Utils {
     	}
     }
     
+    /**
+     * Concatenates every element of strings with the systems default path separator 
+     * inbetween.
+     * @param strings
+     * @return
+     */
+    public static String makePath(String...strings) {
+    	if (strings.length < 1) return "";
+    	
+    	String result = strings[0];
+    	for (int i = 1; i < strings.length; i++) {
+    		result += FileSystems.getDefault().getSeparator() + strings[i];
+    	}
+    	
+    	return result;
+    }
 }

@@ -21,6 +21,9 @@
 package design;
 
 import java.awt.BorderLayout;
+import java.io.File;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -35,8 +38,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
@@ -56,6 +57,15 @@ public class Main {
 
     public static final int DEFAULT_CHART_WIDTH = 500;
     public static final int DEFAULT_CHART_HEIGHT = 400;
+
+	public static final File e3toolDir = new File(
+        	Utils.makePath(
+					System.getProperty("user.home")
+					, "e3tool"));
+    public static final File e3styleDir = new File(
+    		Utils.makePath(
+    				e3toolDir.getPath()
+    				, "styles"));
 
     public JTabbedPane views;
     private JToolBar toolbar;
@@ -354,7 +364,11 @@ public class Main {
         addNewTabAndSwitch(false);
 
         mainFrame.getContentPane().add(views, BorderLayout.CENTER);
-
+        
+        // Make sure e3toolDirs exists
+        e3toolDir.mkdirs();
+        e3styleDir.mkdirs();
+        
         // Show main screen
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setSize(1024, 800);
