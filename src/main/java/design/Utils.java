@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
@@ -54,11 +55,15 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
+import design.info.Actor;
 import design.info.Base;
+import design.info.ConnectionElement;
 import design.info.EndSignal;
 import design.info.LogicDot;
+import design.info.MarketSegment;
 import design.info.SignalDot;
 import design.info.StartSignal;
+import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
@@ -684,11 +689,64 @@ public class Utils {
     public static String makePath(String...strings) {
     	if (strings.length < 1) return "";
     	
+    	// I would use Stream::reduce here but it's actually not commutative
+    	// nor associative!
+    	
     	String result = strings[0];
     	for (int i = 1; i < strings.length; i++) {
     		result += FileSystems.getDefault().getSeparator() + strings[i];
     	}
     	
     	return result;
+    }
+    
+    public static String getStyle(Object cell) {
+    	return ((mxCell) cell).getStyle();
+    }
+    
+    public static class IsEntityFilter {
+    	public static Predicate<Object> forGraph(E3Graph graph) {
+    		return (obj -> {
+					Object value = graph.getModel().getValue(obj);
+					return value instanceof MarketSegment
+							|| value instanceof Actor
+							|| value instanceof ValueActivity;
+				});
+    	}
+
+		private Object graph;
+    	
+    	private IsEntityFilter(E3Graph graph) {
+    		this.graph = graph;
+    	}
+    }
+    
+    public static void setCellsDefaultStyles(E3Graph graph) {
+		Utils.update(graph, () -> {
+			Utils.getAllCells(graph)
+				.stream()
+				.forEach(o -> {
+					Object val = graph.getModel().getValue(o);
+					
+					Object[] cells = new Object[]{o};
+					
+					if (val instanceof MarketSegment) {
+						graph.setCellStyle("MarketSegment", cells);
+					} else if (val instanceof Actor) {
+						Actor actor = (Actor) val;
+						if (actor.colluded) {
+							graph.setCellStyle("ColludedActor", cells);
+						} else {
+							graph.setCellStyle("Actor", cells);
+						}
+					} else if (val instanceof ValueActivity) {
+						graph.setCellStyle("ValueActivity", cells);
+					} else if (val instanceof ValueExchange) {
+						graph.setCellStyle("ValueExchange");
+					} else if (val instanceof ConnectionElement) {
+						graph.setCellStyle("ConnectionElement");
+					}
+				});
+		}); 
     }
 }

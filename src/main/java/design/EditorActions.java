@@ -25,6 +25,7 @@ import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxCellRenderer;
 
 import design.export.JSONExport;
@@ -92,7 +93,6 @@ public class EditorActions {
 
             Utils.openFile(main.mainFrame, fc).ifPresent(graph -> {
                 main.addNewTabAndSwitch(graph);
-                graph.style.styleGraphComponent(main.getCurrentToolComponent(), false);
             });
         }
     }
@@ -965,8 +965,6 @@ public class EditorActions {
 			Optional <E3Style> newStyle = Optional.empty();
 			if (choicesList.contains(result)) {
 				newStyle = E3Style.load(result);
-			} else {
-				// TODO: Load an external one here
 			}
 			
 			if (!newStyle.isPresent()) {
@@ -979,10 +977,22 @@ public class EditorActions {
 				return;
 			}
 			
-			// TODO: Make this undoable
-			main.getCurrentGraph().style = newStyle.get();
-			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent(), false);
-			newStyle.get().styleGraphComponent(main.getCurrentToolComponent(), false);
+			E3Style style = newStyle.get();
+			E3Graph graph = main.getCurrentGraph();
+			
+			ThemeChange themeChange = new ThemeChange(
+					main.getCurrentGraphComponent(),
+					main.getCurrentToolComponent(),
+					style,
+					false);
+
+			Utils.update(graph, () -> {
+				((mxGraphModel) graph.getModel()).execute(themeChange);
+			});
+			
+//			main.getCurrentGraph().style = style;
+//			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent(), false);
+//			newStyle.get().styleGraphComponent(main.getCurrentToolComponent(), false);
 		}
     }
 }

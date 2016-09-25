@@ -371,7 +371,7 @@ public class E3Style {
 	 * valueactivity specific styling.
 	 * @param graphComponent
 	 */
-	public void styleGraphComponent(mxGraphComponent graphComponent, boolean keepSpecificColoring) {
+	public void styleGraphComponent(mxGraphComponent graphComponent) {
 		System.out.println("Styling graph with " + name);
 		
 		mxGraph graph = graphComponent.getGraph();
@@ -394,32 +394,6 @@ public class E3Style {
 		
 		// To get rid of the folding icon
 		graphComponent.setFoldingEnabled(false);
-		
-		// Make sure all the actor-ish cells take the color of the theme
-		if (!keepSpecificColoring) {
-			Utils.update(graph, () -> {
-				Utils.getAllCells(graph)
-					.stream()
-					.forEach(o -> {
-						Object val = graph.getModel().getValue(o);
-						
-						Object[] cells = new Object[]{o};
-						
-						if (val instanceof MarketSegment) {
-							graph.setCellStyle("MarketSegment", cells);
-						} else if (val instanceof Actor) {
-							Actor actor = (Actor) val;
-							if (actor.colluded) {
-								graph.setCellStyle("ColludedActor", cells);
-							} else {
-								graph.setCellStyle("Actor", cells);
-							}
-						} else if (val instanceof ValueActivity) {
-							graph.setCellStyle("ValueActivity", cells);
-						}
-					});
-			}); 
-		}
 		
 		// Refresh to propagate changes
 		graph.refresh();

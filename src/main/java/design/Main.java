@@ -93,9 +93,6 @@ public class Main {
     }
 
     public void addNewTabAndSwitch(E3Graph graph) {
-    	// Allowed here because it's the default style which is always there
-    	E3Style style = E3Style.loadInternal("E3Style").get();
-    	
         E3GraphComponent graphComponent = new E3GraphComponent(graph);
 
         graph.getModel().beginUpdate();
@@ -108,7 +105,7 @@ public class Main {
         graphComponent.refresh();
 
         // Create split view
-        JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(style), graphComponent);
+        JSplitPane mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new ToolComponent(graph.style), graphComponent);
         mainpane.setResizeWeight(0.025);
 
         if (graph.isFraud) {

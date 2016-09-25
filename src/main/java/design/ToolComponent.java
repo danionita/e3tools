@@ -94,7 +94,7 @@ public class ToolComponent extends mxGraphComponent {
 		
 		this.style = style; 
 		
-		style.styleGraphComponent(this, false);
+		style.styleGraphComponent(this);
 
 		// To make sure cells are immovable and unresizable and such
 		graph.setCellsLocked(true);
