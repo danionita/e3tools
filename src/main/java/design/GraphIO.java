@@ -192,7 +192,18 @@ public class GraphIO {
 		}
 
 		// Load the default style as backup
-		E3Style style = E3Style.loadInternal("E3Style").orElseThrow(() -> {throw new RuntimeException("Basic E3Style not found internally");});
+		E3Style style = null;
+		{
+			Optional<E3Style> opt = E3Style.loadInternal("E3Style");
+			if (opt.isPresent()) {
+				style = opt.get();
+			} else {
+				throw new RuntimeException("Error loading internal e3style");
+			}
+		}
+		
+		
+		
 		if (files.containsKey("style/style.xml") || files.get("style/style.xml") != null) {
 			List<String> styleFiles = E3Style.requiredFiles
 				.stream()
