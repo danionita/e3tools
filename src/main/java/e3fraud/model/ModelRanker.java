@@ -25,6 +25,8 @@ import java.util.Set;
 import javax.swing.SwingWorker;
 import static java.lang.Math.max;
 import static java.lang.Math.max;
+import static java.lang.Math.max;
+import static java.lang.Math.max;
 
 /**
  *

@@ -16,7 +16,6 @@
  */
 package e3fraud.model;
 
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +31,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -40,6 +38,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import design.Utils;
 import e3fraud.gui.PopUps;
 import e3fraud.vocabulary.E3value;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -53,7 +52,7 @@ public class E3Model {
     private Utils.GraphDelta fraudChanges;
     private String prefix;
 
-    public boolean isIsFraud() {
+    public boolean isFraud() {
         return isFraud;
     }
 
@@ -130,6 +129,38 @@ public class E3Model {
     }
 
     /**
+     * Tries to resolve all formulas containing expressions to numbers
+     *
+     * @return true if all formulas have been successfully evaluated and
+     * resolved to numbers; false otherwise.
+     */
+    public boolean resolveFormulas() {
+        ResIterator resourcesWithFormulas = model.listSubjectsWithProperty(E3value.e3_has_formula);
+        //for every element of the model
+        while (resourcesWithFormulas.hasNext()) {
+            //get its formulas
+            Resource resource = resourcesWithFormulas.next();
+            StmtIterator formulas = resource.listProperties(E3value.e3_has_formula);
+            //for each formula
+            while (formulas.hasNext()) {
+                Statement formula = formulas.next();
+                String attribute = formula.getString().split("=", 2)[0];
+                String expression = formula.getString().split("=", 2)[2];
+                //If it contains characters
+                if (Pattern.matches("[a-zA-Z]+", expression)) {
+                    //DependencyEngine e = new DependencyEngine(new BasicEngineProvider());                   
+                    //TODO: Translate expression into expr4j dependency?             
+                    // int id = resource.getId();
+                    //        e.set("e3{#" + id + attribute + "}", "=e3{#idOfreferencedObject.referencedAttribute}*2");
+                    
+                    //After, hopefully the expression related to an attribute can be evaluated by calling e.getValue(Range.valueOf("e3{id.attribute}").
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Computes and appends occurrence rates to each ValueInterface (to allow
      * easier computation of Profit per actor by getTotalForActor(Resource
      * actor). ATTENTION: this method MUST be ran every time an update is done
@@ -159,6 +190,7 @@ public class E3Model {
             //System.out.println("\t...Finished!\n");
         }
 
+        //resolveFormulas();
     }
 
     /**

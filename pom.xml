@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.utwente.e3fraud</groupId>
     <artifactId>e3tools</artifactId>
-    <version>0.2.1-SECONDBETA</version>
+    <version>0.2.2-BETA</version>
     <dependencies>
         <dependency>
             <groupId>org.tinyjee.jgraphx</groupId>
@@ -54,23 +54,28 @@
             <artifactId>javahelp</artifactId>
             <version>2.0.05</version>
         </dependency>
-		<!-- https://mvnrepository.com/artifact/javax.json/javax.json-api -->
-		<dependency>
-			<groupId>javax.json</groupId>
-			<artifactId>javax.json-api</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish</groupId>
-			<artifactId>javax.json</artifactId>
-			<version>1.0.4</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/xstream/xstream -->
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-			<version>1.2.2</version>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/javax.json/javax.json-api -->
+        <dependency>
+            <groupId>javax.json</groupId>
+            <artifactId>javax.json-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/xstream/xstream -->
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dotloop</groupId>
+            <artifactId>expr4j</artifactId>
+            <version>0.0.2</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
