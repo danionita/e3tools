@@ -1,0 +1,868 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:a="http://www.cs.vu.nl/~gordijn/e3value#" > 
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#27">
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-name>vp27</a:e3-has-name>
+    <a:vp-has-dir>true</a:vp-has-dir>
+    <a:e3-has-uid>27</a:e3-has-uid>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#76"/>
+    <a:vp-out-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#49"/>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#59">
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#57"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#65"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#18"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#53"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#10"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#19"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#23"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#30"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#11"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#74"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#49"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#71"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#37"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#76"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#61"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#64"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#39"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#77"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#34"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#29"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#diagram"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#3"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#22"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#17"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#6"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#21"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#48"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#5"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#56"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#41"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#47"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#35"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#73"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#43"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#70"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#7"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#31"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#75"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#2"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#45"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#14"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#52"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#1"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#27"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#33"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#4"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#15"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#46"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#54"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#67"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#55"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#68"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#72"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#9"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#60"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#0"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#26"/>
+    <a:e3-has-uid>59</a:e3-has-uid>
+    <a:e3-has-name>diagram59</a:e3-has-name>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#50"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#78"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#25"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#63"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#69"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#66"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#13"/>
+    <a:di-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#51"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#15">
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#70"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:vp-has-dir>true</a:vp-has-dir>
+    <a:e3-has-name>vp15</a:e3-has-name>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:vp-out-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#45"/>
+    <a:e3-has-uid>15</a:e3-has-uid>
+    <a:e3-has-formula>MYVAR=e3{'vp35'.CADINALITY}+15</a:e3-has-formula>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#47">
+    <a:ve-has-out-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#19"/>
+    <a:ve-has-in-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#10"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-exchange"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>CARDINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>Call</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>47</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#35">
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#68"/>
+    <a:e3-has-formula>CADINALITY=10</a:e3-has-formula>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:vp-has-dir>true</a:vp-has-dir>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:e3-has-name>vp35</a:e3-has-name>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-uid>35</a:e3-has-uid>
+    <a:vp-out-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#51"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#19">
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#72"/>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:e3-has-name>vp19</a:e3-has-name>
+    <a:e3-has-uid>19</a:e3-has-uid>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:vp-out-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#47"/>
+    <a:vp-has-dir>true</a:vp-has-dir>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#39">
+    <a:de-down-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#53"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#start-stimulus"/>
+    <a:e3-has-formula>OCCURRENCES=1</a:e3-has-formula>
+    <a:e3-has-name>Make call</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>39</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#63">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#6"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#5"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>in</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>63</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#51">
+    <a:ve-has-in-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#30"/>
+    <a:ve-has-out-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#35"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-exchange"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>CARDINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>Proof of subscription</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>51</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#5">
+    <a:de-up-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#52"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#64"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#63"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-interface"/>
+    <a:e3-has-name>vi5</a:e3-has-name>
+    <a:vi-assigned-to-ac rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#1"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>5</a:e3-has-uid>
+    <a:e3-has-formula>EXPENSES=10</a:e3-has-formula>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#71">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#18"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#17"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>in</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>71</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#23">
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:vp-has-dir>true</a:vp-has-dir>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#74"/>
+    <a:e3-has-uid>23</a:e3-has-uid>
+    <a:e3-has-formula>VALUATION=0.07 + e3{YoMomma('vi5').EXPENSES}</a:e3-has-formula>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#60"/>
+    <a:vp-out-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#48"/>
+    <a:e3-has-name>vp23</a:e3-has-name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#67">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#34"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#33"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>in</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>67</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#11">
+    <a:vp-has-dir>true</a:vp-has-dir>
+    <a:e3-has-uid>11</a:e3-has-uid>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#66"/>
+    <a:vp-out-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#46"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-name>vp11</a:e3-has-name>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#55">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#connection-element"/>
+    <a:e3-has-formula>OCCURRENCES=1</a:e3-has-formula>
+    <a:e3-has-name>ConnectionElement55</a:e3-has-name>
+    <a:ce-with-down-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#21"/>
+    <a:ce-with-up-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#17"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>55</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#43">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#end-stimulus"/>
+    <a:e3-has-formula>OCCURRENCES=0</a:e3-has-formula>
+    <a:e3-has-name>EndSignal9</a:e3-has-name>
+    <a:de-up-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#57"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>43</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#1">
+    <a:e3-has-formula>INVESTMENT=0</a:e3-has-formula>
+    <a:e3-has-name>User A</a:e3-has-name>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#elementary-actor"/>
+    <a:ac-has-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#9"/>
+    <a:e3-has-uid>1</a:e3-has-uid>
+    <a:e3-has-formula>INTEREST=0</a:e3-has-formula>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:ac-has-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#5"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#31">
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-name>vp31</a:e3-has-name>
+    <a:vp-out-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#50"/>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#78"/>
+    <a:vp-has-dir>true</a:vp-has-dir>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:e3-has-uid>31</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#75">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#26"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#25"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>in</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>75</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#9">
+    <a:de-up-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#53"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#66"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#65"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-interface"/>
+    <a:e3-has-name>vi9</a:e3-has-name>
+    <a:vi-assigned-to-ac rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#1"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>9</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#48">
+    <a:ve-has-in-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#26"/>
+    <a:ve-has-out-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#23"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-exchange"/>
+    <a:e3-has-formula>VALUATION=0.07</a:e3-has-formula>
+    <a:e3-has-formula>CARDINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>Interconnection fee</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>48</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#68">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#35"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#33"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>out</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>68</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#52">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#connection-element"/>
+    <a:e3-has-formula>OCCURRENCES=1</a:e3-has-formula>
+    <a:e3-has-name>ConnectionElement52</a:e3-has-name>
+    <a:ce-with-down-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#5"/>
+    <a:ce-with-up-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#37"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>52</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#6">
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-name>vp6</a:e3-has-name>
+    <a:vp-in-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#45"/>
+    <a:vp-has-dir>false</a:vp-has-dir>
+    <a:e3-has-uid>6</a:e3-has-uid>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#63"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#72">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#19"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#17"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>out</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>72</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#60">
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#26"/>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#23"/>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#14"/>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#7"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-object"/>
+    <a:e3-has-name>MONEY</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>60</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#56">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#connection-element"/>
+    <a:e3-has-formula>OCCURRENCES=1</a:e3-has-formula>
+    <a:e3-has-name>ConnectionElement56</a:e3-has-name>
+    <a:ce-with-down-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#29"/>
+    <a:ce-with-up-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#25"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>56</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#2">
+    <a:ac-has-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#33"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#elementary-actor"/>
+    <a:e3-has-formula>INTEREST=0</a:e3-has-formula>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:e3-has-formula>INVESTMENT=0</a:e3-has-formula>
+    <a:e3-has-name>User B</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>2</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#76">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#27"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#25"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>out</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>76</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#64">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#7"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#5"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>out</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>64</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#49">
+    <a:ve-has-out-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#27"/>
+    <a:ve-has-in-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#22"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-exchange"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>CARDINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>Interconnection</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>49</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#37">
+    <a:de-down-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#52"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#start-stimulus"/>
+    <a:e3-has-formula>OCCURRENCES=1</a:e3-has-formula>
+    <a:e3-has-name>Subscribe</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>37</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#25">
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#76"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#75"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-interface"/>
+    <a:e3-has-name>vi25</a:e3-has-name>
+    <a:de-down-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#56"/>
+    <a:vi-assigned-to-ac rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#4"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>25</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#69">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#14"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#13"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>in</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>69</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#57">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#connection-element"/>
+    <a:e3-has-formula>OCCURRENCES=1</a:e3-has-formula>
+    <a:e3-has-name>ConnectionElement57</a:e3-has-name>
+    <a:ce-with-down-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#43"/>
+    <a:ce-with-up-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#33"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>57</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#13">
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#70"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#69"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-interface"/>
+    <a:e3-has-name>vi13</a:e3-has-name>
+    <a:de-down-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#54"/>
+    <a:vi-assigned-to-ac rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#3"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>13</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#29">
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#78"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#77"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-interface"/>
+    <a:e3-has-name>vi29</a:e3-has-name>
+    <a:de-up-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#56"/>
+    <a:vi-assigned-to-ac rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#4"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>29</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#17">
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#72"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#71"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-interface"/>
+    <a:e3-has-name>vi17</a:e3-has-name>
+    <a:de-down-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#55"/>
+    <a:vi-assigned-to-ac rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#3"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>17</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#7">
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#64"/>
+    <a:e3-has-uid>7</a:e3-has-uid>
+    <a:e3-has-name>vp7</a:e3-has-name>
+    <a:vp-out-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#0"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:vp-has-dir>true</a:vp-has-dir>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#60"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:e3-has-formula>VALUATION=37.5</a:e3-has-formula>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#41">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#end-stimulus"/>
+    <a:e3-has-formula>OCCURRENCES=0</a:e3-has-formula>
+    <a:e3-has-name>EndSignal9</a:e3-has-name>
+    <a:de-up-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#54"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>41</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#73">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#22"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#21"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>in</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>73</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#61">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-object"/>
+    <a:e3-has-name>MONEY-SECURED</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>61</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#45">
+    <a:ve-has-out-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#15"/>
+    <a:ve-has-in-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#6"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-exchange"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>CARDINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>Subscription
+for one month
+</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>45</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#3">
+    <a:e3-has-uid>3</a:e3-has-uid>
+    <a:e3-has-formula>INVESTMENT=0</a:e3-has-formula>
+    <a:ac-has-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#17"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#elementary-actor"/>
+    <a:e3-has-name>Provider A</a:e3-has-name>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:ac-has-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#21"/>
+    <a:e3-has-formula>INTEREST=0</a:e3-has-formula>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:ac-has-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#13"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#33">
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#68"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#67"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-interface"/>
+    <a:e3-has-name>vi33</a:e3-has-name>
+    <a:de-down-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#57"/>
+    <a:vi-assigned-to-ac rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#2"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>33</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#77">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#30"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#29"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>in</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>77</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#65">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#10"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#9"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>in</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>65</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#21">
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#74"/>
+    <a:vi-consists-of-of rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#73"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-interface"/>
+    <a:e3-has-name>vi21</a:e3-has-name>
+    <a:de-up-ce rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#55"/>
+    <a:vi-assigned-to-ac rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#3"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>21</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#53">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#connection-element"/>
+    <a:e3-has-formula>OCCURRENCES=1</a:e3-has-formula>
+    <a:e3-has-name>ConnectionElement53</a:e3-has-name>
+    <a:ce-with-down-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#9"/>
+    <a:ce-with-up-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#39"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>53</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#26">
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#75"/>
+    <a:e3-has-uid>26</a:e3-has-uid>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:vp-has-dir>false</a:vp-has-dir>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:vp-in-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#48"/>
+    <a:e3-has-name>vp26</a:e3-has-name>
+    <a:e3-has-formula>VALUATION=0.07</a:e3-has-formula>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#60"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#58">
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#47"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#61"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#27"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#41"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#70"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#43"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#72"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#74"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#76"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#31"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#23"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#1"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#66"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#52"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#54"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#model"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#35"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#15"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#6"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#19"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#11"/>
+    <a:e3-has-name>model58</a:e3-has-name>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#46"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#26"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#34"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#71"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#73"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#75"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#22"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#0"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#49"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#63"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#65"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#78"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#51"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#53"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#45"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#14"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#3"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#18"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#5"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#7"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#9"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#56"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#10"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#57"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#37"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#39"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#25"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#29"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#33"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#68"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#21"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#48"/>
+    <a:e3-has-uid>58</a:e3-has-uid>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#60"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#64"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#77"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#50"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#30"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#2"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#13"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#4"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#17"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#67"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#55"/>
+    <a:mo-has-mc rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#69"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#14">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:e3-has-formula>VALUATION=37.5</a:e3-has-formula>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#60"/>
+    <a:vp-has-dir>false</a:vp-has-dir>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#69"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:e3-has-name>vp14</a:e3-has-name>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:e3-has-uid>14</a:e3-has-uid>
+    <a:vp-in-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#46">
+    <a:ve-has-in-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#18"/>
+    <a:ve-has-out-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#11"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-exchange"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>CARDINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>Proof of
+subscription</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>46</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#18">
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:vp-has-dir>false</a:vp-has-dir>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-name>vp18</a:e3-has-name>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#71"/>
+    <a:vp-in-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#46"/>
+    <a:e3-has-uid>18</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#74">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#23"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#21"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>out</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>74</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#30">
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:e3-has-name>vp30</a:e3-has-name>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#77"/>
+    <a:vp-in-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#51"/>
+    <a:e3-has-uid>30</a:e3-has-uid>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:vp-has-dir>false</a:vp-has-dir>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#62">
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#34"/>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#10"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#27"/>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#19"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-object"/>
+    <a:e3-has-name>SERVICE</a:e3-has-name>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#22"/>
+    <a:e3-has-uid>62</a:e3-has-uid>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#6"/>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#31"/>
+    <a:vo-offered-requested-by-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#15"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#50">
+    <a:ve-has-out-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#31"/>
+    <a:ve-has-in-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#34"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-exchange"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>CARDINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>Call</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>50</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#4">
+    <a:e3-has-name>Provider B</a:e3-has-name>
+    <a:ac-has-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#29"/>
+    <a:e3-has-formula>INTEREST=0</a:e3-has-formula>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:e3-has-uid>4</a:e3-has-uid>
+    <a:e3-has-formula>INVESTMENT=0</a:e3-has-formula>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:ac-has-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#25"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#elementary-actor"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#78">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#31"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#29"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>out</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>78</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#34">
+    <a:e3-has-name>vp34</a:e3-has-name>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:e3-has-uid>34</a:e3-has-uid>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <a:vp-in-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#50"/>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#67"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:vp-has-dir>false</a:vp-has-dir>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#66">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#11"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#9"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>out</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>66</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#22">
+    <a:e3-has-name>vp22</a:e3-has-name>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#73"/>
+    <a:e3-has-uid>22</a:e3-has-uid>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:vp-has-dir>false</a:vp-has-dir>
+    <a:vp-in-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#49"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#10">
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:vp-in-connects-ve rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#47"/>
+    <a:e3-has-uid>10</a:e3-has-uid>
+    <a:e3-has-formula>CADINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>vp10</a:e3-has-name>
+    <a:vp-has-dir>false</a:vp-has-dir>
+    <a:vp-requests-offers-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#62"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-port"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:vp-in-vo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#65"/>
+    <a:e3-has-formula>VALUATION=0</a:e3-has-formula>
+    <a:e3-has-formula>EXPENSES=0</a:e3-has-formula>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#54">
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#connection-element"/>
+    <a:e3-has-formula>OCCURRENCES=13</a:e3-has-formula>
+    <a:e3-has-name>ConnectionElement54</a:e3-has-name>
+    <a:ce-with-down-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#41"/>
+    <a:ce-with-up-de rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#13"/>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>54</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#0">
+    <a:ve-has-in-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#14"/>
+    <a:ve-has-out-po rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#7"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-exchange"/>
+    <!-- Should be: 37.5 + 1 + 13 + 70 = 121.5 --> 
+    <a:e3-has-formula>VALUATION=37.5 + e3{CARDINALITY} + e3{#54.OCCURRENCES} + e3{'funkyOut'.MYFUNKYID}</a:e3-has-formula>
+    <a:e3-has-formula>CARDINALITY=1</a:e3-has-formula>
+    <a:e3-has-name>SubscriptionFee</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>0</a:e3-has-uid>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.cs.vu.nl/~gordijn/TestModel#70">
+    <a:vo-consists-of-vp rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#15"/>
+    <a:vo-in-vi rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#13"/>
+    <rdf:type rdf:resource="http://www.cs.vu.nl/~gordijn/e3value#value-offering"/>
+    <a:e3-has-name>funkyOut</a:e3-has-name>
+    <a:mc-in-di rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#59"/>
+    <a:mc-in-mo rdf:resource="http://www.cs.vu.nl/~gordijn/TestModel#58"/>
+    <a:e3-has-uid>70</a:e3-has-uid>
+    <a:e3-has-formula>MYFUNKYID=70</a:e3-has-formula>
+  </rdf:Description>
+</rdf:RDF>
