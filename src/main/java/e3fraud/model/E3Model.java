@@ -138,7 +138,8 @@ public class E3Model {
      * to the model (such as a parameter change).
      */
     public void enhance() {        
-        evaluatedModel = new EvaluatedModel(this.getJenaModel());
+    	// TODO: If this fails, make sure the computation stops and shows a messagebox or something
+        evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
         
         //get a list of Start Stimuli
         ResIterator startStimuli = model.listSubjectsWithProperty(RDF.type, E3value.start_stimulus);
@@ -164,7 +165,8 @@ public class E3Model {
             //System.out.println("\t...Finished!\n");
         }
         
-        evaluatedModel = new EvaluatedModel(this.getJenaModel());
+        // TODO: Same as above (error handling)
+        evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
     }
 
     /**
