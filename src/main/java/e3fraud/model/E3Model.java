@@ -38,6 +38,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import design.Utils;
 import e3fraud.gui.PopUps;
 import e3fraud.vocabulary.E3value;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -51,6 +52,7 @@ public class E3Model {
     private boolean isFraud;
     private Utils.GraphDelta fraudChanges;
     private String prefix;
+    private EvaluatedModel evaluatedModel;
 
     public boolean isFraud() {
         return isFraud;
@@ -127,46 +129,17 @@ public class E3Model {
         this.colludedActorURI = baseModel.colludedActorURI;
         this.newActorURI = baseModel.newActorURI;
     }
-
+    
     /**
-     * Tries to resolve all formulas containing expressions to numbers
-     *
-     * @return true if all formulas have been successfully evaluated and
-     * resolved to numbers; false otherwise.
-     */
-    public boolean resolveFormulas() {
-        ResIterator resourcesWithFormulas = model.listSubjectsWithProperty(E3value.e3_has_formula);
-        //for every element of the model
-        while (resourcesWithFormulas.hasNext()) {
-            //get its formulas
-            Resource resource = resourcesWithFormulas.next();
-            StmtIterator formulas = resource.listProperties(E3value.e3_has_formula);
-            //for each formula
-            while (formulas.hasNext()) {
-                Statement formula = formulas.next();
-                String attribute = formula.getString().split("=", 2)[0];
-                String expression = formula.getString().split("=", 2)[2];
-                //If it contains characters
-                if (Pattern.matches("[a-zA-Z]+", expression)) {
-                    //DependencyEngine e = new DependencyEngine(new BasicEngineProvider());                   
-                    //TODO: Translate expression into expr4j dependency?             
-                    // int id = resource.getId();
-                    //        e.set("e3{#" + id + attribute + "}", "=e3{#idOfreferencedObject.referencedAttribute}*2");
-                    
-                    //After, hopefully the expression related to an attribute can be evaluated by calling e.getValue(Range.valueOf("e3{id.attribute}").
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Computes and appends occurrence rates to each ValueInterface (to allow
-     * easier computation of Profit per actor by getTotalForActor(Resource
-     * actor). ATTENTION: this method MUST be ran every time an update is done
+     * Resolves all formulas, then computes and appends occurrence rates to each 
+     * ValueInterface (to allow  easier computation of Profit per actor by 
+     * getTotalForActor(Resource actor). 
+     * ATTENTION: this method MUST be ran every time an update is done
      * to the model (such as a parameter change).
      */
-    public void enhance() {
+    public void enhance() {        
+        evaluatedModel = new EvaluatedModel(this.getJenaModel());
+        
         //get a list of Start Stimuli
         ResIterator startStimuli = model.listSubjectsWithProperty(RDF.type, E3value.start_stimulus);
 
@@ -179,8 +152,9 @@ public class E3Model {
             StmtIterator startStimulusFormulas = startStimulus.listProperties(E3value.e3_has_formula);
             while (startStimulusFormulas.hasNext()) {
                 Statement formula = startStimulusFormulas.next();
-                if (formula.getString().split("=", 2)[0].equals("OCCURRENCES")) {
-                    occurences = Float.valueOf(formula.getString().split("=", 2)[1]);
+                String attribute = formula.getString().split("=", 2)[0];
+                if (attribute.equals("OCCURRENCES")) {
+                    occurences = valueOf(startStimulus, attribute);
                 }
             }
             //get nextElement down the line
@@ -189,8 +163,8 @@ public class E3Model {
             traverse(nextElement, occurences);
             //System.out.println("\t...Finished!\n");
         }
-
-        //resolveFormulas();
+        
+        evaluatedModel = new EvaluatedModel(this.getJenaModel());
     }
 
     /**
@@ -251,12 +225,13 @@ public class E3Model {
                 //if the Value Interface was part of a MarketSegment, multiply the occurence by the count of this MarketSegment
                 if (nextElement.hasProperty(E3value.vi_assigned_to_ms)) {
                     Resource marketSegment = nextElement.getPropertyResourceValue(E3value.vi_assigned_to_ms);
-                    int count = 1;
+                    double count = 1;
                     StmtIterator formulas = marketSegment.listProperties(E3value.e3_has_formula);
                     while (formulas.hasNext()) {
                         Statement formula = formulas.next();
-                        if (formula.getString().split("=", 2)[0].equals("COUNT")) {
-                            count = Integer.valueOf(formula.getString().split("=", 2)[1]);
+                        String attribute = formula.getString().split("=", 2)[0];
+                        if (attribute.equals("COUNT")) {
+                            count = valueOf(marketSegment, attribute);                            
                         }
                     }
                     //System.out.println("\t\tExiting MS. Multiplying occurences by " + count);
@@ -310,12 +285,13 @@ public class E3Model {
                 //if the Value Interface is part of a MarketSegment, divide the occurence by the count of this MarketSegment
                 if (nextElement.hasProperty(E3value.vi_assigned_to_ms)) {
                     Resource marketSegment = nextElement.getPropertyResourceValue(E3value.vi_assigned_to_ms);
-                    int count = 1;
+                    double count = 1;
                     StmtIterator formulas = marketSegment.listProperties(E3value.e3_has_formula);
                     while (formulas.hasNext()) {
                         Statement formula = formulas.next();
-                        if (formula.getString().split("=", 2)[0].equals("COUNT")) {
-                            count = Integer.valueOf(formula.getString().split("=", 2)[1]);
+                        String attribute = formula.getString().split("=", 2)[0];
+                        if (attribute.equals("COUNT")) {
+                            count = valueOf(marketSegment, attribute);
                         }
                     }
                     //System.out.println("\t\tEntering MS. Dividing occurences by " + count);
@@ -511,15 +487,42 @@ public class E3Model {
         return true;
     }
 
-    public int getNeedOccurrence(Resource need) {
-        Statement formula = need.getProperty(E3value.e3_has_formula);
-        int value = Integer.valueOf(formula.getString().split("=", 2)[1]);
-        return value;
-    }
-
-    public void setNeedOccurrence(Resource need, int occurrence) {
+    public boolean updateNeedOccurrence(Resource need, int occurrence) {
+        //first, check if input is really a need:
+        if (!need.hasProperty(RDF.type, E3value.start_stimulus)) {
+            System.err.println("Attempted to set occurence rate on a node which is not a need!");
+            return false;
+        }
         Statement formula = need.getProperty(E3value.e3_has_formula);
         formula.changeObject("OCCURRENCES=" + occurrence);
+        return true;
+    }
+
+    public double getNeedOccurrence(Resource need) {
+        Statement formula = need.getProperty(E3value.e3_has_formula);
+        String attribute = formula.getString().split("=", 2)[0];
+        if (attribute.equals("OCCURRENCE")) {
+            double value = valueOf(need, attribute);
+            return value;
+        }
+        return 0;
+    }
+
+    /**
+     * Computes and returns the value of an elements' attribute
+     * element
+     *
+     * @param element
+     * @param attribute
+     * @return numerical value (or 0 if attribute was not found)
+     */
+    public double valueOf(Resource element, String attribute) {
+        String uuid = element.getProperty(E3value.e3_has_uid).getString();       
+        Optional<Double> val = this.evaluatedModel.valueOf("#"+uuid+"."+attribute);
+        if(val.isPresent()){
+        return val.get();
+        }        
+        return 0;
     }
 
     /**
@@ -597,15 +600,16 @@ public class E3Model {
             while (actorFormulas.hasNext()) {
                 Statement formula = actorFormulas.next();
                 String formulaString = formula.getString();
-                if (formulaString.split("=", 2)[0].equals("INVESTMENT") || formulaString.split("=", 2)[0].equals("EXPENSES") || formulaString.split("=", 2)[0].equals("INTEREST")) {
-                    double value = Float.valueOf(formula.getString().split("=", 2)[1]);
+                String attribute = formulaString.split("=", 2)[0];
+                if (attribute.equals("INVESTMENT") || attribute.equals("EXPENSES") || attribute.equals("INTEREST")) {
+                    double value = valueOf(actor, attribute);
                     result -= value;
                 }
             }
         }
 
         //Third, calculate the income/loss per Value Interface:
-        //if actor has a Value Interfaces
+        //if actor/ms has a Value Interfaces
         if (actor.hasProperty(E3value.ac_has_vi) || actor.hasProperty(E3value.ms_has_vi)) {
             StmtIterator actorValueInterfaces;
             //get list of ValueInterfaces
@@ -619,16 +623,7 @@ public class E3Model {
                 Statement valueInterface = actorValueInterfaces.next();
                 //if it is part of the desired ones 
                 if (selectedValueInterfaces.contains(valueInterface.getResource())) {
-                    double occurences = 0;
-                    //get number of occurences
-                    StmtIterator valueInterfaceFormulas = valueInterface.getResource().listProperties(E3value.e3_has_formula);
-                    while (valueInterfaceFormulas.hasNext()) {
-                        Statement formula = valueInterfaceFormulas.next();
-                        if (formula.getString().split("=", 2)[0].equals("OCCURRENCES")) {
-                            occurences = Float.valueOf(formula.getString().split("=", 2)[1]);
-                        }
-                    }
-                    //and then get ValueOfferings (groups of equally directed ports)
+                    //get ValueOfferings (groups of equally directed ports)
                     StmtIterator valueOfferings = valueInterface.getResource().listProperties(E3value.vi_consists_of_of);
                     //and for each ValueOffering (group of equally directed ports)
                     while (valueOfferings.hasNext()) {
@@ -648,8 +643,9 @@ public class E3Model {
                             while (valuePortFormulas.hasNext()) {
                                 Statement formula = valuePortFormulas.next();
                                 String formulaString = formula.getString();
-                                if (formulaString.split("=", 2)[0].equals("VALUATION") || formulaString.split("=", 2)[0].equals("EXPENSES")) {
-                                    double value = Float.valueOf(formula.getString().split("=", 2)[1]);
+                                String attribute = formulaString.split("=", 2)[0];
+                                if (attribute.equals("VALUATION") || attribute.equals("EXPENSES")) {
+                                    double value = valueOf(valuePort.getResource(),attribute);
                                     valuePortValuation += value;
                                 }
                             }
@@ -661,9 +657,11 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                 if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
+                                {
+                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
+                                }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                             } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                                 if (ideal == true) {//If we want the expected case
@@ -671,9 +669,11 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                 if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
+                                {
+                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
+                                }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                             }
 
@@ -728,8 +728,9 @@ public class E3Model {
             while (actorFormulas.hasNext()) {
                 Statement formula = actorFormulas.next();
                 String formulaString = formula.getString();
-                if (formulaString.split("=", 2)[0].equals("INVESTMENT") || formulaString.split("=", 2)[0].equals("EXPENSES") || formulaString.split("=", 2)[0].equals("INTEREST")) {
-                    double value = Float.valueOf(formula.getString().split("=", 2)[1]);
+                String attribute = formulaString.split("=", 2)[0];
+                if (attribute.equals("INVESTMENT") || attribute.equals("EXPENSES") || attribute.equals("INTEREST")) {
+                    double value = valueOf(actor,attribute);
                     result -= value;
                 }
             }
@@ -753,9 +754,9 @@ public class E3Model {
                 StmtIterator valueInterfaceFormulas = valueInterface.getResource().listProperties(E3value.e3_has_formula);
                 while (valueInterfaceFormulas.hasNext()) {
                     Statement formula = valueInterfaceFormulas.next();
-                    //System.out.println(formula.getString());
-                    if (formula.getString().split("=", 2)[0].equals("OCCURRENCES")) {
-                        occurences = Float.valueOf(formula.getString().split("=", 2)[1]);
+                    String attribute = formula.getString().split("=", 2)[0];
+                    if (attribute.equals("OCCURRENCES")) {
+                        occurences = valueOf(valueInterface.getResource(),attribute);
                     }
                 }
                 //and then get ValueOfferings (groups of equally directed ports)
@@ -773,37 +774,51 @@ public class E3Model {
                         //determine value
                         //by getting list of EXPENSES, VALUATION,
                         double valuePortValuation = 0;
+                        double valuePortExpenses = 0;
                         StmtIterator valuePortFormulas = valuePort.getResource().listProperties(E3value.e3_has_formula);
                         //adding them up
                         while (valuePortFormulas.hasNext()) {
                             Statement formula = valuePortFormulas.next();
                             String formulaString = formula.getString();
-                            if (formulaString.split("=", 2)[0].equals("VALUATION") || formulaString.split("=", 2)[0].equals("EXPENSES")) {
-                                double value = Float.valueOf(formula.getString().split("=", 2)[1]);
+                            String attribute = formulaString.split("=", 2)[0];
+                            if (attribute.equals("VALUATION")) {
+                                double value = valueOf(valuePort.getResource(),attribute);
                                 valuePortValuation += value;
+                            }
+                            else if (attribute.equals("EXPENSES")) {
+                                double value = valueOf(valuePort.getResource(),attribute);
+                                valuePortExpenses += value;
                             }
                         }
 
                         //multiplying it with the CARDINALITY of the Port's associated Value Exchange and nullifying if necessary
                         if (valuePort.getResource().hasProperty(E3value.vp_out_connects_ve)) {//if it's an (outgoing) ValuePort
+                            //add the expenses to the valuation
+                            valuePortValuation += valuePortExpenses;
                             if (ideal == true) {//If we want the expected case
                                 if (isHidden(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is hidden
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                             if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
+                            {
+                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
+                            }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                         } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
+                            //deduct expenses from valuation
+                            valuePortValuation -= valuePortExpenses;
                             if (ideal == true) {//If we want the expected case
                                 if (isHidden(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is hidden
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                             if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
+                            {
+                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
+                            }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                         }
 
@@ -827,7 +842,6 @@ public class E3Model {
                 }
             }
         }
-        //System.out.println("result = " + result);
         return result;
     }
 
@@ -844,7 +858,7 @@ public class E3Model {
      */
     public XYSeries getTotalForActor(Resource actor, Resource need, int startValue, int endValue, boolean ideal) {
         XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());
-        int initialOccurenceRate = this.getNeedOccurrence(need);
+        double initialOccurenceRate = this.getNeedOccurrence(need);
         //make sure the resources are from this model
         actor = model.getResource(actor.getURI());
         need = model.getResource(need.getURI());
@@ -859,7 +873,7 @@ public class E3Model {
             //add it's profit to the relevant series
             actorSeries.add(i, this.getTotalForActor(actor, ideal));
         }
-        this.setNeedOccurrence(need, initialOccurenceRate);
+        this.updateNeedOccurrence(need, initialOccurenceRate);
         //System.out.println("Setting occurence back to " + initialOccurenceRate);//reset the occurence rates to initial ones (in case multiple analyses are to be ran on the same baseModel
 
         return actorSeries;
@@ -887,7 +901,7 @@ public class E3Model {
             //System.out.println("actor.getProperty(E3value.e3_has_name)= " + actor.getProperty(E3value.e3_has_name).getString() + " actorSeries.getKey()" + actorSeries.getKey());
         }
 
-        int initialOccurenceRate = this.getNeedOccurrence(need);
+        double initialOccurenceRate = this.getNeedOccurrence(need);
         //    try {
         /* Step - 1: Define the data for the series  */
         //we only need 50 values so divide interval to 50
@@ -920,7 +934,7 @@ public class E3Model {
         //     System.err.println(e);
         // }
 
-        this.setNeedOccurrence(need, initialOccurenceRate);
+        this.updateNeedOccurrence(need, initialOccurenceRate);
         return actorSeriesMap;
     }
 
@@ -976,8 +990,9 @@ public class E3Model {
         StmtIterator resFormulas = res.listProperties(E3value.e3_has_formula);
         while (resFormulas.hasNext()) {
             Statement formula = resFormulas.next();
-            if (formula.getString().split("=", 2)[0].equals("CARDINALITY")) {
-                cardinality = Float.valueOf(formula.getString().split("=", 2)[1]);
+            String attribute = formula.getString().split("=", 2)[0];
+            if (attribute.equals("CARDINALITY")) {
+                cardinality = valueOf(res,attribute);
             }
         }
         return cardinality;
@@ -988,7 +1003,8 @@ public class E3Model {
         StmtIterator veFormulas = exchange.listProperties(E3value.e3_has_formula);
         while (veFormulas.hasNext()) {
             Statement formula = veFormulas.next();
-            if (formula.getString().split("=", 2)[0].equals("DASHED")) {
+            String attribute = formula.getString().split("=", 2)[0];
+            if (attribute.equals("DASHED")) {
                 return true;
             }
         }
@@ -1000,8 +1016,9 @@ public class E3Model {
         valueExchange = model.getResource(valueExchange.getURI());
         StmtIterator veFormulas = valueExchange.listProperties(E3value.e3_has_formula);
         while (veFormulas.hasNext()) {
-            Statement formula = veFormulas.next();
-            if (formula.getString().split("=", 2)[0].equals("DOTTED")) {
+            Statement formula = veFormulas.next();            
+            String attribute = formula.getString().split("=", 2)[0];
+            if (attribute.equals("DOTTED")) {
                 return true;
             }
         }
@@ -1142,34 +1159,79 @@ public class E3Model {
 
         //Next add up their expenses and investment
         if (actor1.hasProperty(E3value.e3_has_formula)) {
-            //get list of formulas (INVESTMENT, EXPENSES, INTEREST) of the actors
-            StmtIterator actor1Formulas = actor1.listProperties(E3value.e3_has_formula);
-            Set<String> newActor1Formulas = new HashSet<>();
-            StmtIterator actor2Formulas = actor2.listProperties(E3value.e3_has_formula);
-            //and for each one 
+            
+            //First add up common attributes of both actors
+            //by getting a list of actor1sformulas
+            StmtIterator actor1Formulas = actor1.listProperties(E3value.e3_has_formula);       
+            Set<String> newActorFormulas = new HashSet<>();            
+            //and for each one
             while (actor1Formulas.hasNext()) {
                 Statement actor1Formula = actor1Formulas.next();
-                String actor1FormulaType = actor1Formula.getString().split("=", 2)[0];
-                double actor1FormulaValue = Float.parseFloat(actor1Formula.getString().split("=", 2)[1]);
+                String actor1FormulaAttribute = actor1Formula.getString().split("=", 2)[0];
+                String actor1FormulaValue = actor1Formula.getString().split("=", 2)[1];                   
                 //check if actor2 has a matching one
+                StmtIterator actor2Formulas = actor2.listProperties(E3value.e3_has_formula); 
                 while (actor2Formulas.hasNext()) {
                     Statement actor2Formula = actor2Formulas.next();
-                    String actor2FormulaType = actor2Formula.getString().split("=", 2)[0];
-                    double actor2FormulaValue = Float.parseFloat(actor2Formula.getString().split("=", 2)[1]);
+                    String actor2FormulaAttribute = actor2Formula.getString().split("=", 2)[0];
+                    String actor2FormulaValue = actor2Formula.getString().split("=", 2)[1];
                     //if it does
-                    if (actor1FormulaType.equals(actor2FormulaType)) {
-                        //add them up                        
-                        actor1FormulaValue = actor1FormulaValue + actor2FormulaValue;
-
-                    }
-                    //save the (updated or not) formula
-                    newActor1Formulas.add(actor1FormulaType + "=" + actor1FormulaValue);
-                }
+                    if (actor1FormulaAttribute.equals(actor2FormulaAttribute)) {
+                        //add up actor1's and actor2's values or expressions                       
+                        String newActorFormulaValue = actor1FormulaValue + " + " + actor2FormulaValue;
+                        String newActorFormulaAttribute = actor1FormulaAttribute;                        
+                        newActorFormulas.add(newActorFormulaAttribute + "=" + newActorFormulaValue);
+                    }                             
+                }            
             }
+                        
+  
+            
+            //Then, add the non-overlapping formulas
+             //by listing of formulas of actor 1,2
+            actor1Formulas = actor1.listProperties(E3value.e3_has_formula);    
+            StmtIterator actor2Formulas = actor2.listProperties(E3value.e3_has_formula);                    
+            //and for each one
+            while (actor2Formulas.hasNext()) {                
+                Statement actor2Formula = actor2Formulas.next();                
+                String actor2FormulaAttribute = actor2Formula.getString().split("=", 2)[0];
+                String actor2FormulaValue = actor2Formula.getString().split("=", 2)[1];      
+                //check if newactor has a matching one
+                boolean found = false;
+                for (String newActorFormula : newActorFormulas){
+                    String newActorFormulaAttribute = newActorFormula.split("=", 2)[0];
+                if (newActorFormulaAttribute.equals(actor2FormulaAttribute)) {
+                    found = true;
+                    }              
+                }
+                if(!found){                    
+                        newActorFormulas.add(actor2FormulaAttribute + "=" + actor2FormulaValue);
+                }                
+            }           
+            //and for each one
+            while (actor1Formulas.hasNext()) {                
+                Statement actor1Formula = actor1Formulas.next();                
+                
+                String actor1FormulaAttribute = actor1Formula.getString().split("=", 2)[0];
+                String actor1FormulaValue = actor1Formula.getString().split("=", 2)[1];      
+                //check if newactor has a matching one
+                boolean found = false;
+                for (String newActorFormula : newActorFormulas){
+                    String newActorFormulaAttribute = newActorFormula.split("=", 2)[0];
+                if (newActorFormulaAttribute.equals(actor1FormulaAttribute)) {
+                    found = true;
+                    }              
+                }
+                if(!found){                    
+                        newActorFormulas.add(actor1FormulaAttribute + "=" + actor1FormulaValue);
+                }                
+            }
+            
+            
             //remove the old ones
             actor1.removeAll(E3value.e3_has_formula);
             //add the new
-            for (String formula : newActor1Formulas) {
+            for (String formula : newActorFormulas) {
                 actor1.addProperty(E3value.e3_has_formula, formula);
             }
         }

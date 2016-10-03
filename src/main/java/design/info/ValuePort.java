@@ -12,7 +12,7 @@ public class ValuePort extends Base {
 		this.incoming = incoming;
 		
 		formulas.put("VALUATION", "0");
-		formulas.put("CADINALITY", "1");
+		formulas.put("CARDINALITY", "1");
 		formulas.put("EXPENSES", "0");
 	}
 	

@@ -154,10 +154,8 @@ int STEPS = 3;
             }
 
             generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
-            
             Resource actor1 = secondaryActorsCombination.getValue(0);
-           
-            
+                       
             String description = ("<b>Colluding actors</b>  \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"" );
             for(int j=0; j<i; j++){
                 Resource actorj = secondaryActorsCombination.getValue(j+1);
