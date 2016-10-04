@@ -226,7 +226,7 @@ int STEPS = 3;
         Set<E3Model> subIdealModels = new HashSet<>();
         Set<Resource> secondaryActors = baseModel.getActors();
         secondaryActors.remove(mainActor);
-        baseModel.enhance();    //<-------- IT HANGS HERE!!!
+        //baseModel.enhance();    
         
         double value;
         double step;

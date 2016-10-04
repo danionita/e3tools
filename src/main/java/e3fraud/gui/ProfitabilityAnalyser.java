@@ -37,30 +37,36 @@ import org.jfree.chart.JFreeChart;
 public class ProfitabilityAnalyser {
 
     private static int needStartValue = 0, needEndValue = 0;
-    private static Resource selectedNeed, selectedActor;
+    private static Resource selectedNeed;
     private static JFreeChart chart;
+    private static String selectedActorString;
 
-    public static JFreeChart getProfitabilityAnalysis(E3Model baseModel, boolean ideal) {
+    public static JFreeChart getProfitabilityAnalysis(E3Model model, boolean ideal) {
         System.out.println(currentTime.currentTime() + " Starting profitability analysis...");
+        Map<String, Resource> actorsMap = model.getActorsMap();
 
         //have the user indicate the ToA via pop-up
-        JFrame frame1 = new JFrame("Select Target of Assessment");
-        Map<String, Resource> actorsMap = baseModel.getActorsMap();
-        String selectedActorString = (String) JOptionPane.showInputDialog(frame1,
-                "Which actor's perspective are you taking?",
-                "Choose main actor",
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                actorsMap.keySet().toArray(),
-                actorsMap.keySet().toArray()[0]);
+        if (!ideal) {
+            JFrame frame1 = new JFrame("Select Target of Assessment");
+            selectedActorString = (String) JOptionPane.showInputDialog(frame1,
+                    "Which actor's perspective are you taking?",
+                    "Choose main actor",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    actorsMap.keySet().toArray(),
+                    actorsMap.keySet().toArray()[0]);
+        } else {
+            selectedActorString = (String) actorsMap.keySet().toArray()[0];
+        }
+        
         if (selectedActorString == null) {
             System.out.println(currentTime.currentTime() + " Profitability analysis cancelled by user!");
         } else {
             //have the user select a need via pop-up
             JFrame frame2 = new JFrame("Select graph parameter");
-            Map<String, Resource> needsMap = baseModel.getNeedsMap();
+            Map<String, Resource> needsMap = model.getNeedsMap();
             String selectedNeedString = (String) JOptionPane.showInputDialog(frame2,
-                    "What do you want to use as parameter?",
+                    "Which need (start stimulus) would you like to use on the X-Axis?",
                     "Choose need to parametrize",
                     JOptionPane.QUESTION_MESSAGE,
                     null,
@@ -73,25 +79,24 @@ public class ProfitabilityAnalyser {
                 JTextField xField = new JTextField("1", 4);
                 JTextField yField = new JTextField("500", 4);
                 JPanel myPanel = new JPanel();
-                myPanel.add(new JLabel("Mininum occurences:"));
+                myPanel.add(new JLabel("Mininum occurences of "+selectedNeedString+":"));
                 myPanel.add(xField);
                 myPanel.add(Box.createHorizontalStrut(15)); // a spacer
-                myPanel.add(new JLabel("Maximum occurences:"));
+                myPanel.add(new JLabel("Maximum occurences of "+selectedNeedString+":"));
                 myPanel.add(yField);
                 int result = JOptionPane.showConfirmDialog(null, myPanel,
-                        "Please Enter occurence rate interval", JOptionPane.OK_CANCEL_OPTION);
-
+                        "Please enter X-axis range", JOptionPane.OK_CANCEL_OPTION);
+                
                 if (result == JOptionPane.CANCEL_OPTION) {
                     System.out.println(currentTime.currentTime() + "Profitability analysis cancelled by user!");
                 } else if (result == JOptionPane.OK_OPTION) {
                     needStartValue = Integer.parseInt(xField.getText());
                     needEndValue = Integer.parseInt(yField.getText());
                     selectedNeed = needsMap.get(selectedNeedString);
-                    selectedActor = actorsMap.get(selectedActorString);
-                    baseModel.getAveragesForActors(selectedNeed, needStartValue, needEndValue, ideal);
-                    //System.out.println("Generating chart for ideal model: " + ideal);
+                    model.getAveragesForActors(selectedNeed, needStartValue, needEndValue, ideal);
+                    
                     try {
-                        chart = ChartGenerator.generateChart(baseModel, selectedNeed, needStartValue, needEndValue, ideal);//expected graph 
+                        chart = ChartGenerator.generateChart(model, selectedNeed, needStartValue, needEndValue, ideal);//expected graph 
                         return chart;
                     } catch (java.lang.IllegalArgumentException e) {
                         PopUps.infoBox("Duplicate actors are not supported. Please make sure all actors have unique names", "Error");

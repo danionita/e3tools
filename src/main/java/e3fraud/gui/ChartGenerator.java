@@ -42,7 +42,7 @@ public class ChartGenerator {
         Set<Resource> actors = model.getActors();
         //generate a series
         
-        Map<Resource, XYSeries> actorSeriesMap = model.getTotalForActors(need, startValue, endValue, expected);
+        Map<Resource, XYSeries> actorSeriesMap = model.getLastKnownSeries();
         
         
 
