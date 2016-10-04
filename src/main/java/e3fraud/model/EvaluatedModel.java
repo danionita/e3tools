@@ -124,11 +124,15 @@ public class EvaluatedModel {
 			
 			// For each formula attached to this entity...
 			StmtIterator stmtIt = res.listProperties(E3value.e3_has_formula);
+			
 			while (stmtIt.hasNext()) {
 				String formula = stmtIt.next().getString();
+//				System.out.println("Considering \"" + formula + "\" of " + name + "(#" + uid + ")");
 				String formulaName = formula.split("=")[0];
 				// Give it its own row
 				rowMap.put("#" + uid + "." + formulaName, nextRow++);
+				
+//				System.out.println("Putting: " + "#" + uid + "." + formulaName + " at " + (nextRow - 1));
 			}
 		}
 		
@@ -314,10 +318,14 @@ public class EvaluatedModel {
 		
 		while (match.find()) {
 			String arg = match.group(1);
+			
+//			System.out.println("Arg:" + arg);
 
 			if(rowMap.containsKey(arg)) {
 				int start = match.start();
 				int end = match.end();
+				
+//				System.out.println("Match: " + match.group(0));
 
 				formula = formula.substring(0, start)
 						// Excel is 0 indexed. Hence, if rowMap.get() actually returns 0,
@@ -431,32 +439,46 @@ public class EvaluatedModel {
 	 * Example program of how EvaluatedModel is supposed to be used.
 	 */
 	public static void main(String[] args) {
-		E3Model model = FileParser.parseFile(new File("src/test/resources/evaluation_rdf_test.rdf"));
-		EvaluatedModel eModel = new EvaluatedModel(model.getJenaModel());
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		{
-			Optional<Double> val = eModel.valueOf("#0.VALUATION");
-			Optional<Double> val2 = eModel.valueOf("'SubscriptionFee'.VALUATION");
-			
-			System.out.println(val.isPresent());
-			// Only call get if it is present!
-			System.out.println(val.get());
-			System.out.println(val2.isPresent());
-			System.out.println(val2.get());
+		E3Model model = FileParser.parseFile(new File("src/test/resources/evaluation_rdf_test2.rdf"));
+		
+		for (int i = 0; i < 100; i++) {
+			System.out.println(i);
+			EvaluatedModel eModel = new EvaluatedModel(model.getJenaModel());
 		}
 		
-		eModel.changeExistingFormula("#70.MYFUNKYID", null, 20+"");
+//		Optional<Double> val = eModel.valueOf("#7.VALUATION");
+//		System.out.println(val.get());
 
-		{
-			Optional<Double> val = eModel.valueOf("#0.VALUATION");
-			Optional<Double> val2 = eModel.valueOf("'SubscriptionFee'.VALUATION");
-			
-			System.out.println(val.isPresent());
-			// Only call get if it is present!
-			System.out.println(val.get());
-			System.out.println(val2.isPresent());
-			System.out.println(val2.get());
-		}
+//		{
+//			Optional<Double> val = eModel.valueOf("#0.VALUATION");
+//			Optional<Double> val2 = eModel.valueOf("'SubscriptionFee'.VALUATION");
+//			
+//			System.out.println(val.isPresent());
+//			// Only call get if it is present!
+//			System.out.println(val.get());
+//			System.out.println(val2.isPresent());
+//			System.out.println(val2.get());
+//		}
+//		
+//		eModel.changeExistingFormula("#70.MYFUNKYID", null, 20+"");
+//
+//		{
+//			Optional<Double> val = eModel.valueOf("#0.VALUATION");
+//			Optional<Double> val2 = eModel.valueOf("'SubscriptionFee'.VALUATION");
+//			
+//			System.out.println(val.isPresent());
+//			// Only call get if it is present!
+//			System.out.println(val.get());
+//			System.out.println(val2.isPresent());
+//			System.out.println(val2.get());
+//		}
 		
 		System.out.println("Done");
 	}
