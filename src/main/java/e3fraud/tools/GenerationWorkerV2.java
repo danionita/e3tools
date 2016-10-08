@@ -87,7 +87,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
     @Override
     protected java.util.HashMap<String, java.util.Set<E3Model>> doInBackground() throws Exception {
 
-        baseModel.enhance();
+        //baseModel.enhance();
         baseModel.getAveragesForActors(selectedNeed, startValue, endValue, true);
 
         // Start generation
@@ -130,12 +130,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
                 }
             }
 
-            //pre-compute averages and top gains now to save time later
-            for (E3Model subIdealModel : subIdealModels) {
-                subIdealModel.enhance();
-                subIdealModel.getAveragesForActors(selectedNeed, startValue, endValue, false);
-                computeTopGain(subIdealModel, baseModel, mainActor);
-            }
+
             size += subIdealModels.size();
             //System.out.println("\t\tGenerated " + subIdealModels.size() + " sub-ideal models for category " + category + ":");
             groupedSubIdealModels.put(category, subIdealModels);
@@ -153,36 +148,5 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
 //    }
     }
 
-    private void computeTopGain(E3Model subIdealModel, E3Model baseModel, Resource mainActor) {
-        Map<Resource, Double> modelToPlaceAverages = subIdealModel.getLastKnownAverages();
-        Map<Resource, Double> baseModelAverages = baseModel.getLastKnownAverages();
-        //First, find the actor with the largest Delta gain in the model to place
-        double highestDelta = -Double.MAX_VALUE;
-        double averageIdealGainOfTopGainActor = -Double.MAX_VALUE;
-        Resource highestDeltaActor = null;
-        for (Resource actorInSubIdealModel : subIdealModel.getActors()) {
-            //If it is part of a colluded actor
-            if (actorInSubIdealModel.getURI().equals(subIdealModel.newActorURI)) {
-                Resource colludedActor = baseModel.getJenaModel().getResource(subIdealModel.colludedActorURI);
-                //deduct the base profit of both actors                    
-                double delta = modelToPlaceAverages.get(actorInSubIdealModel) - baseModelAverages.get(actorInSubIdealModel) - baseModelAverages.get(colludedActor);
-                if (delta > highestDelta) {
-                    highestDelta = delta;
-                    highestDeltaActor = actorInSubIdealModel;
-                    averageIdealGainOfTopGainActor = baseModelAverages.get(actorInSubIdealModel) + baseModelAverages.get(colludedActor);//this workaround is needed because when actors are colluded, we cannot query the baseModel for their ideal average
-                }
-            } else if (!actorInSubIdealModel.getURI().equals(mainActor.getURI())) {
-                //otherwise, deduct the base profit
-                double delta = modelToPlaceAverages.get(actorInSubIdealModel) - baseModelAverages.get(actorInSubIdealModel);
-                if (delta > highestDelta) {
-                    highestDelta = delta;
-                    highestDeltaActor = actorInSubIdealModel;
-                    averageIdealGainOfTopGainActor = baseModelAverages.get(actorInSubIdealModel);
-                }
-            }
-        }
-        subIdealModel.setLastKnownTopDelta(highestDelta);
-        subIdealModel.setLastKnownIdealAverageForTopGainActor(averageIdealGainOfTopGainActor);
-        subIdealModel.setTopDeltaActor(highestDeltaActor);
-    }
+  
 }

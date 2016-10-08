@@ -96,7 +96,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
     @Override
     protected ResultObject doInBackground() throws Exception {
         DecimalFormat df = new DecimalFormat("#.##");
-                            i = 0;
+        i = 0;
         //grouped case
         if (groupingCriteria == 1) {
             if (sortCriteria == 1) {
@@ -188,7 +188,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                     Double subIdealAverageForMainActor = subIdealModel.getLastKnownAverages().get(selectedActor);
                     Double idealAverageForMainActor = baseModel.getLastKnownAverages().get(selectedActor);
                     Double loss = idealAverageForMainActor - subIdealAverageForMainActor;
-                    
+
                     if (gainMin < topDelta && topDelta < gainMax && lossMin < loss && loss < lossMax) {
                         subIdealModel.setPrefix("Average gain of <b>"
                                 + df.format(topDelta)
@@ -213,7 +213,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                     Double subIdealAverageForMainActor = subIdealModel.getLastKnownAverages().get(selectedActor);
                     Double idealAverageForMainActor = baseModel.getLastKnownAverages().get(selectedActor);
                     Double loss = idealAverageForMainActor - subIdealAverageForMainActor;
-                   
+
                     if (gainMin < topDelta && topDelta < gainMax && lossMin < loss && loss < lossMax) {
                         subIdealModel.setPrefix(
                                 "Average loss of <b>"
@@ -234,14 +234,8 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
         }
 
         //ranking done
-        return new ResultObject(numberOfSubIdealModels,root.getChildCount(),root);
+        return new ResultObject(numberOfSubIdealModels, root.getChildCount(), root);
     }
 
-//    @Override
-//    protected void process(List<String> chunks) {
-//        for (final String string : chunks) {
-//            log.append(string);
-//            log.append("\n");
-//        }
-//    }
+
 }

@@ -23,10 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.SwingWorker;
-import static java.lang.Math.max;
-import static java.lang.Math.max;
-import static java.lang.Math.max;
-import static java.lang.Math.max;
 
 /**
  *
@@ -53,16 +49,14 @@ public class ModelRanker {
     public static List<E3Model> sortByGainThenLoss(SwingWorker worker, E3Model baseModel, Set<E3Model> models, Resource actor, Resource need, int startValue, int endValue, boolean ideal) {
         int total = models.size();
         int i = 0;
-        //make sure all models are enhanced                               
-        for (E3Model modelToCompare : models) {
-            modelToCompare.enhance();
-        }
-        baseModel.enhance();
-        Map<Resource, Double> baseModelAverages = baseModel.getAveragesForActors(need, startValue, endValue, true);
 
         List<E3Model> sortedList = new ArrayList<>();
         //For each model, find highest delta
         for (E3Model modelToPlace : models) {
+            //subIdealModel.enhance();
+            //pre-compute averages and top gains
+            modelToPlace.getAveragesForActors(need, startValue, endValue, false);
+            computeTopGain(modelToPlace, baseModel, actor);            
             Double gainDeltaToPlace = modelToPlace.getLastKnownTopDelta();
             //Then,                 
             //If the list is empty
@@ -85,10 +79,10 @@ public class ModelRanker {
                         break;
                     } //if two models have equal gain, 
                     else if (gainDeltaToPlace == gainDeltaInList) {
-                        //then sort by loss:
-                        double modelToPlaceAverage = modelToPlace.getAverageForActor(actor, need, startValue, endValue, false);
-                        double modelInListAverage = modelInList.getAverageForActor(actor, need, startValue, endValue, false);
-                        if (modelToPlaceAverage < modelInListAverage) {
+                        //then sort by loss of main actor:
+                        double modelToPlaceMainActorAverage = modelToPlace.getLastKnownAverages().get(actor);
+                        double modelInListMainActorAverage = modelInList.getLastKnownAverages().get(actor);
+                        if (modelToPlaceMainActorAverage < modelInListMainActorAverage) {
                             sortedList.add(sortedList.indexOf(modelInList), modelToPlace);
                             break;
                         }
@@ -131,11 +125,15 @@ public class ModelRanker {
     public static List<E3Model> sortByLossThenGain(SwingWorker worker, E3Model baseModel, Set<E3Model> models, Resource actor, Resource need, int startValue, int endValue, boolean ideal) {
         int total = models.size();
         int i = 0;
-        Map<Resource, Double> baseModelAverages = baseModel.getAveragesForActors(need, startValue, endValue, true);
 
         List<E3Model> sortedList = new ArrayList<>();
         //for each model
         for (E3Model modelToPlace : models) {
+            //subIdealModel.enhance();
+            //pre-compute averages and top gains
+            modelToPlace.getAveragesForActors(need, startValue, endValue, false);
+            computeTopGain(modelToPlace, baseModel, actor);
+            
             Map<Resource, Double> modelToPlaceAverages = modelToPlace.getLastKnownAverages();
             //if the list is empty
             if (sortedList.isEmpty()) {
@@ -185,6 +183,40 @@ public class ModelRanker {
             }
         }
         return sortedList;
+    }
+    
+        
+      private static void computeTopGain(E3Model subIdealModel, E3Model baseModel, Resource mainActor) {
+        Map<Resource, Double> modelToPlaceAverages = subIdealModel.getLastKnownAverages();
+        Map<Resource, Double> baseModelAverages = baseModel.getLastKnownAverages();
+        //First, find the actor with the largest Delta gain in the model to place
+        double highestDelta = -Double.MAX_VALUE;
+        double averageIdealGainOfTopGainActor = -Double.MAX_VALUE;
+        Resource highestDeltaActor = null;
+        for (Resource actorInSubIdealModel : subIdealModel.getActors()) {
+            //If it is part of a colluded actor
+            if (actorInSubIdealModel.getURI().equals(subIdealModel.newActorURI)) {
+                Resource colludedActor = baseModel.getJenaModel().getResource(subIdealModel.colludedActorURI);
+                //deduct the base profit of both actors                    
+                double delta = modelToPlaceAverages.get(actorInSubIdealModel) - baseModelAverages.get(actorInSubIdealModel) - baseModelAverages.get(colludedActor);
+                if (delta > highestDelta) {
+                    highestDelta = delta;
+                    highestDeltaActor = actorInSubIdealModel;
+                    averageIdealGainOfTopGainActor = baseModelAverages.get(actorInSubIdealModel) + baseModelAverages.get(colludedActor);//this workaround is needed because when actors are colluded, we cannot query the baseModel for their ideal average
+                }
+            } else if (!actorInSubIdealModel.getURI().equals(mainActor.getURI())) {
+                //otherwise, deduct the base profit
+                double delta = modelToPlaceAverages.get(actorInSubIdealModel) - baseModelAverages.get(actorInSubIdealModel);
+                if (delta > highestDelta) {
+                    highestDelta = delta;
+                    highestDeltaActor = actorInSubIdealModel;
+                    averageIdealGainOfTopGainActor = baseModelAverages.get(actorInSubIdealModel);
+                }
+            }
+        }
+        subIdealModel.setLastKnownTopDelta(highestDelta);
+        subIdealModel.setLastKnownIdealAverageForTopGainActor(averageIdealGainOfTopGainActor);
+        subIdealModel.setTopDeltaActor(highestDeltaActor);
     }
 
 }
