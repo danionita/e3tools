@@ -749,4 +749,17 @@ public class Utils {
 				});
 		}); 
     }
+    
+    /**
+     * Gets all the names from a graph
+     */
+    public static List<String> getAllNames(E3Graph graph) {
+    	return Utils.getAllCells(graph).stream()
+    		.map(graph.getModel()::getValue)
+    		.filter(o -> o instanceof Base)
+    		.map(o -> (Base) o)
+    		.map(o -> o.name)
+    		.collect(Collectors.toList())
+    		;
+    }
 }

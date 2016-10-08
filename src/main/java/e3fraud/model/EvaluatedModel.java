@@ -442,7 +442,6 @@ public class EvaluatedModel {
 		try {
 			System.in.read();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

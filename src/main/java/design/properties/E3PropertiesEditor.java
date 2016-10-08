@@ -47,6 +47,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -59,7 +60,9 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import design.E3Graph;
 import design.Main;
+import design.Utils;
 import design.info.Base;
 
 /**
@@ -79,6 +82,7 @@ public class E3PropertiesEditor {
 	private boolean changingTextArea = false;
 	private boolean changingCell = false;
 	private JDialog dialog;
+	private E3Graph graph;
 	
 	private Base value;
 	
@@ -105,8 +109,9 @@ public class E3PropertiesEditor {
 		changingTextArea = false;
 	}
 
-	public E3PropertiesEditor(JFrame owner, Base value_) {
+	public E3PropertiesEditor(JFrame owner, E3Graph graph, Base value_) {
 		value = value_.getCopy();
+		this.graph = graph;
 		
 		topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
@@ -376,10 +381,31 @@ public class E3PropertiesEditor {
 		splitPane.setResizeWeight(0.8);
 		
 		dialog.add(splitPane);
+		// Allows us to check some constraints (unique naming and such)
+		// before closing the window.
+		dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		dialog.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
+				// Check if the new name appears more than once
+				// in the graph. If so, do not allow the user
+				// to close the window.
+				List<String> allNames = Utils.getAllNames(graph);
+				allNames.remove(nameField.getText());
+				if (allNames.contains(nameField.getText())) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame,
+							"Name \"" + nameField.getText() + "\" is already in use."
+									+ " Please provide a unique name.",
+							"Non-unique name error", 
+							JOptionPane.ERROR_MESSAGE
+							);
+					return;
+				}
+				
+				// Otherwise, fill in the data into the Base info
+				// object, trigger the event, and dispose of the window
 				if (formulaTable.getCellEditor() != null) {
 					formulaTable.getCellEditor().stopCellEditing();
 				}
@@ -398,6 +424,7 @@ public class E3PropertiesEditor {
 				}
 				
 				fireEvent(new E3PropertiesEvent(this, value));
+				dialog.dispose();
 			}
 		});
 	}

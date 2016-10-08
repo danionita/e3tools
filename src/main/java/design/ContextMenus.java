@@ -18,11 +18,11 @@
  *******************************************************************************/
 package design;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
@@ -95,7 +95,7 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				E3PropertiesEditor editor = new E3PropertiesEditor(Main.mainFrame, Utils.base(graph, Main.contextTarget));
+				E3PropertiesEditor editor = new E3PropertiesEditor(Main.mainFrame, (E3Graph) graph, Utils.base(graph, Main.contextTarget));
 				editor.addE3PropertiesListener(new E3PropertiesEventListener() {
 					@Override
 					public void invoke(E3PropertiesEvent event) {
