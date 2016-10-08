@@ -63,7 +63,7 @@ public class ContextMenus {
 		addMenu.add(new JMenuItem(new AbstractAction("ValueActivity") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.valueActivity, Utils.getMaxID(graph));
+				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.valueActivity, graph);
 				// getGeometry is allowed here because at this point the cell is not a member of any graph in particular.
 				va.getGeometry().setX(Main.contextPos.getX());
 				va.getGeometry().setY(Main.contextPos.getY());
@@ -73,7 +73,7 @@ public class ContextMenus {
 		addMenu.add(new JMenuItem(new AbstractAction("Actor") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.actor, Utils.getMaxID(graph));
+				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.actor, graph);
 				va.getGeometry().setX(Main.contextPos.getX());
 				va.getGeometry().setY(Main.contextPos.getY());
 				graph.addCell(va);
@@ -82,7 +82,7 @@ public class ContextMenus {
 		addMenu.add(new JMenuItem(new AbstractAction("MarketSegment") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.marketSegment, Utils.getMaxID(graph));
+				mxCell va = (mxCell) Main.globalTools.clone(Main.globalTools.marketSegment, graph);
 				va.getGeometry().setX(Main.contextPos.getX());
 				va.getGeometry().setY(Main.contextPos.getY());
 				graph.addCell(va);

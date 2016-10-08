@@ -732,7 +732,7 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
 		
-		new IDReplacer(Utils.getMaxID(this)).renewBases(clones);
+		new IDReplacer(this).renewBases(clones);
 
 		return clones;
 	}
@@ -908,7 +908,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object addActor(double x, double y) {
 		getModel().beginUpdate();
 		try {
-			Object ac = addCell(Main.globalTools.clone(Main.globalTools.actor, Utils.getMaxID(this)));
+			Object ac = addCell(Main.globalTools.clone(Main.globalTools.actor, this));
 			mxGeometry geom = Utils.geometry(this, ac);
 			geom.setX(x);
 			geom.setY(y);
@@ -922,7 +922,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object addValueInterface(Object parent, double x, double y) {
 		getModel().beginUpdate();
 		try {
-			Object vi = Main.globalTools.clone(Main.globalTools.valueInterface, Utils.getMaxID(this));
+			Object vi = Main.globalTools.clone(Main.globalTools.valueInterface, this);
 			mxGeometry gm = ((mxCell) vi).getGeometry();
 			gm.setX(x);
 			gm.setY(y);
@@ -934,7 +934,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	public Object addStartSignal(Object parent, double x, double y) {
-		Object ss = Main.globalTools.clone(Main.globalTools.startSignal, Utils.getMaxID(this));
+		Object ss = Main.globalTools.clone(Main.globalTools.startSignal, this);
 		mxGeometry gm = ((mxCell) ss).getGeometry();
 		gm.setX(x);
 		gm.setY(y);
@@ -950,7 +950,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	public Object addEndSignal(Object parent, double x, double y) {
-		Object es = Main.globalTools.clone(Main.globalTools.endSignal, Utils.getMaxID(this));
+		Object es = Main.globalTools.clone(Main.globalTools.endSignal, this);
 		mxGeometry gm = ((mxCell) es).getGeometry();
 		gm.setX(x);
 		gm.setY(y);
@@ -1235,7 +1235,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object addAnd(Object parent, int x, int y, Side targetDir) {
 		getModel().beginUpdate();
 		try {
-			Object logic = Main.globalTools.clone(Main.globalTools.andGate, Utils.getMaxID(this));
+			Object logic = Main.globalTools.clone(Main.globalTools.andGate, this);
 			mxGeometry gm = ((mxCell) logic).getGeometry();
 			gm.setX(x);
 			gm.setY(y);
@@ -1257,7 +1257,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public Object addOr(Object parent, int x, int y, Side targetDir) {
 		getModel().beginUpdate();
 		try {
-			Object logic = Main.globalTools.clone(Main.globalTools.orGate, Utils.getMaxID(this));
+			Object logic = Main.globalTools.clone(Main.globalTools.orGate, this);
 			mxGeometry gm = ((mxCell) logic).getGeometry();
 			gm.setX(x);
 			gm.setY(y);

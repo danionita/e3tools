@@ -31,6 +31,7 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -500,21 +501,36 @@ public class Utils {
      *
      */
 	public static class IDReplacer {
-		long maxID;
+		private long maxID;
+		mxGraph graph;
 		
-		public IDReplacer(long maxID) {
-			this.maxID = maxID;
+		public IDReplacer(mxGraph graph) {
+			this.graph = graph;
+			this.maxID = Utils.getMaxID(graph);
 		}
 		
 		public void renewBases(mxCell cell) {
+			// Make sure the copied cell has a unique SUID and name
+			// based on its type
 			if (cell.getValue() instanceof Base) {
 				Base newValue = (Base) cell.getValue();
 				newValue = newValue.getCopy();
 				maxID++;
 				newValue.SUID = maxID;
+				newValue.name = newValue.getClass().getSimpleName() + maxID;
+				
+				// To make sure the generated name is actually unique
+				int i = 1;
+				Set<String> usedNames = new HashSet<String>(Utils.getAllNames(graph));
+				while (usedNames.contains(newValue.name)) {
+					newValue.name = newValue.getClass().getSimpleName() + (maxID + i);
+					i++;
+				}
+				
 				cell.setValue(newValue); 
 			}
 			
+			// Make sure this holds for its children too
 			for (int i = 0; i < cell.getChildCount(); i++) {
 				renewBases((mxCell) cell.getChildAt(i));
 			}
@@ -753,7 +769,7 @@ public class Utils {
     /**
      * Gets all the names from a graph
      */
-    public static List<String> getAllNames(E3Graph graph) {
+    public static List<String> getAllNames(mxGraph graph) {
     	return Utils.getAllCells(graph).stream()
     		.map(graph.getModel()::getValue)
     		.filter(o -> o instanceof Base)
