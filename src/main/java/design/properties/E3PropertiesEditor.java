@@ -31,8 +31,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -403,13 +405,31 @@ public class E3PropertiesEditor {
 							);
 					return;
 				}
-				
-				// Otherwise, fill in the data into the Base info
-				// object, trigger the event, and dispose of the window
+
+				// Stop editing in case the user was typing when he clicked the X
 				if (formulaTable.getCellEditor() != null) {
 					formulaTable.getCellEditor().stopCellEditing();
 				}
 				
+				// Check if there are any duplicate formulas. If so,
+				// stop closing the window.
+				Set<String> formulaNames = IntStream.range(0, formulaTable.getModel().getRowCount())
+					.mapToObj(i -> (String) formulaTable.getModel().getValueAt(i, 0))
+					.collect(Collectors.toSet());
+				
+				if (formulaNames.size() != formulaTable.getModel().getRowCount()) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame,
+							"It appears there is a non-unique formula name. Please supply unique"
+							+ " formula names.",
+							"Non-unique name error", 
+							JOptionPane.ERROR_MESSAGE
+							);
+					return;
+				}
+				
+				// Otherwise, fill in the data into the Base info
+				// object, trigger the event, and dispose of the window
 				value.name = nameField.getText();
 				value.formulas.clear();
 				for (int i = 0; i < formulaTable.getModel().getRowCount(); i++) {
