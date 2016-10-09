@@ -1377,8 +1377,8 @@ public class E3Graph extends mxGraph implements Serializable{
 	 * Converts the graph to a value graph if it is a fraud graph,
 	 * and simply copies it otherwise. Also prepends "Value model of " 
 	 * if it is a fraud model to the title. Lossy conversion (colluded
-	 * actors, hidden transactions, non-occurring transactions
-	 * are turned off)
+	 * actors are turned off, hidden transactions are deleted, non-occurring transactions
+	 * are turned off).
 	 * @return
 	 */
 	public E3Graph toValue() {
@@ -1386,27 +1386,31 @@ public class E3Graph extends mxGraph implements Serializable{
 			return new E3Graph(this, true);
 		}
 		
-		E3Graph value = new E3Graph(this, false);
-		value.title = "Value model of " + title;
-		value.isFraud = false;
+		E3Graph valueModel = new E3Graph(this, false);
+		valueModel.title = "Value model of " + title;
+		valueModel.isFraud = false;
 		
-		value.getModel().beginUpdate();
+		valueModel.getModel().beginUpdate();
 		try {
-			Utils.getAllCells(value).stream().forEach(obj -> {
-				Object val = value.getModel().getValue(obj);
+			Utils.getAllCells(valueModel).stream().forEach(obj -> {
+				Object value = valueModel.getModel().getValue(obj);
 				
-				if (val instanceof Actor) {
-					value.setColludingActor(obj, false);
-				} else if (val instanceof ValueExchange) {
-					value.setValueExchangeNonOcurring(obj, false);
-					value.setValueExchangeHidden(obj, false);
+				if (value instanceof Actor) {
+					valueModel.setColludingActor(obj, false);
+				} else if (value instanceof ValueExchange) {
+					valueModel.setValueExchangeNonOcurring(obj, false);
+					
+					ValueExchange veInfo = (ValueExchange) value;
+					if (veInfo.isHidden()) {
+						valueModel.removeCells(new Object[]{obj});
+					}
 				}
 			});
 		} finally {
-			value.getModel().endUpdate();
+			valueModel.getModel().endUpdate();
 		}
 		
-		return value;
+		return valueModel;
 	}
 	
 	public String toXML() {
