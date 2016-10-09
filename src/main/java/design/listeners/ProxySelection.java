@@ -21,6 +21,7 @@ package design.listeners;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
@@ -47,26 +48,30 @@ public class ProxySelection implements mxIEventListener {
 		// Collection<Object> removed = new ArrayList<>((Collection<Object>) evt.getProperty("added"));
 		
 		Iterator<Object> it = added.iterator();
-		Object triangleParentObj = null;
+		List<Object> parentObjects = new ArrayList<>();
+		List<Object> originalObjects = new ArrayList<>();
 		while (it.hasNext()) {
 			Object obj = it.next();
 			String style = graph.getModel().getStyle(obj);
 			
-			System.out.println("Style: " + style + ";");
-
 			if (style != null
 					&& (style.endsWith("Triangle")
 							|| style.startsWith("ValuePort")
 							|| style.equals("Bar")
 							|| style.equals("Dot")
 					)) {
-				triangleParentObj = graph.getModel().getParent(obj);
+				parentObjects.add(graph.getModel().getParent(obj));
+				originalObjects.add(obj);
 				break;
 			}
 		}
 		
-		if (triangleParentObj != null) {
-			model.setCell(triangleParentObj);
+		if (originalObjects.size() > 0) {
+			model.removeCells(originalObjects.toArray());
+		}
+		
+		if (parentObjects.size() > 0) {
+			model.addCells(parentObjects.toArray());
 		}
 	}
 }

@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -451,12 +452,13 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO: Implement support for multiselect
-            JOptionPane.showMessageDialog(
-                    Main.mainFrame,
-                    "This feature is not yet implemented",
-                    "Feature not implemented",
-                    JOptionPane.ERROR_MESSAGE);
+        	E3Graph graph = main.getCurrentGraph();
+        	List<Object> allCells = Utils.getAllCells(graph)
+        			.stream()
+        			.filter(obj -> graph.getModel().getParent(obj) == graph.getDefaultParent())
+        			.collect(Collectors.toList());
+        	graph.getSelectionModel().setCells(allCells.toArray());
+        	System.out.println("Size: " + allCells.size());
         }
     }
 
