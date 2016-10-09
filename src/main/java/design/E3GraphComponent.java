@@ -147,7 +147,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		setConnectable(true);
 
 		// Enables rubber band selection
-//		new mxRubberband(this);
+		new mxRubberband(this);
 		
 		undoManager = new mxUndoManager();
 		
