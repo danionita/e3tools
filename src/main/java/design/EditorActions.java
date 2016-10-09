@@ -688,6 +688,17 @@ public class EditorActions {
                 return;
             }
 
+            if (ValueObjectDialog.isOpened) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A value object dialog is already open.",
+                        "Dialog already open",
+                        JOptionPane.ERROR_MESSAGE);
+                
+                ValueObjectDialog.dialogInstance.requestFocus();
+                return;
+            }
+            
             new ValueObjectDialog(main).show();
         }
     }

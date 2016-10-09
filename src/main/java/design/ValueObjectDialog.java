@@ -60,6 +60,9 @@ import design.info.ValueExchange;
  *
  */
 public class ValueObjectDialog {
+	public static boolean isOpened = false;
+	public static JDialog dialogInstance = null;
+	
 	private E3Graph graph;
 	private Main main;
 	private JDialog dialog;
@@ -68,6 +71,7 @@ public class ValueObjectDialog {
 	private MouseAdapter selectionListener;
 	private JList<String> valueObjectsList;
 	private E3GraphComponent component;
+	private ChangeListener changeListener;
 
 	/**
 	 * Creates a ValueObjectDialog that keeps an eye on the editor window
@@ -78,16 +82,20 @@ public class ValueObjectDialog {
 	 * @param graph
 	 */
 	public ValueObjectDialog(Main main) {
+		// Set isOpened s.t. we can prevent another window from opening
+		isOpened = true;
+		
 		// Save the main so we can use it everywhere
 		this.main = main;
 		
 		// This should refresh the window everytime the user switches to a new tab
-		main.views.addChangeListener(new ChangeListener() {
+		changeListener = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				setFocusToCurrentGraph();
 			}
-		});
+		};
+		main.views.addChangeListener(changeListener);
 		
 		// Constructs the dialog
 		buildDialog();
@@ -172,6 +180,8 @@ public class ValueObjectDialog {
 	 * Removes all listeners from the graph and resets the highlighting of the graph
 	 */
 	private void cleanupGraph() {
+		System.out.println("Cleaning graph");
+		
 		// For all cells...
 		for (Object obj : Utils.getAllCells(graph)) {
 			Base val = Utils.base(graph, obj);
@@ -236,6 +246,7 @@ public class ValueObjectDialog {
 	private void buildDialog() {
 		dialog = new JDialog(Main.mainFrame, "ValueObjects", Dialog.ModalityType.MODELESS);
 		dialog.setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.Y_AXIS));
+		dialogInstance = dialog;
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
@@ -361,6 +372,9 @@ public class ValueObjectDialog {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				cleanupGraph();
+				main.views.removeChangeListener(changeListener);
+				
+				isOpened = false;
 			}
 		});
 	}

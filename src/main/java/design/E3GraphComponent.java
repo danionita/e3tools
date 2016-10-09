@@ -39,6 +39,7 @@ import javax.swing.ScrollPaneConstants;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.handler.mxGraphHandler;
+import com.mxgraph.swing.handler.mxRubberband;
 import com.mxgraph.swing.util.mxICellOverlay;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
@@ -141,8 +142,12 @@ public class E3GraphComponent extends mxGraphComponent {
 		getGraphHandler().setImagePreview(false);
 		getGraphHandler().setCenterPreview(false);
 //		getGraphHandler().setCloneEnabled(false);
-		graph.getSelectionModel().setSingleSelection(true);
+		// Decides whether or not we support multi select
+//		graph.getSelectionModel().setSingleSelection(true);
 		setConnectable(true);
+
+		// Enables rubber band selection
+//		new mxRubberband(this);
 		
 		undoManager = new mxUndoManager();
 		
