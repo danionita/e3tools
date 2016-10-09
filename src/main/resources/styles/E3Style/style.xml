@@ -195,5 +195,6 @@
 		<add as="align" value="left" />
 		<add as="strokeColor" value="#808080" />
 		<add as="shape" value="{!name}_NoteStencil" />
+		<add as="whiteSpace" value="wrap" />
 	</add>
 </mxStylesheet>

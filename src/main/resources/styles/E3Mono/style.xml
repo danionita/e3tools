@@ -194,5 +194,6 @@
 		<add as="verticalAlign" value="top" />
 		<add as="align" value="left" />
 		<add as="shape" value="{!name}_NoteStencil" />
+		<add as="whiteSpace" value="wrap" />
 	</add>
 </mxStylesheet>
