@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -47,8 +48,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
@@ -76,7 +77,7 @@ import design.info.StartSignal;
 public class E3PropertiesEditor {
 	private JLabel idLabel;
 	private JLabel typeLabel;
-	private JTextField nameField;
+	private JTextArea nameField;
 	private JPanel topPanel;
 	private JTable formulaTable;
 	private JTextArea editArea;
@@ -122,7 +123,10 @@ public class E3PropertiesEditor {
 		
 		idLabel = new JLabel(""+value.SUID);
 		typeLabel = new JLabel(value.getClass().getSimpleName());
-		nameField = new JTextField(value.name);
+
+		nameField = new JTextArea(value.name);
+		nameField.setFont(UIManager.getDefaults().getFont("Label.font"));
+		nameField.setBorder(BorderFactory.createLineBorder(new Color(120, 120, 120)));
 
 		Object[][] data = new Object[value.formulas.size()][2];
 		{

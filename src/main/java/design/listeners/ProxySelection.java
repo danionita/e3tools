@@ -51,6 +51,8 @@ public class ProxySelection implements mxIEventListener {
 		while (it.hasNext()) {
 			Object obj = it.next();
 			String style = graph.getModel().getStyle(obj);
+			
+			System.out.println("Style: " + style + ";");
 
 			if (style != null
 					&& (style.endsWith("Triangle")

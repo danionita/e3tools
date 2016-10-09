@@ -95,16 +95,34 @@ public class ContextMenus {
 		menu.add(new JMenuItem(new AbstractAction("Edit E3Properties") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Base oldValue = Utils.base(graph, Main.contextTarget);
+
 				E3PropertiesEditor editor = new E3PropertiesEditor(Main.mainFrame, (E3Graph) graph, Utils.base(graph, Main.contextTarget));
 				editor.addE3PropertiesListener(new E3PropertiesEventListener() {
 					@Override
 					public void invoke(E3PropertiesEvent event) {
-						graph.getModel().beginUpdate();
-						try {
+						((E3Graph) graph).doUpdate(() -> {
 							graph.getModel().setValue(Main.contextTarget, event.resultObject);
-						} finally {
-							graph.getModel().endUpdate();
-						}
+
+							if (event.resultObject instanceof ValueExchange) {
+								String oldValuation = oldValue.formulas.getOrDefault("VALUATION", "0");
+								String newValuation = event.resultObject.formulas.getOrDefault("VALUATION", "0");
+								
+								if (!oldValuation.equals(newValuation)) {
+									Object[] endpoints = new Object[]{
+											graph.getModel().getTerminal(Main.contextTarget, true),
+											graph.getModel().getTerminal(Main.contextTarget, false)
+									};
+									
+									for (Object endpoint : endpoints) {
+										if (endpoint == null) continue;
+										Base value = Utils.base(graph, endpoint);
+										value.formulas.put("VALUATION", event.resultObject.formulas.getOrDefault("VALUATION", "0"));
+										graph.getModel().setValue(endpoint, value);
+									}
+								}
+							}
+						});
 					}
 				});
 				editor.show();

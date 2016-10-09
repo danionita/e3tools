@@ -428,10 +428,10 @@ public class RDFExport {
 					}
 					
 					// Propagate valuation from edge if vp valuation == 0
-					if (value.formulas.getOrDefault("VALUATION", "0").equals("0")) {
-						value.formulas.put("VALUATION", veInfo.formulas.getOrDefault("VALUATION", "0"));
-						res.addProperty(E3value.e3_has_formula, "VALUATION" + "=" + value.formulas.get("VALUATION"));
-					}
+//					if (value.formulas.getOrDefault("VALUATION", "0").equals("0")) {
+//						value.formulas.put("VALUATION", veInfo.formulas.getOrDefault("VALUATION", "0"));
+//						res.addProperty(E3value.e3_has_formula, "VALUATION" + "=" + value.formulas.get("VALUATION"));
+//					}
 				}
 			} else if (value instanceof ValueExchange) {
 				res.addProperty(RDF.type, E3value.value_exchange);
