@@ -51,8 +51,9 @@ import e3fraud.vocabulary.E3value;
 public class RDFExport {
 	
 	public final E3Graph graph;
-	Optional<String> result;
-	Optional<Model> modelResult;
+	Optional<String> result = Optional.empty();
+	Optional<String> error = Optional.empty();
+	Optional<Model> modelResult = Optional.empty();
 	
 	Map<Long, Resource> offeringIn = new HashMap<>();
 	Map<Long, Resource> offeringOut = new HashMap<>();
@@ -440,11 +441,13 @@ public class RDFExport {
 				
 				ConnectionVisitor cv = new ConnectionVisitor(this);
 				try {
-					//System.out.println("Starting visitor");
 					cv.accept(cell);
 				} catch (MalformedFlowException e) {
 					System.out.println("Malformed flow! Cause: " + e.subject);
 					e.printStackTrace();
+					
+					error = Optional.of(e.getMessage());
+					return;
 				}
 			} else if (value instanceof EndSignal) {
 				res.addProperty(RDF.type, E3value.end_stimulus);
@@ -485,5 +488,9 @@ public class RDFExport {
 	
 	public Optional<Model> getModel() {
 		return modelResult;
+	}
+	
+	public Optional<String> getError() {
+		return error;
 	}
 }

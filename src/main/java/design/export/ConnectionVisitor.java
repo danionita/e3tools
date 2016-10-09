@@ -35,7 +35,12 @@ public class ConnectionVisitor {
 	void setSend(Object obj) throws MalformedFlowException {
 		if (flowMap.containsKey(obj)) {
 			if (flowMap.get(obj) != Flow.SEND) {
-				throw new MalformedFlowException(obj);
+				Base value = Utils.base(graph, obj);
+				throw new MalformedFlowException(
+						"Tried setting the flow on an element to send, while it was already set to receiving. "
+						+ "This usually means an and or or gate has a start or end stimuli on both sides. "
+						+ "Name of element in question: " + value.name + ". Type of element: " + value.getClass().getSimpleName(),
+						obj);
 			}
 		} else {
 			flowMap.put(obj, Flow.SEND);
@@ -45,7 +50,12 @@ public class ConnectionVisitor {
 	void setReceive(Object obj) throws MalformedFlowException {
 		if (flowMap.containsKey(obj)) {
 			if (flowMap.get(obj) != Flow.RECEIVE) {
-				throw new MalformedFlowException(obj);
+				Base value = Utils.base(graph, obj);
+				throw new MalformedFlowException(
+						"Tried setting the flow on an element to receive, while it was already set to receiving. "
+						+ "This usually means an and or or gate has a start or end stimuli on both sides. "
+						+ "Name of element in question: " + value.name + ". Type of element: " + value.getClass().getSimpleName(),
+						obj);
 			}
 		} else {
 			flowMap.put(obj, Flow.RECEIVE);
@@ -111,6 +121,8 @@ public class ConnectionVisitor {
 			}
 		}
 		
+		System.out.println("Opposite: " + oppositeValue.getClass().getSimpleName());
+		
 		if (oppositeValue instanceof ValueInterface) {
 			Resource viRes = exporter.getResource(oppositeValue.SUID);
 			viRes.addProperty(E3value.de_up_ce, ceRes);
@@ -153,8 +165,17 @@ public class ConnectionVisitor {
 		} else if (oppositeValue instanceof EndSignal) {
 			EndSignal esInfo = (EndSignal) model.getValue(opposite);
 			visit(opposite, esInfo);
+		} else if (oppositeValue instanceof StartSignal) {
+			throw new MalformedFlowException("While checking downstream a start stimuli entity was encountered. "
+					+ "This usually means there is a connection to a start stimuli to both ends of an and or or gate. "
+					+ "Name of faulty start stimuli: " + oppositeValue.name,
+					opposite);
 		} else {
-			throw new MalformedFlowException("This connectionelement is not connected to a proper ending", opposite);
+			throw new MalformedFlowException("This connectionelement is not connected to a proper ending. Ending type: " +
+					oppositeValue.getClass().getSimpleName() +
+					". Ending name: " +
+					oppositeValue.name
+					);
 		}
 	}
 	

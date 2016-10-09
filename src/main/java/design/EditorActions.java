@@ -134,12 +134,22 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Optional<String> result = new RDFExport(main.getCurrentGraph(), true).getResult();
+			RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), true);
+            Optional<String> result = rdfExport.getResult();
 
+            // Do not export to rdf if there was an error
             if (!result.isPresent()) {
+            	Optional<String> error = rdfExport.getError();
+
+            	String errorString = "An error occurred while exporting to RDF. Please ensure that the model has no errors.";
+
+            	if (error.isPresent()) {
+            		errorString += " The error:\n" + error.get();
+            	}
+
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
-                        "An error occurred while exporting to RDF. Please ensure that the model has no errors.",
+                        errorString,
                         "Invalid model",
                         JOptionPane.ERROR_MESSAGE);
                 return;
@@ -827,9 +837,16 @@ public class EditorActions {
 
             RDFExport rdfExporter = new RDFExport(targetGraph, true);
             if (!rdfExporter.getModel().isPresent()) {
+            	Optional<String> error = rdfExporter.getError();
+            	
+            	String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
+            	if (error.isPresent()) {
+            		errorString += " The error: \n" + error.get();
+            	}
+            	
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
-                        "An error occurred while converting to an internal format. Please make sure the model contains no errors.",
+                        errorString,
                         "Invalid model",
                         JOptionPane.ERROR_MESSAGE
                 );
@@ -867,11 +884,18 @@ public class EditorActions {
             }
 
             RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
-
+            
             if (!rdfExporter.getModel().isPresent()) {
+            	Optional<String> error = rdfExporter.getError();
+            	
+            	String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
+            	if (error.isPresent()) {
+            		errorString += " The error: \n" + error.get();
+            	}
+            	
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
-                        "An error occurred while converting to an internal format. Please make sure the model contains no errors.",
+                        errorString,
                         "Invalid model",
                         JOptionPane.ERROR_MESSAGE
                 );
