@@ -66,6 +66,7 @@ import design.E3Graph;
 import design.Main;
 import design.Utils;
 import design.info.Base;
+import design.info.StartSignal;
 
 /**
  * TODO: Rewrite this window with the WindowBuilder Pro from Eclipse
@@ -425,6 +426,18 @@ public class E3PropertiesEditor {
 							"It appears there is a non-unique formula name. Please supply unique"
 							+ " formula names.",
 							"Non-unique name error", 
+							JOptionPane.ERROR_MESSAGE
+							);
+					return;
+				}
+				
+				// If the currently edited thing is not a start stimuli, disallow
+				// creation of "OCCURRENCES" formulas.
+				if (!(value instanceof StartSignal) && formulaNames.contains("OCCURRENCES")) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame,
+							"\"OCCURRENCES\" formulas are only allowed on start stimuli. Please rename or delete the formula.",
+							"Disallowed formula error", 
 							JOptionPane.ERROR_MESSAGE
 							);
 					return;
