@@ -74,6 +74,7 @@ import design.info.Base;
  */
 public class E3PropertiesEditor {
 	private JLabel idLabel;
+	private JLabel typeLabel;
 	private JTextField nameField;
 	private JPanel topPanel;
 	private JTable formulaTable;
@@ -119,6 +120,7 @@ public class E3PropertiesEditor {
 		topPanel.setLayout(new GridBagLayout());
 		
 		idLabel = new JLabel(""+value.SUID);
+		typeLabel = new JLabel(value.getClass().getSimpleName());
 		nameField = new JTextField(value.name);
 
 		Object[][] data = new Object[value.formulas.size()][2];
@@ -290,13 +292,13 @@ public class E3PropertiesEditor {
 			}
 		}));
 
-		List<String> labels = new ArrayList<>(Arrays.asList("ID:", "Name:", "Formulas:", ""));
+		List<String> labels = new ArrayList<>(Arrays.asList("ID:", "Type:", "Name:", "Formulas:", ""));
 		List<Component> labelComponents = new ArrayList<>();
 		for (String label : labels) {
 			labelComponents.add(new JLabel(label));
 		}
 		
-		List<Component> components = new ArrayList<>(Arrays.asList(idLabel, nameField, formulaPane, buttonPane));
+		List<Component> components = new ArrayList<>(Arrays.asList(idLabel, typeLabel, nameField, formulaPane, buttonPane));
 		
 		for (int i = 0; i < labelComponents.size(); i++) {
 			Component label = labelComponents.get(i);
@@ -318,7 +320,7 @@ public class E3PropertiesEditor {
 			c.weightx = 1;
 			c.insets = new Insets(5, 5, 5, 5);
 			
-			if (i == 2) {
+			if (i == 3) {
 				c.weighty = 1;
 				c.fill = GridBagConstraints.BOTH;
 			}
