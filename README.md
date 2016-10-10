@@ -1,11 +1,9 @@
 # e3tools
 
 ## How to use
-1. Download jar from here: [link](https://github.com/danionita/e3tools/raw/master/e3tool-alpha-20160713.jar)
-2. Double click the jar
-3. Enjoy the e3tool!
-
-For more instructions on how to use the e3tool visit the wiki: [https://github.com/danionita/e3tools/wiki](https://github.com/danionita/e3tools/wiki)
+1. Download latest version from here: [link](https://github.com/danionita/e3tools/releases/latest)
+2. Run the .exe or .jar
+3. For tutorials and details, visit the wiki: [https://github.com/danionita/e3tools/wiki](https://github.com/danionita/e3tools/wiki)
 
 ## Developers
 
