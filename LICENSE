@@ -1,5 +1,5 @@
-This software (e3tools) is distributed under the GPL-3 license, and includes third party open source software components: e3value. 
-This component has it's own license: License_e3value.txt.  
+This software (e3tools) is distributed under the GPL-3 license.<!--, but includes a component developed by a third-party: e3value. 
+This component has it's own license: License_e3value.txt.  -->
 
 This software (e3tools) is free, open source, and has the following attribution requirements
 (GPL Section 7):
@@ -10,7 +10,7 @@ This software (e3tools) is free, open source, and has the following attribution 
     "University of Twente" (http://www.utwente.nl/) and the Vrije Universiteit Amsterdam (http://e3value.few.vu.nl/).'
 (b) you agree that 'e3tools' and any modifications to 'e3tools' will,
     when used, display the attribution:
-     Based on 'e3tools' project (https://github.com/danionita/e3tools).
+     Based on the 'e3tools' project (https://github.com/danionita/e3tools).
      For license and citation information see https://github.com/danionita/e3tools/blob/master/LICENSE
 (c) you agree that 'e3tools' and any modifications to 'e3tools' will
     display the citation information, as provided in the original
@@ -25,7 +25,7 @@ What does this mean?
 
 If you are modifying 'e3tools' or adopting any source code from
 'e3tools' for use in another application, you must ensure that the
-copyright and attributions mentioned in the license above appear
+copyright and attributions mentioned above appear
 in the code of your modified version or application. These 
 attributions must also appear when the package is loaded
 (e.g., via 'library' or 'include').
