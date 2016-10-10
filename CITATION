@@ -1,13 +1,12 @@
 If you are using the e3tools package for research that will be published or otherwise publicly distributed, we request that you acknowledge this with the following citation:
 
-Jaap Gording, Dan Ionita, Bob Rubbens and Roel Wieringa (2016).
+Jaap Gordijn, Dan Ionita, Bob Rubbens and Roel Wieringa (2016).
 e3tools: Toolkit for building and analyzing networked business models URL https://github.com/danionita/e3tools
 A BibTeX entry for LaTeX users is
 
-
-	@Manual{gording:e3tools,
+@Manual{gordijn:e3tools,
 		title = {e3tools: Toolkit for building and analyzing networked business models},
-		author = {Jaap Gording and Dan Ionita and Bob Rubbens and Roel Wieringa},
+		author = {Jaap Gordijn and Dan Ionita and Bob Rubbens and Roel Wieringa},
 		year = {2016},
 		address = {The Netherlands},
 		url = {https://github.com/danionita/e3tools}
