@@ -1620,4 +1620,48 @@ public class E3Graph extends mxGraph implements Serializable{
 			model.endUpdate();
 		}
 	}
+	
+	/**
+	 * Propagates the valuation of a specific value exchange to its value ports.
+	 */
+	public void propagateValuation(Object valueExchange) {
+		propagateValuations(Arrays.asList(valueExchange));
+	}
+	
+	/**
+	 * Forces propagation of valuations of all value exchanges in the graph to all
+	 * value ports.
+	 */
+	public void propagateValuations() {
+		propagateValuations(Utils.getAllCells(this).stream()
+				.filter(obj -> getModel().getValue(obj) instanceof ValueExchange)
+				.collect(Collectors.toList())
+				);
+	}
+	
+	/**
+	 * Forces propagation of valuations of value transfers to both value ports.
+	 * @param valueExchanges The value exchanges to propagate valuations of.
+	 */
+	public void propagateValuations(List<Object> valueExchanges) {
+		doUpdate(() -> {
+			valueExchanges.stream()
+				.forEach(obj -> {
+					Object[] endpoints = new Object[]{
+						getModel().getTerminal(obj, true),
+						getModel().getTerminal(obj, false)
+					};
+					
+					Base veInfo = Utils.base(E3Graph.this, obj);
+					String valuation = veInfo.formulas.getOrDefault("VALUATION", "0");
+
+					for (Object endpoint : endpoints) {
+						if (endpoint == null) continue;
+						Base value = Utils.base(E3Graph.this, endpoint);
+						value.formulas.put("VALUATION", valuation);
+						getModel().setValue(endpoint, value);
+					}
+				});
+		});
+	}
 }

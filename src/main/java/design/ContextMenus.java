@@ -21,8 +21,10 @@ package design;
 import java.awt.event.ActionEvent;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
@@ -105,21 +107,36 @@ public class ContextMenus {
 							graph.getModel().setValue(Main.contextTarget, event.resultObject);
 
 							if (event.resultObject instanceof ValueExchange) {
-								String oldValuation = oldValue.formulas.getOrDefault("VALUATION", "0");
 								String newValuation = event.resultObject.formulas.getOrDefault("VALUATION", "0");
+
+								List<String> valuations = Arrays.stream(new Object[]{
+										graph.getModel().getTerminal(Main.contextTarget, true),
+										graph.getModel().getTerminal(Main.contextTarget, false)
+								})
+									.filter(Objects::nonNull)
+									.map(obj -> (Base) graph.getModel().getValue(obj))
+									.map(obj -> obj.formulas.getOrDefault("VALUATION", "0"))
+									.collect(Collectors.toList());
 								
-								if (!oldValuation.equals(newValuation)) {
-									Object[] endpoints = new Object[]{
-											graph.getModel().getTerminal(Main.contextTarget, true),
-											graph.getModel().getTerminal(Main.contextTarget, false)
-									};
-									
-									for (Object endpoint : endpoints) {
-										if (endpoint == null) continue;
-										Base value = Utils.base(graph, endpoint);
-										value.formulas.put("VALUATION", event.resultObject.formulas.getOrDefault("VALUATION", "0"));
-										graph.getModel().setValue(endpoint, value);
-									}
+								valuations.removeIf(valuation -> valuation.equals(newValuation));
+								
+								if (valuations.size() == 0) {
+									return;
+								}
+								
+								int response = JOptionPane.showConfirmDialog(
+										Main.mainFrame,
+										"The valuation you entered is different from the "
+										+ "ones attached to the valueports of this transfer. Would you like "
+										+ "to propagate this valuation to the two ports?",
+										"Different valuations encountered",
+										JOptionPane.YES_NO_OPTION,
+										JOptionPane.QUESTION_MESSAGE
+										);
+								
+								if (response == JOptionPane.YES_OPTION) {
+									System.out.println("Propagating values!");
+									((E3Graph) graph).propagateValuation(Main.contextTarget);
 								}
 							}
 						});

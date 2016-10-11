@@ -65,6 +65,8 @@ public class ExampleModels {
 				
 				graph.connectCE(ss, blTop);
 				graph.connectCE(tlBottom, es);
+
+				graph.propagateValuations();
 			} finally {
 				model.endUpdate();
 			}
@@ -110,6 +112,8 @@ public class ExampleModels {
 				graph.connectCE(ss, blTop);
 				graph.connectCE(tlBottom, tlRight);
 				graph.connectCE(trLeft, es);
+
+				graph.propagateValuations();
 			} finally {
 				model.endUpdate();
 			}	
@@ -228,8 +232,10 @@ public class ExampleModels {
 
 				graph.connectCE(userBVI, userBES);
 				
-                                graph.title = "Flat-rate telephony";
-                                main.setCurrentTabTitle("Flat-rate telephony");
+				graph.title = "Flat-rate telephony";
+				main.setCurrentTabTitle("Flat-rate telephony");
+				
+				graph.propagateValuations();
 			} finally {
 				model.endUpdate();
 			}	
@@ -301,6 +307,8 @@ public class ExampleModels {
 				
 				graph.connectCE(ss, rvi);
 				graph.connectCE(es, lvi);
+
+				graph.propagateValuations();
 			} finally {
 				model.endUpdate();
 			}	
@@ -376,6 +384,8 @@ public class ExampleModels {
 				graph.connectLogicToLogic(orBR, orB, true, false);
 				
 				graph.connectSignalToLogic(end, orB, true);
+
+				graph.propagateValuations();
 			} finally {
 				model.endUpdate();
 			}
