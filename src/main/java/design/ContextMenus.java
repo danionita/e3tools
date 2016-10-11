@@ -107,23 +107,30 @@ public class ContextMenus {
 							graph.getModel().setValue(Main.contextTarget, event.resultObject);
 
 							if (event.resultObject instanceof ValueExchange) {
+								// Get the new valuation
 								String newValuation = event.resultObject.formulas.getOrDefault("VALUATION", "0");
 
+								// Get the two old valuations and put them in a list
 								List<String> valuations = Arrays.stream(new Object[]{
 										graph.getModel().getTerminal(Main.contextTarget, true),
 										graph.getModel().getTerminal(Main.contextTarget, false)
-								})
+									})
 									.filter(Objects::nonNull)
 									.map(obj -> (Base) graph.getModel().getValue(obj))
 									.map(obj -> obj.formulas.getOrDefault("VALUATION", "0"))
 									.collect(Collectors.toList());
 								
+								// Delete every valuation from the list if they're equal to the new valuation
 								valuations.removeIf(valuation -> valuation.equals(newValuation));
 								
+								// If the list is of size 0, this means all valuations are equal.
+								// Hence we don't have to ask the user for confirmation
 								if (valuations.size() == 0) {
 									return;
 								}
 								
+								// If it's nonzero it means there are distinct valuations, which means
+								// we have to ask the user what to do.
 								int response = JOptionPane.showConfirmDialog(
 										Main.mainFrame,
 										"The valuation you entered is different from the "
@@ -134,6 +141,8 @@ public class ContextMenus {
 										JOptionPane.QUESTION_MESSAGE
 										);
 								
+								// And if the user says yes, we force propagate the valuation of
+								// the current value exchange.
 								if (response == JOptionPane.YES_OPTION) {
 									System.out.println("Propagating values!");
 									((E3Graph) graph).propagateValuation(Main.contextTarget);

@@ -1647,14 +1647,17 @@ public class E3Graph extends mxGraph implements Serializable{
 		doUpdate(() -> {
 			valueExchanges.stream()
 				.forEach(obj -> {
+					// Get the end points of the value exchange
 					Object[] endpoints = new Object[]{
 						getModel().getTerminal(obj, true),
 						getModel().getTerminal(obj, false)
 					};
 					
+					// Get the valuation of the value exchange
 					Base veInfo = Utils.base(E3Graph.this, obj);
 					String valuation = veInfo.formulas.getOrDefault("VALUATION", "0");
 
+					// Apply to both endpoints
 					for (Object endpoint : endpoints) {
 						if (endpoint == null) continue;
 						Base value = Utils.base(E3Graph.this, endpoint);
