@@ -40,31 +40,15 @@ public class ChartGenerator {
     public static JFreeChart generateChart(E3Model model, Resource need, int startValue, int endValue, boolean expected) {
         //Get list of actors
         Set<Resource> actors = model.getActors();
-        //generate a series
-        
+
+        XYSeriesCollection line_chart_dataset = new XYSeriesCollection();   
         Map<Resource, XYSeries> actorSeriesMap = model.getLastKnownSeries();
-        
-        
 
-        //for each actor
-        XYSeriesCollection line_chart_dataset = new XYSeriesCollection();
-
+        //Then, for each actor
         for (Resource actor : actors) {
             //add it's series to the chart
             XYSeries series = actorSeriesMap.get(actor);
             line_chart_dataset.addSeries(series);
-            double slope;
-            System.out.println("itemcount=" +series.getItemCount());
-            if (series.getItemCount() > 1) {
-                slope = (series.getY(0).doubleValue() - series.getY(1).doubleValue()) / (series.getX(0).doubleValue() - series.getX(1).doubleValue());
-            } else {
-                slope = 0;
-            }
-            DecimalFormat df = new DecimalFormat("#.##");
-            series.setKey(series.getKey()
-                    + "\nAvg.\t = \t" + df.format(model.getLastKnownAverages().get(actor))
-                    + "\nSlope\t = \t" + df.format(slope));
-
         }
 
         /* Step -2:Define the JFreeChart object to create line chart */

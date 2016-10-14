@@ -36,6 +36,7 @@ public class ModelRanker {
      * Transforms the Set of models into an ordered List of models, ranked by
      * largest gain of any other actor (except ToA) compared to baseModel
      *
+     * @param worker the worker thread running this
      * @param baseModel baseModel to compare gain to
      * @param actor the actor whose loss to sort by
      * @param models the set of models to sort

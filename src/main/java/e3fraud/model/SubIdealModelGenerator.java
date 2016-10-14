@@ -141,10 +141,8 @@ int STEPS = 3;
         //for each combination of  secondary actors:
         for (ICombinatoricsVector<Resource> secondaryActorsCombination : secondaryActorsCombinations) {
 
-            //Create an empty model
-            Model model = ModelFactory.createDefaultModel();
-            model.add(baseModel.getJenaModel());
-            E3Model generatedModel = new E3Model(model, baseModel);
+            //Create an duplicate model
+            E3Model generatedModel = new E3Model(baseModel);
 
             //just in case previous method did not change anything(if this method was called directly, instead of calling generateAll)
             if (generatedModel.getDescription().equals("Base Model")) {
@@ -164,6 +162,7 @@ int STEPS = 3;
             }
             generatedModel.appendDescription(description);
            //generatedModel.collude(actor1, actor2);
+            generatedModel.evaluate();
             subIdealModels.add(generatedModel);
         }
         }
@@ -187,10 +186,8 @@ int STEPS = 3;
 
             for (ICombinatoricsVector<Resource> moneyExchangeCombination : moneyExchangeCombinations) {
 
-                //Create an empty model
-                Model model = ModelFactory.createDefaultModel();
-                model.add(baseModel.getJenaModel());
-                E3Model generatedModel = new E3Model(model, baseModel);
+                //Create a duplicate model
+                E3Model generatedModel = new E3Model(baseModel);
 
                 //just in case previous method did not change anything(if this method was called directly, instead of calling generateAll)
                 if (generatedModel.getDescription().equals("Base Model") || generatedModel.getDescription().equals("No collusion")) {
@@ -208,6 +205,7 @@ int STEPS = 3;
                     generatedModel.appendDescription("<b>Non-occuring</b> exchange " + exchange.getProperty(E3value.e3_has_name).getLiteral().toString());
                 }
                 //System.out.println("Generated:" + generatedModel.getDescription());
+                generatedModel.evaluate();
                 subIdealModels.add(generatedModel);
             }
         }
@@ -278,10 +276,8 @@ int STEPS = 3;
                         //and for each value
                         for (value = step; value < actor1Total; value = value + step) {
                             //System.out.println("\t\t\t\t\t\tcreating new model"); 
-                            //Create an empty model
-                            Model model = ModelFactory.createDefaultModel();
-                            model.add(baseModel.getJenaModel());
-                            E3Model generatedModel = new E3Model(model, baseModel);
+                            //Create a duplicate model
+                            E3Model generatedModel = new E3Model(baseModel);
                             //System.out.println("\t\t\t\t\t adding a hidden transfer of "+ value+ " between \""+ actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" and \""+ actor2.getProperty(E3value.e3_has_name).getLiteral().toString()+ "\"");     
                     
                             //just in case previous method did not change anything (if this method was called directly, instead of calling generateAll)
@@ -302,6 +298,7 @@ int STEPS = 3;
                             generatedModel.appendDescription("<b>Hidden</b> transfer of value " + df.format(value) + " (out of " + df.format(actor1Total) + ") per occurence from \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
                             
                             //System.out.println("\t\t\t\t\t\tadding the new model to the list"); 
+                            generatedModel.evaluate();
                             subIdealModels.add(generatedModel);
                         }
                     }
@@ -313,10 +310,8 @@ int STEPS = 3;
                         //and for each value
                         for (value = step; value < actor2Total; value = value + step) {
 
-                            //Create an empty model
-                            Model model = ModelFactory.createDefaultModel();
-                            model.add(baseModel.getJenaModel());
-                            E3Model generatedModel = new E3Model(model, baseModel);
+                            //Create a duplicate model                            
+                            E3Model generatedModel = new E3Model(baseModel);
                             
 
                             //just in case previous method did not change anything (if this method was called directly, instead of calling generateAll)
@@ -334,6 +329,7 @@ int STEPS = 3;
                             int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
                             generatedModel.getFraudChanges().addHiddenTransaction(interface2ID,interface1ID, value);
                             generatedModel.appendDescription("<b>Hidden</b>  transfer of value " + df.format(value) + " (out of " + df.format(actor2Total) + ") from \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
+                            generatedModel.evaluate();
                             subIdealModels.add(generatedModel);
                         }
                     }
