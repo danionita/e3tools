@@ -329,6 +329,8 @@ public class GraphIO {
 			writeFileToZip(zout, "style/dot.shape", style.dot);
 		}
 		
+		graph.saveBeforeExit = false;
+		
 		JOptionPane.showMessageDialog(Main.mainFrame, "File saved to: " + fileName);
 	}
 	

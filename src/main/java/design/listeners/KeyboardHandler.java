@@ -95,7 +95,6 @@ public class KeyboardHandler extends mxKeyboardHandler {
 		map.put("undo", new AbstractAction("Undo") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Undoing");
 				undoManager.undo();
 			}
 		});
@@ -103,7 +102,6 @@ public class KeyboardHandler extends mxKeyboardHandler {
 		map.put("redo", new AbstractAction("Redo") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Redoing");
 				undoManager.redo();
 			}
 		});

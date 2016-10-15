@@ -33,11 +33,13 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
@@ -366,14 +368,50 @@ public class Main {
         e3toolDir.mkdirs();
         e3styleDir.mkdirs();
         
+        // To make sure we give the user a chance to save their work on exit
+        mainFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         mainFrame.addWindowListener(new WindowAdapter() {
         	public void windowClosing(WindowEvent e) {
+        		// Cycle through all the open graphs
+        		while (getCurrentGraph() != null) {
+        			// If it possibly contains unsaved work
+        			if (getCurrentGraph().saveBeforeExit) {
+        				// Ask the user what to do
+        				int result = JOptionPane.showConfirmDialog(
+        						mainFrame,
+        						"This model contains unsaved changes. Would you like to save these changes?",
+        						"Possible unsaved changes detected",
+        						JOptionPane.YES_NO_CANCEL_OPTION,
+        						JOptionPane.QUESTION_MESSAGE
+        						);
+        				
+        				// Then either cancel, save, or discard.
+        				if (result == JOptionPane.CANCEL_OPTION) {
+        					return;
+        				} else if (result == JOptionPane.YES_OPTION) {
+        					if (!Utils.saveAs(mainFrame, getCurrentGraph())) {
+        						// If the users clicks cancel in the dialog
+        						// or an error occurs
+        						// we just stop closing
+        						return;
+        					}
+        				} else if (result == JOptionPane.NO_OPTION) {
+        					// Carry on!
+        				}
+        			}
+        			
+        			// Remove the view if everything went ok
+        			// And move on to the next
+        			views.remove(views.getSelectedIndex());
+        		}
         		
+        		// Get rid of the frame and the application on exit
+        		mainFrame.dispose();
+        		System.exit(0);
         	}
         });
         
         // Show main screen
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setSize(1024, 800);
         // Centers it
         mainFrame.setLocationRelativeTo(null);

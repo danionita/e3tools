@@ -578,13 +578,13 @@ public class Utils {
     }
 
     /**
-     * TODO: Do it this way:
-     * https://forum.jgraph.com/accept_answer/4852/index.html
-     *
+     * Saves the graph to the file selected by the user. If something goes wrong
+     * it shows an error or confirmation message.
      * @param mainFrame
      * @param graph
+     * @return True on success, false on failure.
      */
-    public static void saveAs(JFrame mainFrame, E3Graph graph) {
+    public static boolean saveAs(JFrame mainFrame, E3Graph graph) {
     	JFileChooser fc = getE3FileChooser();
     	
         int returnVal = fc.showSaveDialog(mainFrame);
@@ -613,29 +613,30 @@ public class Utils {
 
                 if (result != JOptionPane.OK_OPTION) {
                     System.out.println(currentTime.currentTime() + " Save command cancelled by user.");
-                    return;
+                    return false;
                 }
 
                 file.delete();
             }
 
-            saveToFile(mainFrame, graph, file);
-
-            System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
+            return saveToFile(mainFrame, graph, file);
         } else {
             System.out.println(currentTime.currentTime() + " Save command cancelled by user.");
         }
+        
+        return false;
     }
 
     /**
-     * TODO: Do it this way:
-     * https://forum.jgraph.com/accept_answer/4852/index.html
+     * Saves a graph to the file specified by file. If an error occurs
+     * it shows an error dialog.
      *
      * @param mainFrame
      * @param graph
      * @param file
+     * @return True on success, false on failure.
      */
-    public static void saveToFile(JFrame mainFrame, E3Graph graph, File file) {
+    public static boolean saveToFile(JFrame mainFrame, E3Graph graph, File file) {
         try {
             GraphIO.saveGraph(graph, file.getAbsolutePath());
         } catch (IOException e) {
@@ -645,10 +646,12 @@ public class Utils {
                     "Error during file saving. Please make sure the file destination is accesible.",
                     "Saving error",
                     JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
         graph.file = file;
         System.out.println(currentTime.currentTime() + " Saved: " + file.getName() + ".");
+
+        return true;
     }
     
     public static JFileChooser getE3FileChooser() {

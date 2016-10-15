@@ -62,7 +62,6 @@ import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
 
-// TODO: Use mxRubberband for multi select actors and stuff (see Validiation.java in mxGraph examples)
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
 
@@ -74,6 +73,15 @@ public class E3Graph extends mxGraph implements Serializable{
 	public String title = "";
 	public File file;
 	public E3Style style;
+	
+	/**
+	 * Indicates whether or not the graph POSSIBLY (might not!)
+	 * contains any changes and should be saved before exiting.
+	 * This is set to true on any change (either redo's, undo's,
+	 * or other kind of changes). Saving it with the GraphIO
+	 * class sets it to false again.
+	 */
+	public boolean saveBeforeExit = false;
 	
 	public E3Graph(E3Style style, boolean isFraud) {
 		this(style, isFraud, null);
@@ -297,6 +305,13 @@ public class E3Graph extends mxGraph implements Serializable{
 				} finally {
 					graph.getModel().endUpdate();
 				}
+			}
+		});
+		
+		graph.getModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				saveBeforeExit = true;
 			}
 		});
 	}
@@ -760,8 +775,6 @@ public class E3Graph extends mxGraph implements Serializable{
 
 	@Override
 	public Object[] cloneCells(Object[] cells, boolean allowInvalidEdges) {
-		System.out.println("Cloning cells in e3graph");
-		
 		Object[] clones = super.cloneCells(cells, allowInvalidEdges);
 		
 		new IDReplacer(this).renewBases(clones);
