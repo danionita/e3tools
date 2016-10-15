@@ -12,7 +12,6 @@ public class EndSignal extends Base {
 		super(SUID);
 		
 		name = "EndSignal" + SUID;
-		formulas.put("OCCURRENCES", "0");
 	}
 
 	@Override
@@ -32,8 +31,6 @@ public class EndSignal extends Base {
 	
 	@Override
 	public List<String> getImmutableProperties() {
-		return Arrays.asList(
-				"OCCURRENCES"
-		);
+		return Arrays.asList();
 	}
 }

@@ -67,6 +67,7 @@ import design.E3Graph;
 import design.Main;
 import design.Utils;
 import design.info.Base;
+import design.info.EndSignal;
 import design.info.StartSignal;
 
 /**
@@ -276,6 +277,16 @@ public class E3PropertiesEditor {
 				
 				String name = (String) formulaTable.getModel().getValueAt(row, 0);
 				String formula = (String) formulaTable.getModel().getValueAt(row, 1);
+
+				if (value.getImmutableProperties().contains(name)) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame,
+							"Immutable formulas cannot be deleted.",
+							"Immutable formula",
+							JOptionPane.INFORMATION_MESSAGE
+							);
+					return;
+				}
 				
 				if ((name.trim() + name.trim()).length() > 0) {
 					int response = JOptionPane.showConfirmDialog(
