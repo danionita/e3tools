@@ -155,6 +155,7 @@ public class RDFExport {
 					});
 			
 			if (!noBadColluders) {
+				error = Optional.of("An actor is colluding which has something else than just value activities as children.");
 				System.out.println("An actor is colluding which has something else than just value activities as children. Error, aborting!");
 				return;
 			}
@@ -184,8 +185,7 @@ public class RDFExport {
 
 		Resource colludedResource = null;
 		Map<String, String> colludedFormulas = new HashMap<>();
-		boolean hasColludedActor = Utils.getAllCells(graph)
-				.stream()
+		boolean hasColludedActor = Utils.getAllCells(graph).stream()
 				.map(graph.getModel()::getValue)
 				.filter(Objects::nonNull)
 				.filter(v -> v instanceof Actor)
@@ -215,10 +215,9 @@ public class RDFExport {
 			
 			Base value = (Base) cellValue;
 			
-			//System.out.println("Considering: \"" + value.name + "\"");
-			
 			Resource res = null;
 			
+			// Collusion related logic
 			if (value instanceof Actor) {
 				Actor acInfo = (Actor) value;
 				
@@ -251,6 +250,9 @@ public class RDFExport {
 				}
 			}
 			
+			// If res is null there is not a collision taking place
+			// Hence we do the normal RDF initialization
+			// (copying names, assigning the formulas, etc.)
 			if (res == null) {
 				res = getResource(value.SUID);
 
@@ -299,6 +301,7 @@ public class RDFExport {
 				}
 			}
 			
+			// Then we do entity-specific stuff
 			if (value instanceof Actor) {
 				{
 					List<Object> vaChildren = Utils.getChildrenWithValue(graph, cell, ValueActivity.class);

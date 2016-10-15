@@ -1107,14 +1107,36 @@ public class E3Graph extends mxGraph implements Serializable{
 		try {
 			getModel().setValue(ac, acInfo);
 
+			String oldStyle = getModel().getStyle(ac);
+
+			// We merely replace the style indicators here.
+			// If you would just do "setStyle(ac, "Actor");", 
+			// you would throw away all styling the user did.
 			if (acInfo.colluded) {
-				getModel().setStyle(ac, "ColludedActor");
+				getModel().setStyle(ac, oldStyle.replace("Actor", "ColludedActor"));
 			} else {
-				getModel().setStyle(ac, "Actor");
+				getModel().setStyle(ac, oldStyle.replace("ColludedActor", "Actor"));
 			}
 		} finally {
 			getModel().endUpdate();
 		}
+	}
+	
+	public void setColludingMarketSegment(Object ms, boolean b) {
+		MarketSegment msInfo = (MarketSegment) Utils.base(this, ms);
+		msInfo.colluded = b;
+		
+		doUpdate(() -> {
+			getModel().setValue(ms, msInfo);
+			
+			String oldStyle = getModel().getStyle(ms);
+
+			if (msInfo.colluded) {
+				getModel().setStyle(ms, oldStyle.replaceFirst("MarketSegment", "ColludedMarketSegment"));
+			} else {
+				getModel().setStyle(ms, oldStyle.replaceFirst("ColludedMarketSegment", "MarketSegment"));
+			}
+		});
 	}
 	
 	public void setValueExchangeNonOcurring(Object ve, boolean on) {

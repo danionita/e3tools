@@ -785,4 +785,36 @@ public class ContextMenus {
 			}
 		}));
 	}
+	
+	public static void addMarketSegmentMenu(JPopupMenu menu, mxGraph graph) {
+		JMenu fraudMenu = new JMenu("Fraud");
+		JCheckBoxMenuItem colluding = new JCheckBoxMenuItem(new AbstractAction("Colluding") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MarketSegment msInfo = (MarketSegment) Utils.base(graph, Main.contextTarget);
+				((E3Graph) graph).setColludingMarketSegment(Main.contextTarget, !msInfo.colluded);
+			}
+		});
+		
+		fraudMenu.add(colluding);
+		
+		if (!((E3Graph) graph).isFraud) {
+			fraudMenu.setEnabled(false);
+		}
+		
+		menu.add(fraudMenu);
+		menu.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				MarketSegment msInfo = (MarketSegment) Utils.base(graph, Main.contextTarget);
+				colluding.setSelected(msInfo.colluded);
+			}
+			
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { }
+			
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e) { }
+		});
+	}
 }

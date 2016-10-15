@@ -68,6 +68,14 @@
 		<add as="gradientColor" value="#C0C0C0" />
 	</add>
 	
+	<add as="ColludedMarketSegment" extend="baseStyle">
+		<add as="shape" value="{!name}_MarketSegmentStencil" />
+		<add as="fillColor" value="#C0C0C0" />
+		<add as="gradientColor" value="#C0C0C0" />
+		<add as="strokeColor" value="#CC0000" />
+		<add as="strokeWidth" value="3" />
+	</add>
+	
 	<add as="ValueInterface" extend="baseStyle">
 		<add as="rounded" value="1" />
 		<add as="arcSize" value="50" />

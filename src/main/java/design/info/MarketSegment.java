@@ -3,6 +3,8 @@ package design.info;
 public class MarketSegment extends Base {
 	private static final long serialVersionUID = 952747256997418957L;
 	
+	public boolean colluded = false;
+	
 	public MarketSegment(long SUID) {
 		super(SUID);
 		
@@ -14,10 +16,12 @@ public class MarketSegment extends Base {
 	
 	@Override
 	public Base getCopy() {
-		MarketSegment va = new MarketSegment(SUID);
-		Base.setCommons(this, va);
+		MarketSegment ms = new MarketSegment(SUID);
+		Base.setCommons(this, ms);
+		
+		ms.colluded = colluded;
 
-		return va;
+		return ms;
 	}
 	
 	public String toString() {
