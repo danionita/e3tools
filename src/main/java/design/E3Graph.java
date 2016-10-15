@@ -122,6 +122,11 @@ public class E3Graph extends mxGraph implements Serializable{
 		addStandardEventListeners();
 	}
 	
+	/**
+	 * Constructs a copy of graph original with changes indicated
+	 * in delta. After applying the changes the valuations from all
+	 * value transfers are also propagated to value ports.
+	 */
 	public E3Graph(E3Graph original, GraphDelta delta) {
 		this(original, false);
 		
@@ -168,6 +173,9 @@ public class E3Graph extends mxGraph implements Serializable{
 		} finally {
 			getModel().endUpdate();
 		}
+		
+		// Propagate valuations from the delta 
+		propagateValuations();
 	}
 	
 	private void addStandardEventListeners() {
@@ -1696,6 +1704,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	 * Propagates the valuation of a specific value exchange to its value ports.
 	 */
 	public void propagateValuation(Object valueExchange) {
+		System.out.println("Propagating valuation for one cell");
 		propagateValuations(Arrays.asList(valueExchange));
 	}
 	
@@ -1704,6 +1713,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	 * value ports.
 	 */
 	public void propagateValuations() {
+		System.out.println("Propagating valuation for all cells");
 		propagateValuations(Utils.getAllCells(this).stream()
 				.filter(obj -> getModel().getValue(obj) instanceof ValueExchange)
 				.collect(Collectors.toList())
@@ -1715,6 +1725,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	 * @param valueExchanges The value exchanges to propagate valuations of.
 	 */
 	public void propagateValuations(List<Object> valueExchanges) {
+		System.out.println("Force propagation!");
 		doUpdate(() -> {
 			valueExchanges.stream()
 				.forEach(obj -> {
