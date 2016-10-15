@@ -779,4 +779,21 @@ public class Utils {
     		.collect(Collectors.toList())
     		;
     }
+    
+    /**
+     * Returns whether or not a random cell from an e3graph is colluding.
+     */
+    public static boolean isEntityColluding(E3Graph graph, Object cell) {
+    	Object info = graph.getModel().getValue(cell);
+    	
+    	if (info instanceof Actor) {
+			Actor actor = (Actor) info;
+    		return actor.colluded;
+    	} else if (info instanceof MarketSegment) {
+			MarketSegment marketSegment = (MarketSegment) info;
+    		return marketSegment.colluded;
+    	}
+    	
+    	return false;
+    }
 }

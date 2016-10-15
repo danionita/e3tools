@@ -125,19 +125,24 @@ public class RDFExport {
 	}
 	
 	private void convertToRdf() {
-		// Check if no non-colludable actors are colluded
+		// Check if no non-colludable actors or market segments are colluded
 		{
 			boolean noBadColluders = Utils.getAllCells(graph).stream()
-					// Only keep the actors that are colluding
+					// Only keep the actors/ms's that are colluding
 					.filter(o -> {
 						Object val = graph.getModel().getValue(o);
+
 						if (val instanceof Actor) {
 							Actor actor = (Actor) val;
 							return actor.colluded;
+						} else if (val instanceof MarketSegment) {
+							MarketSegment ms = (MarketSegment) val;
+							return ms.colluded;
 						}
+						
 						return false;
 					})
-					// Get the children of each colluding actor
+					// Get the children of each colluding actor/ms
 					.map(o -> Utils.getChildren(graph, o))
 					// The list of children has to be either empty
 					// Or consist of only ValueActivities
@@ -200,6 +205,7 @@ public class RDFExport {
 		for (Object cell : Utils.getAllCells(graph)) {
 			Object cellValue = graph.getModel().getValue(cell);
 			
+			// Whitelist
 			if (!(
 					cellValue instanceof Actor
 					|| cellValue instanceof MarketSegment
@@ -218,18 +224,16 @@ public class RDFExport {
 			Resource res = null;
 			
 			// Collusion related logic
-			if (value instanceof Actor) {
-				Actor acInfo = (Actor) value;
-				
-				if (acInfo.colluded) {
+			if (value instanceof Actor || value instanceof MarketSegment) {
+				if (Utils.isEntityColluding(graph, cell)) {
 					res = colludedResource;
 					
 					if (res.hasProperty(E3value.e3_has_name)) {
-						String newName = res.getProperty(E3value.e3_has_name).getString() + " + " + acInfo.name;
+						String newName = res.getProperty(E3value.e3_has_name).getString() + " + " + value.name;
 						res.removeAll(E3value.e3_has_name);
 						res.addProperty(E3value.e3_has_name, newName);
 					} else {
-						res.addProperty(E3value.e3_has_name, acInfo.name);
+						res.addProperty(E3value.e3_has_name, value.name);
 					}
 					
 					for (String key : value.formulas.keySet()) {
@@ -312,6 +316,7 @@ public class RDFExport {
 							&& msChildren.size() == 0
 							&& acChildren.size() == 0;
 					
+					// TODO: Figure out if this is needed if the MS is colluding
 					if (isElementary) {
 						res.addProperty(RDF.type, E3value.elementary_actor);
 					} else {
@@ -347,6 +352,7 @@ public class RDFExport {
 					parent = graph.getModel().getParent(parent);
 				}
 			} else if (value instanceof MarketSegment) {
+				// TODO: Figure out if this is needed if the MS is colluding
 				res.addProperty(RDF.type, E3value.market_segment);
 
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
