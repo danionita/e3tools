@@ -333,6 +333,11 @@ public class FraudWindow extends javax.swing.JPanel {
         groupSettingLabel.setText("Group by:");
 
         sortComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Loss of main actor", "Gain of other actors" }));
+        sortComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sortComboBoxActionPerformed(evt);
+            }
+        });
 
         groupComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "none", "collusion" }));
 
@@ -399,12 +404,12 @@ public class FraudWindow extends javax.swing.JPanel {
                             .addComponent(gainLabel))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
-                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(rankingSettingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(groupSettingLabel))
+                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(groupSettingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(rankingSettingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(groupComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(groupComboBox, 0, 114, Short.MAX_VALUE)
                             .addComponent(sortComboBox, 0, 126, Short.MAX_VALUE)))
                     .addComponent(FiltersLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(6, 6, 6))
@@ -589,10 +594,10 @@ public class FraudWindow extends javax.swing.JPanel {
 
                 //create a graph
                 graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
-                System.out.println("CHANGES:");
-                System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
-                System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
-                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
+//                System.out.println("CHANGES:");
+//                System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
+//                System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
+//                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
 
                 // Then just create a graph panel from scratch
 				graphPanel = new E3GraphComponent(graph);
@@ -675,6 +680,10 @@ public class FraudWindow extends javax.swing.JPanel {
 			myFrame.revalidate();
     	}
     }//GEN-LAST:event_graphPaneComponentResized
+
+    private void sortComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sortComboBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_sortComboBoxActionPerformed
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
@@ -767,7 +776,7 @@ public class FraudWindow extends javax.swing.JPanel {
         generateButton.setVisible(false);
         progressBar.setVisible(true);
         progressBar.setIndeterminate(false);
-        progressBar.setString("sorting...");
+        progressBar.setString("Sorting & filtering...");
         //change mouse cursor 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         //and run the worker

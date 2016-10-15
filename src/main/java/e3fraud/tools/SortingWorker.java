@@ -36,6 +36,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class SortingWorker extends SwingWorker<ResultObject, String> {
 
+    private static boolean debug = true;
+    
     static private final String newline = "\n";
     private final E3Model baseModel;
     private final String selectedActorString;
@@ -101,7 +103,9 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
         if (groupingCriteria == 1) {
             if (sortCriteria == 1) {
                 //sort by gain only, then loss
-                //System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                if(debug){
+                System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                }
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
                     DefaultMutableTreeNode category = new DefaultMutableTreeNode(cursor.getKey());
@@ -115,7 +119,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                         Double subIdealAverageForMainActor = subIdealModel.getLastKnownAverages().get(selectedActor);
                         Double idealAverageForMainActor = baseModel.getLastKnownAverages().get(selectedActor);
                         Double loss = idealAverageForMainActor - subIdealAverageForMainActor;
-                        if (gainMin < topDelta && topDelta < gainMax && lossMin < loss && loss < lossMax) {
+                        if (gainMin <= topDelta && topDelta <= gainMax && lossMin <= loss && loss <= lossMax) {
                             subIdealModel.setPrefix(
                                     "Average gain of <b>"
                                     + df.format(topDelta)
@@ -134,7 +138,9 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                 }
             } else if (sortCriteria == 0) {
                 //sort by loss first, then gain
-                //System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                if(debug){
+                System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                }
                 i = 0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
@@ -146,7 +152,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                         Double subIdealAverageForMainActor = subIdealModel.getLastKnownAverages().get(selectedActor);
                         Double idealAverageForMainActor = baseModel.getLastKnownAverages().get(selectedActor);
                         Double loss = idealAverageForMainActor - subIdealAverageForMainActor;
-                        if (gainMin < topDelta && topDelta < gainMax && lossMin < loss && loss < lossMax) {
+                        if (gainMin <= topDelta && topDelta <= gainMax && lossMin <= loss && loss <= lossMax) {
                             //reset old prefix    
                             subIdealModel.setPrefix(
                                     "Average loss of <b>"
@@ -177,8 +183,9 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
             //then rank
             if (sortCriteria == 1) {
                 //by gain then loss
-                //System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "...");
-                //System.out.println(currentTime.currentTime() + " Only displaying models with " + gainMin + "<gain<"+gainMax+" and "+lossMin+"<loss<"+lossMax);
+                if(debug){
+                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "...");
+                System.out.println(currentTime.currentTime() + " Only displaying models with " + gainMin + "<gain<"+gainMax+" and "+lossMin+"<loss<"+lossMax);                }
                 sortedSubIdealModels = ModelRanker.sortByGainThenLoss(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     Resource topDeltaActor = subIdealModel.getTopDeltaActor();
@@ -189,7 +196,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                     Double idealAverageForMainActor = baseModel.getLastKnownAverages().get(selectedActor);
                     Double loss = idealAverageForMainActor - subIdealAverageForMainActor;
 
-                    if (gainMin < topDelta && topDelta < gainMax && lossMin < loss && loss < lossMax) {
+                    if (gainMin <= topDelta && topDelta <=gainMax && lossMin <= loss && loss <= lossMax) {
                         subIdealModel.setPrefix("Average gain of <b>"
                                 + df.format(topDelta)
                                 + " </b> for "
@@ -206,7 +213,9 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                 }
             } else if (sortCriteria == 0) {
                 //by loss then gain
-                //System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model...");
+                if(debug){
+                System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model...");
+                }
                 sortedSubIdealModels = ModelRanker.sortByLossThenGain(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {
                     Double topDelta = subIdealModel.getLastKnownTopDelta();
@@ -214,7 +223,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                     Double idealAverageForMainActor = baseModel.getLastKnownAverages().get(selectedActor);
                     Double loss = idealAverageForMainActor - subIdealAverageForMainActor;
 
-                    if (gainMin < topDelta && topDelta < gainMax && lossMin < loss && loss < lossMax) {
+                    if (gainMin <= topDelta && topDelta <= gainMax && lossMin <= loss && loss <= lossMax) {
                         subIdealModel.setPrefix(
                                 "Average loss of <b>"
                                 + df.format(loss)

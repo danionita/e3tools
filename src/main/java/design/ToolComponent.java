@@ -59,7 +59,7 @@ public class ToolComponent extends mxGraphComponent {
 	private E3Style style;
 	
 	public Object clone(Object cell, mxGraph targetGraph) {
-		System.out.println("I'm being called!");
+		//System.out.println("I'm being called!");
 
 		Object clone = graph.cloneCells(new Object[]{cell}, true)[0];
 

@@ -365,13 +365,13 @@
                                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="rankingSettingLabel" alignment="0" min="-2" pref="44" max="-2" attributes="0"/>
-                                          <Component id="groupSettingLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Component id="groupSettingLabel" max="32767" attributes="0"/>
+                                          <Component id="rankingSettingLabel" max="32767" attributes="0"/>
                                       </Group>
                                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="groupComboBox" alignment="0" max="32767" attributes="0"/>
+                                          <Component id="groupComboBox" alignment="0" pref="114" max="32767" attributes="0"/>
                                           <Component id="sortComboBox" pref="126" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -443,6 +443,9 @@
                           </StringArray>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sortComboBoxActionPerformed"/>
+                      </Events>
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                       </AuxValues>

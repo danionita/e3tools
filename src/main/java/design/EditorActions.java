@@ -38,13 +38,14 @@ import design.info.ValueExchange;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 
 @SuppressWarnings(value = {"serial"})
 public class EditorActions {
 
     private static String conversionMessage[] = {"Converting a fraud model to a value model will "
-        + "cause fraud annotations such as colluded actors, hidden "
-        + "transactions, and non-occurring transactions "
+        + "cause fraud annotations such as colluded actors, hidden"
+        + "transfers, and non-occurring transfers "
         + "to be lost."
         + "\nContinue? (a duplicate will be created "
         + "before conversion)"};
@@ -907,7 +908,7 @@ public class EditorActions {
 
             JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(model), !main.getCurrentGraph().isFraud);
             if (chart != null) {
-                ChartFrame chartframe1 = new ChartFrame("Profitability analysis of \"" + main.getCurrentGraphTitle() + "\"", chart);
+                ChartFrame chartframe1 = new ChartFrame("Profitability of \"" + main.getCurrentGraphTitle() + "\"", chart);
                 chartframe1.setPreferredSize(new Dimension(Main.DEFAULT_CHART_WIDTH, Main.DEFAULT_CHART_HEIGHT));
                 chartframe1.pack();
                 chartframe1.setLocationByPlatform(true);
@@ -957,7 +958,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(null, "The e3tool integrates the e3value value modelling and e-business analysis methodology developed by Jaap Gordjin with the e3fraud fraud assessment methodology developed by Dan Ionita. \n This tool was developed at the University of Twente by Dan Ionita and Bob Rubbens. \n Icons from the famfamfam Silk icon pack (http://www.famfamfam.com/lab/icons/silk/) owned by Mark James.");
+            JOptionPane.showMessageDialog(null, "The e3tool integrates the e3value value modelling and e-business analysis methodology developed by Jaap Gordjin with the e3fraud fraud assessment methodology developed by Dan Ionita. \n This tool was developed at the University of Twente by Dan Ionita and Bob Rubbens. \n Icons from the famfamfam Silk icon pack (http://www.famfamfam.com/lab/icons/silk/) owned by Mark James.", "About e3tool", INFORMATION_MESSAGE);
         }
     }
 
