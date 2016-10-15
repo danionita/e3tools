@@ -7,3 +7,7 @@ target/
 *.swp
 *~
 *.xlsx
+
+# Netbeans config files
+nbactions.xml
+nb-configuration.xml
