@@ -115,7 +115,7 @@ public class E3PropertiesEditor {
 	}
 
 	public E3PropertiesEditor(JFrame owner, E3Graph graph, Base value_) {
-		value = value_.getCopy();
+		this.value = value_.getCopy();
 		this.graph = graph;
 		
 		topPanel = new JPanel();
@@ -397,12 +397,12 @@ public class E3PropertiesEditor {
 		dialog.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				// Check if the new name appears more than once
-				// in the graph. If so, do not allow the user
-				// to close the window.
+				// If the name has not changed, apply it.
+				// If it has changed, it cannot appear in the grapj
+				// anywhere else.
 				List<String> allNames = Utils.getAllNames(graph);
-				allNames.remove(nameField.getText());
-				if (allNames.contains(nameField.getText())) {
+				if (!value.name.equals(nameField.getText())
+						&& allNames.contains(nameField.getText())) {
 					JOptionPane.showMessageDialog(
 							Main.mainFrame,
 							"Name \"" + nameField.getText() + "\" is already in use."

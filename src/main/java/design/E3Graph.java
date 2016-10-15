@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.w3c.dom.Document;
 
 import com.mxgraph.io.mxCodec;
@@ -39,6 +42,7 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
+import com.sun.java.help.impl.SwingWorker;
 
 import design.Utils.GraphDelta;
 import design.Utils.IDReplacer;
@@ -686,6 +690,9 @@ public class E3Graph extends mxGraph implements Serializable{
 	}
 	
 	/**
+	 * Is called when the user doubleclicks an (editable) node,
+	 * types a new name, and presses enter.
+	 * 
 	 * If it is a base, and the new label is a string, the base is cloned and
 	 * the name is set to the given string. Everything else does the default
 	 * behaviour.
@@ -695,13 +702,38 @@ public class E3Graph extends mxGraph implements Serializable{
 		Object oldValue = Utils.base(this, cell);
 
 		if (oldValue instanceof Base) {
+			Base oldInfo = (Base) oldValue;
 			if (newValue instanceof String) {
-				String name = (String) newValue;
-				Base base = ((Base) oldValue).getCopy();
+				String oldName = ((Base) oldValue).name;
+				String newName = (String) newValue;
 				
-				base.name = name;
+				// If the name is unchanged, apply the change
+				// If the name is changed, and the graph contains
+				// the new name, don't allow it to be used.
+				List<String> allNames = Utils.getAllNames(this);
+				if (!oldName.equals(newName)
+						&& allNames.contains(newName)) {
+					// Will be run after the graph
+					// is updated with the old name
+					// (looks nicer)
+					SwingUtilities.invokeLater(() -> {
+						JOptionPane.showMessageDialog(
+								Main.mainFrame,
+								"Name \"" + newName + "\" is already in use."
+										+ " Please provide a unique name.",
+								"Non-unique name error", 
+								JOptionPane.ERROR_MESSAGE
+								);
+						return;
+					});
+					return;
+				}
 				
-				newValue = base;
+				// Else do change the name
+				// At the first line of this function we make a copy
+				// so we just reuse that.
+				oldInfo.name = newName;
+				newValue = oldInfo;
 			}			
 		} else {
 			return;
@@ -1519,6 +1551,10 @@ public class E3Graph extends mxGraph implements Serializable{
 		return false;
 	}
 	
+	/**
+	 * If the returned string is non-null and has length > 0
+	 * then it means the cell was not valid.
+	 */
 	@Override
 	public String getCellValidationError(Object cell) {
 		Object value = model.getValue(cell);

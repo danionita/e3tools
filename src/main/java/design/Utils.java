@@ -173,6 +173,7 @@ public class Utils {
 
     /**
      * Gets the base object from a cell, copies it, and returns it.
+     * Returns null if the value of the cell is not instance of Base.
      *
      * @param graph The graph the cell resides in
      * @param obj The cell the Base should be copied from
