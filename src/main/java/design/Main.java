@@ -21,9 +21,9 @@
 package design;
 
 import java.awt.BorderLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -365,6 +365,12 @@ public class Main {
         // Make sure e3toolDirs exists
         e3toolDir.mkdirs();
         e3styleDir.mkdirs();
+        
+        mainFrame.addWindowListener(new WindowAdapter() {
+        	public void windowClosing(WindowEvent e) {
+        		
+        	}
+        });
         
         // Show main screen
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

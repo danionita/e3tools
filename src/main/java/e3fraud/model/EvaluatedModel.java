@@ -44,6 +44,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 import e3fraud.parser.FileParser;
 import e3fraud.vocabulary.E3value;
@@ -131,6 +132,11 @@ public class EvaluatedModel {
         ResIterator it = model.listResourcesWithProperty(E3value.e3_has_uid);
         while (it.hasNext()) {
             Resource res = it.next();
+            
+            // Ignore value offerings
+            if (res.getProperty(RDF.type) == E3value.value_offering) {
+            	continue;
+            }
 
             // Save the mapping from name to uid
             String name = res.getProperty(E3value.e3_has_name).getString();
