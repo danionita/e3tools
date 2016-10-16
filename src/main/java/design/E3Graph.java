@@ -1607,16 +1607,16 @@ public class E3Graph extends mxGraph implements Serializable{
 		
 		if (info instanceof ValueInterface) {
 			if (Utils.getChildrenWithValue(this, cell, ValuePort.class)
-				.stream()
-				.map(model::getEdgeCount)
-				.anyMatch(c -> c == 0)) {
+					.stream()
+					.map(model::getEdgeCount)
+					.anyMatch(c -> c == 0)) {
 				error += "Every Value Port should be connected to another ValuePort.\n";
 			};
 
 			if (Utils.getChildren(this, cell).stream()
-				.filter(obj -> Utils.isDotValue((Base) getModel().getValue(obj)))
-				.map(model::getEdgeCount)
-				.anyMatch(c -> c == 0)) {
+					.filter(obj -> Utils.isDotValue((Base) getModel().getValue(obj)))
+					.map(model::getEdgeCount)
+					.anyMatch(c -> c == 0)) {
 				error += "Every Signal Dot should be connected to another Signal Dot.\n";
 			};
 		}

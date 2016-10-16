@@ -1,5 +1,7 @@
 package design;
 
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -29,6 +31,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxCellRenderer;
 
+import design.checker.FlowChecker;
 import design.export.JSONExport;
 import design.export.RDFExport;
 import design.info.Base;
@@ -38,7 +41,6 @@ import design.info.ValueExchange;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
-import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 
 @SuppressWarnings(value = {"serial"})
 public class EditorActions {
@@ -1031,6 +1033,18 @@ public class EditorActions {
 //			main.getCurrentGraph().style = style;
 //			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent(), false);
 //			newStyle.get().styleGraphComponent(main.getCurrentToolComponent(), false);
+		}
+    }
+    
+    public static class ModelCheck extends BaseAction {
+		public ModelCheck(Main main) {
+			super("Check model...", main);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			E3Graph currentGraph = main.getCurrentGraph();
+			new FlowChecker(currentGraph);
 		}
     }
 }
