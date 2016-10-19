@@ -6,9 +6,8 @@
 3. For tutorials and details, visit the wiki: [https://github.com/danionita/e3tools/wiki](https://github.com/danionita/e3tools/wiki)
 
 ## Developers
-
 ### Import instructions
 1. Clone the repo
-2. In your favourite editor, do a Maven project import
+2. Run a maven 'initialize' to install the RDF2Excelibrary from the lib folder to your local maven repository
 3. Find Main.java
 4. Hit "play"
