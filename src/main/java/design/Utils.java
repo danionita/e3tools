@@ -45,6 +45,7 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.e3value.eval.ncf.ProfGenerator;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
@@ -799,4 +800,31 @@ public class Utils {
     	
     	return false;
     }
+    
+    public static void main(String[] args) {
+		String destinationFileName = "";
+		try {
+			ProfGenerator p = new ProfGenerator();
+//			p.loadRDFFile(rdfFileName);
+//			Iterator i = p.getMapObjects().values().iterator();
+//			int found_models = 0;
+//			while (i.hasNext()) {
+//			Object o = i.next();
+//			if (o instanceof model) {
+//				found_models++;
+//				if (found_models > 1) {
+//					throw new E3ParseException(
+//						"RDF file should contain exactly one 'model'");
+//					}
+//					p.setMymodel((model) o);
+//				}
+//			}
+//			destinationFileName = fn.substring(0, rdfFileName.length() - 4) + ".xls";
+//					p.storeXLS(destinationFileName, true, true, true, true, true, true,
+//							true, true, true, true, logging);
+		} catch (Throwable t) {
+			System.err.println(t);
+			t.printStackTrace();
+		}	
+	}
 }
