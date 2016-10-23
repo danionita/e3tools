@@ -152,7 +152,7 @@ public class Main {
 
     public Main() {
         // Silly log4j
-        Logger.getRootLogger().setLevel(Level.OFF);
+        Logger.getRootLogger().setLevel(Level.DEBUG);
 
         if (mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll) {
             try {
@@ -282,6 +282,7 @@ public class Main {
 
         toolMenu.add(new EditorActions.ShowNetValueFlow(this)).setEnabled(false);
         toolMenu.add(new EditorActions.AnalyzeTransactions(this)).setEnabled(false);
+        toolMenu.add(new EditorActions.NCF(this));
 
         toolMenu.addSeparator();
 

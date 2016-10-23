@@ -22,16 +22,20 @@ package design;
 
 import java.awt.Color;
 import java.awt.Desktop;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,7 +49,9 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.e3value.eval.ncf.E3ParseException;
 import com.e3value.eval.ncf.ProfGenerator;
+import com.e3value.eval.ncf.ontology.model;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
@@ -57,6 +63,7 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
+import design.export.RDFExport;
 import design.info.Actor;
 import design.info.Base;
 import design.info.ConnectionElement;
@@ -801,27 +808,42 @@ public class Utils {
     	return false;
     }
     
-    public static void main(String[] args) {
-		String destinationFileName = "";
+    public static void doValueAnalysis(E3Graph graph) {
 		try {
+			String rdfFileName = "testRDF2Excel.rdf";
+
+			RDFExport export = new RDFExport(graph, true);
+			String result = export.getResult().get()
+					.replace("-", "_");
+			result = "<?xml version='1.0' encoding='ISO-8859-1'?>\n" + result;
+			result = result.replaceAll("http://www\\.w3\\.org/1999/02/22_rdf_syntax_ns#", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+					
+			System.out.println("\n\n\n\n\nInputting:\n" + result);
+					
+			InputStream stream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));
+
 			ProfGenerator p = new ProfGenerator();
-//			p.loadRDFFile(rdfFileName);
-//			Iterator i = p.getMapObjects().values().iterator();
-//			int found_models = 0;
-//			while (i.hasNext()) {
-//			Object o = i.next();
-//			if (o instanceof model) {
-//				found_models++;
-//				if (found_models > 1) {
-//					throw new E3ParseException(
-//						"RDF file should contain exactly one 'model'");
-//					}
-//					p.setMymodel((model) o);
-//				}
-//			}
-//			destinationFileName = fn.substring(0, rdfFileName.length() - 4) + ".xls";
-//					p.storeXLS(destinationFileName, true, true, true, true, true, true,
-//							true, true, true, true, logging);
+			// It should pick e3value by default but it gives an avalanche of errors
+			// when I remove the second argument.
+			p.loadRDFStream(stream);
+
+			Iterator i = p.getMapObjects().values().iterator();
+			int found_models = 0;
+
+			while (i.hasNext()) {
+				Object o = i.next();
+				if (o instanceof model) {
+					found_models++;
+					if (found_models > 1) {
+						throw new E3ParseException("RDF file should contain exactly one 'model'");
+					}
+					p.setMymodel((model) o);
+				}
+			}
+
+			String destinationFileName = rdfFileName.substring(0, rdfFileName.length() - 4) + ".xls";
+			p.storeXLS(destinationFileName, true, true, true, true, true, true,
+					true, true, true, true, true);
 		} catch (Throwable t) {
 			System.err.println(t);
 			t.printStackTrace();

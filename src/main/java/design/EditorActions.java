@@ -1029,10 +1029,6 @@ public class EditorActions {
 			Utils.update(graph, () -> {
 				((mxGraphModel) graph.getModel()).execute(themeChange);
 			});
-			
-//			main.getCurrentGraph().style = style;
-//			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent(), false);
-//			newStyle.get().styleGraphComponent(main.getCurrentToolComponent(), false);
 		}
     }
     
@@ -1045,6 +1041,18 @@ public class EditorActions {
 		public void actionPerformed(ActionEvent arg0) {
 			E3Graph currentGraph = main.getCurrentGraph();
 			new FlowChecker(currentGraph);
+		}
+    }
+    
+    public static class NCF extends BaseAction {
+		public NCF(Main main) {
+			super("NCF...", main);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			E3Graph currentGraph = main.getCurrentGraph();
+			Utils.doValueAnalysis(currentGraph);
 		}
     }
 }
