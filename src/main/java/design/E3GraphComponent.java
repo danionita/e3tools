@@ -467,6 +467,19 @@ public class E3GraphComponent extends mxGraphComponent {
 			}
 			
 			String valuation = value.formulas.get("VALUATION");
+
+			boolean isNumeric = false;
+			try {
+				if (Double.parseDouble(valuation) == 0) { }
+				isNumeric = true;
+			} catch (NumberFormatException e) {
+				isNumeric = false;
+			}
+			
+			if (!isNumeric) {
+				valuation = "e3";
+			}
+			
 			if (valuation.trim().isEmpty()) {
 				valuation = "0";
 			}
