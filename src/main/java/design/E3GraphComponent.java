@@ -453,11 +453,13 @@ public class E3GraphComponent extends mxGraphComponent {
 		public ValuationOverlay(Object cell, mxGraphComponent graphComponent) {
 			this.graphComponent = graphComponent;
 			this.cell = cell;
+			
+			
 		}
 
 		public void paint(Graphics g1) {
 			Graphics2D g = (Graphics2D) g1;
-			
+
 			Base value = (Base) graphComponent.getGraph().getModel().getValue(cell);
 			
 			if (value == null || !value.formulas.containsKey("VALUATION")) {
@@ -469,37 +471,49 @@ public class E3GraphComponent extends mxGraphComponent {
 				valuation = "0";
 			}
 
+			// Make a rectangle object that encompasses the value port,
+			// and then a border of 3 px
 			mxCellState state = graphComponent.getGraph().getView().getState(cell);
 			Rectangle bounds = state.getRectangle();
 			bounds.grow(3, 3);
-			bounds.width += 1;
-			bounds.height += 1;
 			
 			// Move the rectangle to the top right of the value port
 			bounds.x += bounds.width;
 			bounds.y -= bounds.height;
 			
-			int fontsize = bounds.height;
-			
-			bounds.width = (int) (g.getFontMetrics().stringWidth(valuation) * 1.5);			
-			
-			int border = (int) (bounds.height * 0.2);
+			// Size of the font depends on the height of the encompassing rectangle
+			int fontsize = (int) (1 * bounds.height);
+			g.setFont(new Font("Serif", Font.PLAIN, fontsize));
+			bounds.width = (int) ((g.getFontMetrics().stringWidth(valuation)));			
+
+			// Black border around the text should be 10% of the height
+			int border = (int) (bounds.height * 0.1);
 			
 			bounds.grow(border, border);
+			
+			int innerWidth = bounds.width;
+			int innerHeight = bounds.height;
+			
+			int emptyBorder = 100;
+			
+			bounds.grow(emptyBorder, emptyBorder);
 
 			setBounds(bounds);
 			
+			double dist = Math.sqrt(Math.pow(emptyBorder, 2) * 2);
+			int offset = -20;
+
+			// Rotate for drawing
+			g.rotate(-1 * Math.PI * 1/4);
+			
 			// Draw rectangle with border
 			g.setColor(Color.GREEN);
-			g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+			g.fillRect(offset, (int) dist, innerWidth - 1, innerHeight - 1);
 			g.setColor(Color.BLACK);
-			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-			
+			g.drawRect(offset, (int) dist, innerWidth, innerHeight);
+
 			// Draw text
-			// TODO: Put some sort of reusing facility in place here. We
-			// don't want the place crawling with fonts in no time.
-			g.setFont(new Font("Serif", Font.PLAIN, fontsize));
-			g.drawString(valuation, border, border + fontsize);
+			g.drawString(valuation, border + offset, (int) dist + border +  (int) (fontsize * 0.9));
 		}
 
 		@Override
