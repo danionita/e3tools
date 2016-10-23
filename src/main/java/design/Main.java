@@ -152,6 +152,7 @@ public class Main {
 
     public Main() {
         // Silly log4j
+    	// Use Level.OFF to turn it off
         Logger.getRootLogger().setLevel(Level.DEBUG);
 
         if (mirrorMirrorOnTheWallWhoIsTheFairestOfThemAll) {
@@ -388,7 +389,7 @@ public class Main {
         						);
         				
         				// Then either cancel, save, or discard.
-        				if (result == JOptionPane.CANCEL_OPTION) {
+        				if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
         					return;
         				} else if (result == JOptionPane.YES_OPTION) {
         					if (!Utils.saveAs(mainFrame, getCurrentGraph())) {
