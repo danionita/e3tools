@@ -249,7 +249,7 @@ public class Main {
         modelMenu.addSeparator();
 
         modelMenu.add(new EditorActions.ShowValueObjectsPanel(this));
-        modelMenu.add(new EditorActions.AnalyzeTransactions(this));
+        //modelMenu.add(new EditorActions.AnalyzeTransactions(this));
         modelMenu.add(new EditorActions.ModelCheck(this));
 
         modelMenu.addMenuListener(new MenuListener() {
@@ -281,7 +281,7 @@ public class Main {
 
         JMenu toolMenu = new JMenu("Tools");
 
-        toolMenu.add(new EditorActions.ShowNetValueFlow(this)).setEnabled(true);
+        toolMenu.add(new EditorActions.NCF(this)).setEnabled(true);
 
         toolMenu.addSeparator();
 
@@ -340,10 +340,10 @@ public class Main {
 
         toolbar.addSeparator();
 
-        addToolbarButton("old/nvf", new EditorActions.ShowNetValueFlow(this));
-        addToolbarButton("old/e3fraud", new EditorActions.FraudGeneration(this));
+        addToolbarButton("old/nvf", new EditorActions.NCF(this));
         addToolbarButton("chart_curve", new EditorActions.ProfitabilityChart(this));
-
+        addToolbarButton("old/e3fraud", new EditorActions.FraudGeneration(this));
+        
         toolbar.addSeparator();
 
         addToolbarButton("help", new EditorActions.OpenHelpWiki(this));
@@ -353,8 +353,8 @@ public class Main {
         addGlobalShortcut("ctrl M", new EditorActions.NewTab(this, true));
         addGlobalShortcut("ctrl S", new EditorActions.Save(this));
         addGlobalShortcut("ctrl A", new EditorActions.SelectAll(this));
-        addGlobalShortcut("ctrl F", new EditorActions.ShowNetValueFlow(this));
-        addGlobalShortcut("ctrl H", new EditorActions.AnalyzeTransactions(this));
+        addGlobalShortcut("ctrl F", new EditorActions.NCF(this));
+        //addGlobalShortcut("ctrl H", new EditorActions.AnalyzeTransactions(this));
         addGlobalShortcut("F1", new EditorActions.OpenHelpWiki(this));
 
         mainFrame.getContentPane().add(toolbar, BorderLayout.PAGE_START);

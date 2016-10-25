@@ -725,62 +725,6 @@ public class EditorActions {
         }
     }
 
-    public static class ShowNetValueFlow extends BaseAction {
-
-        public ShowNetValueFlow(Main main) {
-            super("Net cash flow analysis", main);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
-            if (!rdfExporter.getModel().isPresent()) {
-                Optional<String> error = rdfExporter.getError();
-
-                String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
-                if (error.isPresent()) {
-                    errorString += " The error: \n" + error.get();
-                }
-
-                JOptionPane.showMessageDialog(
-                        Main.mainFrame,
-                        errorString,
-                        "Invalid model",
-                        JOptionPane.ERROR_MESSAGE
-                );
-                return;
-            }
-            String rdfString = rdfExporter.getResult().get();
-            InputStream rdfStream = new ByteArrayInputStream(rdfString.getBytes());
-
-            String destinationFileName = "";
-            try {
-                ProfGenerator p = new ProfGenerator();
-                p.loadRDFStream(rdfStream);
-                Iterator i = p.getMapObjects().values().iterator();
-                int found_models = 0;
-                while (i.hasNext()) {
-                    Object o = i.next();
-                    if (o instanceof model) {
-                        found_models++;
-                        if (found_models > 1) {
-                            throw new E3ParseException(
-                                    "RDF file should contain exactly one 'model'");
-                        }
-                        p.setMymodel((model) o);
-                    }
-                }
-                //destinationFileName = rdfFileName.substring(0, rdfFileName.length() - 4) + ".xls";
-                destinationFileName = "D:\\temp\\test.xls";
-                p.storeXLS(destinationFileName, true, true, true, true, true, true,
-                        true, true, true, true, logging);
-            } catch (Throwable t) {
-                System.err.println(t);
-                t.printStackTrace();
-            }
-
-        }
-    }
 
     public static class AnalyzeTransactions extends BaseAction {
 
@@ -1010,16 +954,58 @@ public class EditorActions {
     }
 
     public static class ChangeTheme extends BaseAction {
+		public ChangeTheme(Main main) {
+			super("Change theme...", main);
+		}
 
-        public ChangeTheme(Main main) {
-            super("Change theme...", main);
-        }
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			List<String> choicesList = E3Style.getAvailableThemes();
+			String[] choices = new String[choicesList.size()];
+			choicesList.toArray(choices);
+			
+			String result = (String) JOptionPane.showInputDialog(
+					Main.mainFrame,
+					"Select a theme to use with the current model",
+					"Select a theme", 
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					choices,
+					choices[0]
+					);
+			
+			if (result == null) return;
+			
+			Optional <E3Style> newStyle = Optional.empty();
+			if (choicesList.contains(result)) {
+				newStyle = E3Style.load(result);
+			}
+			
+			if (!newStyle.isPresent()) {
+				JOptionPane.showMessageDialog(
+						Main.mainFrame,
+						"Could not load theme \"" + result + "\"",
+						"Error loading theme",
+						JOptionPane.ERROR_MESSAGE);
+				
+				return;
+			}
+			
+			E3Style style = newStyle.get();
+			E3Graph graph = main.getCurrentGraph();
+			
+			ThemeChange themeChange = new ThemeChange(
+					main.getCurrentGraphComponent(),
+					main.getCurrentToolComponent(),
+					style,
+					false);
 
 			Utils.update(graph, () -> {
 				((mxGraphModel) graph.getModel()).execute(themeChange);
 			});
 		}
     }
+
 
     public static class ModelCheck extends BaseAction {
 
@@ -1033,16 +1019,17 @@ public class EditorActions {
             new FlowChecker(currentGraph);
         }
     }
-    
-    public static class NCF extends BaseAction {
-		public NCF(Main main) {
-			super("NCF...", main);
-		}
 
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			E3Graph currentGraph = main.getCurrentGraph();
-			Utils.doValueAnalysis(currentGraph);
-		}
+    public static class NCF extends BaseAction {
+
+        public NCF(Main main) {
+            super("Net Value Flow analysis", main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            E3Graph currentGraph = main.getCurrentGraph();
+            Utils.doValueAnalysis(currentGraph);
+        }
     }
 }
