@@ -1015,58 +1015,10 @@ public class EditorActions {
             super("Change theme...", main);
         }
 
-        @Override
-        public void actionPerformed(ActionEvent arg0) {
-            List<String> choicesList = E3Style.getAvailableThemes();
-            String[] choices = new String[choicesList.size()];
-            choicesList.toArray(choices);
-
-            String result = (String) JOptionPane.showInputDialog(
-                    Main.mainFrame,
-                    "Select a theme to use with the current model",
-                    "Select a theme",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    choices,
-                    choices[0]
-            );
-
-            if (result == null) {
-                return;
-            }
-
-            Optional<E3Style> newStyle = Optional.empty();
-            if (choicesList.contains(result)) {
-                newStyle = E3Style.load(result);
-            }
-
-            if (!newStyle.isPresent()) {
-                JOptionPane.showMessageDialog(
-                        Main.mainFrame,
-                        "Could not load theme \"" + result + "\"",
-                        "Error loading theme",
-                        JOptionPane.ERROR_MESSAGE);
-
-                return;
-            }
-
-            E3Style style = newStyle.get();
-            E3Graph graph = main.getCurrentGraph();
-
-            ThemeChange themeChange = new ThemeChange(
-                    main.getCurrentGraphComponent(),
-                    main.getCurrentToolComponent(),
-                    style,
-                    false);
-
-            Utils.update(graph, () -> {
-                ((mxGraphModel) graph.getModel()).execute(themeChange);
-            });
-
-//			main.getCurrentGraph().style = style;
-//			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent(), false);
-//			newStyle.get().styleGraphComponent(main.getCurrentToolComponent(), false);
-        }
+			Utils.update(graph, () -> {
+				((mxGraphModel) graph.getModel()).execute(themeChange);
+			});
+		}
     }
 
     public static class ModelCheck extends BaseAction {
@@ -1080,5 +1032,17 @@ public class EditorActions {
             E3Graph currentGraph = main.getCurrentGraph();
             new FlowChecker(currentGraph);
         }
+    }
+    
+    public static class NCF extends BaseAction {
+		public NCF(Main main) {
+			super("NCF...", main);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			E3Graph currentGraph = main.getCurrentGraph();
+			Utils.doValueAnalysis(currentGraph);
+		}
     }
 }
