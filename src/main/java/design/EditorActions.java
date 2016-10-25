@@ -1,5 +1,8 @@
 package design;
 
+import com.e3value.eval.ncf.E3ParseException;
+import com.e3value.eval.ncf.ProfGenerator;
+import com.e3value.eval.ncf.ontology.model;
 import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 
 import java.awt.Color;
@@ -28,6 +31,7 @@ import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import static com.hp.hpl.jena.tdb.base.objectfile.ObjectFileStorage.logging;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxCellRenderer;
 
@@ -41,6 +45,9 @@ import design.info.ValueExchange;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Iterator;
 
 @SuppressWarnings(value = {"serial"})
 public class EditorActions {
@@ -137,18 +144,18 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-			RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), true);
+            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), true);
             Optional<String> result = rdfExport.getResult();
 
             // Do not export to rdf if there was an error
             if (!result.isPresent()) {
-            	Optional<String> error = rdfExport.getError();
+                Optional<String> error = rdfExport.getError();
 
-            	String errorString = "An error occurred while exporting to RDF. Please ensure that the model has no errors.";
+                String errorString = "An error occurred while exporting to RDF. Please ensure that the model has no errors.";
 
-            	if (error.isPresent()) {
-            		errorString += " The error:\n" + error.get();
-            	}
+                if (error.isPresent()) {
+                    errorString += " The error:\n" + error.get();
+                }
 
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
@@ -465,13 +472,13 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-        	E3Graph graph = main.getCurrentGraph();
-        	List<Object> allCells = Utils.getAllCells(graph)
-        			.stream()
-        			.filter(obj -> graph.getModel().getParent(obj) == graph.getDefaultParent())
-        			.collect(Collectors.toList());
-        	graph.getSelectionModel().setCells(allCells.toArray());
-        	System.out.println("Size: " + allCells.size());
+            E3Graph graph = main.getCurrentGraph();
+            List<Object> allCells = Utils.getAllCells(graph)
+                    .stream()
+                    .filter(obj -> graph.getModel().getParent(obj) == graph.getDefaultParent())
+                    .collect(Collectors.toList());
+            graph.getSelectionModel().setCells(allCells.toArray());
+            System.out.println("Size: " + allCells.size());
         }
     }
 
@@ -709,46 +716,69 @@ public class EditorActions {
                         "A value object dialog is already open.",
                         "Dialog already open",
                         JOptionPane.ERROR_MESSAGE);
-                
+
                 ValueObjectDialog.dialogInstance.requestFocus();
                 return;
             }
-            
+
             new ValueObjectDialog(main).show();
-        }
-    }
-
-    public static class ShowValueTransactionsPanel extends BaseAction {
-
-        public ShowValueTransactionsPanel(Main main) {
-            super("ValueTransactions...", main);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // TODO: Implement this
-            JOptionPane.showMessageDialog(
-                    Main.mainFrame,
-                    "This feature is not yet implemented",
-                    "Feature not implemented",
-                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public static class ShowNetValueFlow extends BaseAction {
 
         public ShowNetValueFlow(Main main) {
-            super("Net value flow... (coming soon)", main);
+            super("Net cash flow analysis", main);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO: Implement this
-            JOptionPane.showMessageDialog(
-                    Main.mainFrame,
-                    "This feature is not yet implemented",
-                    "Feature not implemented",
-                    JOptionPane.ERROR_MESSAGE);
+            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
+            if (!rdfExporter.getModel().isPresent()) {
+                Optional<String> error = rdfExporter.getError();
+
+                String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
+                if (error.isPresent()) {
+                    errorString += " The error: \n" + error.get();
+                }
+
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        errorString,
+                        "Invalid model",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+            String rdfString = rdfExporter.getResult().get();
+            InputStream rdfStream = new ByteArrayInputStream(rdfString.getBytes());
+
+            String destinationFileName = "";
+            try {
+                ProfGenerator p = new ProfGenerator();
+                p.loadRDFStream(rdfStream);
+                Iterator i = p.getMapObjects().values().iterator();
+                int found_models = 0;
+                while (i.hasNext()) {
+                    Object o = i.next();
+                    if (o instanceof model) {
+                        found_models++;
+                        if (found_models > 1) {
+                            throw new E3ParseException(
+                                    "RDF file should contain exactly one 'model'");
+                        }
+                        p.setMymodel((model) o);
+                    }
+                }
+                //destinationFileName = rdfFileName.substring(0, rdfFileName.length() - 4) + ".xls";
+                destinationFileName = "D:\\temp\\test.xls";
+                p.storeXLS(destinationFileName, true, true, true, true, true, true,
+                        true, true, true, true, logging);
+            } catch (Throwable t) {
+                System.err.println(t);
+                t.printStackTrace();
+            }
+
         }
     }
 
@@ -840,13 +870,13 @@ public class EditorActions {
 
             RDFExport rdfExporter = new RDFExport(targetGraph, true);
             if (!rdfExporter.getModel().isPresent()) {
-            	Optional<String> error = rdfExporter.getError();
-            	
-            	String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
-            	if (error.isPresent()) {
-            		errorString += " The error: \n" + error.get();
-            	}
-            	
+                Optional<String> error = rdfExporter.getError();
+
+                String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
+                if (error.isPresent()) {
+                    errorString += " The error: \n" + error.get();
+                }
+
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
                         errorString,
@@ -887,15 +917,15 @@ public class EditorActions {
             }
 
             RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
-            
+
             if (!rdfExporter.getModel().isPresent()) {
-            	Optional<String> error = rdfExporter.getError();
-            	
-            	String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
-            	if (error.isPresent()) {
-            		errorString += " The error: \n" + error.get();
-            	}
-            	
+                Optional<String> error = rdfExporter.getError();
+
+                String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
+                if (error.isPresent()) {
+                    errorString += " The error: \n" + error.get();
+                }
+
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
                         errorString,
@@ -978,73 +1008,77 @@ public class EditorActions {
             main.getCurrentGraphComponent().toggleValuationLabels(on);
         }
     }
-    
+
     public static class ChangeTheme extends BaseAction {
-		public ChangeTheme(Main main) {
-			super("Change theme...", main);
-		}
 
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			List<String> choicesList = E3Style.getAvailableThemes();
-			String[] choices = new String[choicesList.size()];
-			choicesList.toArray(choices);
-			
-			String result = (String) JOptionPane.showInputDialog(
-					Main.mainFrame,
-					"Select a theme to use with the current model",
-					"Select a theme", 
-					JOptionPane.QUESTION_MESSAGE,
-					null,
-					choices,
-					choices[0]
-					);
-			
-			if (result == null) return;
-			
-			Optional <E3Style> newStyle = Optional.empty();
-			if (choicesList.contains(result)) {
-				newStyle = E3Style.load(result);
-			}
-			
-			if (!newStyle.isPresent()) {
-				JOptionPane.showMessageDialog(
-						Main.mainFrame,
-						"Could not load theme \"" + result + "\"",
-						"Error loading theme",
-						JOptionPane.ERROR_MESSAGE);
-				
-				return;
-			}
-			
-			E3Style style = newStyle.get();
-			E3Graph graph = main.getCurrentGraph();
-			
-			ThemeChange themeChange = new ThemeChange(
-					main.getCurrentGraphComponent(),
-					main.getCurrentToolComponent(),
-					style,
-					false);
+        public ChangeTheme(Main main) {
+            super("Change theme...", main);
+        }
 
-			Utils.update(graph, () -> {
-				((mxGraphModel) graph.getModel()).execute(themeChange);
-			});
-			
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            List<String> choicesList = E3Style.getAvailableThemes();
+            String[] choices = new String[choicesList.size()];
+            choicesList.toArray(choices);
+
+            String result = (String) JOptionPane.showInputDialog(
+                    Main.mainFrame,
+                    "Select a theme to use with the current model",
+                    "Select a theme",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    choices,
+                    choices[0]
+            );
+
+            if (result == null) {
+                return;
+            }
+
+            Optional<E3Style> newStyle = Optional.empty();
+            if (choicesList.contains(result)) {
+                newStyle = E3Style.load(result);
+            }
+
+            if (!newStyle.isPresent()) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "Could not load theme \"" + result + "\"",
+                        "Error loading theme",
+                        JOptionPane.ERROR_MESSAGE);
+
+                return;
+            }
+
+            E3Style style = newStyle.get();
+            E3Graph graph = main.getCurrentGraph();
+
+            ThemeChange themeChange = new ThemeChange(
+                    main.getCurrentGraphComponent(),
+                    main.getCurrentToolComponent(),
+                    style,
+                    false);
+
+            Utils.update(graph, () -> {
+                ((mxGraphModel) graph.getModel()).execute(themeChange);
+            });
+
 //			main.getCurrentGraph().style = style;
 //			newStyle.get().styleGraphComponent(main.getCurrentGraphComponent(), false);
 //			newStyle.get().styleGraphComponent(main.getCurrentToolComponent(), false);
-		}
+        }
     }
-    
-    public static class ModelCheck extends BaseAction {
-		public ModelCheck(Main main) {
-			super("Check model...", main);
-		}
 
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			E3Graph currentGraph = main.getCurrentGraph();
-			new FlowChecker(currentGraph);
-		}
+    public static class ModelCheck extends BaseAction {
+
+        public ModelCheck(Main main) {
+            super("Check model...", main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            E3Graph currentGraph = main.getCurrentGraph();
+            new FlowChecker(currentGraph);
+        }
     }
 }
