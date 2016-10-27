@@ -23,11 +23,10 @@ package e3fraud.tools;
 import com.hp.hpl.jena.rdf.model.Resource;
 import e3fraud.model.E3Model;
 import e3fraud.model.SubIdealModelGenerator;
-import e3fraud.tools.currentTime;
-import java.util.Collections;
+import e3fraud.tools.SettingsObjects.AdvancedGenerationSettings;
+import e3fraud.tools.SettingsObjects.GenerationSettings;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.SwingWorker;
@@ -45,43 +44,30 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
     private final int collusions;
     private final java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
     private final DefaultMutableTreeNode root;
-    private int numberOfSubIdealModels;
+    private final int hiddenTransfersPerExchange;
     int i;
     private final boolean generateNonOccurring, generateHidden, generateCollusions;
 
     /**
      *
      * @param baseModel the model to analyze
-     * @param mainActorString the main actor's name
-     * @param mainActor the main actor's RDF resource
-     * @param selectedNeed the selected need's RDF resource
-     * @param selectedNeedString the selected need's name
-     * @param startValue the min occurrence rate of need
-     * @param generateNonOccurring
-     * @param endValue the max occurrence rate of need
-     * @param generateCollusions
-     * @param generateHidden
+     * @param generationSettings
      * @param advancedGenerationSettings
-     * @param sortCriteria 0 - do not sort, 1 - sort by loss first, 2- sort by
-     * gain first
-     * @param groupingCriteria 0 - do not group, 1 - group based on generated
-     * collusion groups
-     * @param collusions maximum number of actors which can be part of a single
-     * colluded actor
      */
-    public GenerationWorkerV2(E3Model baseModel, Resource mainActor, Resource selectedNeed, String selectedNeedString, int startValue, int endValue, boolean generateNonOccurring, boolean generateHidden, boolean generateCollusions, int collusions) {
+    public GenerationWorkerV2(E3Model baseModel, GenerationSettings generationSettings, AdvancedGenerationSettings advancedGenerationSettings) {
         this.baseModel = baseModel;
-        this.mainActor = mainActor;
-        this.selectedNeed = selectedNeed;
-        this.selectedNeedString = selectedNeedString;
-        this.startValue = startValue;
-        this.endValue = endValue;
+        this.mainActor = generationSettings.getSelectedActor();
+        this.selectedNeed = generationSettings.getSelectedNeed();
+        this.selectedNeedString = generationSettings.getSelectedNeedString();
+        this.startValue = generationSettings.getStartValue();
+        this.endValue = generationSettings.getEndValue();
         this.root = new DefaultMutableTreeNode("root");
         this.groupedSubIdealModels = new HashMap<>();
-        this.generateNonOccurring = generateNonOccurring;
-        this.generateHidden = generateHidden;
-        this.generateCollusions = generateCollusions;
-        this.collusions = collusions;
+        this.generateNonOccurring = advancedGenerationSettings.isGenerateNonOccurring();
+        this.generateHidden = advancedGenerationSettings.isGenerateHidden();
+        this.generateCollusions = advancedGenerationSettings.isGenerateCollusion();
+        this.collusions = advancedGenerationSettings.getColludingActors()-1; //collusions = number of colluding actors - 1
+        this.hiddenTransfersPerExchange = advancedGenerationSettings.getNumberOfHiddenTransfersPerExchange();
     }
 
     @Override
@@ -105,7 +91,6 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
 
         //for each type of collusion
         for (E3Model model : colludedAndNonColludedModels) {
-            Set<E3Model> hiddenAndNonOccuringModels = new HashSet<>();
             Set<E3Model> intermediaryModels = new HashSet<>();
             Set<E3Model> subIdealModels = new HashSet<>();
             String category;
@@ -126,7 +111,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
             int i = 1;
             if (generateHidden) {
                 for (E3Model intermediaryModel : intermediaryModels) {
-                    subIdealModels.addAll(subIdealModelGenerator.generateHiddenTransactions(intermediaryModel, mainActor));
+                    subIdealModels.addAll(subIdealModelGenerator.generateHiddenTransactions(intermediaryModel, mainActor,hiddenTransfersPerExchange));
                 }
             }
 

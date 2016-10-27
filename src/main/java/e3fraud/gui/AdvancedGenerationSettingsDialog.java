@@ -16,14 +16,13 @@
  */
 package e3fraud.gui;
 
+import e3fraud.tools.SettingsObjects.AdvancedGenerationSettings;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
 /**
@@ -31,25 +30,14 @@ import javax.swing.KeyStroke;
  * @author Dan
  */
 public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
-    public class settingsObject{
-        boolean generateHidden, generateNonOccurring, generateCollusion;
-        int collusions;
 
-        public settingsObject(boolean generateHidden, boolean generateNonOccurring, boolean generateCollusion, int collusions) {
-            this.generateHidden = generateHidden;
-            this.generateNonOccurring = generateNonOccurring;
-            this.generateCollusion = generateCollusion;
-            this.collusions = collusions;
-        }
-        
-    }
 
     /**
      * A return status code - returned if OK button has been pressed
      */
-    public static settingsObject settings = null;
+    public AdvancedGenerationSettings settings = null;
 
-    public  settingsObject getSettings() {
+    public  AdvancedGenerationSettings getSettings() {
         return settings;
     }
     
@@ -61,21 +49,21 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
      * Creates new form AdvancedGenerationSettingsDialog
      * @param parent
      * @param modal
+     * @param settings
      * @param nonOccurringSetting
      * @param hiddenSetting
      * @param collusionSetting
-     * @param collusionNumber
+     * @param colludingActors
      */
-    public AdvancedGenerationSettingsDialog(java.awt.Frame parent, boolean modal, boolean hiddenSetting, boolean nonOccurringSetting, boolean collusionSetting, int collusionNumber) {
+    public AdvancedGenerationSettingsDialog(java.awt.Frame parent, boolean modal, AdvancedGenerationSettings settings) {
         super(parent, modal);
-        initComponents();
-        
-        
+        initComponents(); 
          
-        generateHiddenTransfrersCheckbox.setSelected(hiddenSetting);
-        generateNonOccurringTransfersCheckbox.setSelected(nonOccurringSetting); 
-        generateCollusionCheckbox.setSelected(collusionSetting);        
-        collusionSpinner.setValue(collusionNumber);
+        generateHiddenTransfersCheckbox.setSelected(settings.isGenerateCollusion());
+        generateNonOccurringTransfersCheckbox.setSelected(settings.isGenerateNonOccurring()); 
+        generateCollusionCheckbox.setSelected(settings.isGenerateCollusion());        
+        collusionSpinner.setValue(settings.getColludingActors());
+        hiddenTransfersComboBox.setSelectedIndex(settings.getNumberOfHiddenTransfersPerExchange()-1);//-1 because ComboBox selection is 0-based
         
 
         // Close the dialog when Esc is pressed
@@ -88,9 +76,8 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
                 doClose(settings);
             }
         });
-        setVisible(true);
         setLocationRelativeTo(parent);
-        
+        setVisible(true);
     }
 
 
@@ -104,7 +91,8 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         advancedGenerationSettingsButtonGroup = new javax.swing.ButtonGroup();
-        generateHiddenTransfrersCheckbox = new javax.swing.JCheckBox();
+        jSpinner1 = new javax.swing.JSpinner();
+        generateHiddenTransfersCheckbox = new javax.swing.JCheckBox();
         generateNonOccurringTransfersCheckbox = new javax.swing.JCheckBox();
         generateCollusionCheckbox = new javax.swing.JCheckBox();
         advancedGenerationSettingsLabel = new javax.swing.JLabel();
@@ -112,6 +100,7 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
         actorsLabel = new javax.swing.JLabel();
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
+        hiddenTransfersComboBox = new javax.swing.JComboBox<>();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -119,11 +108,11 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
             }
         });
 
-        generateHiddenTransfrersCheckbox.setSelected(true);
-        generateHiddenTransfrersCheckbox.setText("Hidden transfers");
-        generateHiddenTransfrersCheckbox.addActionListener(new java.awt.event.ActionListener() {
+        generateHiddenTransfersCheckbox.setSelected(true);
+        generateHiddenTransfersCheckbox.setText("Hidden transfers valuated at");
+        generateHiddenTransfersCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generateHiddenTransfrersCheckboxActionPerformed(evt);
+                generateHiddenTransfersCheckboxActionPerformed(evt);
             }
         });
 
@@ -164,27 +153,42 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
             }
         });
 
+        hiddenTransfersComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "50% of revenue", "33% and 66% of revenue", "25%, 50% and 75% of revenue" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(advancedGenerationSettingsLabel)
-                    .addComponent(generateHiddenTransfrersCheckbox)
-                    .addComponent(generateNonOccurringTransfersCheckbox)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(generateCollusionCheckbox)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(generateCollusionCheckbox)
+                            .addComponent(cancelButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(collusionSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(actorsLabel))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(collusionSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(actorsLabel)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 147, Short.MAX_VALUE)
+                                .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(cancelButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(generateHiddenTransfersCheckbox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(hiddenTransfersComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(advancedGenerationSettingsLabel)
+                                    .addComponent(generateNonOccurringTransfersCheckbox))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(10, 10, 10))))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelButton, okButton});
@@ -194,8 +198,10 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(advancedGenerationSettingsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(generateHiddenTransfrersCheckbox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(generateHiddenTransfersCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(hiddenTransfersComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(generateNonOccurringTransfersCheckbox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -203,7 +209,7 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
                     .addComponent(generateCollusionCheckbox)
                     .addComponent(collusionSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(actorsLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelButton)
                     .addComponent(okButton))
@@ -217,11 +223,12 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         
-        generateHiddenTransfrersCheckbox.isSelected();
-        generateNonOccurringTransfersCheckbox.isSelected(); 
-        generateCollusionCheckbox.isSelected();        
-        collusionSpinner.getValue();
-        settings = new settingsObject(generateHiddenTransfrersCheckbox.isSelected(), generateNonOccurringTransfersCheckbox.isSelected(), generateCollusionCheckbox.isSelected(), (Integer) collusionSpinner.getValue());
+        boolean genearateHiddenTransfers = generateHiddenTransfersCheckbox.isSelected();
+        boolean generateNonOccurringTransfers = generateNonOccurringTransfersCheckbox.isSelected(); 
+        boolean generateCollusion = generateCollusionCheckbox.isSelected();        
+        int numberOfColludingActors = (Integer) collusionSpinner.getValue();
+        int hiddenTransfersToGenerate = (Integer) hiddenTransfersComboBox.getSelectedIndex()+1; //+1 because ComboBox selection is 0-based
+        settings = new AdvancedGenerationSettings(genearateHiddenTransfers, generateNonOccurringTransfers, generateCollusion, numberOfColludingActors, hiddenTransfersToGenerate );
         doClose(settings);    
     }//GEN-LAST:event_okButtonActionPerformed
 
@@ -236,9 +243,9 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
         doClose(null);
     }//GEN-LAST:event_closeDialog
 
-    private void generateHiddenTransfrersCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateHiddenTransfrersCheckboxActionPerformed
+    private void generateHiddenTransfersCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateHiddenTransfersCheckboxActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_generateHiddenTransfrersCheckboxActionPerformed
+    }//GEN-LAST:event_generateHiddenTransfersCheckboxActionPerformed
 
     private void generateNonOccurringTransfersCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateNonOccurringTransfersCheckboxActionPerformed
         // TODO add your handling code here:
@@ -248,7 +255,7 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_generateCollusionCheckboxActionPerformed
     
-    private void doClose(settingsObject settings) {
+    private void doClose(AdvancedGenerationSettings settings) {
         this.settings = settings;
         setVisible(false);
         dispose();
@@ -262,8 +269,10 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
     private javax.swing.JButton cancelButton;
     private javax.swing.JSpinner collusionSpinner;
     private javax.swing.JCheckBox generateCollusionCheckbox;
-    private javax.swing.JCheckBox generateHiddenTransfrersCheckbox;
+    private javax.swing.JCheckBox generateHiddenTransfersCheckbox;
     private javax.swing.JCheckBox generateNonOccurringTransfersCheckbox;
+    private javax.swing.JComboBox<String> hiddenTransfersComboBox;
+    private javax.swing.JSpinner jSpinner1;
     private javax.swing.JButton okButton;
     // End of variables declaration//GEN-END:variables
 

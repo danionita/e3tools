@@ -16,8 +16,7 @@
  */
 package e3fraud.model;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
+
 import com.hp.hpl.jena.rdf.model.Resource;
 
 import design.Utils.GraphDelta;
@@ -37,16 +36,15 @@ import org.paukov.combinatorics.ICombinatoricsVector;
  */
 public class SubIdealModelGenerator {
 DecimalFormat df = new DecimalFormat("#.####"); 
-int STEPS = 3;
 
-    public Set<E3Model> generateAll(E3Model baseModel, Resource mainActor, int maxCollusions) {
+    public Set<E3Model> generateAll(E3Model baseModel, Resource mainActor, int maxCollusions, int hiddenTransfersPerExchange) {
 
         //System.out.println("GENERATING MODELS...\n\n\n");
         Set<E3Model> subIdealModels = new HashSet<>();
         //System.out.println("GENERATING collusions...");
         Set<E3Model> colludedModels = generateCollusions(baseModel, mainActor, maxCollusions);
         //System.out.println("GENERATING hidden...");
-        Set<E3Model> hiddenModels = generateHiddenTransactions(baseModel, mainActor);
+        Set<E3Model> hiddenModels = generateHiddenTransactions(baseModel, mainActor, hiddenTransfersPerExchange);
         //System.out.println("GENERATING nonOcurring...");
         Set<E3Model> nonOccuringModels = generateNonoccurringTransactions(baseModel);
         Set<E3Model> colludedAndNonOccuringModels = new HashSet<>();
@@ -58,7 +56,7 @@ int STEPS = 3;
         for (E3Model colludedModel : colludedModels) {
             //generate all possible combinations of non-occuring transactions to the result
             colludedAndNonOccuringModels.addAll(generateNonoccurringTransactions(colludedModel));
-            colludedAndHiddenModels.addAll(generateHiddenTransactions(colludedModel, mainActor));
+            colludedAndHiddenModels.addAll(generateHiddenTransactions(colludedModel, mainActor, hiddenTransfersPerExchange));
         }
 
         //for each combination of nonOccuraning transactions
@@ -68,7 +66,7 @@ int STEPS = 3;
             //generate all possible combinations of hidden transactions to the result            
             //System.out.println("adding hidden transfers to nonOccuring model "+j+" out of "+i);
             j++;
-            hiddenAndNonOccuringModels.addAll(generateHiddenTransactions(nonOccuringModel, mainActor));
+            hiddenAndNonOccuringModels.addAll(generateHiddenTransactions(nonOccuringModel, mainActor, hiddenTransfersPerExchange));
         }
 
         //for each combination of collusion and non-occuring transaction
@@ -78,7 +76,7 @@ int STEPS = 3;
             //generate all possible combinations of hidden transactions                         
             //System.out.println("adding hidden transfers to nonOccuring  and colluded model "+j+" out of "+i);
             j++;
-            colludedHiddenAndNonOccuringModels.addAll(generateHiddenTransactions(colludedAndNonOccuringModel, mainActor));
+            colludedHiddenAndNonOccuringModels.addAll(generateHiddenTransactions(colludedAndNonOccuringModel, mainActor, hiddenTransfersPerExchange));
         }
 
         //*********TEST STUFF***************
@@ -217,10 +215,11 @@ int STEPS = 3;
      *
      * @param baseModel
      * @param mainActor
+     * @param hiddenTransfersPerExchange the number of value each hidden transfer can have. 
      * @return a set of models derived from baseModel with all possible
      * combinations of hidden (dotted) transactions
      */
-    public Set<E3Model> generateHiddenTransactions(E3Model baseModel, Resource mainActor) {
+    public Set<E3Model> generateHiddenTransactions(E3Model baseModel, Resource mainActor, int hiddenTransfersPerExchange) {
         Set<E3Model> subIdealModels = new HashSet<>();
         Set<Resource> secondaryActors = baseModel.getActors();
         secondaryActors.remove(mainActor);
@@ -269,9 +268,8 @@ int STEPS = 3;
                          //To do so, we generate models with money flows in each direction , ranging from 0 to the total Profit of the actor:           
                     //if actor1 has a positive financial result
                     if (actor1Total > 0) {
-                        //divide this result into 10 values (9 + the "zero" value)
-                                         
-                        step = actor1Total / STEPS;
+                        //divide this result                                  
+                        step = actor1Total / hiddenTransfersPerExchange;
 
                         //and for each value
                         for (value = step; value < actor1Total; value = value + step) {
@@ -304,8 +302,8 @@ int STEPS = 3;
                     }
                     //if actor2 has a positive financial result
                     if (actor2Total > 0) {
-                        //divide this result into 10 values
-                        step = actor2Total / STEPS;
+                        //divide this result 
+                        step = actor2Total / hiddenTransfersPerExchange;
 
                         //and for each value
                         for (value = step; value < actor2Total; value = value + step) {

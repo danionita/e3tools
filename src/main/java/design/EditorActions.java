@@ -836,6 +836,7 @@ public class EditorActions {
 
             frame.add(fraudWindowInstance);
             frame.pack();
+            frame.setLocationRelativeTo(Main.mainFrame);
             frame.setVisible(true);
         }
     }
@@ -848,6 +849,15 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            if (main.views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to analyze. Click File ➡ New model to start building one.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             if (!main.getCurrentGraph().isValid()) {
                 int choice = JOptionPane.showConfirmDialog(
                         Main.mainFrame,
@@ -858,6 +868,16 @@ public class EditorActions {
                 if (choice == JOptionPane.NO_OPTION) {
                     return;
                 }
+            }
+
+            if (main.getCurrentGraph().countActors() < 1) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "Fraud generation requires at least one actor. Please add more actors to the model",
+                        "Not enough actors.",
+                        JOptionPane.ERROR_MESSAGE);
+
+                return;
             }
 
             RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);

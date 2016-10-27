@@ -24,7 +24,9 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import e3fraud.gui.ResultObject;
 import e3fraud.model.E3Model;
 import e3fraud.model.ModelRanker;
-import e3fraud.tools.currentTime;
+import e3fraud.tools.SettingsObjects.FilteringSettings;
+import e3fraud.tools.SettingsObjects.GenerationSettings;
+import e3fraud.tools.SettingsObjects.SortingAndGroupingSettings;
 import e3fraud.vocabulary.E3value;
 import java.text.DecimalFormat;
 import java.util.HashSet;
@@ -60,35 +62,25 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
      *
      * @param groupedSubIdealModels the ranked and grouped sub-ideal models
      * @param baseModel the model to analyze
-     * @param selectedActorString the main actor's name
-     * @param selectedActor the main actor's RDF resource
-     * @param selectedNeed the selected need's RDF resource
-     * @param selectedNeedString the selected need's name
-     * @param startValue the min occurrence rate of need
-     * @param endValue the max occurrence rate of need
-     * @param sortCriteria 0 - do not sort, 1 - sort by loss first, 2- sort by
-     * gain first
-     * @param groupingCriteria 0 - do not group, 1 - group based on generated
-     * collusion groups
-     * @param lossMin Filter by loss - minimum value
-     * @param lossMax Filter by loss - maximum value
-     * @param gainMin Filter by gain - minimum value
-     * @param gainMax Filter by gain - maximum value
+     * @param generationSettings
+     * @param sortingAndGroupingSettings
+     * @param filteringSettings
+
      */
-    public SortingWorker(java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels, E3Model baseModel, String selectedActorString, Resource selectedActor, Resource selectedNeed, String selectedNeedString, int startValue, int endValue, int sortCriteria, int groupingCriteria, Double lossMin, Double lossMax, Double gainMin, Double gainMax) {
+    public SortingWorker(java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels, E3Model baseModel, GenerationSettings generationSettings, SortingAndGroupingSettings sortingAndGroupingSettings, FilteringSettings filteringSettings) {
         this.baseModel = baseModel;
-        this.selectedActorString = selectedActorString;
-        this.selectedActor = selectedActor;
-        this.selectedNeed = selectedNeed;
-        this.selectedNeedString = selectedNeedString;
-        this.startValue = startValue;
-        this.endValue = endValue;
-        this.sortCriteria = sortCriteria;
-        this.groupingCriteria = groupingCriteria;
-        this.lossMin = lossMin;
-        this.lossMax = lossMax;
-        this.gainMin = gainMin;
-        this.gainMax = gainMax;
+        this.selectedActorString = generationSettings.getSelectedActorString();
+        this.selectedActor = generationSettings.getSelectedActor();
+        this.selectedNeed = generationSettings.getSelectedNeed();
+        this.selectedNeedString = generationSettings.getSelectedNeedString();
+        this.startValue = generationSettings.getStartValue();
+        this.endValue = generationSettings.getEndValue();
+        this.sortCriteria = sortingAndGroupingSettings.getSortCriteria();
+        this.groupingCriteria = sortingAndGroupingSettings.getGroupingCriteria();
+        this.lossMin = filteringSettings.getLossMin();
+        this.lossMax = filteringSettings.getLossMax();
+        this.gainMin = filteringSettings.getGainMin();
+        this.gainMax = filteringSettings.getGainMax();
         this.sortedSubIdealModels = null;
         this.root = new DefaultMutableTreeNode("root");
         this.groupedSubIdealModels = groupedSubIdealModels;
@@ -105,6 +97,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                 //sort by gain only, then loss
                 if(debug){
                 System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average \u0394gain of the any actor  in the model except \"" + selectedActorString + "\"" + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                                System.out.println(currentTime.currentTime() + " Only displaying models with " + gainMin + "<gain<"+gainMax+" and "+lossMin+"<loss<"+lossMax);     
                 }
                 numberOfSubIdealModels = groupedSubIdealModels.size();
                 for (Map.Entry<String, java.util.Set<E3Model>> cursor : groupedSubIdealModels.entrySet()) {
@@ -140,6 +133,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                 //sort by loss first, then gain
                 if(debug){
                 System.out.println(currentTime.currentTime() + " Ranking each group " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model " + newline + "\twhen \"" + selectedNeedString + "\" " + "\toccurs " + startValue + " to " + endValue + " times..." + newline);
+                                System.out.println(currentTime.currentTime() + " Only displaying models with " + gainMin + "<gain<"+gainMax+" and "+lossMin+"<loss<"+lossMax);     
                 }
                 i = 0;
                 numberOfSubIdealModels = groupedSubIdealModels.size();
@@ -215,6 +209,7 @@ public class SortingWorker extends SwingWorker<ResultObject, String> {
                 //by loss then gain
                 if(debug){
                 System.out.println(currentTime.currentTime() + " Ranking sub-ideal models " + newline + "\tbased on average loss for \"" + selectedActorString + "\"" + newline + "\t and on average \u0394gain of the other actors in the model...");
+                                System.out.println(currentTime.currentTime() + " Only displaying models with " + gainMin + "<gain<"+gainMax+" and "+lossMin+"<loss<"+lossMax);     
                 }
                 sortedSubIdealModels = ModelRanker.sortByLossThenGain(this, baseModel, subIdealModels, selectedActor, selectedNeed, startValue, endValue, false);
                 for (E3Model subIdealModel : sortedSubIdealModels) {

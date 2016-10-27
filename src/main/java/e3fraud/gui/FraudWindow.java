@@ -49,7 +49,6 @@ import com.mxgraph.view.mxGraphView;
 
 import design.E3Graph;
 import design.E3GraphComponent;
-import design.E3Style;
 import design.Main;
 import design.info.Actor;
 import design.info.MarketSegment;
@@ -57,6 +56,10 @@ import design.info.ValueActivity;
 import e3fraud.model.E3Model;
 import e3fraud.tools.GenerationWorkerV2;
 import e3fraud.tools.SortingWorker;
+import e3fraud.tools.SettingsObjects.AdvancedGenerationSettings;
+import e3fraud.tools.SettingsObjects.FilteringSettings;
+import e3fraud.tools.SettingsObjects.GenerationSettings;
+import e3fraud.tools.SettingsObjects.SortingAndGroupingSettings;
 
 /**
  *
@@ -71,14 +74,10 @@ public class FraudWindow extends javax.swing.JPanel {
     private final Main mainFrame;
     private E3Graph graph;
     private E3Model selectedModel;
-    private Resource selectedNeed;
-    private Resource selectedActor;
-    private String selectedNeedString;
-    private String selectedActorString;
-    private int sortCriteria, groupingCriteria, collusions;
-    private boolean generateHidden, generateNonOccurring, generateCollusion;
-    private Double gainMin, gainMax, lossMin, lossMax;
-    private int needStartValue = 0, needEndValue = 0;
+    private FilteringSettings filteringSettings ;
+    private GenerationSettings generationSettings;
+    private SortingAndGroupingSettings sortingAndGroupingSettings;
+    private AdvancedGenerationSettings advancedGenerationSettings;
     private final Map<String, Resource> actorsMap;
     private final Map<String, Resource> needsMap;
     private java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
@@ -104,12 +103,13 @@ public class FraudWindow extends javax.swing.JPanel {
         actorsMap = this.baseModel.getActorsMap();
         needsMap = this.baseModel.getNeedsMap();
 
-        //initiate default settings
-        this.generateCollusion = true;
-        this.generateHidden = true;
-        this.generateNonOccurring = true;
-        this.collusions = 1;
+        //initialize advanced settings to defaults
+        this.advancedGenerationSettings = new AdvancedGenerationSettings();
+        this.sortingAndGroupingSettings = new SortingAndGroupingSettings();
+        this.generationSettings = new GenerationSettings();
+        this.filteringSettings = new FilteringSettings();
         initComponents();
+        readSettings();
     }
 
     /**
@@ -141,6 +141,7 @@ public class FraudWindow extends javax.swing.JPanel {
         progressBar = new javax.swing.JProgressBar();
         needStartField = new javax.swing.JFormattedTextField();
         needEndField = new javax.swing.JFormattedTextField();
+        showAllLabel = new javax.swing.JLabel();
         listPane = new javax.swing.JSplitPane();
         listSettingsPanel = new javax.swing.JPanel();
         rankingSettingLabel = new javax.swing.JLabel();
@@ -177,7 +178,7 @@ public class FraudWindow extends javax.swing.JPanel {
         generationSettingsPanel.setMinimumSize(new java.awt.Dimension(200, 310));
         generationSettingsPanel.setPreferredSize(new java.awt.Dimension(200, 370));
 
-        mainActorLabel.setText("Main actor:");
+        mainActorLabel.setText("Trusted actor:");
         mainActorLabel.setToolTipText("The main actor is the trusted actor (usually the one which is coducting the assessment)");
 
         mainActorComboBox.setModel(new DefaultComboBoxModel(actorsMap.keySet().toArray()));
@@ -194,6 +195,7 @@ public class FraudWindow extends javax.swing.JPanel {
 
         timesLabel.setText("times");
 
+        advancedSettingsLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         advancedSettingsLabel.setForeground(new java.awt.Color(6, 69, 173));
         advancedSettingsLabel.setText("Advanced settings...");
         advancedSettingsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -248,6 +250,15 @@ public class FraudWindow extends javax.swing.JPanel {
         needEndField.setText("500");
         needEndField.setPreferredSize(new java.awt.Dimension(25, 22));
 
+        showAllLabel.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        showAllLabel.setForeground(new java.awt.Color(6, 69, 173));
+        showAllLabel.setText("(show all)");
+        showAllLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                showAllLabelMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout generationSettingsPanelLayout = new javax.swing.GroupLayout(generationSettingsPanel);
         generationSettingsPanel.setLayout(generationSettingsPanelLayout);
         generationSettingsPanelLayout.setHorizontalGroup(
@@ -275,15 +286,19 @@ public class FraudWindow extends javax.swing.JPanel {
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
                                         .addComponent(occuringLabel)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(needStartField, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
+                                        .addComponent(needStartField, javax.swing.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE)
                                         .addGap(6, 6, 6)
                                         .addComponent(needToLabel)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(needEndField, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
+                                        .addComponent(needEndField, javax.swing.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(timesLabel))
                                     .addComponent(advancedSettingsLabel, javax.swing.GroupLayout.Alignment.TRAILING))))
                         .addContainerGap())))
+            .addGroup(generationSettingsPanelLayout.createSequentialGroup()
+                .addGap(81, 81, 81)
+                .addComponent(showAllLabel)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         generationSettingsPanelLayout.setVerticalGroup(
             generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -307,18 +322,19 @@ public class FraudWindow extends javax.swing.JPanel {
                     .addComponent(needStartField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(needEndField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(timesLabel))
-                .addGap(18, 18, Short.MAX_VALUE)
+                .addGap(22, 22, 22)
                 .addComponent(generationLayeredPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultCountLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(showAllLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
                 .addComponent(advancedSettingsLabel)
                 .addContainerGap())
         );
 
-        resultCountLabel.getAccessibleContext().setAccessibleName("");
-        resultCountLabel.getAccessibleContext().setAccessibleDescription("");
         resultCountLabel.setVisible(false);
+        showAllLabel.setVisible(false);
 
         topPane.setLeftComponent(generationSettingsPanel);
 
@@ -352,13 +368,24 @@ public class FraudWindow extends javax.swing.JPanel {
             }
         });
 
-        lossStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
+        lossStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#.##"))));
         lossStartField.setText("0");
+        lossStartField.setToolTipText("");
         lossStartField.setPreferredSize(new java.awt.Dimension(60, 22));
+        lossStartField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                lossStartFieldFocusLost(evt);
+            }
+        });
 
         gainStartField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         gainStartField.setText("0");
         gainStartField.setPreferredSize(new java.awt.Dimension(60, 22));
+        gainStartField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                gainStartFieldFocusLost(evt);
+            }
+        });
 
         gainToLabel.setText("to");
 
@@ -366,9 +393,19 @@ public class FraudWindow extends javax.swing.JPanel {
 
         lossEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         lossEndField.setPreferredSize(new java.awt.Dimension(60, 22));
+        lossEndField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                lossEndFieldFocusLost(evt);
+            }
+        });
 
         gainEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         gainEndField.setPreferredSize(new java.awt.Dimension(60, 22));
+        gainEndField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                gainEndFieldFocusLost(evt);
+            }
+        });
 
         SortingAndGroupingLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         SortingAndGroupingLabel.setText("Sorting and grouping");
@@ -564,7 +601,6 @@ public class FraudWindow extends javax.swing.JPanel {
     }//GEN-LAST:event_refreshButtonActionPerformed
 
     private void treeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_treeValueChanged
-        JTree tree = (JTree) evt.getSource();
         //on selection
         if (!tree.isSelectionEmpty()) {
             //enable visualization
@@ -575,7 +611,7 @@ public class FraudWindow extends javax.swing.JPanel {
                 //grab the E3Model of the selected row
                 selectedModel = (E3Model) node.getUserObject();
                 //create a chart 
-                chart = ChartGenerator.generateChart(selectedModel, selectedNeed, needStartValue, needEndValue, false);
+                chart = ChartGenerator.generateChart(selectedModel, generationSettings.getSelectedNeed(), generationSettings.getStartValue(), generationSettings.getEndValue(), false);
                 //then, 
                 // if the chartPanel exists, update it
                 if (chartPanel != null) {
@@ -600,47 +636,47 @@ public class FraudWindow extends javax.swing.JPanel {
 //                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
 
                 // Then just create a graph panel from scratch
-				graphPanel = new E3GraphComponent(graph);
-				// Disable right mouse clicks
-				graphPanel.setPopupTriggerEnabled(false);
-				// Prevent other funny business
-				graphPanel.setEnabled(false);
-				// Apparently mxGraphControl takes care of mouse business of
-				// mxGraph (which is the parent of E3Graph)
-				graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						System.out.println("Mouse clicked on graph!");
-						// On doubleclick
-						if (e.getClickCount() == 2) {
-							// Create a new tab with the current graph
-							FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph(), false));
-							// Switch to the screen
-							FraudWindow.this.mainFrame.mainFrame.requestFocus();
-						}
-					}
-				});
+                graphPanel = new E3GraphComponent(graph);
+                // Disable right mouse clicks
+                graphPanel.setPopupTriggerEnabled(false);
+                // Prevent other funny business
+                graphPanel.setEnabled(false);
+                // Apparently mxGraphControl takes care of mouse business of
+                // mxGraph (which is the parent of E3Graph)
+                graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        System.out.println("Mouse clicked on graph!");
+                        // On doubleclick
+                        if (e.getClickCount() == 2) {
+                            // Create a new tab with the current graph
+                            FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph(), false));
+                            // Switch to the screen
+                            FraudWindow.this.mainFrame.mainFrame.requestFocus();
+                        }
+                    }
+                });
 
-				// Refresh E3GraphComponent to make sure E3Style is used
-				graphPanel.refresh();
-				// Add it 
-				graphPane.add(graphPanel);  
-				// Set it visible if it isn't already
-				graphPanel.setVisible(true);
+                // Refresh E3GraphComponent to make sure E3Style is used
+                graphPanel.refresh();
+                // Add it 
+                graphPane.add(graphPanel);
+                // Set it visible if it isn't already
+                graphPanel.setVisible(true);
 
-				// Graph scaling code
-				// To ensure that the size is not 0
-				if (graphPane.getVisibleRect().getWidth() < 10) {
-					myFrame.revalidate();
-				}
-				
-				graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
-				
-				// Make the scrollbars disappear
-				graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-				graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-				
-				myFrame.revalidate();
+                // Graph scaling code
+                // To ensure that the size is not 0
+                if (graphPane.getVisibleRect().getWidth() < 10) {
+                    myFrame.revalidate();
+                }
+
+                graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
+
+                // Make the scrollbars disappear
+                graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+
+                myFrame.revalidate();
             }
         } else {
             visualizationPane.setVisible(false);
@@ -660,12 +696,10 @@ public class FraudWindow extends javax.swing.JPanel {
     }//GEN-LAST:event_generateButtonActionPerformed
 
     private void advancedSettingsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_advancedSettingsLabelMouseClicked
-        AdvancedGenerationSettingsDialog dialog = new AdvancedGenerationSettingsDialog(this.myFrame, true, this.generateHidden, this.generateNonOccurring, this.generateCollusion, this.collusions);
+        AdvancedGenerationSettingsDialog dialog = new AdvancedGenerationSettingsDialog(this.myFrame, true, this.advancedGenerationSettings);
         if (dialog.getSettings() != null) {
-            this.generateNonOccurring = dialog.getSettings().generateNonOccurring;
-            this.generateHidden = dialog.getSettings().generateHidden;
-            this.generateCollusion = dialog.getSettings().generateCollusion;
-            this.collusions = dialog.getSettings().collusions;
+            AdvancedGenerationSettings newAdvancedGenerationSettings = dialog.getSettings();
+            this.advancedGenerationSettings = newAdvancedGenerationSettings;
             System.out.println("settings updated");
         }
     }//GEN-LAST:event_advancedSettingsLabelMouseClicked
@@ -674,20 +708,54 @@ public class FraudWindow extends javax.swing.JPanel {
     }//GEN-LAST:event_treeComponentResized
 
     private void graphPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_graphPaneComponentResized
-    	if (graphPanel != null && graphPane != null) {
-			graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
-    	
-			myFrame.revalidate();
-    	}
+        if (graphPanel != null && graphPane != null) {
+            graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
+            myFrame.revalidate();
+        }
     }//GEN-LAST:event_graphPaneComponentResized
 
     private void sortComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sortComboBoxActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_sortComboBoxActionPerformed
 
+    private void showAllLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showAllLabelMouseClicked
+        readSettings();
+        // store current filter settings
+        FilteringSettings tempFilteringSettings = this.filteringSettings;
+        //remove filter settings
+        this.filteringSettings.clearFilters();
+        sortAndDisplay();
+        //restore filter settings
+        this.filteringSettings = tempFilteringSettings;
+    }//GEN-LAST:event_showAllLabelMouseClicked
+
+    private void lossStartFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_lossStartFieldFocusLost
+        if (lossStartField.getText() == null || lossStartField.getText().isEmpty()){
+            lossStartField.setValue(null);
+        }
+    }//GEN-LAST:event_lossStartFieldFocusLost
+
+    private void gainStartFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_gainStartFieldFocusLost
+        if (gainStartField.getText() == null || gainStartField.getText().isEmpty()){
+            gainStartField.setValue(null);
+        }
+    }//GEN-LAST:event_gainStartFieldFocusLost
+
+    private void lossEndFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_lossEndFieldFocusLost
+        if (lossEndField.getText() == null || lossEndField.getText().isEmpty()){
+            lossEndField.setValue(null);
+        }
+    }//GEN-LAST:event_lossEndFieldFocusLost
+
+    private void gainEndFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_gainEndFieldFocusLost
+    if (gainEndField.getText() == null || gainEndField.getText().isEmpty()){
+            gainEndField.setValue(null);
+        }
+    }//GEN-LAST:event_gainEndFieldFocusLost
+
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-        GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, generateNonOccurring, generateHidden, generateCollusion, collusions) {
+        GenerationWorkerV2 generationWorker = new GenerationWorkerV2(baseModel, generationSettings, advancedGenerationSettings) {
             //make it so that when Worker is done
             @Override
             protected void done() {
@@ -723,26 +791,37 @@ public class FraudWindow extends javax.swing.JPanel {
 
     private void sortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-        SortingWorker rankingWorker = new SortingWorker(groupedSubIdealModels, baseModel, selectedActorString, selectedActor, selectedNeed, selectedNeedString, needStartValue, needEndValue, sortCriteria, groupingCriteria, lossMin, lossMax, gainMin, gainMax) {
+        SortingWorker rankingWorker = new SortingWorker(groupedSubIdealModels, baseModel, generationSettings, sortingAndGroupingSettings, filteringSettings) {
             //make it so that when Worker is done
             @Override
             protected void done() {
                 try {
                     //The Worker's result is retrieved
                     results = get();
+                    int totalResults = results.getTotalResults();
+                    int shownResults = results.getShownResults();
+                    //Update result label 
+                    resultCountLabel.setText("Showing " + shownResults + "/" + totalResults  + " results");
+                    
+                    //add ability to show filtered rsults, if needed
+                    if(shownResults < totalResults){
+                        showAllLabel.setVisible(true);
+                    }
+                    else{
+                        showAllLabel.setVisible(false);
+                    }                    
+                    
                     //if there are any results to show
                     if (results.getShownResults() > 0) {
                         root = results.getRoot();
                         //Hide root to save space
                         tree.setRootVisible(false);
-                        //Update result label 
-                        resultCountLabel.setText("Showing " + results.getShownResults() + "/" + results.getTotalResults() + " results");
                     } else {
                         tree.setRootVisible(true);
                         root = new DefaultMutableTreeNode("No results to show (check generation settings or filters)");
-                        resultCountLabel.setText("Showing " + results.getShownResults() + "/" + results.getTotalResults() + " results");
                     }
-                    //The result tree is populated 
+                    
+                    //Populate result tree
                     treeModel.setRoot(root);
                     tree.setModel(treeModel);
                     tree.updateUI();
@@ -783,27 +862,56 @@ public class FraudWindow extends javax.swing.JPanel {
         rankingWorker.execute();
     }
 
-    private void readSettings() {
-        needStartValue = Integer.parseInt(needStartField.getText());
-        needEndValue = Integer.parseInt(needEndField.getText());
-        selectedActorString = mainActorComboBox.getSelectedItem().toString();
-        selectedNeedString = needComboBox.getSelectedItem().toString();
-        selectedActor = actorsMap.get(selectedActorString);
-        selectedNeed = needsMap.get(selectedNeedString);
-        sortCriteria = sortComboBox.getSelectedIndex();
-        groupingCriteria = groupComboBox.getSelectedIndex();
-        gainMin = Double.parseDouble(gainStartField.getText());
-        lossMin = Double.parseDouble(lossStartField.getText());
-        if (!gainEndField.getText().equals("")) {
+    /**
+     * reads and stores the value of all the settings in the window
+     */
+    private void readSettings() {        
+        //read and store generation settings        
+        int needStartValue = Integer.parseInt(needStartField.getText());
+        int needEndValue = Integer.parseInt(needEndField.getText());
+        String selectedActorString = mainActorComboBox.getSelectedItem().toString();
+        String selectedNeedString = needComboBox.getSelectedItem().toString();
+        Resource selectedActor = actorsMap.get(selectedActorString);
+        Resource selectedNeed = needsMap.get(selectedNeedString);
+        generationSettings.setStartValue(needStartValue);
+        generationSettings.setEndValue(needEndValue);
+        generationSettings.setSelectedActor(selectedActor);
+        generationSettings.setSelectedNeed(selectedNeed);
+        generationSettings.setSelectedNeedString(selectedNeedString);     
+        generationSettings.setSelectedActorString(selectedActorString);
+        
+        //read and store sorting and grouping settings
+        int sortCriteria = sortComboBox.getSelectedIndex();
+        int groupingCriteria = groupComboBox.getSelectedIndex();
+        sortingAndGroupingSettings.setGroupingCriteria(groupingCriteria);
+        sortingAndGroupingSettings.setSortCriteria(sortCriteria);
+                
+        //read and store filtering settings
+        double gainMin, gainMax, lossMin, lossMax;
+        if (!gainStartField.getText().equals("") && gainStartField.getText()!=null) {
+            gainMin = Double.parseDouble(gainStartField.getText());
+        } else {
+            gainMin = -Double.MAX_VALUE;
+        }
+        if (!lossStartField.getText().equals("") && lossStartField.getText() != null) {
+            lossMin = Double.parseDouble(lossStartField.getText());
+        } else {
+            lossMin = -Double.MAX_VALUE;
+        }
+        if (!gainEndField.getText().equals("") && gainEndField.getText() != null) {
             gainMax = Double.parseDouble(gainEndField.getText());
         } else {
             gainMax = Double.MAX_VALUE;
         }
-        if (!lossEndField.getText().equals("")) {
+        if (!lossEndField.getText().equals("") && lossEndField.getText() != null) {
             lossMax = Double.parseDouble(lossEndField.getText());
         } else {
             lossMax = Double.MAX_VALUE;
         }
+        filteringSettings.setGainMin(gainMin);
+        filteringSettings.setLossMin(lossMin);
+        filteringSettings.setGainMax(gainMax);
+        filteringSettings.setLossMax(lossMax);
     }
 
     public void fitMiniGraph() {
@@ -897,6 +1005,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JButton refreshButton;
     private javax.swing.JLabel resultCountLabel;
     private javax.swing.JScrollPane resultScrollPane;
+    private javax.swing.JLabel showAllLabel;
     private javax.swing.JComboBox<String> sortComboBox;
     private javax.swing.JLabel timesLabel;
     private javax.swing.JSplitPane topPane;
