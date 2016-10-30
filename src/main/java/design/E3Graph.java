@@ -1750,8 +1750,29 @@ public class E3Graph extends mxGraph implements Serializable{
 		});
 	}
 	
+	/**
+	 * Disallows selecting of valueexchanges and connection elements.
+	 */
 	@Override
 	public boolean isCellSelectable(Object cell) {
-		return false;
+		Object value = getModel().getValue(cell);
+		if (value instanceof ValueExchange
+				|| value instanceof ConnectionElement) {
+			return false;
+		}
+			
+		return true;
 	}
+	
+//	@Override
+//	public mxRectangle getCellBounds(Object cell, boolean includeEdges, boolean includeDescendants,
+//			boolean boundingBox) {
+//		mxRectangle rect = super.getCellBounds(cell, includeEdges, includeDescendants, boundingBox);
+//		
+//		if (rect != null) {
+//			rect.grow(10);
+//		}
+//		
+//		return rect;
+//	}
 }
