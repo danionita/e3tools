@@ -146,6 +146,9 @@ public class E3value {
     public static final Property vp_valuation = m_model.createProperty( "http://www.cs.vu.nl/~gordijn/e3value#vp_valuation" );
     
     public static final Property vt_consists_of_ve = m_model.createProperty( "http://www.cs.vu.nl/~gordijn/e3value#vt_consists_of_ve" );
+
+    // Added because the NCF module requires it (Bob)
+    public static final Property vt_has_fraction = m_model.createProperty("http://www.cs.vu.nl/~gordijn/e3value#vt_has_fraction");
     
     public static final Resource AND_fork = m_model.createResource( "http://www.cs.vu.nl/~gordijn/e3value#AND_fork" );
     
@@ -204,7 +207,5 @@ public class E3value {
     public static final Resource value_port = m_model.createResource( "http://www.cs.vu.nl/~gordijn/e3value#value_port" );
     
     public static final Resource value_transaction = m_model.createResource( "http://www.cs.vu.nl/~gordijn/e3value#value_transaction" );
-    
-    
     
 }

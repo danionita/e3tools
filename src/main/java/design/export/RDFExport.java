@@ -549,7 +549,7 @@ public class RDFExport {
 				res.addProperty(E3value.e3_has_name, "vt" + id);
 				// TODO: Original editor does this; our ontology
 				// does not allow it.
-//				res.addProperty(E3value.vt_has_fraction, "1");
+				res.addProperty(E3value.vt_has_fraction, "1");
 				transactions.get(pair).stream().forEach(veID -> {
 					res.addProperty(E3value.vt_consists_of_ve, getResource(veID));
 					getResource(veID).addProperty(E3value.ve_in_vt, res);
