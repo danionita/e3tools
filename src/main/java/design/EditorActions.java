@@ -144,7 +144,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), true);
+            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), true, true);
             Optional<String> result = rdfExport.getResult();
 
             // Do not export to rdf if there was an error
@@ -812,7 +812,7 @@ public class EditorActions {
                 main.addNewTabAndSwitch(targetGraph);
             }
 
-            RDFExport rdfExporter = new RDFExport(targetGraph, true);
+            RDFExport rdfExporter = new RDFExport(targetGraph, true, true);
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
 
@@ -880,7 +880,7 @@ public class EditorActions {
                 return;
             }
 
-            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true);
+            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true, true);
 
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();

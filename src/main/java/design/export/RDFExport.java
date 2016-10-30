@@ -20,13 +20,17 @@ package design.export;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
+import com.e3value.eval.ncf.ontology.e3value_AND;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -63,10 +67,20 @@ public class RDFExport {
 	private Resource diagramRes;
 	private String base;
 	private boolean unsafe;
+	private boolean deriveVT;
 	
-	public RDFExport(mxGraph graph, boolean unsafe) {
+	/**
+	 * Tries to convert an E3Graph to RDF.
+	 * @param graph The graph to convert
+	 * @param unsafe If true, it is assumed that all formulas are numerical values,
+	 * and merged actors and market segments will be converted from strings to ints
+	 * and added.
+	 * @param deriveVT If true value transactions are derived naively.
+	 */
+	public RDFExport(mxGraph graph, boolean unsafe, boolean deriveVT) {
 		this.unsafe = unsafe;
 		this.graph = (E3Graph) graph;
+		this.deriveVT = deriveVT;
 		
 		convertToRdf();
 	}
@@ -481,6 +495,11 @@ public class RDFExport {
 			}
 		}
 		
+		// Derive value transactions
+		if (deriveVT) {
+			deriveValueTransactions();
+		}
+		
 		// Convert to RDF
 		StringWriter out = new StringWriter();
 		model.write(out, "RDF/XML");
@@ -489,6 +508,55 @@ public class RDFExport {
 		modelResult = Optional.of(model);
 		
 		System.out.println(result.get());
+	}
+	
+	public void deriveValueTransactions() {
+		Map<Set<Object>, List<Long>> transactions = new HashMap<>(); 
+		
+		Utils.getAllCells(graph).stream()
+			.filter(obj -> {
+				Object val = graph.getModel().getValue(obj);
+				return val instanceof ValueExchange;
+			})
+			.forEach(ve -> {
+				Base veInfo = (Base) graph.getModel().getValue(ve);
+
+				// need to do getParent() because we want the value
+				// interfaces, not the ports
+				Object from = graph.getModel().getTerminal(ve, false);
+				from = graph.getModel().getParent(from);
+				Base fromInfo = (Base) graph.getModel().getValue(from);
+
+				Object to = graph.getModel().getTerminal(ve, true);
+				to = graph.getModel().getParent(to);
+				Base toInfo = (Base) graph.getModel().getValue(to);
+
+				Set<Object> trx = new HashSet<>(Arrays.asList(from, to));
+				
+				if (!transactions.containsKey(trx)) {
+					transactions.put(trx, new ArrayList<>());
+				}
+
+				transactions.get(trx).add(veInfo.SUID);
+			});
+		
+		transactions.keySet().stream()
+			.forEach(pair -> {
+				long id = Utils.getUnusedID(graph, base, model);
+				Resource res = getResource(id);
+				res.addProperty(RDF.type, E3value.value_transaction);
+				// TODO: Maybe collides with one of the names from the model?
+				res.addProperty(E3value.e3_has_name, "vt" + id);
+				// TODO: Original editor does this; our ontology
+				// does not allow it.
+//				res.addProperty(E3value.vt_has_fraction, "1");
+				transactions.get(pair).stream().forEach(veID -> {
+					res.addProperty(E3value.vt_consists_of_ve, getResource(veID));
+					getResource(veID).addProperty(E3value.ve_in_vt, res);
+				});
+			});
+		
+		System.out.println("Transactions: " + transactions.size());
 	}
 	
 	public Optional<String> getResult() {

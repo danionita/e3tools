@@ -812,7 +812,7 @@ public class Utils {
 		try {
 			String rdfFileName = "testRDF2Excel.rdf";
 
-			RDFExport export = new RDFExport(graph, true);
+			RDFExport export = new RDFExport(graph, true, true);
 			String result = export.getResult().get();
 			result = "<?xml version='1.0' encoding='ISO-8859-1'?>\n" + result;
 			result = result.replaceAll("http://www\\.w3\\.org/1999/02/22_rdf_syntax_ns#", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
