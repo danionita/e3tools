@@ -195,8 +195,13 @@ public class RDFExport {
 		long diagramSUID = Utils.getUnusedID(graph, base, model);
 		System.out.println("DiagramSUID: " + diagramSUID);
 		diagramRes = model.createResource(base + diagramSUID, E3value.diagram);
-		diagramRes.addProperty(E3value.e3_has_name, "diagram" + diagramSUID);
 		diagramRes.addProperty(E3value.e3_has_uid, "" + diagramSUID);
+
+		if (graph.title != null) {
+			diagramRes.addProperty(E3value.e3_has_name, graph.title);
+		} else {
+			diagramRes.addProperty(E3value.e3_has_name, "diagram" + diagramSUID);
+		}
 		
 		for (String valueObject : graph.valueObjects) {
 			getValueObject(valueObject);

@@ -1769,8 +1769,15 @@ public class E3Graph extends mxGraph implements Serializable{
 //			boolean boundingBox) {
 //		mxRectangle rect = super.getCellBounds(cell, includeEdges, includeDescendants, boundingBox);
 //		
-//		if (rect != null) {
-//			rect.grow(10);
+//		Object value = getModel().getValue(cell);
+//		if (value instanceof ValuePort) {
+//			ValuePort valuePort = (ValuePort) value;
+//			System.out.println("ATTENTION!");
+//			System.out.println(valuePort.name);
+//
+//			if (rect != null) {
+//				rect.grow(30);
+//			}
 //		}
 //		
 //		return rect;
