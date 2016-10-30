@@ -664,11 +664,11 @@ public class Utils {
     
     public static JFileChooser getE3FileChooser() {
         if (previousFc == null){
-		JFileChooser fc = new JFileChooser();
-		FileFilter e3Filter = new FileNameExtensionFilter("e3tool file", "e3");
-		fc.addChoosableFileFilter(e3Filter);
-		fc.setFileFilter(e3Filter);
-                previousFc=fc;
+			JFileChooser fc = new JFileChooser();
+			FileFilter e3Filter = new FileNameExtensionFilter("e3tool file", "e3");
+			fc.addChoosableFileFilter(e3Filter);
+			fc.setFileFilter(e3Filter);
+			previousFc = fc;
         }     
 
 		
@@ -808,10 +808,16 @@ public class Utils {
     	return false;
     }
     
-    public static void doValueAnalysis(E3Graph graph) {
+    /**
+     * Does an NCF analysis and writes the resulting excel file to
+     * dstfile. Returns true if successful, false if *anything* went
+     * wrong.
+     * @param graph
+     * @param dstFile
+     * @return
+     */
+    public static boolean doValueAnalysis(E3Graph graph, File dstFile) {
 		try {
-			String rdfFileName = "testRDF2Excel.rdf";
-
 			RDFExport export = new RDFExport(graph, true, true);
 			String result = export.getResult().get();
 			result = "<?xml version='1.0' encoding='ISO-8859-1'?>\n" + result;
@@ -822,8 +828,6 @@ public class Utils {
 			InputStream stream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));
 
 			ProfGenerator p = new ProfGenerator();
-			// It should pick e3value by default but it gives an avalanche of errors
-			// when I remove the second argument.
 			p.loadRDFStream(stream);
 
 			Iterator i = p.getMapObjects().values().iterator();
@@ -840,12 +844,16 @@ public class Utils {
 				}
 			}
 
-			String destinationFileName = rdfFileName.substring(0, rdfFileName.length() - 4) + ".xls";
+			String destinationFileName = dstFile.getAbsolutePath();
 			p.storeXLS(destinationFileName, true, true, true, true, true, true,
 					true, true, true, true, true);
+			
+			return true;
 		} catch (Throwable t) {
 			System.err.println(t);
 			t.printStackTrace();
+
+			return false;
 		}	
 	}
 }

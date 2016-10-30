@@ -1,8 +1,5 @@
 package design;
 
-import com.e3value.eval.ncf.E3ParseException;
-import com.e3value.eval.ncf.ProfGenerator;
-import com.e3value.eval.ncf.ontology.model;
 import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 
 import java.awt.Color;
@@ -10,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,7 +29,6 @@ import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import static com.hp.hpl.jena.tdb.base.objectfile.ObjectFileStorage.logging;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxCellRenderer;
 
@@ -45,9 +42,6 @@ import design.info.ValueExchange;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Iterator;
 
 @SuppressWarnings(value = {"serial"})
 public class EditorActions {
@@ -1055,8 +1049,54 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
+        	JFileChooser e3fc = Utils.getE3FileChooser();
+        	JFileChooser jfc = new JFileChooser(e3fc.getCurrentDirectory());
+        	FileNameExtensionFilter ff = new FileNameExtensionFilter("Excel", "xls");
+        	jfc.addChoosableFileFilter(ff);
+        	jfc.setFileFilter(ff);
+        	jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        	jfc.showOpenDialog(Main.mainFrame);
+        	
+        	File selectedFile = jfc.getSelectedFile();
+        	
+        	if (jfc.getFileFilter() == ff) {
+        		String path = jfc.getSelectedFile().getAbsolutePath();
+        		if (!path.endsWith(".xls")) {
+        			path += ".xls";
+        		}
+        		selectedFile = new File(path);
+        	}
+        	
+        	if (selectedFile.exists()) {
+        		int result = JOptionPane.showConfirmDialog(
+        				Main.mainFrame,
+        				"The file " + selectedFile.getName() + " already exists. Would you like to overwrite it?",
+        				"File exists",
+        				JOptionPane.YES_NO_OPTION,
+        				JOptionPane.INFORMATION_MESSAGE
+        				);
+        		if (result != JOptionPane.YES_OPTION) {
+        			return;
+        		}
+        	}
+        	
             E3Graph currentGraph = main.getCurrentGraph();
-            Utils.doValueAnalysis(currentGraph);
+            if (Utils.doValueAnalysis(currentGraph, selectedFile)) {
+            	JOptionPane.showMessageDialog(
+            			Main.mainFrame,
+            			"Net Value analysis saved to " + selectedFile.getAbsolutePath(),
+            			"Analysis successful",
+            			JOptionPane.INFORMATION_MESSAGE
+            			);
+            } else {
+            	JOptionPane.showMessageDialog(
+            			Main.mainFrame,
+            			"An error occurred while doing the Net value analysis. Please make sure that "
+            			+ "the model contains no errors and that the selected location is writable.",
+            			"Analysis failed",
+            			JOptionPane.INFORMATION_MESSAGE
+            			);
+            }
         }
     }
 }
