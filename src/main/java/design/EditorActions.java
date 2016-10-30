@@ -6,9 +6,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -21,8 +22,12 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.TransferHandler;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartFrame;
@@ -100,6 +105,58 @@ public class EditorActions {
                 main.addNewTabAndSwitch(graph);
             });
         }
+    }
+    
+    public static class OpenRecent extends JMenu {
+    	private Main main;
+
+		public OpenRecent(Main main) {
+			super("Open recent");
+    		this.main = main;
+    		
+    		addMenuListener(new MenuListener() {
+				@Override
+				public void menuCanceled(MenuEvent arg0) { }
+
+				@Override
+				public void menuDeselected(MenuEvent arg0) {
+					removeAll();
+				}
+
+				@Override
+				public void menuSelected(MenuEvent arg0) {
+					List<String> recentFiles = Utils.getRecentlyOpenedFiles();
+
+					if (recentFiles.size() == 0) {
+						JMenuItem mi = new JMenuItem("No recent files available");
+    					mi.setEnabled(false);
+    					add(mi);
+					} else {
+						recentFiles.stream().forEach(recentFile -> {
+							File file = new File(recentFile);
+							add(new AbstractAction(file.getName()) {
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									Optional<E3Graph> result = GraphIO.loadGraph(file.getAbsolutePath());
+
+									if (!result.isPresent()) {
+										JOptionPane.showMessageDialog(
+												Main.mainFrame,
+												"Error during file loading. Please make sure the file destination is accesible.",
+												"Loading error",
+												JOptionPane.ERROR_MESSAGE);
+										
+									} else {
+										main.addNewTabAndSwitch(result.get());
+										Utils.addRecentlyOpened(file);
+									}
+								}
+							});
+						});
+					}
+				}
+    		});
+    	}
     }
 
     public static class Save extends BaseAction {

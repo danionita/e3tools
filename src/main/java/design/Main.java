@@ -70,6 +70,12 @@ public class Main {
     		Utils.makePath(
     				e3toolDir.getPath()
     				, "styles"));
+    public static final File e3RecentFilesFile = new File(
+    		Utils.makePath(
+    				e3toolDir.getPath()
+    				, "recent_files.txt"
+    				)
+    		);
 
     public JTabbedPane views;
     private JToolBar toolbar;
@@ -178,6 +184,7 @@ public class Main {
         fileMenu.addSeparator();
 
         fileMenu.add(new EditorActions.OpenFile(this));
+        fileMenu.add(new EditorActions.OpenRecent(this));
         fileMenu.add(new EditorActions.Save(this));
         fileMenu.add(new EditorActions.SaveAs(this));
 

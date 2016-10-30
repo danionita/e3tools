@@ -22,20 +22,30 @@ package design;
 
 import java.awt.Color;
 import java.awt.Desktop;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -576,6 +586,9 @@ public class Utils {
 
             // Set original file
             result.get().file = file;
+            
+            // Make sure it shows up in the open recent list
+            Utils.addRecentlyOpened(file);
 
             return result;
         } else {
@@ -856,4 +869,57 @@ public class Utils {
 			return false;
 		}	
 	}
+    
+    /**
+     * Return all recently opened files that exist.
+     * @return
+     */
+    public static List<String> getRecentlyOpenedFiles() {
+    	List<String> files = new ArrayList<>();
+
+		try (BufferedReader br = new BufferedReader(new FileReader(Main.e3RecentFilesFile))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				File recentFile = new File(line);
+				if (!recentFile.exists()) continue;
+				files.add(line);
+			}
+		} catch (FileNotFoundException e) {
+			// That's ok - just an empty list then
+		} catch (IOException e) {
+			// That's ok - just an empty list then
+		}
+		
+		return files;
+    }
+    
+    /**
+     * Adds an absolute path to the list of recently opened files.
+     * Makes sure only unique entries end up in the list, and that the list
+     * doesn't grow beyond ten.
+     * @param absolutePath
+     */
+    public static void addRecentlyOpened(File recentFile) {
+    	// We use linkedhashset here because it preserves ordering
+    	String absolutePath = recentFile.getAbsolutePath();
+
+    	LinkedHashSet<String> filenames = new LinkedHashSet<>(getRecentlyOpenedFiles());
+    	filenames.remove(absolutePath);
+    	List<String> filenamesFinal = new ArrayList<>(filenames);
+    	filenamesFinal.add(0, absolutePath);
+    	if (filenamesFinal.size() >= 10) {
+			filenamesFinal.subList(0, 10);
+    	}
+
+    	try {
+			Files.write(
+					Main.e3RecentFilesFile.toPath(),
+					filenamesFinal, 
+					StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING
+					);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+    }
 }
