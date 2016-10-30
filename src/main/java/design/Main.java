@@ -21,6 +21,7 @@
 package design;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -46,6 +47,7 @@ import javax.swing.event.MenuListener;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.mxgraph.swing.util.mxSwingConstants;
 import com.mxgraph.util.mxPoint;
 
 public class Main {

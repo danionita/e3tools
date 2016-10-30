@@ -1749,4 +1749,9 @@ public class E3Graph extends mxGraph implements Serializable{
 				});
 		});
 	}
+	
+	@Override
+	public boolean isCellSelectable(Object cell) {
+		return false;
+	}
 }

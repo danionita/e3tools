@@ -1036,7 +1036,14 @@ public class EditorActions {
         @Override
         public void actionPerformed(ActionEvent arg0) {
             E3Graph currentGraph = main.getCurrentGraph();
-            new FlowChecker(currentGraph);
+            FlowChecker flowChecker = new FlowChecker(currentGraph);
+            if (flowChecker.getConflictingDots().size() > 0) {
+            	System.out.println("Conflicting dots detected! Suspects:");
+            	for (Object obj : flowChecker.getConflictingDots()) {
+            		Base info = (Base) currentGraph.getModel().getValue(obj);
+            		System.out.println(info.name + " (" + info.SUID + ")");
+            	}
+            }
         }
     }
 

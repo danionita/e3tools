@@ -82,7 +82,9 @@ public class E3Walker {
 							visitValueInterface(parent, false);
 						} else if (parentInfo instanceof EndSignal) {
 							visitEndSignal(parent);
-						}  else {
+						}  else if (parentInfo instanceof StartSignal) {
+							visitBadStartSignal(parent);
+						} else {
 							throw new RuntimeException("Unexpected parent of SignalDot "
 									+ "\"" + parentInfo.getClass().getSimpleName() + "\"");
 						}
@@ -307,6 +309,14 @@ public class E3Walker {
 	}
 	
 	public void visitStartSignal(Object ss) {
+		
+	}
+	
+	/**
+	 * Is called when a connection flow ENDS at a start signal
+	 * @param ss
+	 */
+	public void visitBadStartSignal(Object ss) {
 		
 	}
 	
