@@ -118,6 +118,8 @@ public class E3PropertiesEditor {
 	public E3PropertiesEditor(JFrame owner, E3Graph graph, Base value_) {
 		this.value = value_.getCopy();
 		this.graph = graph;
+
+		dialog = new JDialog(owner, "Edit object", true);
 		
 		topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
@@ -307,6 +309,84 @@ public class E3PropertiesEditor {
 				((DefaultTableModel) formulaTable.getModel()).removeRow(row);
 			}
 		}));
+		buttonPane.add(new JButton(new AbstractAction("Save changes") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// If the name has not changed, apply it.
+				// If it has changed, it cannot appear in the graph
+				// anywhere else.
+				List<String> allNames = Utils.getAllNames(graph);
+				if (!value.name.equals(nameField.getText())
+						&& allNames.contains(nameField.getText())) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame,
+							"Name \"" + nameField.getText() + "\" is already in use."
+									+ " Please provide a unique name.",
+							"Non-unique name error", 
+							JOptionPane.ERROR_MESSAGE
+							);
+					return;
+				}
+
+				// Stop editing in case the user was typing when he clicked the X
+				if (formulaTable.getCellEditor() != null) {
+					formulaTable.getCellEditor().stopCellEditing();
+				}
+				
+				// Check if there are any duplicate formulas. If so,
+				// stop closing the window.
+				Set<String> formulaNames = IntStream.range(0, formulaTable.getModel().getRowCount())
+					.mapToObj(i -> (String) formulaTable.getModel().getValueAt(i, 0))
+					.collect(Collectors.toSet());
+				
+				if (formulaNames.size() != formulaTable.getModel().getRowCount()) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame,
+							"It appears there is a non-unique formula name. Please supply unique"
+							+ " formula names.",
+							"Non-unique name error", 
+							JOptionPane.ERROR_MESSAGE
+							);
+					return;
+				}
+				
+				// If the currently edited thing is not a start stimuli, disallow
+				// creation of "OCCURRENCES" formulas.
+				if (!(value instanceof StartSignal) && formulaNames.contains("OCCURRENCES")) {
+					JOptionPane.showMessageDialog(
+							Main.mainFrame,
+							"\"OCCURRENCES\" formulas are only allowed on start stimuli. Please rename or delete the formula.",
+							"Disallowed formula error", 
+							JOptionPane.ERROR_MESSAGE
+							);
+					return;
+				}
+				
+				// Otherwise, fill in the data into the Base info
+				// object, trigger the event, and dispose of the window
+				value.name = nameField.getText();
+				value.formulas.clear();
+				for (int i = 0; i < formulaTable.getModel().getRowCount(); i++) {
+					String name = (String) formulaTable.getModel().getValueAt(i, 0);
+					String formula = (String) formulaTable.getModel().getValueAt(i, 1);
+					
+					if (formula.trim().isEmpty()) {
+						formula = "0";
+					}
+					
+					value.formulas.put(name, formula);
+				}
+				
+				fireEvent(new E3PropertiesEvent(this, value));
+				dialog.dispose();
+			}
+		}));
+		buttonPane.add(new JButton(new AbstractAction("Cancel") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dialog.dispose();
+			}
+		}));
 
 		List<String> labels = new ArrayList<>(Arrays.asList("ID:", "Type:", "Name:", "Formulas:", ""));
 		List<Component> labelComponents = new ArrayList<>();
@@ -396,87 +476,10 @@ public class E3PropertiesEditor {
 		c.insets = new Insets(5, 5, 5, 5);
 		bottomPanel.add(editPane, c);
 
-		dialog = new JDialog(owner, "Edit object", true);
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topPanel, bottomPanel);
 		splitPane.setResizeWeight(0.8);
 		
 		dialog.add(splitPane);
-		// Allows us to check some constraints (unique naming and such)
-		// before closing the window.
-		dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		
-		dialog.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				// If the name has not changed, apply it.
-				// If it has changed, it cannot appear in the grapj
-				// anywhere else.
-				List<String> allNames = Utils.getAllNames(graph);
-				if (!value.name.equals(nameField.getText())
-						&& allNames.contains(nameField.getText())) {
-					JOptionPane.showMessageDialog(
-							Main.mainFrame,
-							"Name \"" + nameField.getText() + "\" is already in use."
-									+ " Please provide a unique name.",
-							"Non-unique name error", 
-							JOptionPane.ERROR_MESSAGE
-							);
-					return;
-				}
-
-				// Stop editing in case the user was typing when he clicked the X
-				if (formulaTable.getCellEditor() != null) {
-					formulaTable.getCellEditor().stopCellEditing();
-				}
-				
-				// Check if there are any duplicate formulas. If so,
-				// stop closing the window.
-				Set<String> formulaNames = IntStream.range(0, formulaTable.getModel().getRowCount())
-					.mapToObj(i -> (String) formulaTable.getModel().getValueAt(i, 0))
-					.collect(Collectors.toSet());
-				
-				if (formulaNames.size() != formulaTable.getModel().getRowCount()) {
-					JOptionPane.showMessageDialog(
-							Main.mainFrame,
-							"It appears there is a non-unique formula name. Please supply unique"
-							+ " formula names.",
-							"Non-unique name error", 
-							JOptionPane.ERROR_MESSAGE
-							);
-					return;
-				}
-				
-				// If the currently edited thing is not a start stimuli, disallow
-				// creation of "OCCURRENCES" formulas.
-				if (!(value instanceof StartSignal) && formulaNames.contains("OCCURRENCES")) {
-					JOptionPane.showMessageDialog(
-							Main.mainFrame,
-							"\"OCCURRENCES\" formulas are only allowed on start stimuli. Please rename or delete the formula.",
-							"Disallowed formula error", 
-							JOptionPane.ERROR_MESSAGE
-							);
-					return;
-				}
-				
-				// Otherwise, fill in the data into the Base info
-				// object, trigger the event, and dispose of the window
-				value.name = nameField.getText();
-				value.formulas.clear();
-				for (int i = 0; i < formulaTable.getModel().getRowCount(); i++) {
-					String name = (String) formulaTable.getModel().getValueAt(i, 0);
-					String formula = (String) formulaTable.getModel().getValueAt(i, 1);
-					
-					if (formula.trim().isEmpty()) {
-						formula = "0";
-					}
-					
-					value.formulas.put(name, formula);
-				}
-				
-				fireEvent(new E3PropertiesEvent(this, value));
-				dialog.dispose();
-			}
-		});
 	}
 	
 	public void show() {

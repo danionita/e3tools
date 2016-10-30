@@ -135,7 +135,7 @@
 					<version>2.4</version>
 					<executions>
 						<execution>                                                
-							<phase>pre-install</phase>
+							<phase>initialize</phase>
 							<goals>
 								<goal>install-file</goal>
 							</goals>
