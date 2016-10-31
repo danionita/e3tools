@@ -6,6 +6,8 @@
 package e3fraud.tools;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -17,13 +19,15 @@ public class SettingsObjects {
 
         private boolean generateHidden, generateNonOccurring, generateCollusion;
         private int colludingActors, numberOfHiddenTransfersPerExchange;
+        private List<String> typesOfNonOccurringTransfers;
 
-        public AdvancedGenerationSettings(boolean generateHidden, boolean generateNonOccurring, boolean generateCollusion, int collusions, int numberOfHiddenTransfersPerExchange) {
+        public AdvancedGenerationSettings(boolean generateHidden, boolean generateNonOccurring, boolean generateCollusion, int collusions, int numberOfHiddenTransfersPerExchange, List<String> typesOfNonOccurringTransfers) {
             this.generateHidden = generateHidden;
             this.generateNonOccurring = generateNonOccurring;
             this.generateCollusion = generateCollusion;
             this.colludingActors = collusions;
             this.numberOfHiddenTransfersPerExchange = numberOfHiddenTransfersPerExchange;
+            this.typesOfNonOccurringTransfers = typesOfNonOccurringTransfers;
         }
 
         /**
@@ -35,6 +39,16 @@ public class SettingsObjects {
             generateCollusion = true;
             colludingActors = 2;
             numberOfHiddenTransfersPerExchange = 2;
+            typesOfNonOccurringTransfers = new ArrayList<>();
+            typesOfNonOccurringTransfers.add("MONEY");
+        }
+
+        public List<String> getTypesOfNonOccurringTransfers() {
+            return typesOfNonOccurringTransfers;
+        }
+
+        public void setTypesOfNonOccurringTransfers(List<String> typesOfNonOccurringTransfers) {
+            this.typesOfNonOccurringTransfers = typesOfNonOccurringTransfers;
         }
 
         public boolean isGenerateHidden() {

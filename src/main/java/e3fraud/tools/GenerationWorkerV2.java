@@ -27,6 +27,7 @@ import e3fraud.tools.SettingsObjects.AdvancedGenerationSettings;
 import e3fraud.tools.SettingsObjects.GenerationSettings;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.SwingWorker;
@@ -47,6 +48,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
     private final int hiddenTransfersPerExchange;
     int i;
     private final boolean generateNonOccurring, generateHidden, generateCollusions;
+    private List<String> typesOfNonOccurringTransfers;
 
     /**
      *
@@ -68,6 +70,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
         this.generateCollusions = advancedGenerationSettings.isGenerateCollusion();
         this.collusions = advancedGenerationSettings.getColludingActors()-1; //collusions = number of colluding actors - 1
         this.hiddenTransfersPerExchange = advancedGenerationSettings.getNumberOfHiddenTransfersPerExchange();
+        this.typesOfNonOccurringTransfers = advancedGenerationSettings.getTypesOfNonOccurringTransfers();
     }
 
     @Override
@@ -104,7 +107,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
             }
             //then generate
             if (generateNonOccurring) {
-                intermediaryModels.addAll(subIdealModelGenerator.generateNonoccurringTransactions(model));
+                intermediaryModels.addAll(subIdealModelGenerator.generateNonoccurringTransactions(model,typesOfNonOccurringTransfers));
             }
             subIdealModels.addAll(intermediaryModels);
             intermediaryModels.add(model);
@@ -124,13 +127,6 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
         System.out.println(currentTime.currentTime() + " Generated : " + size + " sub-ideal models (" + colludedAndNonColludedModels.size() + " groups)!" + newline);
 
         return groupedSubIdealModels;
-//    @Override
-//    protected void process(List<String> chunks) {
-//        for (final String string : chunks) {
-//            log.append(string);
-//            log.append("\n");
-//        }
-//    }
     }
 
   

@@ -698,9 +698,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private void advancedSettingsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_advancedSettingsLabelMouseClicked
         AdvancedGenerationSettingsDialog dialog = new AdvancedGenerationSettingsDialog(this.myFrame, true, this.advancedGenerationSettings);
         if (dialog.getSettings() != null) {
-            AdvancedGenerationSettings newAdvancedGenerationSettings = dialog.getSettings();
-            this.advancedGenerationSettings = newAdvancedGenerationSettings;
-            System.out.println("settings updated");
+            this.advancedGenerationSettings = dialog.getSettings();
         }
     }//GEN-LAST:event_advancedSettingsLabelMouseClicked
 

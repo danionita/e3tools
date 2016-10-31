@@ -373,29 +373,62 @@ public class E3Model {
         return iter.toSet();
     }
 
-    public Set<Resource> getMoneyExchanges() {
+    /**
+     * Returns all transfers mapped to certain types (i.e. Value Object)
+     *
+     * @param types a List of ValueObject strings
+     * @return all transfers mapped to the requested ValueObjects
+     */
+    public Set<Resource> getTransfersOfTypes(List<String> types) {
         // select all the resources with a ,E3value.elementary_actor property
         ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.value_exchange);
         Set<Resource> moneyExchanges = new HashSet<>();
         while (iter.hasNext()) {
             Resource exchange = iter.nextResource();
-            if (isMoney(exchange)) {
+            for (String type : types) {
+                if (isOfType(exchange, type)) {
+                    moneyExchanges.add(exchange);
+                }
+            }
+        }
+        return moneyExchanges;
+    }
+
+    /**
+     * Returns all transfers mapped to certain type (i.e. Value Object)
+     * @param type a  ValueObject string
+     * @return all transfers mapped to the requested ValueObject
+     */
+    public Set<Resource> getTransfersOfType(String type) {
+        // select all the resources with a ,E3value.elementary_actor property
+        ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.value_exchange);
+        Set<Resource> moneyExchanges = new HashSet<>();
+        while (iter.hasNext()) {
+            Resource exchange = iter.nextResource();
+            if (isOfType(exchange,type)) {
                 moneyExchanges.add(exchange);
             }
         }
         return moneyExchanges;
     }
 
-    private boolean isMoney(Resource exchange) {
-        exchange = model.getResource(exchange.getURI());
+    /**
+     *  Checks if a ValueTransfer is of a certain type (i.e. has a certain
+     *  ValueObject attached). 
+     * @param transfer
+     * @param type
+     * @return true iff the value object attached to the transfer has the same string as the requested type
+     */
+    private boolean isOfType(Resource transfer, String type) {
+        transfer = model.getResource(transfer.getURI());
         //find the value object it belongs to
-        Resource port = exchange.getPropertyResourceValue(E3value.ve_has_in_po);
+        Resource port = transfer.getPropertyResourceValue(E3value.ve_has_in_po);
         Resource valueObject = port.getPropertyResourceValue(E3value.vp_requests_offers_vo);
-        //if a it has been allocated to a value object
+        //if it has been allocated  a value object
         if (valueObject != null) {
             String valueObjectString = valueObject.getProperty(E3value.e3_has_name).getLiteral().toString();
             //and if that value object is money
-            if (valueObjectString.equals("MONEY")) {
+            if (valueObjectString.equals(type)) {
                 return true;
             }
         }

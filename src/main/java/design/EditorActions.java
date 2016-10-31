@@ -6,10 +6,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -47,6 +45,7 @@ import design.info.ValueExchange;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
+import javax.swing.Icon;
 
 @SuppressWarnings(value = {"serial"})
 public class EditorActions {
@@ -70,6 +69,11 @@ public class EditorActions {
             super(caption);
             this.main = main;
         }
+        
+        public BaseAction(String caption, Icon icon, Main main) {
+            super(caption, icon);
+            this.main = main;
+        }
     }
 
     public static class NewTab extends BaseAction {
@@ -81,7 +85,7 @@ public class EditorActions {
                     + (isFraud ? "fraud" : "value")
                     + " value model (ctrl+"
                     + (isFraud ? "n" : "m")
-                    + ")", main);
+                    + ")", isFraud ? getIcon("page_red") : getIcon("page_green"),main);
             this.isFraud = isFraud;
         }
 
@@ -94,7 +98,7 @@ public class EditorActions {
     public static class OpenFile extends BaseAction {
 
         public OpenFile(Main main) {
-            super("Open...", main);
+            super("Open...", getIcon("folder"), main);
         }
 
         @Override
@@ -162,7 +166,7 @@ public class EditorActions {
     public static class Save extends BaseAction {
 
         public Save(Main main) {
-            super("Save (ctrl+s)", main);
+            super("Save (ctrl+s)", getIcon("disk"), main);
         }
 
         @Override
@@ -464,7 +468,7 @@ public class EditorActions {
     public static class Cut extends BaseAction {
 
         public Cut(Main main) {
-            super("Cut (ctrl+x)", main);
+            super("Cut (ctrl+x)", getIcon("cut"), main);
         }
 
         @Override
@@ -476,7 +480,7 @@ public class EditorActions {
     public static class Copy extends BaseAction {
 
         public Copy(Main main) {
-            super("Copy (ctrl+c)", main);
+            super("Copy (ctrl+c)", getIcon("page_white_copy"), main);
         }
 
         @Override
@@ -488,7 +492,7 @@ public class EditorActions {
     public static class Paste extends BaseAction {
 
         public Paste(Main main) {
-            super("Paste (ctrl+v)", main);
+            super("Paste (ctrl+v)", getIcon("paste_plain"), main);
         }
 
         @Override
@@ -572,7 +576,7 @@ public class EditorActions {
     public static class ZoomIn extends BaseAction {
 
         public ZoomIn(Main main) {
-            super("Zoom in (ctrl+numpad plus)", main);
+            super("Zoom in (ctrl+numpad plus)", getIcon("magnifier_zoom_in"), main);
         }
 
         @Override
@@ -584,7 +588,7 @@ public class EditorActions {
     public static class ZoomOut extends BaseAction {
 
         public ZoomOut(Main main) {
-            super("Zoom out (ctrl+numpad minus)", main);
+            super("Zoom out (ctrl+numpad minus)", getIcon("magnifier_zoom_out"), main);
         }
 
         @Override
@@ -687,7 +691,7 @@ public class EditorActions {
     public static class DuplicateModel extends BaseAction {
 
         public DuplicateModel(Main main) {
-            super("Create duplicate", main);
+            super("Create duplicate", getIcon("page_copy"), main);
         }
 
         @Override
@@ -699,7 +703,7 @@ public class EditorActions {
     public static class ChangeModelType extends BaseAction {
 
         public ChangeModelType(Main main) {
-            super("Change type", main);
+            super("Change type", getIcon("page_refresh"), main);
         }
 
         @Override
@@ -746,7 +750,7 @@ public class EditorActions {
     public static class ShowValueObjectsPanel extends BaseAction {
 
         public ShowValueObjectsPanel(Main main) {
-            super("ValueObjects... ", main);
+            super("ValueObjects... ", getIcon("old/vo"), main);
         }
 
         @Override
@@ -797,7 +801,7 @@ public class EditorActions {
     public static class FraudGeneration extends BaseAction {
 
         public FraudGeneration(Main main) {
-            super("Fraud generation...", main);
+            super("Fraud generation...", getIcon("old/e3fraud"), main);
         }
 
         @Override
@@ -895,7 +899,7 @@ public class EditorActions {
     public static class ProfitabilityChart extends BaseAction {
 
         public ProfitabilityChart(Main main) {
-            super("Profitability chart...", main);
+            super("Profitability chart...", getIcon("chart_curve"), main);
         }
 
         @Override
@@ -972,6 +976,11 @@ public class EditorActions {
             super(caption, main);
             this.url = url;
         }
+        
+        public OpenSite(Main main, Icon icon, String caption, String url) {
+            super(caption, icon, main);
+            this.url = url;
+        }
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -993,7 +1002,7 @@ public class EditorActions {
     public static class OpenE3ValueWebsite extends OpenSite {
 
         public OpenE3ValueWebsite(Main main) {
-            super(main, "e3value website", "http://e3value.few.vu.nl");
+            super(main, getIcon("help"), "e3value website", "http://e3value.few.vu.nl");
         }
     }
 
@@ -1101,7 +1110,7 @@ public class EditorActions {
     public static class NCF extends BaseAction {
 
         public NCF(Main main) {
-            super("Net Value Flow analysis", main);
+            super("Net Value Flow analysis", getIcon("old/nvf"), main);
         }
 
         @Override
@@ -1154,6 +1163,14 @@ public class EditorActions {
             			JOptionPane.INFORMATION_MESSAGE
             			);
             }
+        }
+    }
+    
+     private static Icon getIcon(String iconString){
+        if (iconString.contains("old/")) {
+            return IconStore.getOldIcon(iconString);
+        } else {
+            return IconStore.getIcon(iconString);
         }
     }
 }

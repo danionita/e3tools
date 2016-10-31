@@ -21,7 +21,6 @@
 package design;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -47,8 +46,8 @@ import javax.swing.event.MenuListener;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.mxgraph.swing.util.mxSwingConstants;
 import com.mxgraph.util.mxPoint;
+import javax.swing.Icon;
 
 public class Main {
 
@@ -136,18 +135,21 @@ public class Main {
         return getCurrentGraph().title;
     }
 
-    private void addToolbarButton(String icon, AbstractAction action) {
+    private void addToolbarButton(AbstractAction action) {
         JButton button = new JButton(action);
         button.setText("");
         button.setFocusPainted(false);
-        if (icon.contains("old/")) {
-            button.setIcon(IconStore.getOldIcon(icon));
-        } else {
-            button.setIcon(IconStore.getIcon(icon));
-        }
+        button.setIcon((Icon) action.getValue(Action.SMALL_ICON));
         button.setToolTipText((String) action.getValue(Action.NAME));
-
         toolbar.add(button);
+    }
+    
+    private Icon getIcon(String iconString){
+        if (iconString.contains("old/")) {
+            return IconStore.getOldIcon(iconString);
+        } else {
+            return IconStore.getIcon(iconString);
+        }
     }
 
     private void addGlobalShortcut(String keys, AbstractAction action) {
@@ -198,16 +200,17 @@ public class Main {
 
         fileMenu.add(exportMenu);
 
-        JMenu importMenu = new JMenu("Import...");
+        //JMenu importMenu = new JMenu("Import...");
 
-        importMenu.add(new EditorActions.ImportRDF(this));
-        importMenu.add(new EditorActions.ImportXSVG(this));
+        //importMenu.add(new EditorActions.ImportRDF(this));
+       // importMenu.add(new EditorActions.ImportXSVG(this));
 
-        fileMenu.add(importMenu);
-        fileMenu.add(new EditorActions.Print(this));
+        //fileMenu.add(importMenu);
+        //fileMenu.add(new EditorActions.Print(this));
 
         menuBar.add(fileMenu);
 
+        
         JMenu editMenu = new JMenu("Edit");
 
         editMenu.add(new EditorActions.Cut(this));
@@ -221,9 +224,9 @@ public class Main {
         editMenu.add(new EditorActions.Undo(this));
         editMenu.add(new EditorActions.Redo(this));
 
-        editMenu.addSeparator();
+        //editMenu.addSeparator();
 
-        editMenu.add(new EditorActions.Find(this));
+       // editMenu.add(new EditorActions.Find(this));
 
         menuBar.add(editMenu);
 
@@ -234,9 +237,9 @@ public class Main {
 
         viewMenu.addSeparator();
 
-        viewMenu.add(new EditorActions.ToggleGrid(this));
+        //viewMenu.add(new EditorActions.ToggleGrid(this));
 
-        viewMenu.addSeparator();
+        //viewMenu.addSeparator();
 
         viewMenu.add(new EditorActions.ToggleLabels(this, true));
         viewMenu.add(new EditorActions.ToggleLabels(this, false));
@@ -292,10 +295,10 @@ public class Main {
 
         toolMenu.add(new EditorActions.NCF(this)).setEnabled(true);
 
-        toolMenu.addSeparator();
-
-        toolMenu.add(new EditorActions.FraudGeneration(this));
+        //toolMenu.addSeparator();
         toolMenu.add(new EditorActions.ProfitabilityChart(this));
+        toolMenu.add(new EditorActions.FraudGeneration(this));
+
 
         menuBar.add(toolMenu);
 
@@ -324,38 +327,38 @@ public class Main {
         toolbar.setFloatable(false);
 
         // Toolbar buttons
-        addToolbarButton("page_green", new EditorActions.NewTab(this, false));
-        addToolbarButton("page_red", new EditorActions.NewTab(this, true));
-        addToolbarButton("folder", new EditorActions.OpenFile(this));
-        addToolbarButton("disk", new EditorActions.Save(this));
+        addToolbarButton(new EditorActions.NewTab(this, false));
+        addToolbarButton(new EditorActions.NewTab(this, true));
+        addToolbarButton(new EditorActions.OpenFile(this));
+        addToolbarButton(new EditorActions.Save(this));
 
         toolbar.addSeparator();
 
-        addToolbarButton("cut", new EditorActions.Cut(this));
-        addToolbarButton("page_white_copy", new EditorActions.Copy(this));
-        addToolbarButton("paste_plain", new EditorActions.Paste(this));
+        addToolbarButton(new EditorActions.Cut(this));
+        addToolbarButton(new EditorActions.Copy(this));
+        addToolbarButton(new EditorActions.Paste(this));
 
         toolbar.addSeparator();
 
-        addToolbarButton("magnifier_zoom_in", new EditorActions.ZoomIn(this));
-        addToolbarButton("magnifier_zoom_out", new EditorActions.ZoomOut(this));
+        addToolbarButton(new EditorActions.ZoomIn(this));
+        addToolbarButton(new EditorActions.ZoomOut(this));
 
         toolbar.addSeparator();
 
-        addToolbarButton("page_copy", new EditorActions.DuplicateModel(this));
-        addToolbarButton("page_refresh", new EditorActions.ChangeModelType(this));
-        addToolbarButton("old/vo", new EditorActions.ShowValueObjectsPanel(this));
+        addToolbarButton(new EditorActions.DuplicateModel(this));
+        addToolbarButton(new EditorActions.ChangeModelType(this));
+        addToolbarButton(new EditorActions.ShowValueObjectsPanel(this));
         //addToolbarButton("old/vt", new EditorActions.AnalyzeTransactions(this));
 
         toolbar.addSeparator();
 
-        addToolbarButton("old/nvf", new EditorActions.NCF(this));
-        addToolbarButton("chart_curve", new EditorActions.ProfitabilityChart(this));
-        addToolbarButton("old/e3fraud", new EditorActions.FraudGeneration(this));
+        addToolbarButton(new EditorActions.NCF(this));
+        addToolbarButton(new EditorActions.ProfitabilityChart(this));
+        addToolbarButton(new EditorActions.FraudGeneration(this));
         
         toolbar.addSeparator();
-
-        addToolbarButton("help", new EditorActions.OpenHelpWiki(this));
+        
+        addToolbarButton(new EditorActions.OpenHelpWiki(this));
 
         // Shortcuts
         addGlobalShortcut("ctrl N", new EditorActions.NewTab(this, false));
