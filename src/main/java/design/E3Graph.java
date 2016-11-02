@@ -42,7 +42,6 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
-import com.sun.java.help.impl.SwingWorker;
 
 import design.Utils.GraphDelta;
 import design.Utils.IDReplacer;
@@ -61,6 +60,7 @@ import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
+import e3fraud.tools.SettingsObjects.NCFSettings;
 
 public class E3Graph extends mxGraph implements Serializable{
     public static int newGraphCounter = 1;
@@ -73,6 +73,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public String title = "";
 	public File file;
 	public E3Style style;
+        public NCFSettings ncfSettings;
 	
 	/**
 	 * Indicates whether or not the graph POSSIBLY (might not!)
@@ -238,6 +239,7 @@ public class E3Graph extends mxGraph implements Serializable{
 							graph.getModel().setStyle(cell, new String("ValueExchange"));
 							ValueExchange value = new ValueExchange(Utils.getUnusedID(E3Graph.this));
 							value.name = "ValueExchange" + value.SUID;
+                                                        setCellsDisconnectable(false);
 							graph.getModel().setValue(cell, value);
 						} finally {
 							graph.getModel().endUpdate();
@@ -1749,21 +1751,27 @@ public class E3Graph extends mxGraph implements Serializable{
 				});
 		});
 	}
-	
-	/**
-	 * Disallows selecting of valueexchanges and connection elements.
-	 */
-	@Override
-	public boolean isCellSelectable(Object cell) {
-		Object value = getModel().getValue(cell);
-		if (value instanceof ValueExchange
-				|| value instanceof ConnectionElement) {
-			return false;
-		}
-			
-		return true;
-	}
-	
+	        
+    /**
+     * Disallows moving of valueexchanges and connection elements.
+     *
+     * @param cell
+     * @return
+     */
+    @Override
+    public boolean isCellMovable(Object cell) {
+        Object value = getModel().getValue(cell);
+        if (value instanceof ValueExchange
+                || value instanceof ConnectionElement) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+            
+
 //	@Override
 //	public mxRectangle getCellBounds(Object cell, boolean includeEdges, boolean includeDescendants,
 //			boolean boundingBox) {

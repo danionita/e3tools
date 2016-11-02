@@ -118,7 +118,7 @@ public class E3GraphComponent extends mxGraphComponent {
 		ContextMenus.addStyleMenu(valueActivityMenu, graph);
 
 		ContextMenus.addE3PropertiesMenu(marketSegmentMenu, graph);
-		ContextMenus.addMarketSegmentMenu(marketSegmentMenu, graph);
+		//ContextMenus.addMarketSegmentMenu(marketSegmentMenu, graph);
 		ContextMenus.addStyleMenu(marketSegmentMenu, graph);
 		
 		ContextMenus.addE3PropertiesMenu(startSignalMenu, graph);

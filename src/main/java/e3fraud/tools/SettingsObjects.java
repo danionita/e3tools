@@ -283,4 +283,138 @@ public class SettingsObjects {
             this.gainMax = gainMax;
         }
     }
+    
+    public static class NCFSettings{
+        public boolean vpValueObject;
+        public boolean vpDirection;
+        public boolean vpName;
+        public boolean vtName;
+        public boolean vtValueObject;
+        public boolean GenActor;
+        public boolean GenValueActivity;
+        public boolean GenPerConstruct;
+        public boolean viValueObjects;
+        public boolean viName;
+        public boolean createTransactions;
+
+        public NCFSettings(boolean vpValueObject, boolean vpDirection, boolean vpName, boolean vtName, boolean vtValueObject, boolean GenActor, boolean GenValueActivity, boolean GenPerConstruct, boolean viValueObjects, boolean viName) {
+            this.vpValueObject = vpValueObject;
+            this.vpDirection = vpDirection;
+            this.vpName = vpName;
+            this.vtName = vtName;
+            this.vtValueObject = vtValueObject;
+            this.GenActor = GenActor;
+            this.GenValueActivity = GenValueActivity;
+            this.GenPerConstruct = GenPerConstruct;
+            this.viValueObjects = viValueObjects;
+            this.viName = viName;
+        }
+
+        /**
+         *  instantiate with default settings
+         */
+        public NCFSettings() {
+             this.vpValueObject = true;
+            this.vpDirection = true;
+            this.vpName = true;
+            this.vtName = true;
+            this.vtValueObject = true;
+            this.GenActor = true;
+            this.GenValueActivity = true;
+            this.GenPerConstruct = true;
+            this.viValueObjects = true;
+            this.viName = true;
+        }
+
+        public boolean isVpValueObject() {
+            return vpValueObject;
+        }
+
+        public void setVpValueObject(boolean vpValueObject) {
+            this.vpValueObject = vpValueObject;
+        }
+
+        public boolean isVpDirection() {
+            return vpDirection;
+        }
+
+        public void setVpDirection(boolean vpDirection) {
+            this.vpDirection = vpDirection;
+        }
+
+        public boolean isVpName() {
+            return vpName;
+        }
+
+        public void setVpName(boolean vpName) {
+            this.vpName = vpName;
+        }
+
+        public boolean isVtName() {
+            return vtName;
+        }
+
+        public void setVtName(boolean vtName) {
+            this.vtName = vtName;
+        }
+
+        public boolean isVtValueObject() {
+            return vtValueObject;
+        }
+
+        public void setVtValueObject(boolean vtValueObject) {
+            this.vtValueObject = vtValueObject;
+        }
+
+        public boolean isGenActor() {
+            return GenActor;
+        }
+
+        public void setGenActor(boolean GenActor) {
+            this.GenActor = GenActor;
+        }
+
+        public boolean isGenValueActivity() {
+            return GenValueActivity;
+        }
+
+        public void setGenValueActivity(boolean GenValueActivity) {
+            this.GenValueActivity = GenValueActivity;
+        }
+
+        public boolean isGenPerConstruct() {
+            return GenPerConstruct;
+        }
+
+        public void setGenPerConstruct(boolean GenPerConstruct) {
+            this.GenPerConstruct = GenPerConstruct;
+        }
+
+        public boolean isViValueObjects() {
+            return viValueObjects;
+        }
+
+        public void setViValueObjects(boolean viValueObjects) {
+            this.viValueObjects = viValueObjects;
+        }
+
+        public boolean isViName() {
+            return viName;
+        }
+
+        public void setViName(boolean viName) {
+            this.viName = viName;
+        }
+
+        public boolean isCreateTransactions() {
+            return createTransactions;
+        }
+
+        public void setCreateTransactions(boolean createTransactions) {
+            this.createTransactions = createTransactions;
+        }
+        
+        
+}
+    
 }

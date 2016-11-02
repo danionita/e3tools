@@ -253,7 +253,14 @@ public class E3Model {
     }
 
     public Set<Resource> getActors() {
-        // select all the resources with a ,E3value.elementary_actor  or E3value.market_segment property
+        // select all the resources with a ,E3value.elementary_actor
+        ResIterator elementaryActorIter = model.listSubjectsWithProperty(RDF.type, E3value.elementary_actor);
+        Set<Resource> actorSet = elementaryActorIter.toSet();
+        return actorSet;
+    }
+    
+    public Set<Resource> getActorsAndMarketSegments() {
+        // select all the resources with a ,E3value.elementary_actor
         ResIterator elementaryActorIter = model.listSubjectsWithProperty(RDF.type, E3value.elementary_actor);
         ResIterator msIter = model.listSubjectsWithProperty(RDF.type, E3value.market_segment);
         Set<Resource> actorSet = elementaryActorIter.toSet();

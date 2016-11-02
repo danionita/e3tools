@@ -490,7 +490,7 @@ public class Utils {
             candidateResource = ResourceFactory.createResource(URIbase + candidate);
         }
         
-        System.out.println("Unused id: " + candidate);
+        //System.out.println("Unused id: " + candidate);
 
         return candidate;
     }
@@ -829,14 +829,10 @@ public class Utils {
      * @param dstFile
      * @return
      */
-    public static boolean doValueAnalysis(E3Graph graph, File dstFile) {
+    public static boolean doNCFAnalysis(E3Graph graph, File dstFile) {
 		try {
-			RDFExport export = new RDFExport(graph, true, true);
+			RDFExport export = new RDFExport(graph, false, true);
 			String result = export.getResult().get();
-			result = "<?xml version='1.0' encoding='ISO-8859-1'?>\n" + result;
-			result = result.replaceAll("http://www\\.w3\\.org/1999/02/22_rdf_syntax_ns#", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-					
-			System.out.println("\n\n\n\n\nInputting:\n" + result);
 					
 			InputStream stream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));
 

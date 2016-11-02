@@ -137,6 +137,7 @@ public class EvaluatedModel {
             if (res.getProperty(RDF.type) == E3value.value_offering) {
             	continue;
             }
+            System.out.println(res.toString());
 
             // Save the mapping from name to uid
             String name = res.getProperty(E3value.e3_has_name).getString();

@@ -72,7 +72,6 @@ public class RDFExport {
 	/**
 	 * Tries to convert an E3Graph to RDF.
 	 * @param graph The graph to convert
-	 * @param unsafe If true, it is assumed that all formulas are numerical values,
 	 * and merged actors and market segments will be converted from strings to ints
 	 * and added.
 	 * @param deriveVT If true value transactions are derived naively.
@@ -101,7 +100,7 @@ public class RDFExport {
 		if (!offeringIn.containsKey(suid)) {
 			offeringIn.put(suid, getResource(Utils.getUnusedID(graph, base, model)));
 			Resource of = offeringIn.get(suid);
-			System.out.println("offering in with uid: " + of.getProperty(E3value.e3_has_uid).getString());
+			//System.out.println("offering in with uid: " + of.getProperty(E3value.e3_has_uid).getString());
 			of.addProperty(E3value.e3_has_name, "in");
 			of.addProperty(RDF.type, E3value.value_offering);
 
@@ -116,7 +115,7 @@ public class RDFExport {
 		if (!offeringOut.containsKey(suid)) {
 			offeringOut.put(suid, getResource(Utils.getUnusedID(graph, base, model)));
 			Resource of = offeringOut.get(suid);
-			System.out.println("offering out with uid: " + of.getProperty(E3value.e3_has_uid).getString());
+			//System.out.println("offering out with uid: " + of.getProperty(E3value.e3_has_uid).getString());
 			of.addProperty(E3value.e3_has_name, "out");
 			of.addProperty(RDF.type, E3value.value_offering);
 
@@ -193,7 +192,6 @@ public class RDFExport {
 		
 		// Create diagram resource
 		long diagramSUID = Utils.getUnusedID(graph, base, model);
-		System.out.println("DiagramSUID: " + diagramSUID);
 		diagramRes = model.createResource(base + diagramSUID, E3value.diagram);
 		diagramRes.addProperty(E3value.e3_has_uid, "" + diagramSUID);
 
@@ -508,10 +506,10 @@ public class RDFExport {
 		// Convert to RDF
 		StringWriter out = new StringWriter();
 		model.write(out, "RDF/XML");
-		result = Optional.of(out.toString());
+		result = Optional.of("<?xml version='1.0' encoding='ISO-8859-1'?>\n" +out.toString());
 		
 		modelResult = Optional.of(model);
-		
+
 		System.out.println(result.get());
 	}
 	

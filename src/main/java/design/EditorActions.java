@@ -199,7 +199,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), true, true);
+            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), false, true);
             Optional<String> result = rdfExport.getResult();
 
             // Do not export to rdf if there was an error
@@ -935,7 +935,7 @@ public class EditorActions {
                 return;
             }
 
-            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), true, true);
+            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, true);
 
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
@@ -1115,54 +1115,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
-        	JFileChooser e3fc = Utils.getE3FileChooser();
-        	JFileChooser jfc = new JFileChooser(e3fc.getCurrentDirectory());
-        	FileNameExtensionFilter ff = new FileNameExtensionFilter("Excel", "xls");
-        	jfc.addChoosableFileFilter(ff);
-        	jfc.setFileFilter(ff);
-        	jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        	jfc.showOpenDialog(Main.mainFrame);
-        	
-        	File selectedFile = jfc.getSelectedFile();
-        	
-        	if (jfc.getFileFilter() == ff) {
-        		String path = jfc.getSelectedFile().getAbsolutePath();
-        		if (!path.endsWith(".xls")) {
-        			path += ".xls";
-        		}
-        		selectedFile = new File(path);
-        	}
-        	
-        	if (selectedFile.exists()) {
-        		int result = JOptionPane.showConfirmDialog(
-        				Main.mainFrame,
-        				"The file " + selectedFile.getName() + " already exists. Would you like to overwrite it?",
-        				"File exists",
-        				JOptionPane.YES_NO_OPTION,
-        				JOptionPane.INFORMATION_MESSAGE
-        				);
-        		if (result != JOptionPane.YES_OPTION) {
-        			return;
-        		}
-        	}
-        	
-            E3Graph currentGraph = main.getCurrentGraph();
-            if (Utils.doValueAnalysis(currentGraph, selectedFile)) {
-            	JOptionPane.showMessageDialog(
-            			Main.mainFrame,
-            			"Net Value analysis saved to " + selectedFile.getAbsolutePath(),
-            			"Analysis successful",
-            			JOptionPane.INFORMATION_MESSAGE
-            			);
-            } else {
-            	JOptionPane.showMessageDialog(
-            			Main.mainFrame,
-            			"An error occurred while doing the Net value analysis. Please make sure that "
-            			+ "the model contains no errors and that the selected location is writable.",
-            			"Analysis failed",
-            			JOptionPane.INFORMATION_MESSAGE
-            			);
-            }
+            NCFDialog myDialog = new NCFDialog(main.getCurrentGraph());
         }
     }
     
