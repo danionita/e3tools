@@ -107,7 +107,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
             }
             //then generate
             if (generateNonOccurring) {
-                intermediaryModels.addAll(subIdealModelGenerator.generateNonoccurringTransactions(model,typesOfNonOccurringTransfers));
+                intermediaryModels.addAll(subIdealModelGenerator.generateNonoccurringTransactions(model,mainActor,typesOfNonOccurringTransfers));
             }
             subIdealModels.addAll(intermediaryModels);
             intermediaryModels.add(model);

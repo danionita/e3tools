@@ -63,6 +63,9 @@ import design.info.ValuePort;
 import e3fraud.tools.SettingsObjects.NCFSettings;
 
 public class E3Graph extends mxGraph implements Serializable{
+    boolean debug =false;
+    
+    
     public static int newGraphCounter = 1;
 
 	public final ArrayList<String> valueObjects = new ArrayList<>(
@@ -1706,7 +1709,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	 * Propagates the valuation of a specific value exchange to its value ports.
 	 */
 	public void propagateValuation(Object valueExchange) {
-		System.out.println("Propagating valuation for one cell");
+		if(debug){System.out.println("Propagating valuation for one cell");}
 		propagateValuations(Arrays.asList(valueExchange));
 	}
 	
@@ -1715,7 +1718,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	 * value ports.
 	 */
 	public void propagateValuations() {
-		System.out.println("Propagating valuation for all cells");
+		if(debug){System.out.println("Propagating valuation for all cells");}
 		propagateValuations(Utils.getAllCells(this).stream()
 				.filter(obj -> getModel().getValue(obj) instanceof ValueExchange)
 				.collect(Collectors.toList())
@@ -1727,7 +1730,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	 * @param valueExchanges The value exchanges to propagate valuations of.
 	 */
 	public void propagateValuations(List<Object> valueExchanges) {
-		System.out.println("Force propagation!");
+		if(debug){System.out.println("Force propagation!");}
 		doUpdate(() -> {
 			valueExchanges.stream()
 				.forEach(obj -> {

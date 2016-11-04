@@ -48,7 +48,7 @@ DecimalFormat df = new DecimalFormat("#.####");
         if(debug){System.out.println("GENERATING hidden...");}
         Set<E3Model> hiddenModels = generateHiddenTransactions(baseModel, mainActor, hiddenTransfersPerExchange);
         if(debug){System.out.println("GENERATING nonOcurring...");}
-        Set<E3Model> nonOccuringModels = generateNonoccurringTransactions(baseModel, typesOfNonOccurringTransfers);
+        Set<E3Model> nonOccuringModels = generateNonoccurringTransactions(baseModel, mainActor, typesOfNonOccurringTransfers);
         Set<E3Model> colludedAndNonOccuringModels = new HashSet<>();
         Set<E3Model> hiddenAndNonOccuringModels = new HashSet<>();
         Set<E3Model> colludedAndHiddenModels = new HashSet<>();
@@ -57,7 +57,7 @@ DecimalFormat df = new DecimalFormat("#.####");
         //for each combination of collusion
         for (E3Model colludedModel : colludedModels) {
             //generate all possible combinations of non-occuring transactions to the result
-            colludedAndNonOccuringModels.addAll(generateNonoccurringTransactions(colludedModel,typesOfNonOccurringTransfers ));
+            colludedAndNonOccuringModels.addAll(generateNonoccurringTransactions(colludedModel, mainActor, typesOfNonOccurringTransfers ));
             colludedAndHiddenModels.addAll(generateHiddenTransactions(colludedModel, mainActor, hiddenTransfersPerExchange));
         }
 
@@ -178,16 +178,22 @@ DecimalFormat df = new DecimalFormat("#.####");
      * @return a set of models derived from baseModel with all possible
      * combinations of non-occurring (dotted) transactions
      */
-    public Set<E3Model> generateNonoccurringTransactions(E3Model baseModel, List<String> typesOfNonOccurringTransfers) {
+    public Set<E3Model> generateNonoccurringTransactions(E3Model baseModel, Resource mainActor,  List<String> typesOfNonOccurringTransfers) {
         Set<E3Model> subIdealModels = new HashSet<>();
-        Set<Resource> moneyExchanges = baseModel.getTransfersOfTypes(typesOfNonOccurringTransfers);
 
+        Set<Resource> potentialNonOccurringExchanges = baseModel.getExchangesOfTypes(typesOfNonOccurringTransfers);
+
+        
+        //remove exchanges originating from trusted actor
+        Set<Resource> transfersPerformedByTrustedActor = baseModel.getExchangesPerformedBy(mainActor);
+        potentialNonOccurringExchanges.removeAll(transfersPerformedByTrustedActor);
+        
         // Create the initial vector
-        ICombinatoricsVector<Resource> initialMoneyExchangesVector = Factory.createVector(moneyExchanges);
-        for (int i = 1; i <= moneyExchanges.size(); i++) {
-            Generator<Resource> moneyExchangeCombinations = Factory.createSimpleCombinationGenerator(initialMoneyExchangesVector, i);
+        ICombinatoricsVector<Resource> potentiallyNonOccurringVector = Factory.createVector(potentialNonOccurringExchanges);
+        for (int i = 1; i <= potentialNonOccurringExchanges.size(); i++) {
+            Generator<Resource> combinationsOfNonOccurringExchanges = Factory.createSimpleCombinationGenerator(potentiallyNonOccurringVector, i);
 
-            for (ICombinatoricsVector<Resource> moneyExchangeCombination : moneyExchangeCombinations) {
+            for (ICombinatoricsVector<Resource> combinationOfNonOccurringExchanges : combinationsOfNonOccurringExchanges) {
 
                 //Create a duplicate model
                 E3Model generatedModel = new E3Model(baseModel);
@@ -200,7 +206,7 @@ DecimalFormat df = new DecimalFormat("#.####");
                 generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
 
                 //iterate through the elements of the combination
-                Iterator<Resource> moneyExchangeIterator = moneyExchangeCombination.iterator();
+                Iterator<Resource> moneyExchangeIterator = combinationOfNonOccurringExchanges.iterator();
                 while (moneyExchangeIterator.hasNext()) {
                     //and update new model accordingly
                     Resource exchange = moneyExchangeIterator.next();
@@ -272,7 +278,7 @@ DecimalFormat df = new DecimalFormat("#.####");
                     
                          //To do so, we generate models with money flows in each direction , ranging from 0 to the total Profit of the actor:           
                     //if actor1 has a positive financial result
-                    if (actor1Total > 0) {
+                    if (actor1Total > 0 ) {
                         //divide this result                                  
                         step = actor1Total / hiddenTransfersPerExchange;
 

@@ -386,7 +386,7 @@ public class E3Model {
      * @param types a List of ValueObject strings
      * @return all transfers mapped to the requested ValueObjects
      */
-    public Set<Resource> getTransfersOfTypes(List<String> types) {
+    public Set<Resource> getExchangesOfTypes(List<String> types) {
         // select all the resources with a ,E3value.elementary_actor property
         ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.value_exchange);
         Set<Resource> moneyExchanges = new HashSet<>();
@@ -406,7 +406,7 @@ public class E3Model {
      * @param type a  ValueObject string
      * @return all transfers mapped to the requested ValueObject
      */
-    public Set<Resource> getTransfersOfType(String type) {
+    public Set<Resource> getExchangesOfType(String type) {
         // select all the resources with a ,E3value.elementary_actor property
         ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.value_exchange);
         Set<Resource> moneyExchanges = new HashSet<>();
@@ -441,7 +441,46 @@ public class E3Model {
         }
         return false;
     }
-    
+
+    /**
+     * Returns all outgoing transfers of a given actor
+     *
+     * @param actor the actor resource whose outgoing transfers to return
+     * @return a set of ValueTransfers which are connected to outgoing ports
+     * attached to ValueInterfaces attached to the actor
+     */
+    public Set<Resource> getExchangesPerformedBy(Resource actor) {
+        //NodeIterator iter = model.listObjectsOfProperty(actor, E3value.ac_has_vi);
+        ResIterator actorValueInterfaces = model.listResourcesWithProperty(E3value.vi_assigned_to_ac, actor);
+        Set<Resource> exchanges = new HashSet<>();
+        while (actorValueInterfaces.hasNext()) {
+            Resource exchange = (Resource) actorValueInterfaces.next();
+            StmtIterator actorOfferings = exchange.listProperties(E3value.vi_consists_of_of);
+            while (actorOfferings.hasNext()) {
+                Resource vo = actorOfferings.next().getResource();
+                if (vo.getProperty(E3value.e3_has_name).getString().equals("out")) {
+                    StmtIterator outgoingPorts = vo.listProperties(E3value.vo_consists_of_vp);
+                    while (outgoingPorts.hasNext()) {
+                        Resource outgoingPort = outgoingPorts.next().getResource();
+                        StmtIterator outgoingExchanges = outgoingPort.listProperties(E3value.vp_out_connects_ve);
+                        while (outgoingExchanges.hasNext()) {
+                            exchanges.add(outgoingExchanges.next().getResource());
+                        }
+                        outgoingExchanges = outgoingPort.listProperties(E3value.vp_first_connects_ve);
+                        while (outgoingExchanges.hasNext()) {
+                            exchanges.add(outgoingExchanges.next().getResource());
+                        }
+                        outgoingExchanges = outgoingPort.listProperties(E3value.vp_second_connects_ve);
+                        while (outgoingExchanges.hasNext()) {
+                            exchanges.add(outgoingExchanges.next().getResource());
+                        }
+                    }
+                }
+            }
+        }
+        return exchanges;
+    }
+
     /**
      * Updates the formula of the given Resource. ATTENTION: this method assumes
      * the given resource has only ONE formula.

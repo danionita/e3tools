@@ -540,7 +540,7 @@ public class EditorActions {
     public static class Undo extends BaseAction {
 
         public Undo(Main main) {
-            super("Undo (crtrl+z)", main);
+            super("Undo (crtrl+z)", getIcon("arrow_rotate_anticlockwise"), main);
         }
 
         @Override
@@ -552,7 +552,7 @@ public class EditorActions {
     public static class Redo extends BaseAction {
 
         public Redo(Main main) {
-            super("Redo (ctrl+y)", main);
+            super("Redo (ctrl+y)", getIcon("arrow_rotate_clockwise"), main);
         }
 
         @Override
@@ -995,14 +995,14 @@ public class EditorActions {
     public static class OpenHelpWiki extends OpenSite {
 
         public OpenHelpWiki(Main main) {
-            super(main, "Help Wiki (F1)", "https://github.com/danionita/e3tools/wiki");
+            super(main, getIcon("help"), "Help Wiki (F1)", "https://github.com/danionita/e3tools/wiki");
         }
     }
 
     public static class OpenE3ValueWebsite extends OpenSite {
 
         public OpenE3ValueWebsite(Main main) {
-            super(main, getIcon("help"), "e3value website", "http://e3value.few.vu.nl");
+            super(main, "e3value website", "http://e3value.few.vu.nl");
         }
     }
 

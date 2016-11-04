@@ -339,6 +339,9 @@ public class Main {
         addToolbarButton(new EditorActions.Paste(this));
 
         toolbar.addSeparator();
+        addToolbarButton(new EditorActions.Undo(this));        
+        addToolbarButton(new EditorActions.Redo(this));
+        toolbar.addSeparator();
 
         addToolbarButton(new EditorActions.ZoomIn(this));
         addToolbarButton(new EditorActions.ZoomOut(this));
