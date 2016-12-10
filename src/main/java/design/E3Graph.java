@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
@@ -1493,11 +1494,23 @@ public class E3Graph extends mxGraph implements Serializable{
 		return valueModel;
 	}
 	
+	/**
+	 * Returns the graph in XML.
+	 * @return An empty string if an error occurred.
+	 */
 	public String toXML() {
+		// Make sure all the codecs are registered
 		GraphIO.assureRegistered();
 
+		// Create a codec
 		mxCodec codec = new mxCodec();
-		return mxXmlUtils.getXml(codec.encode(getModel()));
+		
+		// Encode the model to XML using the registered codecs
+		Node n = codec.encode(getModel());
+		
+		// Return it in string form. If the node is null
+		// or anything else went wrong this will return an empty string
+		return mxXmlUtils.getXml(n);
 	}
 	
 	/**
