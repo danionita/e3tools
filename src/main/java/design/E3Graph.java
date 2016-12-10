@@ -66,7 +66,6 @@ import e3fraud.tools.SettingsObjects.NCFSettings;
 public class E3Graph extends mxGraph implements Serializable{
     boolean debug =false;
     
-    
     public static int newGraphCounter = 1;
 
 	public final ArrayList<String> valueObjects = new ArrayList<>(
@@ -77,7 +76,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public String title = "";
 	public File file;
 	public E3Style style;
-        public NCFSettings ncfSettings;
+	public NCFSettings ncfSettings;
 	
 	/**
 	 * Indicates whether or not the graph POSSIBLY (might not!)
@@ -1579,7 +1578,8 @@ public class E3Graph extends mxGraph implements Serializable{
 				// If either one is a non-toplevel value activity it can only connect to its containing actor or market segment.
 
 				boolean areAncestors = model.isAncestor(sourceContainer, targetContainer) || model.isAncestor(targetContainer, sourceContainer);
-				boolean bothActorOrMarketSegmentAndValueActivity = (sourceContainerValue instanceof ValueActivity && (targetContainerValue instanceof Actor || targetContainerValue instanceof MarketSegment))
+				boolean bothActorOrMarketSegmentAndValueActivity =
+								   (sourceContainerValue instanceof ValueActivity && (targetContainerValue instanceof Actor || targetContainerValue instanceof MarketSegment))
 								|| ((sourceContainerValue instanceof Actor || targetContainerValue instanceof MarketSegment) && targetContainerValue instanceof ValueActivity);
 				
 				if (areAncestors && bothActorOrMarketSegmentAndValueActivity) {
@@ -1627,19 +1627,32 @@ public class E3Graph extends mxGraph implements Serializable{
 		String error = "";
 		
 		if (info instanceof ValueInterface) {
-			if (Utils.getChildrenWithValue(this, cell, ValuePort.class)
+			boolean anyVpHasEdgeCountZero = 
+					Utils.getChildrenWithValue(this, cell, ValuePort.class)
 					.stream()
 					.map(model::getEdgeCount)
-					.anyMatch(c -> c == 0)) {
-				error += "Every Value Port should be connected to another ValuePort.\n";
-			};
-
-			if (Utils.getChildren(this, cell).stream()
+					.anyMatch(c -> c == 0);
+			
+			boolean isConnectedToSignal = Utils.getChildren(this, cell).stream()
 					.filter(obj -> Utils.isDotValue((Base) getModel().getValue(obj)))
 					.map(model::getEdgeCount)
-					.anyMatch(c -> c == 0)) {
-				error += "Every Signal Dot should be connected to another Signal Dot.\n";
-			};
+					.anyMatch(c -> c == 0);
+			
+			boolean hasVpWithTwoVe = 
+					Utils.getChildrenWithValue(this, cell, ValuePort.class)
+					.stream()
+					.map(model::getEdgeCount)
+					.anyMatch(c -> c > 1);
+			
+			if (!hasVpWithTwoVe) {
+				if (anyVpHasEdgeCountZero) {
+					error += "Every Value Port should be connected to another ValuePort.\n";
+				}
+				
+				if (isConnectedToSignal) {
+					error += "Every Signal Dot should be connected to another Signal Dot.\n";
+				}
+			}
 		}
 		
 		return error; 
