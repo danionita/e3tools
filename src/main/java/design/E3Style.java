@@ -105,6 +105,16 @@ import design.info.ValueInterface;
  *
  */
 public class E3Style {
+	// Just added an option to toggle the grid. This changes both showGrid & the XML, and does some juggling
+	// to keep the vars doc & xml in sync.
+	// TODO: Right now this is the easiest way, but I don't like this. Somehow you have to keep both the flags
+	// in the XML and the member variables in sync... Everything should just be inferred from the initially parsed
+	// node always. If any options are added to the style class all the settings (showing grid and others)
+	// should just be derived from the XML.
+	// That way the getGrid() functions and the state of e3style are always in sync, and it's easy to serialize
+	// the style (just turn the doc var into XML).
+		
+	
 	public static final double DOTRADIUS = 4;
 	public static int idCounter = 0;
 	// Must be kept in same order as constructor!
@@ -221,6 +231,23 @@ public class E3Style {
 		}
 	}
 	
+	private void parseXmlWithNameSubstitution(String xml) {
+		// Parse the xml
+		doc = mxXmlUtils.parseXml(xml);
+		
+		// Get the name of the style
+		// TODO: Error handling here as well
+		name = doc
+				.getDocumentElement()
+				.getElementsByTagName("name")
+				.item(0)
+				.getTextContent();
+		name = name + "_" + ID;
+		
+		// Apply the naming subsitution in the XML
+		doc = mxXmlUtils.parseXml(xml.replace("{!name}", name));
+	}
+	
 	public E3Style(
 			String xml,
 			String marketSegment_template,
@@ -249,20 +276,22 @@ public class E3Style {
 		this.bar = bar;
 		this.dot = dot;
 		
-		// Parse the xml
-		doc = mxXmlUtils.parseXml(xml);
+//		// Parse the xml
+//		doc = mxXmlUtils.parseXml(xml);
+//		
+//		// Get the name of the style
+//		// TODO: Error handling here as well
+//		name = doc
+//				.getDocumentElement()
+//				.getElementsByTagName("name")
+//				.item(0)
+//				.getTextContent();
+//		name = name + "_" + ID;
+//		
+//		// Apply the naming subsitution in the XML
+//		doc = mxXmlUtils.parseXml(xml.replace("{!name}", name));
 		
-		// Get the name of the style
-		// TODO: Error handling here as well
-		name = doc
-				.getDocumentElement()
-				.getElementsByTagName("name")
-				.item(0)
-				.getTextContent();
-		name = name + "_" + ID;
-		
-		// Apply the naming subsitution in the XML
-		doc = mxXmlUtils.parseXml(xml.replace("{!name}", name));
+		parseXmlWithNameSubstitution(xml);
 
 		// Get the rest of the info
 		backgroundColor = Color.decode(doc
@@ -494,5 +523,47 @@ public class E3Style {
 		}
 		
 		return candidates;
+	}
+	
+	/**
+	 * True if the grid should be shown according to this style, false if not.
+	 * @return
+	 */
+	public boolean getGrid() {
+		return showGrid;
+	}
+	
+	/**
+	 * Sets whether or not the grid should be shown according to this style.
+	 * Does not apply the new style to any graph. Use {@link #styleGraphComponent(mxGraphComponent)}.
+	 * @param newGrid
+	 */
+	public void setGrid(boolean newGrid) {
+		showGrid = newGrid;
+		
+		Document doc = mxXmlUtils.parseXml(xml);
+
+		Node gridNode = doc
+			.getDocumentElement()
+			.getElementsByTagName("grid")
+			.item(0);
+
+		if (newGrid) {
+			gridNode.setTextContent("true");
+		} else {
+			gridNode.setTextContent("false");
+		}
+		
+		// Apply changes and make sure they are saved properly
+		xml = mxXmlUtils.getXml(doc.getDocumentElement());
+		parseXmlWithNameSubstitution(xml);
+	}
+	
+	/**
+	 * Toggles whether or not the grid should be shown according to the current style.
+	 * Does not apply the new style to any graph. Use {@link #styleGraphComponent(mxGraphComponent)}.
+	 */
+	public void toggleGrid() {
+		setGrid(!getGrid());
 	}
 }

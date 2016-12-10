@@ -237,10 +237,6 @@ public class Main {
 
         viewMenu.addSeparator();
 
-        //viewMenu.add(new EditorActions.ToggleGrid(this));
-
-        //viewMenu.addSeparator();
-
         viewMenu.add(new EditorActions.ToggleLabels(this, true));
         viewMenu.add(new EditorActions.ToggleLabels(this, false));
         viewMenu.add(new EditorActions.ToggleValueObjects(this, true));
@@ -256,7 +252,13 @@ public class Main {
         JMenuItem changeType = new JMenuItem(new EditorActions.ChangeModelType(this));
         modelMenu.add(changeType);
         modelMenu.add(new EditorActions.ChangeModelTitle(this));
-        modelMenu.add(new EditorActions.ChangeTheme(this));
+        
+        JMenu styleMenu = new JMenu("Style");
+        
+        styleMenu.add(new EditorActions.ChangeTheme(this));
+        styleMenu.add(new EditorActions.ToggleGrid(this));
+        
+        modelMenu.add(styleMenu);
 
         modelMenu.addSeparator();
 

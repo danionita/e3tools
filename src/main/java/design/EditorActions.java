@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -30,10 +31,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxXmlUtils;
 
 import design.checker.FlowChecker;
 import design.export.JSONExport;
@@ -45,7 +49,6 @@ import design.info.ValueExchange;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
-import javax.swing.Icon;
 
 @SuppressWarnings(value = {"serial"})
 public class EditorActions {
@@ -605,12 +608,8 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO: Implement this
-            JOptionPane.showMessageDialog(
-                    Main.mainFrame,
-                    "This feature is not yet implemented",
-                    "Feature not implemented",
-                    JOptionPane.ERROR_MESSAGE);
+        	main.getCurrentGraph().style.toggleGrid();
+        	main.getCurrentGraph().style.styleGraphComponent(main.getCurrentGraphComponent());
         }
     }
 
