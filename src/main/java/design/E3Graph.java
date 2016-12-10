@@ -1535,7 +1535,10 @@ public class E3Graph extends mxGraph implements Serializable{
 	@Override
 	public boolean isLabelMovable(Object cell) {
 		if (getModel().getValue(cell) instanceof StartSignal
-				|| getModel().getValue(cell) instanceof EndSignal) {
+				|| getModel().getValue(cell) instanceof EndSignal
+				|| getModel().getValue(cell) instanceof Actor
+				|| getModel().getValue(cell) instanceof MarketSegment
+				|| getModel().getValue(cell) instanceof ValueActivity) {
 			return true;
 		}
 		
