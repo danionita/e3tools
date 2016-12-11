@@ -30,7 +30,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.e3value.eval.ncf.ontology.e3value_AND;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -39,6 +38,7 @@ import com.mxgraph.view.mxGraph;
 
 import design.E3Graph;
 import design.Utils;
+import design.Utils.VEConnection;
 import design.info.Actor;
 import design.info.Base;
 import design.info.ConnectionElement;
@@ -94,6 +94,16 @@ public class RDFExport {
 		diagramRes.addProperty(E3value.di_has_mc, res);
 		
 		return res;
+	}
+	
+	/**
+	 * Returns the resource corresponding to the SUID in the cell's value stored in the graph.
+	 * @param cell
+	 * @return
+	 */
+	public Resource getCellResource(Object cell) {
+		Base info = (Base) graph.getModel().getValue(cell);
+		return getResource(info.SUID);
 	}
 	
 	public Resource getOfferingIn(long suid) {
@@ -434,34 +444,79 @@ public class RDFExport {
 				// True = out
 				res.addProperty(E3value.vp_has_dir, (!vpInfo.incoming) + "");
 				
-				assert(graph.getModel().getEdgeCount(cell) < 2);
-				if (graph.getModel().getEdgeCount(cell) == 1) {
-					Object valueExchange = graph.getModel().getEdgeAt(cell, 0);
-					ValueExchange veInfo = (ValueExchange) graph.getModel().getValue(valueExchange);
-					Resource veRes = getResource(veInfo.SUID);
-					
-					if (vpInfo.incoming) {
-						res.addProperty(E3value.vp_in_connects_ve, veRes);
-						veRes.addProperty(E3value.ve_has_in_po, res);
-					} else {
-						res.addProperty(E3value.vp_out_connects_ve, veRes);
-						veRes.addProperty(E3value.ve_has_out_po, res);
-					}
-					
-					if (veInfo.valueObject != null) {
-						Resource valueObjectRes = getValueObject(veInfo.valueObject);
-						res.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
-						valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, res);
-					}
-					
-					// Propagate valuation from edge if vp valuation == 0
-//					if (value.formulas.getOrDefault("VALUATION", "0").equals("0")) {
-//						value.formulas.put("VALUATION", veInfo.formulas.getOrDefault("VALUATION", "0"));
-//						res.addProperty(E3value.e3_has_formula, "VALUATION" + "=" + value.formulas.get("VALUATION"));
+				// This is now done at the ValueExchange clause. Delete it if it all works (11/12/2016)
+//				if (graph.getModel().getEdgeCount(cell) == 1) {
+//					Object valueExchange = graph.getModel().getEdgeAt(cell, 0);
+//					ValueExchange veInfo = (ValueExchange) graph.getModel().getValue(valueExchange);
+//					Resource veRes = getResource(veInfo.SUID);
+//					
+//					if (vpInfo.incoming) {
+//						res.addProperty(E3value.vp_in_connects_ve, veRes);
+//						veRes.addProperty(E3value.ve_has_in_po, res);
+//					} else {
+//						res.addProperty(E3value.vp_out_connects_ve, veRes);
+//						veRes.addProperty(E3value.ve_has_out_po, res);
 //					}
-				}
+//					
+//					if (veInfo.valueObject != null) {
+//						Resource valueObjectRes = getValueObject(veInfo.valueObject);
+//						res.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
+//						valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, res);
+//					}
+//					
+//					// Propagate valuation from edge if vp valuation == 0
+////					if (value.formulas.getOrDefault("VALUATION", "0").equals("0")) {
+////						value.formulas.put("VALUATION", veInfo.formulas.getOrDefault("VALUATION", "0"));
+////						res.addProperty(E3value.e3_has_formula, "VALUATION" + "=" + value.formulas.get("VALUATION"));
+////					}
+//				}
 			} else if (value instanceof ValueExchange) {
+				ValueExchange veInfo = (ValueExchange) value;
 				res.addProperty(RDF.type, E3value.value_exchange);
+				
+				VEConnection vec = new VEConnection(graph, cell);
+				
+				Object vpInContainer = graph.getContainerOfValuePort(vec.getInVP());
+				Object vpOutContainer = graph.getContainerOfValuePort(vec.getOutVP());
+
+				Resource vpInRes = getCellResource(vec.getInVP());
+				Resource vpOutRes = getCellResource(vec.getOutVP());
+				
+				// See https://github.com/danionita/e3tools/issues/53 for a nice visual explanation of this.
+				if (graph.getModel().getParent(vpInContainer) == graph.getModel().getParent(vpOutContainer)) {
+					// Both containers are top-level, or have the same parent. Use "normal" ve_out_po et al.
+					// vpIn = value port which goes "into" the value exchange
+					// vp_in_connects_ve = value port which connects the ve "into" a container
+					// So between E3value and my vars, the meanings are reversed. That's why it looks like
+					// they are switched around.
+					// (Confusing!)
+					vpInRes.addProperty(E3value.vp_out_connects_ve, res);
+					
+					res.addProperty(E3value.ve_has_in_po, vpOutRes);
+					res.addProperty(E3value.ve_has_out_po, vpInRes);
+					
+					vpOutRes.addProperty(E3value.vp_in_connects_ve, res);
+				} else {
+					// One of the containers contains the other. Use ve_second_po et al.
+					// Here it is clearer: in E3value, the "first" vp that goes "into"
+					// the value exchange.
+					vpInRes.addProperty(E3value.vp_first_connects_ve, res);
+					
+					res.addProperty(E3value.ve_has_first_vp, vpInRes);
+					res.addProperty(E3value.ve_has_second_vp, vpOutRes);
+					
+					vpOutRes.addProperty(E3value.vp_second_connects_ve, res);
+				}
+
+				if (veInfo.valueObject != null) {
+					Resource valueObjectRes = getValueObject(veInfo.valueObject);
+
+					vpInRes.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
+					vpOutRes.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
+
+					valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, vpInRes);
+					valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, vpOutRes);
+				}
 			} else if (value instanceof StartSignal) {
 				res.addProperty(RDF.type, E3value.start_stimulus);
 				

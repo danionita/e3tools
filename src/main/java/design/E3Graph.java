@@ -1801,7 +1801,15 @@ public class E3Graph extends mxGraph implements Serializable{
         return true;
     }
 
-
+    public boolean isParentOf(Object parent, Object child) {	
+    	if (getModel().getParent(child) == getDefaultParent()) {
+    		return false;
+    	} else if (parent == getModel().getParent(child)) {
+    		return true;
+    	} else {
+			return isParentOf(parent, getModel().getParent(child));
+    	}
+    }
             
 
 //	@Override

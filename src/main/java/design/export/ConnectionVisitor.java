@@ -128,6 +128,7 @@ public class ConnectionVisitor {
 			viRes.addProperty(E3value.de_up_ce, ceRes);
 			
 			// TODO: This can be moved to its own function
+			// TODO: Maybe just rewrite this whole thing to use E3Walker? One day...
 			List<Object> ports = Utils.getChildrenWithValue(graph, opposite, ValuePort.class);
 			for (Object port : ports) {
 				if (model.getEdgeCount(port) > 0) {
