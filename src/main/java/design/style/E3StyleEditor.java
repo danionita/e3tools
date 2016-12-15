@@ -239,7 +239,7 @@ public class E3StyleEditor extends JDialog {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println(label.getBackground());
+				//System.out.println(label.getBackground());
 				JColorChooser cc = getColorChooser(label.getBackground());
 				// cc.setVisible(true);
 				

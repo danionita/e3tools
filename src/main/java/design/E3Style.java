@@ -213,7 +213,7 @@ public class E3Style {
 	
 	public static Optional<E3Style> load(String name) {
 		File file = new File(Utils.makePath(Main.e3styleDir.getPath(), name));
-		System.out.println("Checking: " + file.getPath());
+		//System.out.println("Checking: " + file.getPath());
 		if (file.exists() && file.isDirectory()) {
 			return load(file);
 		} else {
@@ -327,7 +327,7 @@ public class E3Style {
 		// TODO: Fall back to default style somehow here and show an error box
 		// (if there is a space in the name - spaces are a recipe for disaster
 		if (name.contains(" ")) {
-			System.out.println("Error: name of style contains spaces!");
+			//System.out.println("Error: name of style contains spaces!");
 			return;
 		}
 		
@@ -372,7 +372,7 @@ public class E3Style {
 	 * @param graphComponent
 	 */
 	public void styleGraphComponent(mxGraphComponent graphComponent) {
-		System.out.println("Styling graph with " + name);
+		//System.out.println("Styling graph with " + name);
 		
 		mxGraph graph = graphComponent.getGraph();
 		
@@ -383,7 +383,7 @@ public class E3Style {
 		if (doc != null) {
 			codec.decode(doc.getDocumentElement(), graph.getStylesheet());
 		} else {
-			System.out.println("Failed loading style");
+			//System.out.println("Failed loading style");
 			return;
 		}
 		
@@ -438,7 +438,7 @@ public class E3Style {
 		// Don't add it if we already know that name
 		if (loadedStencils.contains(name)) return;
 
-		System.out.println("Adding " + name);
+		//System.out.println("Adding " + name);
 
 		// Add it to the known names list
 		loadedStencils.add(name);

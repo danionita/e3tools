@@ -109,9 +109,9 @@ public class ImportTest {
 		System.out.println(joe);
 		String xml = xstream.toXML(joe);
 		
-		System.out.println("XML: \n");
-		System.out.println(xml);
-		System.out.println("END XML\n");
+		//System.out.println("XML: \n");
+		//System.out.println(xml);
+		//System.out.println("END XML\n");
 		
 		Person newJoe = (Person)xstream.fromXML(xml);
 		

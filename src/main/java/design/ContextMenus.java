@@ -144,7 +144,7 @@ public class ContextMenus {
 								// And if the user says yes, we force propagate the valuation of
 								// the current value exchange.
 								if (response == JOptionPane.YES_OPTION) {
-									System.out.println("Propagating values!");
+									//System.out.println("Propagating values!");
 									((E3Graph) graph).propagateValuation(Main.contextTarget);
 								}
 							}

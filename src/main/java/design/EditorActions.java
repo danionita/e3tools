@@ -533,7 +533,7 @@ public class EditorActions {
                     .filter(obj -> graph.getModel().getParent(obj) == graph.getDefaultParent())
                     .collect(Collectors.toList());
             graph.getSelectionModel().setCells(allCells.toArray());
-            System.out.println("Size: " + allCells.size());
+            //System.out.println("Size: " + allCells.size());
         }
     }
 
@@ -605,12 +605,12 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO: Implement this
-            JOptionPane.showMessageDialog(
-                    Main.mainFrame,
-                    "This feature is not yet implemented",
-                    "Feature not implemented",
-                    JOptionPane.ERROR_MESSAGE);
+            if (main.getCurrentGraphComponent().isGridVisible()){
+                main.getCurrentGraphComponent().setGridVisible(false);
+            }
+            else {
+                main.getCurrentGraphComponent().setGridVisible(true);
+            }
         }
     }
 
@@ -1020,16 +1020,18 @@ public class EditorActions {
 
     public static class ToggleValuationLabels extends BaseAction {
 
-        private boolean on;
-
-        public ToggleValuationLabels(Main main, boolean on) {
-            super((on ? "Show" : "Hide") + " valuation labels", main);
-            this.on = on;
+        public ToggleValuationLabels(Main main) {
+            super("Toggle valuation labels", main);
         }
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
-            main.getCurrentGraphComponent().toggleValuationLabels(on);
+            if (main.getCurrentGraphComponent().valuationLabelsVisible){
+            main.getCurrentGraphComponent().toggleValuationLabels(false);
+            }
+            else{
+                main.getCurrentGraphComponent().toggleValuationLabels(true);
+            }
         }
     }
 
@@ -1098,7 +1100,7 @@ public class EditorActions {
             E3Graph currentGraph = main.getCurrentGraph();
             FlowChecker flowChecker = new FlowChecker(currentGraph);
             if (flowChecker.getConflictingDots().size() > 0) {
-            	System.out.println("Conflicting dots detected! Suspects:");
+            	//System.out.println("Conflicting dots detected! Suspects:");
             	for (Object obj : flowChecker.getConflictingDots()) {
             		Base info = (Base) currentGraph.getModel().getValue(obj);
             		System.out.println(info.name + " (" + info.SUID + ")");

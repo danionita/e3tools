@@ -106,7 +106,7 @@ public class ValueObjectDialog {
 		modelListener = new mxIEventListener() {
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
-				System.out.println("A change!");
+				//System.out.println("A change!");
 				rebuildList();
 			}
 		};
@@ -180,7 +180,7 @@ public class ValueObjectDialog {
 	 * Removes all listeners from the graph and resets the highlighting of the graph
 	 */
 	private void cleanupGraph() {
-		System.out.println("Cleaning graph");
+		//System.out.println("Cleaning graph");
 		
 		// For all cells...
 		for (Object obj : Utils.getAllCells(graph)) {

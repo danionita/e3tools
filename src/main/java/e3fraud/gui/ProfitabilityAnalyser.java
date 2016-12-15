@@ -36,13 +36,15 @@ import org.jfree.chart.JFreeChart;
  */
 public class ProfitabilityAnalyser {
 
+    static boolean debug = false;
+    
     private static int needStartValue = 0, needEndValue = 0;
     private static Resource selectedNeed;
     private static JFreeChart chart;
     private static String selectedActorString;
 
     public static JFreeChart getProfitabilityAnalysis(E3Model model, boolean ideal) {
-        System.out.println(currentTime.currentTime() + " Starting profitability analysis...");
+        if(debug) System.out.println(currentTime.currentTime() + " Starting profitability analysis...");
         Map<String, Resource> actorsMap = model.getActorsMap();
 
         //have the user indicate the ToA via pop-up
@@ -60,7 +62,7 @@ public class ProfitabilityAnalyser {
         }
         
         if (selectedActorString == null) {
-            System.out.println(currentTime.currentTime() + " Profitability analysis cancelled by user!");
+            if(debug) System.out.println(currentTime.currentTime() + " Profitability analysis cancelled by user!");
         } else {
             //have the user select a need via pop-up
             JFrame frame2 = new JFrame("Select graph parameter");
@@ -73,7 +75,7 @@ public class ProfitabilityAnalyser {
                     needsMap.keySet().toArray(),
                     needsMap.keySet().toArray()[0]);
             if (selectedNeedString == null) {
-                System.out.println(currentTime.currentTime() + "Profitability analysis cancelled by user!");
+                if(debug) System.out.println(currentTime.currentTime() + "Profitability analysis cancelled by user!");
             } else {
                 //have the user select occurence interval via pop-up
                 JTextField xField = new JTextField("1", 4);
@@ -88,7 +90,7 @@ public class ProfitabilityAnalyser {
                         "Please enter X-axis range", JOptionPane.OK_CANCEL_OPTION);
                 
                 if (result == JOptionPane.CANCEL_OPTION) {
-                    System.out.println(currentTime.currentTime() + "Profitability analysis cancelled by user!");
+                    if(debug) System.out.println(currentTime.currentTime() + "Profitability analysis cancelled by user!");
                 } else if (result == JOptionPane.OK_OPTION) {
                     needStartValue = Integer.parseInt(xField.getText());
                     needEndValue = Integer.parseInt(yField.getText());

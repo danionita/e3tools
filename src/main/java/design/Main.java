@@ -237,16 +237,15 @@ public class Main {
 
         viewMenu.addSeparator();
 
-        //viewMenu.add(new EditorActions.ToggleGrid(this));
+        viewMenu.add(new EditorActions.ToggleGrid(this));        
+        viewMenu.add(new EditorActions.ToggleValuationLabels(this));
 
-        //viewMenu.addSeparator();
+        viewMenu.addSeparator();
 
         viewMenu.add(new EditorActions.ToggleLabels(this, true));
         viewMenu.add(new EditorActions.ToggleLabels(this, false));
         viewMenu.add(new EditorActions.ToggleValueObjects(this, true));
         viewMenu.add(new EditorActions.ToggleValueObjects(this, false));
-        viewMenu.add(new EditorActions.ToggleValuationLabels(this, true));
-        viewMenu.add(new EditorActions.ToggleValuationLabels(this, false));
 
         menuBar.add(viewMenu);
 
@@ -262,7 +261,7 @@ public class Main {
 
         modelMenu.add(new EditorActions.ShowValueObjectsPanel(this));
         //modelMenu.add(new EditorActions.AnalyzeTransactions(this));
-        modelMenu.add(new EditorActions.ModelCheck(this));
+        //modelMenu.add(new EditorActions.ModelCheck(this));
 
         modelMenu.addMenuListener(new MenuListener() {
             @Override

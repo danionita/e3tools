@@ -84,6 +84,8 @@ public class E3GraphComponent extends mxGraphComponent {
 	public mxUndoManager undoManager;
 	
 	private boolean popupTriggerEnabled = true;
+        
+        public boolean valuationLabelsVisible;
 	
 	public E3GraphComponent makeShowcase(E3Graph graph) {
 		E3GraphComponent component = new E3GraphComponent(graph);
@@ -540,10 +542,12 @@ public class E3GraphComponent extends mxGraphComponent {
 			Utils.getAllCells(getGraph()).stream()
 				.filter(s -> E3GraphComponent.this.getGraph().getModel().getValue(s) instanceof ValuePort)
 				.forEach(s -> addCellOverlay(s, new ValuationOverlay(s, E3GraphComponent.this)));
+                        this.valuationLabelsVisible=true;
 		} else {
 			Utils.getAllCells(getGraph()).stream()
 				.filter(s -> E3GraphComponent.this.getGraph().getModel().getValue(s) instanceof ValuePort)
 				.forEach(s -> removeCellOverlays(s));
+                        this.valuationLabelsVisible=false;
 		}
 	}
 	

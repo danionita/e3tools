@@ -173,8 +173,7 @@ public class GraphIO {
 			})));
 
 			// If one file failed, just abort.
-			if (files.values().contains(null)) {
-				System.out.println("Null");
+			if (files.values().contains(null)) {				
 				return Optional.empty();
 			}
 		} catch (IOException e1) {
@@ -211,7 +210,7 @@ public class GraphIO {
 				// somehow.
 				.map(file -> {
 					String contents = files.getOrDefault("style/" + file, null);
-					if (contents == null) System.out.println("Null: " + file);
+					//if (contents == null) System.out.println("Null: " + file);
 					return contents;
 				})
 				.filter(c -> c != null)
