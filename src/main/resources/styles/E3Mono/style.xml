@@ -38,6 +38,7 @@
 		<add as="align" value="left" />
 		<add as="verticalAlign" value="top" />
 		<add as="fontSize" value="12" />
+		<add as="whiteSpace" value="wrap" />
 	</add>
 	
 	<add as="ValueActivity" extend="baseStyle">
