@@ -918,4 +918,84 @@ public class Utils {
 			e1.printStackTrace();
 		}
     }
+    
+    /**
+     * Three cases:
+     * - Containers of VP's (the MS/AC/VA to which the VP belongs) are both top level.
+     *   In this case:
+     *   	- outgoing for VI = incoming for ve
+     *   	- incoming for VI = outgoing for ve
+     * - Either of the containers is the child of the other container.
+     *   In this case:
+     *   	- If both VP's are outgoing the VP in the child container is incoming 
+     *   	- If both VP's are incoming the VP in the parent container is incoming
+     * - Both containers are contained in the same MS/AC/VE.
+     *   This case is the same as case 1.
+     *   
+     * This class performs this logic on a VE, and puts the VP's in the right inVP/outVP vars.
+     * The "in" vp is always the port which looks like it's going "into" the ve. Conversely, the "out"
+     * vp is coming "out" of the vp.
+     * 
+     * @author bobe
+     *
+     */
+    public static class VEConnection {
+    	public final E3Graph graph;
+    	public final Object ve;
+    	private Object inVP;
+    	private Object outVP;
+
+    	public VEConnection(E3Graph graph, Object ve) {
+    		this.graph = graph;
+    		this.ve = ve;
+    		this.inVP = null;
+    		this.outVP = null;
+
+    		Object vp1 = graph.getModel().getTerminal(ve, true);
+    		Object vp2 = graph.getModel().getTerminal(ve, false);
+    		
+    		Object vp1Container = graph.getContainerOfValuePort(vp1);
+    		Object vp2Container = graph.getContainerOfValuePort(vp2);
+    		
+    		ValuePort vp1Info = (ValuePort) graph.getModel().getValue(vp1);
+    		
+    		if (vp1Container == vp2Container) {
+    			// Case 1 & 3
+    			if (!vp1Info.incoming) {
+    				inVP = vp1;
+    				outVP = vp2;
+    			} else {
+    				outVP = vp1;
+    				inVP = vp2;
+    			}
+    		} else {
+    			// Case 2
+    			if (graph.isParentOf(vp1Container, vp2Container)) {
+    				if (!vp1Info.incoming) {
+    					inVP = vp2;
+    					outVP = vp1;
+    				} else {
+    					inVP = vp1;
+    					outVP = vp2;
+    				}
+    			} else {
+    				if (!vp1Info.incoming) {
+    					inVP = vp1;
+    					outVP = vp2;
+    				} else {
+    					inVP = vp2;
+    					outVP = vp1;
+    				}
+    			}
+    		}
+    	}
+    	
+    	public Object getInVP() {
+    		return inVP;
+    	}
+    	
+    	public Object getOutVP() {
+    		return outVP;
+    	}
+    }
 }

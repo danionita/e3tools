@@ -32,6 +32,7 @@ import design.info.EndSignal;
 import design.info.LogicBase;
 import design.info.LogicDot;
 import design.info.MarketSegment;
+import design.info.Note;
 import design.info.SignalDot;
 import design.info.StartSignal;
 import design.info.ValueActivity;
@@ -137,6 +138,7 @@ public class GraphIO {
 		mxCodecRegistry.addAlias(StartSignal.class.getSimpleName(), xStreamCodec.getName());
 		mxCodecRegistry.addAlias(EndSignal.class.getSimpleName(), xStreamCodec.getName());
 		mxCodecRegistry.addAlias(ConnectionElement.class.getSimpleName(), xStreamCodec.getName());
+		mxCodecRegistry.addAlias(Note.class.getSimpleName(), xStreamCodec.getName());
 	}
 
 	/**
