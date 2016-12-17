@@ -12,7 +12,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,13 +34,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxCellRenderer;
-import com.mxgraph.util.mxXmlUtils;
 
 import design.checker.FlowChecker;
 import design.export.JSONExport;
