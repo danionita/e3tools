@@ -1,66 +1,13 @@
 package design.style;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Map;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.border.EmptyBorder;
-import javax.swing.colorchooser.AbstractColorChooserPanel;
-import javax.swing.event.EventListenerList;
 
-import com.mxgraph.util.mxConstants;
-import com.mxgraph.view.mxGraph;
-
-import design.Main;
-import design.info.Actor;
-import design.info.Base;
-import design.info.MarketSegment;
-import design.info.ValueActivity;
-import design.info.ValueExchange;
-
-/**
- * This class was made with window editor pro or something
- * (the most default eclipse swing gui editor plugin for eclipse)
- * So you should be able to open this file in that and edit it graphically.
- * If you don't have access to the plugin, editing this by hand in the text
- * itself is also fine, but that might break the plugin support at some point.
- * The class will keep working though.
- * @author Bob
- *
- */
 public class E3StyleEditor extends JDialog {
 
-	private final JPanel contentPanel = new JPanel();
-	
-	EventListenerList listeners = new EventListenerList();
-
 	/**
-	 * Create the dialog.
+	 * 
 	 */
-	public E3StyleEditor(mxGraph graph, Object cell) {
-		Base info = (Base) graph.getModel().getValue(cell);
-		
-		boolean isEntity = info instanceof Actor
-				|| info instanceof MarketSegment
-				|| info instanceof ValueActivity;
-		
-		boolean isVE = info instanceof ValueExchange;
-		
-		Map<String, Object> style = graph.getCellStyle(cell);
+	private static final long serialVersionUID = -7189585201276275873L;
 
 		Color currentFillColor;
 		if (isEntity) {

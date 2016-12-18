@@ -1,16 +1,18 @@
 package design.style;
 
 import java.awt.Color;
+import java.awt.Font;
 
 public class E3StyleEvent {
-	public Color fillColor;
+	public Color bgColor;
+	public Color strokeColor;
 	public Color fontColor;
-	public int fontSize;
+	public Font font;
 	
-	public E3StyleEvent(Color fillColor, Color fontColor, int fontSize) {
-		super();
-		this.fillColor = fillColor;
+	public E3StyleEvent(Color bgColor, Color strokeColor, Color fontColor, Font font) {
+		this.bgColor = bgColor;
+		this.strokeColor = strokeColor;
 		this.fontColor = fontColor;
-		this.fontSize = fontSize;
+		this.font = font;
 	}
 }

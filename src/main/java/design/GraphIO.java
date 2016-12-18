@@ -203,8 +203,6 @@ public class GraphIO {
 			}
 		}
 		
-		
-		
 		if (files.containsKey("style/style.xml") || files.get("style/style.xml") != null) {
 			List<String> styleFiles = E3Style.requiredFiles
 				.stream()
@@ -278,8 +276,13 @@ public class GraphIO {
 				String[] parts = shape.split("#");
 
 				if (parts.length != 2) return;
+				
 				String hexCode = "#" + parts[1];
 				graph.style.addMarketSegmentColor(hexCode);
+				// This is needed because the MarketSegment is saved with the shape name NAME_randomnumber_MarketSegmentStencil#COLOR.
+				// But to make sure the right stencil is presented it needs to be changed to OURNAME_ourrandomnumber_MarketSegmentStencil#COLOR.
+				// Otherwise mxGraph won't be able to find it. That's what the next line's for.
+				graph.setCellStyles(mxConstants.STYLE_SHAPE, graph.style.getMarketSegmentShapeName(hexCode), new Object[]{obj});
 			});
 		
 		return Optional.of(graph);

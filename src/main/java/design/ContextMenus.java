@@ -18,6 +18,7 @@
  *******************************************************************************/
 package design;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -54,7 +55,8 @@ import design.info.ValuePort;
 import design.properties.E3PropertiesEditor;
 import design.properties.E3PropertiesEvent;
 import design.properties.E3PropertiesEventListener;
-import design.style.E3StyleEditor;
+import design.style.E3StyleComponent;
+import design.style.E3StyleDialog;
 import design.style.E3StyleEvent;
 import design.style.E3StyleEventListener;
 
@@ -649,19 +651,28 @@ public class ContextMenus {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Object subject = Main.contextTarget;
-				E3StyleEditor editor = new E3StyleEditor(graph, subject);
+				E3StyleDialog editor = new E3StyleDialog((E3Graph) graph, subject);
 				editor.addListener(new E3StyleEventListener() {
 					@Override
 					public void invoke(E3StyleEvent event) {
-						String strokeColor = Utils.colorToHex(event.fillColor);
+						String strokeColor = Utils.colorToHex(event.strokeColor);
 						String fontColor = Utils.colorToHex(event.fontColor);
-						int fontSize = event.fontSize;
+						Font font = event.font;
 						
 						graph.getModel().beginUpdate();
 						try {
 							graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, strokeColor, new Object[]{subject});
 							graph.setCellStyles(mxConstants.STYLE_FONTCOLOR, fontColor, new Object[]{subject});
-							graph.setCellStyles(mxConstants.STYLE_FONTSIZE, ""+fontSize, new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FONTSIZE, "" + font.getSize(), new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FONTFAMILY, font.getFontName(), new Object[]{subject});
+							
+							if (font.getStyle() == Font.BOLD) {
+								graph.setCellStyles(mxConstants.STYLE_FONTSTYLE, "" + mxConstants.FONT_BOLD, new Object[]{subject});
+							} else if (font.getStyle() == Font.ITALIC) {
+								graph.setCellStyles(mxConstants.STYLE_FONTSTYLE, "" + mxConstants.FONT_ITALIC, new Object[]{subject});
+							} else if (font.getStyle() == Font.ITALIC + Font.BOLD) {
+								graph.setCellStyles(mxConstants.STYLE_FONTSTYLE, "" + (mxConstants.FONT_ITALIC & mxConstants.FONT_BOLD), new Object[]{subject});
+							}
 						} finally {
 							graph.getModel().endUpdate();
 						}
@@ -749,7 +760,8 @@ public class ContextMenus {
 				// We save the context target
 				Object subject = Main.contextTarget;
 				// And make an editor
-				E3StyleEditor editor = new E3StyleEditor(graph, subject);
+				E3StyleDialog editor = new E3StyleDialog(graph, subject);
+				editor.setModal(true);
 				editor.addListener(new E3StyleEventListener() {
 					@Override
 					public void invoke(E3StyleEvent event) {
@@ -757,22 +769,34 @@ public class ContextMenus {
 						graph.getModel().beginUpdate();
 						try {
 							// Get the colors in hex format
-							String backgroundColor = Utils.colorToHex(event.fillColor);
+							String bgColor = Utils.colorToHex(event.bgColor);
+							String strokeColor = Utils.colorToHex(event.strokeColor);
 							String fontColor = Utils.colorToHex(event.fontColor);
+							Font font = event.font;
 
 							// Set the appropriate styles
-							graph.setCellStyles(mxConstants.STYLE_GRADIENTCOLOR, backgroundColor, new Object[]{subject});
-							graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, backgroundColor, new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_GRADIENTCOLOR, bgColor, new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, bgColor, new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, strokeColor, new Object[]{subject});
 
 							graph.setCellStyles(mxConstants.STYLE_FONTCOLOR, fontColor, new Object[]{subject});
-							graph.setCellStyles(mxConstants.STYLE_FONTSIZE, event.fontSize + "", new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FONTSIZE, "" + font.getSize(), new Object[]{subject});
+							graph.setCellStyles(mxConstants.STYLE_FONTFAMILY, font.getFontName(), new Object[]{subject});
 							
 							// If it's a market segment we have to invoke a special stencil generation function
 							if (graph.getModel().getValue(subject) instanceof MarketSegment) {
 								// This generates the stencil and adds it to mxGraph
-								graph.style.addMarketSegmentColor(backgroundColor);
+								graph.style.addMarketSegmentColor(bgColor);
 								// And this sets the style appropriately
-								graph.setCellStyles(mxConstants.STYLE_SHAPE, graph.style.getMarketSegmentShapeName(backgroundColor), new Object[]{subject});
+								graph.setCellStyles(mxConstants.STYLE_SHAPE, graph.style.getMarketSegmentShapeName(bgColor), new Object[]{subject});
+							}
+							
+							if (font.getStyle() == Font.BOLD) {
+								graph.setCellStyles(mxConstants.STYLE_FONTSTYLE, "" + mxConstants.FONT_BOLD, new Object[]{subject});
+							} else if (font.getStyle() == Font.ITALIC) {
+								graph.setCellStyles(mxConstants.STYLE_FONTSTYLE, "" + mxConstants.FONT_ITALIC, new Object[]{subject});
+							} else if (font.getStyle() == Font.ITALIC + Font.BOLD) {
+								graph.setCellStyles(mxConstants.STYLE_FONTSTYLE, "" + (mxConstants.FONT_ITALIC & mxConstants.FONT_BOLD), new Object[]{subject});
 							}
 						} finally {
 							graph.getModel().endUpdate();
