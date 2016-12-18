@@ -39,7 +39,7 @@ public class ChartGenerator {
 
     public static JFreeChart generateChart(E3Model model, Resource need, int startValue, int endValue, boolean expected) {
         //Get list of actors
-        Set<Resource> actors = model.getActors();
+        Set<Resource> actors = model.getActorsAndMarketSegments();
 
         XYSeriesCollection line_chart_dataset = new XYSeriesCollection();   
         Map<Resource, XYSeries> actorSeriesMap = model.getLastKnownSeries();

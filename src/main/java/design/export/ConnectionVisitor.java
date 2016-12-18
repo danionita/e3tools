@@ -121,7 +121,7 @@ public class ConnectionVisitor {
 			}
 		}
 		
-		System.out.println("Opposite: " + oppositeValue.getClass().getSimpleName());
+		//System.out.println("Opposite: " + oppositeValue.getClass().getSimpleName());
 		
 		if (oppositeValue instanceof ValueInterface) {
 			Resource viRes = exporter.getResource(oppositeValue.SUID);

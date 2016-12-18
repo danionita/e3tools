@@ -250,22 +250,21 @@ public class Main {
         menuBar.add(viewMenu);
 
         JMenu modelMenu = new JMenu("Model");
+        
+        modelMenu.add(new EditorActions.ChangeModelTitle(this));      
+        modelMenu.add(new EditorActions.ChangeTheme(this));
+
+        
+        modelMenu.addSeparator();
+
+        modelMenu.add(new EditorActions.ShowValueObjectsPanel(this));
+        
+        modelMenu.addSeparator();
 
         modelMenu.add(new EditorActions.DuplicateModel(this));
         JMenuItem changeType = new JMenuItem(new EditorActions.ChangeModelType(this));
         modelMenu.add(changeType);
-        modelMenu.add(new EditorActions.ChangeModelTitle(this));
-        
-        JMenu styleMenu = new JMenu("Style");
-        
-        styleMenu.add(new EditorActions.ChangeTheme(this));
-        styleMenu.add(new EditorActions.ToggleGrid(this));
-        
-        modelMenu.add(styleMenu);
 
-        modelMenu.addSeparator();
-
-        modelMenu.add(new EditorActions.ShowValueObjectsPanel(this));
         //modelMenu.add(new EditorActions.AnalyzeTransactions(this));
         //modelMenu.add(new EditorActions.ModelCheck(this));
 

@@ -351,7 +351,7 @@ public class E3Model {
      */
     public Map<String, Resource> getActorsMap() {
         Map<String, Resource> actorsMap = new HashMap();
-        Set<Resource> actors = getActors();
+        Set<Resource> actors = getActorsAndMarketSegments();
         //get a list of the actors as Strings
         for (Resource need : actors) {
             String actorString = need.getProperty(E3value.e3_has_name).getLiteral().toString();
@@ -594,7 +594,7 @@ public class E3Model {
         valueInterface2 = model.getResource(valueInterface2.getURI());
 
         Resource port1, port2, exchange;
-        String URIbase = this.getActors().iterator().next().getURI().split("#")[0];
+        String URIbase = this.getActorsAndMarketSegments().iterator().next().getURI().split("#")[0];
         Resource modelResource = this.getModelResource();
         Resource moneyResource = this.getMoneyResource();
         Resource diagramResource = this.getDiagramResource();
@@ -1462,14 +1462,12 @@ public class E3Model {
         //make sure the resources are from this model
         need = model.getResource(need.getURI());
         Map<Resource, XYSeries> actorSeriesMap = new HashMap();
-        Set<Resource> actors = this.getActors();
+        Set<Resource> actors = this.getActorsAndMarketSegments();
         for (Resource actor : actors) {
             XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());
             actorSeriesMap.put(actor, actorSeries);
         }
-        String initialOccurenceRate = this.getNeedOccurrence(need);
-        
-;        
+        String initialOccurenceRate = this.getNeedOccurrence(need);        
         
         //we only need 50 values so divide interval to 50
         if (startValue < endValue) {

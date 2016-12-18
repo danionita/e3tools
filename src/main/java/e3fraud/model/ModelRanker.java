@@ -194,7 +194,7 @@ public class ModelRanker {
         double highestDelta = -Double.MAX_VALUE;
         double averageIdealGainOfTopGainActor = -Double.MAX_VALUE;
         Resource highestDeltaActor = null;
-        for (Resource actorInSubIdealModel : subIdealModel.getActors()) {
+        for (Resource actorInSubIdealModel : subIdealModel.getActorsAndMarketSegments()) {
             //If it is part of a colluded actor
             if (actorInSubIdealModel.getURI().equals(subIdealModel.newActorURI)) {
                 Resource colludedActor = baseModel.getJenaModel().getResource(subIdealModel.colludedActorURI);

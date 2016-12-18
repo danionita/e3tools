@@ -232,7 +232,7 @@ DecimalFormat df = new DecimalFormat("#.####");
      */
     public Set<E3Model> generateHiddenTransactions(E3Model baseModel, Resource mainActor, int hiddenTransfersPerExchange) {
         Set<E3Model> subIdealModels = new HashSet<>();
-        Set<Resource> secondaryActors = baseModel.getActors();
+        Set<Resource> secondaryActors = baseModel.getActorsAndMarketSegments();
         secondaryActors.remove(mainActor);
         //baseModel.enhance();    
         

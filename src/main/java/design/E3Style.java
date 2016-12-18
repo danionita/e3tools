@@ -248,22 +248,6 @@ public class E3Style {
 		doc = mxXmlUtils.parseXml(xml.replace("{!name}", name));
 	}
 	
-	private void parseXmlWithNameSubstitution(String xml) {
-		// Parse the xml
-		doc = mxXmlUtils.parseXml(xml);
-		
-		// Get the name of the style
-		// TODO: Error handling here as well
-		name = doc
-				.getDocumentElement()
-				.getElementsByTagName("name")
-				.item(0)
-				.getTextContent();
-		name = name + "_" + ID;
-		
-		// Apply the naming subsitution in the XML
-		doc = mxXmlUtils.parseXml(xml.replace("{!name}", name));
-	}
 	
 	public E3Style(
 			String xml,

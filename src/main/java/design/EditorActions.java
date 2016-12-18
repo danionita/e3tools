@@ -749,7 +749,7 @@ public class EditorActions {
     public static class ShowValueObjectsPanel extends BaseAction {
 
         public ShowValueObjectsPanel(Main main) {
-            super("ValueObjects... ", getIcon("old/vo"), main);
+            super("Edit Value Objects... ", getIcon("old/vo"), main);
         }
 
         @Override

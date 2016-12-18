@@ -428,7 +428,7 @@ public class ContextMenus {
 					flipPortMenu.setText("Flip port");
 				} else if (edges.length == 1) {
 					flipPortMenu.setEnabled(true);
-					flipPortMenu.setText("Flip port and port on other ends");
+					flipPortMenu.setText("Flip port (and port on other end)");
 				} else {
 					flipPortMenu.setEnabled(false);
 					flipPortMenu.setText("Flip port");
