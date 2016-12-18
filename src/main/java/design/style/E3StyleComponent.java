@@ -186,6 +186,11 @@ public class E3StyleComponent extends JPanel {
 		return fontLabel.getFont();
 	}
 	
+	public E3StyleEvent getEventObj() {
+		E3StyleEvent e3se = new E3StyleEvent(getSelectedBgColor(), getSelectedStrokeColor(), getSelectedFontColor(), getSelectedFont());
+		return e3se;
+	}
+	
 	public void disableBG() {
 		bgColorButton.setEnabled(false);
 		bgColorLabel.setBackground(this.getBackground());

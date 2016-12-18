@@ -319,7 +319,7 @@ public class GraphIO {
 			
 			// Print the style to the zip
 			E3Style style = graph.style;
-			writeFileToZip(zout, "style/style.xml", style.xml);
+			writeFileToZip(zout, "style/style.xml", style.getXML());
 			writeFileToZip(zout, "style/marketsegment_template.shape", style.marketSegment_template);
 			writeFileToZip(zout, "style/startsignal.shape", style.startSignal);
 			writeFileToZip(zout, "style/endsignal.shape", style.endSignal);

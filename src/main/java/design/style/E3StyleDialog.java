@@ -31,7 +31,7 @@ public class E3StyleDialog extends JDialog {
 	 */
 	private static final long serialVersionUID = -2663789218894753081L;
 
-	EventListenerList listeners = new EventListenerList();
+	private EventListenerList listeners = new EventListenerList();
 	
 	public E3StyleDialog(E3Graph graph, Object cell) {
 		Base info = (Base) graph.getModel().getValue(cell);

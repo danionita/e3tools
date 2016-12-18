@@ -19,8 +19,8 @@
 package design;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -38,16 +39,10 @@ import com.mxgraph.canvas.mxGraphics2DCanvas;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.shape.mxStencilShape;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxUtils;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
-
-import design.info.Actor;
-import design.info.Base;
-import design.info.MarketSegment;
-import design.info.ValueActivity;
-import design.info.ValueInterface;
 
 /**
  * Class that contains and can apply a style to a graph.
@@ -114,8 +109,38 @@ public class E3Style {
 	// That way the getGrid() functions and the state of e3style are always in sync, and it's easy to serialize
 	// the style (just turn the doc var into XML).
 		
+	// TODO: Make grid not dependent on theme settings
+
+	public static final double DOTRADIUS 						= 4;
+
+	public static final String BASE_STYLE 						= "baseStyle";
+	public static final String VALUE_ACTIVITY 					= "ValueActivity";
+	public static final String ACTOR 							= "Actor";
+	public static final String COLLUDED_ACTOR 					= "ColludedActor";
+	public static final String MARKET_SEGMENT 					= "MarketSegment";
+	public static final String COLLUDED_MARKET_SEGMENT 			= "ColludedMarketSegment";
+	public static final String VALUE_INTERFACE 					= "ValueInterface";
+	public static final String VALUE_PORT_WEST 					= "ValuePortWest";
+	public static final String VALUE_PORT_EAST 					= "ValuePortEast";
+	public static final String VALUE_PORT_NORTH 				= "ValuePortNorth";
+	public static final String VALUE_PORT_SOUTH 				= "ValuePortSouth";
+	public static final String VALUE_EXCHANGE 					= "ValueExchange";
+	public static final String NON_OCCURRING_VALUE_EXCHANGE 	= "NonOccurringValueExchange";
+	public static final String HIDDEN_VALUE_EXCHANGE 			= "HiddenValueExchange";
+	public static final String CONNECTION_ELEMENT 				= "ConnectionElement";
+	public static final String START_SIGNAL 					= "StartSignal";
+	public static final String END_SIGNAL 						= "EndSignal";
+	public static final String DOT 								= "Dot";
+	public static final String BAR 								= "Bar";
+	public static final String LOGIC_BASE 						= "LogicBase";
+	public static final String SOUTH_TRIANGLE 					= "SouthTriangle";
+	public static final String WEST_TRIANGLE 					= "WestTriangle";
+	public static final String NORTH_TRIANGLE 					= "NorthTriangle";
+	public static final String EAST_TRIANGLE 					= "EastTriangle";
+	public static final String NAME_TEXT 						= "NameText";
+	public static final String NOTE 							= "Note";
 	
-	public static final double DOTRADIUS = 4;
+	
 	public static int idCounter = 0;
 	// Must be kept in same order as constructor!
 	public static List<String> requiredFiles = Arrays.asList(
@@ -133,7 +158,6 @@ public class E3Style {
 		"dot.shape"
 		);
 
-	public String xml;
 	public String marketSegment_template;
 	public String startSignal;
 	public String endSignal;
@@ -147,9 +171,6 @@ public class E3Style {
 	public String dot;
 
 	private Document doc;
-	private String name;
-	private Color backgroundColor;
-	private boolean showGrid;
 	private final int ID = idCounter++;
 	
 	/**
@@ -231,23 +252,39 @@ public class E3Style {
 		}
 	}
 	
-	private void parseXmlWithNameSubstitution(String xml) {
-		// Parse the xml
-		doc = mxXmlUtils.parseXml(xml);
-		
-		// Get the name of the style
-		// TODO: Error handling here as well
-		name = doc
+	/**
+	 * Gets the name of the style (without postfix)
+	 * @return
+	 */
+	public String getName() {
+		String name = doc
 				.getDocumentElement()
 				.getElementsByTagName("name")
 				.item(0)
 				.getTextContent();
-		name = name + "_" + ID;
 		
-		// Apply the naming subsitution in the XML
-		doc = mxXmlUtils.parseXml(xml.replace("{!name}", name));
+		return name;
 	}
 	
+	/**
+	 * Gets the name of the style postfixed with a (session unique) identifier.
+	 * @return
+	 */
+	public String getUniqueName() {
+		return getName() + "_" + ID;
+	}
+	
+	public Document getXmlDocForJGraphX() {
+		// Find the name
+		String name = getUniqueName();
+		
+		// Apply the naming subsitution in the XML and turn it back into a document
+		return mxXmlUtils.parseXml(getXML().replace("{!name}", name));
+	}
+	
+	public String getXML() {
+		return mxXmlUtils.getXml(doc);
+	}
 	
 	public E3Style(
 			String xml,
@@ -264,7 +301,6 @@ public class E3Style {
 			String dot) {
 		// Store all the strings
 		// Need them for saving the theme
-		this.xml = xml;
 		this.marketSegment_template = marketSegment_template;
 		this.startSignal = startSignal;
 		this.endSignal = endSignal;
@@ -277,36 +313,11 @@ public class E3Style {
 		this.bar = bar;
 		this.dot = dot;
 		
-//		// Parse the xml
-//		doc = mxXmlUtils.parseXml(xml);
-//		
-//		// Get the name of the style
-//		// TODO: Error handling here as well
-//		name = doc
-//				.getDocumentElement()
-//				.getElementsByTagName("name")
-//				.item(0)
-//				.getTextContent();
-//		name = name + "_" + ID;
-//		
-//		// Apply the naming subsitution in the XML
-//		doc = mxXmlUtils.parseXml(xml.replace("{!name}", name));
+		doc = mxXmlUtils.parseXml(xml);
 		
-		parseXmlWithNameSubstitution(xml);
+//		parseXmlWithNameSubstitution(xml);
 
 		// Get the rest of the info
-		backgroundColor = Color.decode(doc
-				.getDocumentElement()
-				.getElementsByTagName("background")
-				.item(0)
-				.getTextContent());
-		
-		showGrid = doc
-				.getDocumentElement()
-				.getElementsByTagName("grid")
-				.item(0)
-				.getTextContent()
-				.equals("true");
 		
 		// Get the market segment color from the xml
 		// TODO: Maybe factor this into a function?
@@ -356,12 +367,13 @@ public class E3Style {
 		
 		// TODO: Fall back to default style somehow here and show an error box
 		// (if there is a space in the name - spaces are a recipe for disaster
-		if (name.contains(" ")) {
+		if (getUniqueName().contains(" ")) {
 			//System.out.println("Error: name of style contains spaces!");
 			return;
 		}
 		
 		// Add all the stencils
+		String name = getUniqueName();
 		addStringStencil(name + "_", startSignal);
 		addStringStencil(name + "_", endSignal);
 		addStringStencil(name + "_", valuePort);
@@ -373,6 +385,24 @@ public class E3Style {
 		addStringStencil(name + "_", bar);
 		addStringStencil(name + "_", dot);
 		addMarketSegmentColor("", marketSegmentColor); 
+	}
+	
+	public Color getModelBackgroundColor() {
+		Color backgroundColor;
+		
+		try {
+			backgroundColor = Color.decode(
+					doc
+						.getDocumentElement()
+						.getElementsByTagName("background")
+						.item(0)
+						.getTextContent()
+				);
+		} catch (NumberFormatException ex) {
+			backgroundColor = Color.BLACK;
+		}
+		
+		return backgroundColor;
 	}
 
 	/**
@@ -393,7 +423,7 @@ public class E3Style {
 				.replace("{!bg_color}", hexColor);
 		
 		// Add it
-		addStringStencil(name + "_", marketSegmentXML);
+		addStringStencil(getUniqueName() + "_", marketSegmentXML);
 	}
 	
 	/**
@@ -402,7 +432,7 @@ public class E3Style {
 	 * @param graphComponent
 	 */
 	public void styleGraphComponent(mxGraphComponent graphComponent) {
-		//System.out.println("Styling graph with " + name);
+		// System.out.println("Styling graph with " + name);
 		
 		mxGraph graph = graphComponent.getGraph();
 		
@@ -410,17 +440,12 @@ public class E3Style {
 		mxCodec codec = new mxCodec();
 		graph.setStylesheet(new mxStylesheet());
 
-		if (doc != null) {
-			codec.decode(doc.getDocumentElement(), graph.getStylesheet());
-		} else {
-			//System.out.println("Failed loading style");
-			return;
-		}
+		codec.decode(getXmlDocForJGraphX().getDocumentElement(), graph.getStylesheet());
 		
 		// Set the editor-specific settings
 		graphComponent.getViewport().setOpaque(true);
-		graphComponent.getViewport().setBackground(backgroundColor);
-		graphComponent.setGridVisible(showGrid);
+		graphComponent.getViewport().setBackground(getModelBackgroundColor());
+		graphComponent.setGridVisible(getGrid());
 		
 		// To get rid of the folding icon
 		graphComponent.setFoldingEnabled(false);
@@ -497,7 +522,7 @@ public class E3Style {
 	 * @return
 	 */
 	public String getMarketSegmentShapeName(String hexColor) {
-		return name + "_MarketSegmentStencil" + hexColor.toUpperCase();
+		return getUniqueName() + "_MarketSegmentStencil" + hexColor.toUpperCase();
 	}
 	
 	/**
@@ -531,7 +556,10 @@ public class E3Style {
 	 * @return
 	 */
 	public boolean getGrid() {
-		return showGrid;
+		return doc.getDocumentElement()
+			.getElementsByTagName("grid")
+			.item(0)
+			.equals("true");
 	}
 	
 	/**
@@ -540,10 +568,6 @@ public class E3Style {
 	 * @param newGrid
 	 */
 	public void setGrid(boolean newGrid) {
-		showGrid = newGrid;
-		
-		Document doc = mxXmlUtils.parseXml(xml);
-
 		Node gridNode = doc
 			.getDocumentElement()
 			.getElementsByTagName("grid")
@@ -554,10 +578,6 @@ public class E3Style {
 		} else {
 			gridNode.setTextContent("false");
 		}
-		
-		// Apply changes and make sure they are saved properly
-		xml = mxXmlUtils.getXml(doc.getDocumentElement());
-		parseXmlWithNameSubstitution(xml);
 	}
 	
 	/**
@@ -567,4 +587,231 @@ public class E3Style {
 	public void toggleGrid() {
 		setGrid(!getGrid());
 	}
+	
+	public Optional<Node> getAddFromNodeList(NodeList nl, String asValue) {
+		// Find the XML node with as="element"
+		Optional<Node> targetNodeOptional = Optional.empty();
+		for (int i = 0; i < nl.getLength(); i++) {
+			Node node = nl.item(i);
+			NamedNodeMap nnm = node.getAttributes();
+			
+			if (nnm == null) {
+				continue;
+			}
+
+			if (nnm.getNamedItem("as") == null) {
+				continue;
+			}
+			
+			Node asNode = nnm.getNamedItem("as");
+			if (!asNode.getTextContent().equals(asValue)) {
+				continue;
+			}
+			
+			targetNodeOptional = Optional.of(node);
+			break;
+		}
+		
+		return targetNodeOptional;
+	}
+	
+	public Optional<Node> getElementStyle(String element) {
+		System.out.println("XML:\n\n" + getXML());
+		
+		NodeList nl = doc // .getDocumentElement()
+			.getElementsByTagName("mxStylesheet")
+			.item(0)
+			.getChildNodes();
+		
+		return getAddFromNodeList(nl, element);
+	}
+	
+	public Optional<String> getAttribute(Node node, String attribute) {
+		NamedNodeMap nnm = node.getAttributes();
+		
+		if (nnm == null) {
+			return Optional.empty();
+		}
+
+		if (nnm.getNamedItem(attribute) == null) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(nnm.getNamedItem(attribute).getTextContent());
+	}
+	
+	public Optional<Node> getPropertyOfElement(String element, String property, boolean recurse) {
+		Optional<Node> elementStyleOptional = getElementStyle(element);
+		if (!elementStyleOptional.isPresent()) {
+			return Optional.empty();
+		}
+		
+		Node elementStyle = elementStyleOptional.get();
+		
+		Optional<Node> addOptional = getAddFromNodeList(elementStyle.getChildNodes(), property);
+		
+		if (addOptional.isPresent()) {
+			return addOptional;
+		}
+		
+		Optional<String> baseStyleOptional = getAttribute(elementStyle, "extend");
+		if (baseStyleOptional.isPresent() && recurse) {
+			return getPropertyOfElement(baseStyleOptional.get(), property, recurse);
+		}
+		
+		return Optional.empty();
+	}
+	
+	public Optional<Node> getOrCreatePropertyOfElement(String element, String property, String defaultValue) {
+		Optional<Node> elementStyleOptional = getElementStyle(element);
+		
+		if (!elementStyleOptional.isPresent()) {
+			return Optional.empty();
+		}
+		
+		Node elementStyle = elementStyleOptional.get();
+		
+		Optional<Node> addOptional = getAddFromNodeList(elementStyle.getChildNodes(), property);
+		
+		if (addOptional.isPresent()) {
+			return addOptional;
+		}
+		
+		Element node = doc.createElement("add");
+		node.setAttribute("as", property);
+		node.setAttribute("value", defaultValue);
+		elementStyle.appendChild(node);
+
+		return Optional.of(node);
+	}
+	
+	public Optional<String> getValueOfPropertyOfElement(String element, String property, boolean recurse) {
+		Optional<Node> propertyNodeOptional = getPropertyOfElement(element, property, recurse);
+		
+		if (!propertyNodeOptional.isPresent()) {
+			return Optional.empty();
+		}
+		
+		Node propertyNode = propertyNodeOptional.get();
+		
+		return getAttribute(propertyNode, "value");
+	}
+	
+	private Color getPropertyAsColor(String element, String property) {
+		Optional<Node> colorNodeOptional = getPropertyOfElement(element, property, true); 
+		
+		if (!colorNodeOptional.isPresent()) {
+			return Color.BLACK;
+		}
+		
+		Optional<String> colorOptional = getAttribute(colorNodeOptional.get(), "value");
+		
+		if (!colorOptional.isPresent()) {
+			return Color.BLACK;
+		}
+		
+		String bgColor = colorOptional.get();
+		
+		try {
+			return Color.decode(bgColor);
+		} catch (NumberFormatException ex) {
+			return Color.BLACK;
+		}
+	}
+	
+	private void setElementPropertyValue(String element, String property, String value) {
+		Optional<Node> propertyNodeOptional = getOrCreatePropertyOfElement(element, property, "#000000");
+		
+		if (!propertyNodeOptional.isPresent()) {
+			return;
+		}
+		
+		Node propertyNode = propertyNodeOptional.get();
+		
+		NamedNodeMap nnm = propertyNode.getAttributes();
+		
+		if (nnm == null) {
+			return;
+		}
+		
+		if (nnm.getNamedItem("value") == null) {
+			Node attNode = propertyNode.getOwnerDocument().createAttribute("value");
+			attNode.setNodeValue(value);
+			nnm.setNamedItem(attNode);
+		}
+		
+		Node valueAttr = nnm.getNamedItem("value");
+		
+		valueAttr.setTextContent(value);
+	}
+	
+	private void setPropertyColor(String element, String property, Color color) {
+		setElementPropertyValue(element, property, Utils.colorToHex(color));
+	}
+	
+	public Color getBackgroundColor(String element) {
+		return getPropertyAsColor(element, "fillColor");
+	}
+	
+	public Color getStrokeColor(String element) {
+		return getPropertyAsColor(element, "strokeColor");
+	}
+	
+	public Color getFontColor(String element) {
+		return getPropertyAsColor(element, "fontColor");
+	}
+	
+	public Font getFont(String element) {
+		String fontFamily = getValueOfPropertyOfElement(element, "fontFamily", true).orElse("Dialog");
+		String fontSizeStr = getValueOfPropertyOfElement(element, "fontSize", true).orElse("11");
+		int fontSize = 11;
+
+		try {
+			fontSize = Integer.parseInt(fontSizeStr);
+		} catch (NumberFormatException ex) {
+			// We just keep it at 11
+			System.out.println("Could not parse fontsize: \"" + fontSizeStr + "\"");
+		}
+		
+		String fontStyleStr = getValueOfPropertyOfElement(element, "fontStyle", true).orElse("0");
+		int fontStyleInt = 0;
+
+		try {
+			fontStyleInt = Integer.parseInt(fontStyleStr);
+		} catch (NumberFormatException ex) {
+			// We just keep it at 0
+			System.out.println("Could not parse fontstyle: \"" + fontStyleStr + "\"");
+		}
+		
+		boolean isBold = (fontStyleInt & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD;
+		boolean isItalic = (fontStyleInt & mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC;
+		
+		int styleFlags = 0;
+		if (isBold) {
+			styleFlags = styleFlags | Font.BOLD;
+		}
+		if (isItalic) {
+			styleFlags = styleFlags | Font.ITALIC;
+		}
+		
+		return new Font(fontFamily, styleFlags, fontSize);
+	}
+	
+	public void setBackgroundColor(String element, Color color) {
+		setPropertyColor(element, "fillColor", color);
+	}
+	
+	public void setStrokeColor(String element, Color color) {
+		setPropertyColor(element, "strokeColor", color);
+	}
+	
+	public void setFontColor(String element, Color color) {
+		setPropertyColor(element, "fontColor", color);
+	}
+	
+	public void setFont(String element, Font font) {
+		// TODO: Implement this
+		System.out.println("setFont not implemented!");
+	}
+	
 }
