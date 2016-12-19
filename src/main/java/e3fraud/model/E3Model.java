@@ -506,7 +506,6 @@ public class E3Model {
         }
     }
 
-
     /**
      * Updates the OCCURRENCE attribute of a need to a given number. This only
      * triggers a quickEnhance, and therefore only affects the dependency path
@@ -853,6 +852,123 @@ public class E3Model {
 
     }
 
+    /**
+     * This method finds all interfaces which are directly connected via Value
+     * Exchanges (not connection elements)
+     *
+     * @param nextElement the Value Interface resource for which to find
+     * connected Value Interfaces
+     * @param inner Whether or not to return interfaces connecting to
+     * sub-components (e.g. actor to sub-actor or actor to value activity or
+     * reverse)
+     * @param outer Whether or not to return interfaces connection to other
+     * components (e.g. actor to actor or actor to MS or reverse)
+     * @return a Set of Value Interface resources which are connected to the
+     * given Value Interfaces and satisfy the two criteria (inner and outer)
+     */
+    private HashSet<Resource> getConnectedInterfaces(Resource nextElement, boolean inner, boolean outer) {
+        HashSet<Resource> connectedValueInterfaces = new HashSet<Resource>();
+        StmtIterator valueOfferings = nextElement.listProperties(E3value.vi_consists_of_of);  //get it's ValueOfferings
+        while (valueOfferings.hasNext()) {
+            Resource valueOffering = valueOfferings.next().getResource();
+            StmtIterator valuePorts = valueOffering.listProperties(E3value.vo_consists_of_vp);  //get the valuePorts
+            while (valuePorts.hasNext()) {
+                Resource valuePort = valuePorts.next().getResource();
+                if (valuePort.hasProperty(E3value.vp_in_connects_ve) && outer) {
+                    StmtIterator valueExchanges = valuePort.listProperties(E3value.vp_in_connects_ve);
+                    while (valueExchanges.hasNext()) {
+                        Resource valueExchange = valueExchanges.next().getResource();
+                        Resource reciprocalValuePort = valueExchange.getProperty(E3value.ve_has_out_po).getResource();
+                        Resource reciprocalValueOffering = reciprocalValuePort.getProperty(E3value.vp_in_vo).getResource();
+                        Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
+                        connectedValueInterfaces.add(reciprocalValueInterface);
+                    }
+                } else if (valuePort.hasProperty(E3value.vp_out_connects_ve) && outer) {
+                    StmtIterator valueExchanges = valuePort.listProperties(E3value.vp_out_connects_ve);
+                    while (valueExchanges.hasNext()) {
+                        Resource valueExchange = valueExchanges.next().getResource();
+                        Resource reciprocalValuePort = valueExchange.getProperty(E3value.ve_has_in_po).getResource();
+                        Resource reciprocalValueOffering = reciprocalValuePort.getProperty(E3value.vp_in_vo).getResource();
+                        Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
+                        connectedValueInterfaces.add(reciprocalValueInterface);
+                    }
+                } else if (valuePort.hasProperty(E3value.vp_first_connects_ve) && inner) {
+                    StmtIterator valueExchanges = valuePort.listProperties(E3value.vp_first_connects_ve);
+                    while (valueExchanges.hasNext()) {
+                        Resource valueExchange = valueExchanges.next().getResource();
+                        Resource reciprocalValuePort = valueExchange.getProperty(E3value.ve_has_second_vp).getResource();
+                        Resource reciprocalValueOffering = reciprocalValuePort.getProperty(E3value.vp_in_vo).getResource();
+                        Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
+                        connectedValueInterfaces.add(reciprocalValueInterface);
+                    }
+                } else if (valuePort.hasProperty(E3value.vp_second_connects_ve) && inner) {
+                    StmtIterator valueExchanges = valuePort.listProperties(E3value.vp_second_connects_ve);
+                    while (valueExchanges.hasNext()) {
+                        Resource valueExchange = valueExchanges.next().getResource();
+                        Resource reciprocalValuePort = valueExchange.getProperty(E3value.ve_has_first_vp).getResource();
+                        Resource reciprocalValueOffering = reciprocalValuePort.getProperty(E3value.vp_in_vo).getResource();
+                        Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
+                        connectedValueInterfaces.add(reciprocalValueInterface);
+                    }
+                }
+            }
+        }
+        return connectedValueInterfaces;
+    }
+
+    public String divideByCount(Resource marketSegment, String occurrences) {
+        double count = 1;
+        StmtIterator formulas = marketSegment.listProperties(E3value.e3_has_formula);
+        while (formulas.hasNext()) {
+            Statement formula = formulas.next();
+            String attribute = formula.getString().split("=", 2)[0];
+            if (attribute.equals("COUNT")) {
+                count = valueOf(marketSegment, attribute);
+            }
+        }
+        if (debug) {
+            System.out.println("\t\t... Entering MS. Dividing occurences by " + count);
+        }
+
+        //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
+        //Therefore, if the occurrence rate is a number
+        if (occurrences.matches("\\d*\\.?\\d*")) {
+            //Compute it now to keep it a number
+            occurrences = Double.toString(Double.valueOf(occurrences) / count);
+        } //if it is an expression
+        else {
+            //Keep it as an expression
+            occurrences = "(" + occurrences + ")/" + count;
+        }
+        return occurrences;
+    }
+
+    public String multiplyByCount(Resource marketSegment, String occurrences) {
+        double count = 1;
+        StmtIterator formulas = marketSegment.listProperties(E3value.e3_has_formula);
+        while (formulas.hasNext()) {
+            Statement formula = formulas.next();
+            String attribute = formula.getString().split("=", 2)[0];
+            if (attribute.equals("COUNT")) {
+                count = valueOf(marketSegment, attribute);
+            }
+        }
+        if (debug) {
+            System.out.println("\t\t... Exiting  MS; Multiplying occurences by " + count);
+        }
+        //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
+        //Therefore, if the occurrence rate is a number
+        if (occurrences.matches("\\d*\\.?\\d*")) {
+            //Compute it now to keep it a number
+            occurrences = Double.toString(Double.valueOf(occurrences) * count);
+        } //if it is an expression
+        else {
+            //Keep it as an expression
+            occurrences = "(" + occurrences + ")*" + count;
+        }
+        return occurrences;
+    }
+
 /// Evaluate, enhance and traverse methods
     public void evaluate() {
         this.evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
@@ -954,21 +1070,20 @@ public class E3Model {
                 System.out.println("\t\t\t...with e3type: " + nextElement.getProperty(RDF.type).toString());
             }
 
-        //then depending on the type element, decide what to do next:
-            
-          //###  OR node  ###
-            if (nextElement.hasProperty(RDF.type, E3value.OR_node)) {         
+            //then depending on the type element, decide what to do next:
+            //###  OR node  ###
+            if (nextElement.hasProperty(RDF.type, E3value.OR_node)) {
                 StmtIterator outgoingNodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
                 StmtIterator incomingNodes = nextElement.listProperties(E3value.de_up_ce);
                 List<Statement> outgoingNodeList = outgoingNodes.toList();//get list() of outgoing elements (for more control)
                 List<Statement> incomingNodeList = incomingNodes.toList();
-                
+
                 //## OR join ##
                 if (incomingNodeList.size() > 1) {
                     if (debug) {
                         System.out.println("\t\t\t ...found OR  join with " + incomingNodeList.size() + " incoming ports.");
                     }
-                    
+
                     //check if all incoming paths have been considered,
                     for (Statement incomingNode : incomingNodeList) {
                         //and if not
@@ -978,36 +1093,38 @@ public class E3Model {
                             return;
                         }
                     }
-                    
+
                     //If all paths were computed,     
                     //sum up the occurrence of the incoming path 
                     String outgoingOccurrences = "0";
-                    for (Statement incomingNodeStatement : incomingNodeList){   
+                    for (Statement incomingNodeStatement : incomingNodeList) {
                         String incomingOccurrence = incomingNodeStatement.getResource().getProperty(E3value.down_fraction).getString();
                         if (outgoingOccurrences.matches("\\d*\\.?\\d*") && incomingOccurrence.matches("\\d*\\.?\\d*")) {
                             outgoingOccurrences = Double.toString(Double.valueOf(outgoingOccurrences) + Double.valueOf(incomingOccurrence));
                         } else {
                             outgoingOccurrences = "(" + outgoingOccurrences + ")+(" + incomingOccurrence + ")";
                         }
-                    }                    
-                    if (debug) System.out.println("\t\t\t ... sum of incoming occurrences = " + outgoingOccurrences);
+                    }
+                    if (debug) {
+                        System.out.println("\t\t\t ... sum of incoming occurrences = " + outgoingOccurrences);
+                    }
 
                     //and then go down outgoing CE
                     traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences);
                     return;
-                    
-                //## OR fork ##
+
+                    //## OR fork ##
                 } else {
                     if (debug) {
                         System.out.println("\t\t\t ...found OR  fork with " + outgoingNodeList.size() + " outgoing ports.");
                     }
-                    
+
                     //First, sum up the fractions of all outgoing Connection Elements
                     double totalFractions = 0;
                     for (Statement node : outgoingNodeList) {
                         totalFractions += node.getResource().getProperty(E3value.up_fraction).getFloat();
                     }
-                    
+
                     //Second, go down each path using occurence = OCCURENCE*FRACTION/Total_FRACTIONs
                     for (Statement node : outgoingNodeList) {
                         double ratio = node.getResource().getProperty(E3value.up_fraction).getFloat() / totalFractions;
@@ -1023,26 +1140,28 @@ public class E3Model {
                         }
                         traverse(node.getResource(), occurrences);
                     }
-                return;
+                    return;
                 }
-                
-                
-          //###  AND node  ###
+
+                //###  AND node  ###
             } else if (nextElement.hasProperty(RDF.type, E3value.AND_node)) { //if it's a AND node
                 StmtIterator outgoingNodes = nextElement.listProperties(E3value.de_down_ce);//get outgoing connection elements
                 StmtIterator incomingNodes = nextElement.listProperties(E3value.de_up_ce);
                 List<Statement> outgoingNodeList = outgoingNodes.toList();
                 List<Statement> incomingNodeList = incomingNodes.toList();
-                if (debug)                     System.out.println("\t\t\t ...found AND  node with " + incomingNodeList.size() + " incoming ports and " + outgoingNodeList.size() + " outgoing ports");                
-                
-                //## AND join ##
-                if (incomingNodeList.size() > 1) {
-                    //TODO: add AND join behaviour
+                if (debug) {
+                    System.out.println("\t\t\t ...found AND  node with " + incomingNodeList.size() + " incoming ports and " + outgoingNodeList.size() + " outgoing ports");
                 }
-                
+
+//                //## AND join ##
+//                if (incomingNodeList.size() > 1) {
+//                    //TODO: add AND join behaviour
+                //PROBLEM: potential inconsistencies here (incoming paths with different occurrences are illegal), which should be picked up earlier on;
+                // When all incoming paths have equal occurrence rates, then the AND-fork behaviour applies for AND-joins too
+//                }
                 //## AND fork ##
-                else{
-                //Go down each path using occurence = OCCURENCE*fraction)
+                //else{
+                //Go down each path using occurence = OCCURENCE*fraction
                 for (Statement node : outgoingNodeList) {
                     double ratio = node.getResource().getProperty(E3value.up_fraction).getFloat();
                     //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
@@ -1056,12 +1175,11 @@ public class E3Model {
                         occurrences = "(" + occurrences + ")*" + ratio;
                     }
                     traverse(node.getResource(), occurrences);
+                    //}
+                    return;
                 }
-                return;
-                }
-                
-                
-          //###  connection_element  ###
+
+                //###  connection_element  ###
             } else if (nextElement.hasProperty(RDF.type, E3value.connection_element)) {//if it's a ConnectionElement
                 if (debug) {
                     System.out.println("\t\t\t... it is a Connection Element");
@@ -1071,13 +1189,12 @@ public class E3Model {
                 List<Statement> incomingNodeList = incomingNodes.toList();
                 if (incomingNodeList.size() > 1) {
                     //mark this incoming path as visited (to be used by the join to compute the occurrences of the outgoing path)
-                    nextElement.addProperty(E3value.e3_has_formula,"VISITED=1");
+                    nextElement.addProperty(E3value.e3_has_formula, "VISITED=1");
                     nextElement.getProperty(E3value.down_fraction).changeObject(occurrences);
                 }
                 nextElement = nextElement.getProperty(E3value.ce_with_down_de).getResource();//choose the next element (Value Interface or AND/OR node)
 
-                
-          //###  value_onterface  with incoming CE###                
+                //###  value_interface  with incoming CE###                
             } else if (nextElement.hasProperty(RDF.type, E3value.value_interface) && nextElement.hasProperty(E3value.de_up_ce)) { //if it's a ValueInterface with an incoming ConnectionElement (meaning we need to go down the ValueExchange(s))
                 if (debug) {
                     System.out.println("\t\t\t... it is a ValueInterface with an incoming ConnectionElement");
@@ -1087,53 +1204,11 @@ public class E3Model {
                 //if the Value Interface was part of a MarketSegment, multiply the occurence by the count of this MarketSegment
                 if (nextElement.hasProperty(E3value.vi_assigned_to_ms)) {
                     Resource marketSegment = nextElement.getPropertyResourceValue(E3value.vi_assigned_to_ms);
-                    double count = 1;
-                    StmtIterator formulas = marketSegment.listProperties(E3value.e3_has_formula);
-                    while (formulas.hasNext()) {
-                        Statement formula = formulas.next();
-                        String attribute = formula.getString().split("=", 2)[0];
-                        if (attribute.equals("COUNT")) {
-                            count = valueOf(marketSegment, attribute);
-                        }
-                    }
-                    if (debug) {
-                        System.out.println("\t\t... It is at the border of a  MS; Multiplying occurences by " + count);
-                    }
-                    //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
-                    //Therefore, if the occurrence rate is a number
-                    if (occurrences.matches("\\d*\\.?\\d*")) {
-                        //Compute it now to keep it a number
-                        occurrences = Double.toString(Double.valueOf(occurrences) * count);
-                    } //if it is an expression
-                    else {
-                        //Keep it as an expression
-                        occurrences = "(" + occurrences + ")*" + count;
-                    }
+                    occurrences = multiplyByCount(marketSegment, occurrences);
                 }
 
                 //find all other interfaces that are connected to this one 
-                HashSet<Resource> connectedValueInterfaces = new HashSet<>();
-                StmtIterator valueOfferings = nextElement.listProperties(E3value.vi_consists_of_of);  //get it's ValueOfferings
-                while (valueOfferings.hasNext()) {
-                    Resource valueOffering = valueOfferings.next().getResource();
-                    StmtIterator valuePorts = valueOffering.listProperties(E3value.vo_consists_of_vp);  //get the valuePorts
-                    while (valuePorts.hasNext()) {
-                        Resource valuePort = valuePorts.next().getResource();
-                        if (valuePort.hasProperty(E3value.vp_in_connects_ve)) {
-                            Resource valueExchange = valuePort.getProperty(E3value.vp_in_connects_ve).getResource();
-                            Resource reciprocalValuePort = valueExchange.getProperty(E3value.ve_has_out_po).getResource();
-                            Resource reciprocalValueOffering = reciprocalValuePort.getProperty(E3value.vp_in_vo).getResource();
-                            Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
-                            connectedValueInterfaces.add(reciprocalValueInterface);
-                        } else if (valuePort.hasProperty(E3value.vp_out_connects_ve)) {
-                            Resource valueExchange = valuePort.getProperty(E3value.vp_out_connects_ve).getResource();
-                            Resource reciprocalValuePort = valueExchange.getProperty(E3value.ve_has_in_po).getResource();
-                            Resource reciprocalValueOffering = reciprocalValuePort.getProperty(E3value.vp_in_vo).getResource();
-                            Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
-                            connectedValueInterfaces.add(reciprocalValueInterface);
-                        }
-                    }
-                }
+                HashSet<Resource> connectedValueInterfaces = getConnectedInterfaces(nextElement, true, true);
 
                 //and continue the traversal through each one
                 for (Resource connectedValueInterface : connectedValueInterfaces) {
@@ -1141,40 +1216,65 @@ public class E3Model {
                 }
                 return;
 
-          //###  value_interface with outgoing CE  ###
+                //###  value_interface with outgoing CE  ###
             } else if (nextElement.hasProperty(RDF.type, E3value.value_interface) && nextElement.hasProperty(E3value.de_down_ce)) { //if it's a ValueInterface with an outgoing ConnectionElement (meaning we need to go down this ConnectionElement)
                 if (debug) {
                     System.out.println("\t\t\t... it is a ValueInterface with an outgoing ConnectionElement");
                 }
-                //if the Value Interface is part of a MarketSegment, divide the occurence by the count of this MarketSegment
+
+                //If the Value Interface is part of a MarketSegment, divide the occurence by the count of this MarketSegment
                 if (nextElement.hasProperty(E3value.vi_assigned_to_ms)) {
                     Resource marketSegment = nextElement.getPropertyResourceValue(E3value.vi_assigned_to_ms);
-                    double count = 1;
-                    StmtIterator formulas = marketSegment.listProperties(E3value.e3_has_formula);
-                    while (formulas.hasNext()) {
-                        Statement formula = formulas.next();
-                        String attribute = formula.getString().split("=", 2)[0];
-                        if (attribute.equals("COUNT")) {
-                            count = valueOf(marketSegment, attribute);
-                        }
-                    }
-                    if (debug) {
-                        System.out.println("\t\tEntering MS. Dividing occurences by " + count);
-                    }
-                    //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
-                    //Therefore, if the occurrence rate is a number
-                    if (occurrences.matches("\\d*\\.?\\d*")) {
-                        //Compute it now to keep it a number
-                        occurrences = Double.toString(Double.valueOf(occurrences) / count);
-                    } //if it is an expression
-                    else {
-                        //Keep it as an expression
-                        occurrences = "(" + occurrences + ")/" + count;
-                    }
+                    occurrences = divideByCount(marketSegment, occurrences);
                 }
-                //add occurrences to it (after taking count into consideration)
+                //Then, add occurrences to it 
                 updateValueInterfaceOccurrences(nextElement, occurrences);
                 nextElement = nextElement.getProperty(E3value.de_down_ce).getResource();//choose the next Connection Element                
+
+                //###  value_interface with no connected CE (exchanges on either sides)  ###
+            } else if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {
+                if (debug) {
+                    System.out.println("\t\t\t... it is a ValueInterface with no connected CE (exchanges on both sides)");
+                }
+
+                //First, find out which is (are) the next value interface(s)                
+                HashSet<Resource> connectedValueInterfaces = getConnectedInterfaces(nextElement, true, true);
+                HashSet<Resource> outgoingConnectedValueInterfaces = new HashSet<>();
+                //by looking through all connected interfaces
+                for (Resource connectedValueInterface : connectedValueInterfaces) {
+                    //and selecting the ones which have a outgoing CE
+                    if (connectedValueInterface.hasProperty(E3value.de_down_ce)) {
+                        outgoingConnectedValueInterfaces.add(connectedValueInterface);
+                    } //or which are in turn connected to another interface  which has an outgoing CE
+                    else if (!connectedValueInterface.hasProperty(E3value.de_down_ce)) {
+                        HashSet<Resource> secondConnectedValueInterfaces = getConnectedInterfaces(nextElement, true, true);
+                        for (Resource secondConnectedValueInterface : secondConnectedValueInterfaces) {
+                            if (secondConnectedValueInterface.hasProperty(E3value.de_down_ce)) {
+                                outgoingConnectedValueInterfaces.add(connectedValueInterface);
+                            }
+                        }
+                    }
+                }
+
+                //Second, find out if we are entering or exiting a MarketSegment
+                //and divide or multiple the occurence by its count as needed
+                if (nextElement.hasProperty(E3value.vi_assigned_to_ms)) {
+                    Resource marketSegment = nextElement.getPropertyResourceValue(E3value.vi_assigned_to_ms);
+                    HashSet<Resource> innerConnectedValueInterfaces = getConnectedInterfaces(nextElement, true, false);
+                    if (innerConnectedValueInterfaces.containsAll(connectedValueInterfaces)) {
+                        occurrences = divideByCount(marketSegment, occurrences);
+                    } else {
+                        occurrences = multiplyByCount(marketSegment, occurrences);
+                    }
+                }
+
+                //Then, add occurrences to it 
+                updateValueInterfaceOccurrences(nextElement, occurrences);
+                //and continue the traversal through each one
+                for (Resource outgoingConnectedValueInterface : outgoingConnectedValueInterfaces) {
+                    traverse(outgoingConnectedValueInterface, occurrences);
+                }
+                return;
             }
         }
         if (debug) {
