@@ -927,7 +927,7 @@ public class E3Model {
             }
         }
         if (debug) {
-            System.out.println("\t\t... Entering MS. Dividing occurences by " + count);
+            System.out.println("\t\t\t... Entering MS. Dividing occurences by " + count);
         }
 
         //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
@@ -954,7 +954,7 @@ public class E3Model {
             }
         }
         if (debug) {
-            System.out.println("\t\t... Exiting  MS; Multiplying occurences by " + count);
+            System.out.println("\t\t\t... Exiting  MS; Multiplying occurences by " + count);
         }
         //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
         //Therefore, if the occurrence rate is a number

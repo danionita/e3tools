@@ -195,7 +195,7 @@ public class Main {
         JMenu exportMenu = new JMenu("Export...");
 
         exportMenu.add(new EditorActions.ExportRDF(this));
-        exportMenu.add(new EditorActions.ExportJSON(this));
+        //exportMenu.add(new EditorActions.ExportJSON(this));
         exportMenu.add(new EditorActions.ExportImage(this));
 
         fileMenu.add(exportMenu);
