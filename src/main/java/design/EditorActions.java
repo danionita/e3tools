@@ -294,6 +294,8 @@ public class EditorActions {
 
                 return;
             }
+            
+            JOptionPane.showMessageDialog(Main.mainFrame, "RDF exported to: " + targetFile);
 
             // SVG test
             // TODO: Use this sometime for SVG export when JGraphX supports stencils.

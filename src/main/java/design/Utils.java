@@ -260,6 +260,13 @@ public class Utils {
         return result;
     }
 
+    /**
+     * Returns the vertex from edge that is not equal to terminal.
+     * @param graph
+     * @param edge
+     * @param terminal
+     * @return vertex from edge =/= terminal
+     */
     public static Object getOpposite(mxGraph graph, Object edge, Object terminal) {
         Object source = graph.getModel().getTerminal(edge, true);
         Object target = graph.getModel().getTerminal(edge, false);
