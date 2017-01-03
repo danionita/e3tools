@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,6 +44,9 @@ import design.info.Base;
 import design.info.EndSignal;
 import design.info.StartSignal;
 import design.info.ValueExchange;
+import design.style.E3StyleEditor;
+import design.style.E3StyleEvent;
+import design.style.Element;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
@@ -1036,9 +1037,9 @@ public class EditorActions {
         }
     }
 
-    public static class ChangeTheme extends BaseAction {
-		public ChangeTheme(Main main) {
-			super("Change theme...", main);
+    public static class SelectTheme extends BaseAction {
+		public SelectTheme(Main main) {
+			super("Select theme...", main);
 		}
 
 		@Override
@@ -1086,6 +1087,37 @@ public class EditorActions {
 			Utils.update(graph, () -> {
 				((mxGraphModel) graph.getModel()).execute(themeChange);
 			});
+		}
+    }
+    
+    public static class EditTheme extends BaseAction {
+		public EditTheme(Main main) {
+			super("Edit current theme...", main);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			E3Graph graph = main.getCurrentGraph();
+			E3StyleEditor editor = new E3StyleEditor(graph);
+			editor.setModal(true);
+			editor.addListener(e3ThemeStyleEvent -> {
+				E3Style newStyle = new E3Style(graph.style);
+				boolean anythingChanged = newStyle.applyStyleDelta(e3ThemeStyleEvent);
+				
+				if (anythingChanged) {
+					ThemeChange themeChange = new ThemeChange(
+							main.getCurrentGraphComponent(),
+							main.getCurrentToolComponent(),
+							newStyle,
+							false);
+
+					Utils.update(graph, () -> {
+						((mxGraphModel) graph.getModel()).execute(themeChange);
+					});
+				}
+			});
+			
+			editor.setVisible(true);
 		}
     }
 

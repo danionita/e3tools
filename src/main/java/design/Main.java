@@ -252,8 +252,8 @@ public class Main {
         JMenu modelMenu = new JMenu("Model");
         
         modelMenu.add(new EditorActions.ChangeModelTitle(this));      
-        modelMenu.add(new EditorActions.ChangeTheme(this));
-
+        modelMenu.add(new EditorActions.SelectTheme(this));
+        modelMenu.add(new EditorActions.EditTheme(this));
         
         modelMenu.addSeparator();
 
