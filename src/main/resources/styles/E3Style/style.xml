@@ -27,8 +27,6 @@
 	<!-- view settings -->
 	<!-- Background color, can only be a hexadecimal color. -->
 	<background>#FFFFFF</background>
-	<!-- Whether or not to show the grid. Must be either "true" or "false". -->
-	<grid>true</grid>
 
 	<!-- Component styles -->
 	<add as="baseStyle">

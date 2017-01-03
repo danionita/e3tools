@@ -129,6 +129,9 @@ public class E3GraphComponent extends mxGraphComponent {
 		ContextMenus.addE3PropertiesMenu(endSignalMenu, graph);
 		ContextMenus.addEndSignalMenu(endSignalMenu, graph);
 		
+		// Grid by default
+		setGridVisible(true);
+		
 		// Some debug menus
 		if (Main.DEBUG) {
 			ContextMenus.addE3PropertiesMenu(valueInterfaceMenu, graph);

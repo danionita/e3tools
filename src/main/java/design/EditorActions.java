@@ -35,6 +35,7 @@ import org.jfree.chart.JFreeChart;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxCellRenderer;
 
 import design.checker.FlowChecker;
@@ -604,15 +605,15 @@ public class EditorActions {
     }
 
     public static class ToggleGrid extends BaseAction {
-
         public ToggleGrid(Main main) {
             super("Toggle grid", main);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-        	main.getCurrentGraph().style.toggleGrid();
-        	main.getCurrentGraph().style.styleGraphComponent(main.getCurrentGraphComponent());
+        	mxGraphComponent graphComponent = main.getCurrentGraphComponent();
+        	graphComponent.setGridVisible(!graphComponent.isGridVisible());
+        	main.getCurrentGraph().refresh();
         }
     }
 

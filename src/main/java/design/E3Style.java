@@ -74,8 +74,6 @@ import design.style.Element;
  * - There is a name tag which is the name of the style. This should be the
  *   same as the folder name. It cannot contain spaces.
  * - There is a background tag. This contains the background color of the editor.
- * - There is a grid tag. This contains true or false, indicating whether the
- *   grid should be shown or not.
  * - Throughout the xml file you can use {!name}. This will be search-replaced upon
  *   loading the xml file with the name in the name tag plus a nonce. This is to
  *   prevent name clashes in mxGraph's internal style management, more specifically
@@ -104,17 +102,6 @@ import design.style.Element;
  *
  */
 public class E3Style {
-	// Just added an option to toggle the grid. This changes both showGrid & the XML, and does some juggling
-	// to keep the vars doc & xml in sync.
-	// TODO: Right now this is the easiest way, but I don't like this. Somehow you have to keep both the flags
-	// in the XML and the member variables in sync... Everything should just be inferred from the initially parsed
-	// node always. If any options are added to the style class all the settings (showing grid and others)
-	// should just be derived from the XML.
-	// That way the getGrid() functions and the state of e3style are always in sync, and it's easy to serialize
-	// the style (just turn the doc var into XML).
-		
-	// TODO: Make grid not dependent on theme settings
-
 	public static final double DOTRADIUS 						= 4;
 
 	public static final String BASE_STYLE 						= "baseStyle";
@@ -465,7 +452,6 @@ public class E3Style {
 		// Set the editor-specific settings
 		graphComponent.getViewport().setOpaque(true);
 		graphComponent.getViewport().setBackground(getModelBackgroundColor());
-		graphComponent.setGridVisible(getGrid());
 		
 		// To get rid of the folding icon
 		graphComponent.setFoldingEnabled(false);
@@ -569,43 +555,6 @@ public class E3Style {
 		}
 		
 		return candidates;
-	}
-	
-	/**
-	 * True if the grid should be shown according to this style, false if not.
-	 * @return
-	 */
-	public boolean getGrid() {
-		return doc.getDocumentElement()
-			.getElementsByTagName("grid")
-			.item(0)
-			.equals("true");
-	}
-	
-	/**
-	 * Sets whether or not the grid should be shown according to this style.
-	 * Does not apply the new style to any graph. Use {@link #styleGraphComponent(mxGraphComponent)}.
-	 * @param newGrid
-	 */
-	public void setGrid(boolean newGrid) {
-		Node gridNode = doc
-			.getDocumentElement()
-			.getElementsByTagName("grid")
-			.item(0);
-
-		if (newGrid) {
-			gridNode.setTextContent("true");
-		} else {
-			gridNode.setTextContent("false");
-		}
-	}
-	
-	/**
-	 * Toggles whether or not the grid should be shown according to the current style.
-	 * Does not apply the new style to any graph. Use {@link #styleGraphComponent(mxGraphComponent)}.
-	 */
-	public void toggleGrid() {
-		setGrid(!getGrid());
 	}
 	
 	public Optional<Node> getAddFromNodeList(NodeList nl, String asValue) {
