@@ -424,6 +424,7 @@ public class RDFExport {
 				getOfferingIn(viInfo.SUID);
 				getOfferingOut(viInfo.SUID);
 			} else if (value instanceof ValuePort) {
+				System.out.println("Exporting ValuePort #" + value.SUID);
 				res.addProperty(RDF.type, E3value.value_port);
 				ValuePort vpInfo = (ValuePort) value;
 				
@@ -476,8 +477,8 @@ public class RDFExport {
 				
 				VEConnection vec = new VEConnection(graph, cell);
 				
-				Object vpInContainer = graph.getContainerOfValuePort(vec.getInVP());
-				Object vpOutContainer = graph.getContainerOfValuePort(vec.getOutVP());
+				Object vpInContainer = graph.getContainerOfChild(vec.getInVP());
+				Object vpOutContainer = graph.getContainerOfChild(vec.getOutVP());
 
 				Resource vpInRes = getCellResource(vec.getInVP());
 				Resource vpOutRes = getCellResource(vec.getOutVP());

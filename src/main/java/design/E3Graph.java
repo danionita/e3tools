@@ -1546,11 +1546,11 @@ public class E3Graph extends mxGraph implements Serializable{
 	
 	/**
 	 * Returns the container (actor/market segment/value activity) of a
-	 * value port.
+	 * value port or signal dot.
 	 * @param vp
 	 * @return
 	 */
-	public Object getContainerOfValuePort(Object vp) {
+	public Object getContainerOfChild(Object vp) {
 		return model.getParent(model.getParent(vp));
 	}
 	
@@ -1568,21 +1568,21 @@ public class E3Graph extends mxGraph implements Serializable{
 				return false;
 			}
 			
-			Object sourceContainer = getContainerOfValuePort(source);
-			Object targetContainer = getContainerOfValuePort(target);
+			Object sourceContainer = getContainerOfChild(source);
+			Object targetContainer = getContainerOfChild(target);
 			Base sourceContainerValue = (Base) model.getValue(sourceContainer);
 			Base targetContainerValue = (Base) model.getValue(targetContainer);
 			
-			if ((model.getParent(sourceContainer) != getDefaultParent() && sourceContainerValue instanceof ValueActivity)
-				|| (model.getParent(targetContainer) != getDefaultParent() && targetContainerValue instanceof ValueActivity)) {
+			boolean areAncestors = model.isAncestor(sourceContainer, targetContainer) || model.isAncestor(targetContainer, sourceContainer);
+			if (((model.getParent(sourceContainer) != getDefaultParent() && sourceContainerValue instanceof ValueActivity)
+				|| (model.getParent(targetContainer) != getDefaultParent() && targetContainerValue instanceof ValueActivity)) && areAncestors) {
+				
 				// If either one is a non-toplevel value activity it can only connect to its containing actor or market segment.
-
-				boolean areAncestors = model.isAncestor(sourceContainer, targetContainer) || model.isAncestor(targetContainer, sourceContainer);
 				boolean bothActorOrMarketSegmentAndValueActivity =
 								   (sourceContainerValue instanceof ValueActivity && (targetContainerValue instanceof Actor || targetContainerValue instanceof MarketSegment))
 								|| ((sourceContainerValue instanceof Actor || targetContainerValue instanceof MarketSegment) && targetContainerValue instanceof ValueActivity);
 				
-				if (areAncestors && bothActorOrMarketSegmentAndValueActivity) {
+				if (/* areAncestors && */ bothActorOrMarketSegmentAndValueActivity) {
 					// Only if the ports point the same way
 					return sourceInfo.incoming == targetInfo.incoming;
 				}
@@ -1597,8 +1597,9 @@ public class E3Graph extends mxGraph implements Serializable{
 				return sourceInfo.incoming != targetInfo.incoming;
 			} 
 			
-			// Otherwise everything is probably fine
-			return true;
+			// Otherwise it's not allowed
+			// Since if they are not ancestors, nor share their parents, they cannot connect!
+			return false;
 		} else if (Utils.isDotValue(sourceVal) && Utils.isDotValue(targetVal)) {
 			// If source and target are in the same logic element (and/or gate)
 			// Do not allow an edge
@@ -1607,9 +1608,9 @@ public class E3Graph extends mxGraph implements Serializable{
 					return false;
 				}
 			}
-
-			// Otherwise everything is probably fine
-			return true;
+			
+			// Otherwise, the two containers of the dots must be the same! Signals cannot go accross actor borders
+			return getContainerOfChild(source) == getContainerOfChild(target);
 		}
 		
 		return false;
