@@ -13,7 +13,6 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,8 +36,10 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxConstants;
 
 import design.checker.FlowChecker;
+import design.checker.WalkEntireModel;
 import design.export.JSONExport;
 import design.export.RDFExport;
 import design.info.Base;
@@ -46,8 +47,6 @@ import design.info.EndSignal;
 import design.info.StartSignal;
 import design.info.ValueExchange;
 import design.style.E3StyleEditor;
-import design.style.E3StyleEvent;
-import design.style.Element;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
@@ -1132,13 +1131,23 @@ public class EditorActions {
         @Override
         public void actionPerformed(ActionEvent arg0) {
             E3Graph currentGraph = main.getCurrentGraph();
-            FlowChecker flowChecker = new FlowChecker(currentGraph);
-            if (flowChecker.getConflictingDots().size() > 0) {
+            System.out.println("Doing WEM");
+            WalkEntireModel wem = new WalkEntireModel(currentGraph);
+            System.out.println("Doing FC");
+            FlowChecker fc = new FlowChecker(currentGraph);
+            System.out.println("Done checking");
+            if (fc.getConflictingDots().size() > 0) {
             	//System.out.println("Conflicting dots detected! Suspects:");
-            	for (Object obj : flowChecker.getConflictingDots()) {
+            	for (Object obj : fc.getConflictingDots()) {
             		Base info = (Base) currentGraph.getModel().getValue(obj);
             		System.out.println(info.name + " (" + info.SUID + ")");
+            		
+					currentGraph.getView().getState(obj).getStyle().put(
+							mxConstants.STYLE_STROKECOLOR,
+							"#00FF00"
+							);
             	}
+            	currentGraph.repaint();
             }
         }
     }

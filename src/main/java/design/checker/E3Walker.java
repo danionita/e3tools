@@ -309,27 +309,21 @@ public class E3Walker {
 						}
 					}
 				} else if (ancestorInfo instanceof ValueInterface) {
-					if (graph.getModel().getEdgeCount(subject) > 0) {
-						// TODO: Visit all VE's here
-						Object nextVE = graph.getModel().getEdgeAt(subject, 0);
+					Object nextVE = null;
+							
+					for (Object candidateVE : graph.getEdges(subject)) {
+						if (isVisited(candidateVE)) continue;
+						
+						nextVE = candidateVE;
+						break;
+					}
 
-						if (!isVisited(nextVE)) {
-							Object other = null;
-							Object src = graph.getModel().getTerminal(nextVE, true);
-							Object dst = graph.getModel().getTerminal(nextVE, false);
+					if (nextVE != null) {
+						Object otherVP = Utils.getOpposite(graph, nextVE, subject);
 
-							if (src == subject) {
-								other = dst;
-							} else {
-								other = src;
-							}
-
-							visitValueExchange(subject, nextVE, other);
-							markVisited(nextVE);
-							history.push(nextVE);
-						} else {
-							history.pop();
-						}
+						visitValueExchange(subject, nextVE, otherVP);
+						markVisited(nextVE);
+						history.push(nextVE);
 					} else {
 						history.pop();
 					}

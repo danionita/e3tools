@@ -197,6 +197,8 @@ public class Main {
         exportMenu.add(new EditorActions.ExportRDF(this));
         exportMenu.add(new EditorActions.ExportJSON(this));
         exportMenu.add(new EditorActions.ExportImage(this));
+        
+        fileMenu.add(new EditorActions.ModelCheck(this));
 
         fileMenu.add(exportMenu);
 
