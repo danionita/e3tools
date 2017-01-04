@@ -1591,6 +1591,11 @@ public class E3Graph extends mxGraph implements Serializable{
 				return false;
 			}
 			
+			// If the containers are ancestors, the ports should be pointing the same way.
+			if (areAncestors) {
+				return sourceInfo.incoming == targetInfo.incoming;
+			}
+			
 			// If the "containers" of the value ports have the same parent the
 			// directions have to be different (one incoming, one outgoing)
 			if (model.getParent(sourceContainer) == model.getParent(targetContainer)) {
