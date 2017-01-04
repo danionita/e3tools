@@ -961,8 +961,8 @@ public class Utils {
     		Object vp1 = graph.getModel().getTerminal(ve, true);
     		Object vp2 = graph.getModel().getTerminal(ve, false);
     		
-    		Object vp1Container = graph.getContainerOfValuePort(vp1);
-    		Object vp2Container = graph.getContainerOfValuePort(vp2);
+    		Object vp1Container = graph.getContainerOfChild(vp1);
+    		Object vp2Container = graph.getContainerOfChild(vp2);
     		
     		ValuePort vp1Info = (ValuePort) graph.getModel().getValue(vp1);
     		
