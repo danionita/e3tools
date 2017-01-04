@@ -444,33 +444,6 @@ public class RDFExport {
 				// False = in
 				// True = out
 				res.addProperty(E3value.vp_has_dir, (!vpInfo.incoming) + "");
-				
-				// This is now done at the ValueExchange clause. Delete it if it all works (11/12/2016)
-//				if (graph.getModel().getEdgeCount(cell) == 1) {
-//					Object valueExchange = graph.getModel().getEdgeAt(cell, 0);
-//					ValueExchange veInfo = (ValueExchange) graph.getModel().getValue(valueExchange);
-//					Resource veRes = getResource(veInfo.SUID);
-//					
-//					if (vpInfo.incoming) {
-//						res.addProperty(E3value.vp_in_connects_ve, veRes);
-//						veRes.addProperty(E3value.ve_has_in_po, res);
-//					} else {
-//						res.addProperty(E3value.vp_out_connects_ve, veRes);
-//						veRes.addProperty(E3value.ve_has_out_po, res);
-//					}
-//					
-//					if (veInfo.valueObject != null) {
-//						Resource valueObjectRes = getValueObject(veInfo.valueObject);
-//						res.addProperty(E3value.vp_requests_offers_vo, valueObjectRes);
-//						valueObjectRes.addProperty(E3value.vo_offered_requested_by_vp, res);
-//					}
-//					
-//					// Propagate valuation from edge if vp valuation == 0
-////					if (value.formulas.getOrDefault("VALUATION", "0").equals("0")) {
-////						value.formulas.put("VALUATION", veInfo.formulas.getOrDefault("VALUATION", "0"));
-////						res.addProperty(E3value.e3_has_formula, "VALUATION" + "=" + value.formulas.get("VALUATION"));
-////					}
-//				}
 			} else if (value instanceof ValueExchange) {
 				ValueExchange veInfo = (ValueExchange) value;
 				res.addProperty(RDF.type, E3value.value_exchange);

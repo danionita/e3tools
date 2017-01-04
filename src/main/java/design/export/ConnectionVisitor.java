@@ -227,45 +227,6 @@ public class ConnectionVisitor {
 		
 		if (oppositeValue instanceof ValueInterface) {
 			visitVIFromCE(opposite);
-//			Resource viRes = exporter.getResource(oppositeValue.SUID);
-//			
-//			System.out.println("Visiting VI #" + oppositeValue.SUID);
-//			
-//			viRes.addProperty(E3value.de_up_ce, ceRes);
-//			
-//			// TODO: This can be moved to its own function
-//			// TODO: Maybe just rewrite this whole thing to use E3Walker? One day...
-//			List<Object> ports = Utils.getChildrenWithValue(graph, opposite, ValuePort.class);
-//			for (Object port : ports) {
-//				if (model.getEdgeCount(port) > 0) {
-//					Object otherPort = Utils.getOpposite(graph, model.getEdgeAt(port, 0), port);
-//					Object valueInterface = model.getParent(otherPort);
-//					
-//					//System.out.println("Source value interface: " + oppositeValue.getSUID());
-//					//System.out.println("End value interface: " + ((Base) model.getValue(valueInterface)).getSUID());
-//					
-//					Object otherDot = Utils.getChildrenWithValue(graph, valueInterface, SignalDot.class).get(0);
-//					
-//					if (flowMap.containsKey(otherDot)) {
-//						// If flowmap contains otherDot, just check if it's set the right way, but don't
-//						// visit it any further (it has already been visited)
-//						setSend(otherDot);
-//					} else {
-//						setSend(otherDot);
-//						
-//						if (model.getEdgeCount(otherDot) == 1) {
-//							Object edge = model.getEdgeAt(otherDot, 0);
-//							ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
-//
-//							Base viInfo = (Base) model.getValue(valueInterface);
-//							Resource otherViRes = exporter.getResource(viInfo.SUID);
-//							otherViRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.SUID));
-//							
-//							visit(otherDot, edge, edgeInfo);
-//						}
-//					}
-//				}
-//			}
 		} else if (oppositeValue instanceof LogicBase) {
 			LogicBase lbInfo = (LogicBase) model.getValue(opposite);
 			visit(downDot, opposite, lbInfo);
