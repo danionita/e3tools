@@ -1,8 +1,12 @@
 package design.export;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.text.Document;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.mxgraph.model.mxGraphModel;
@@ -32,34 +36,32 @@ public class ConnectionVisitor {
 		this.model = (mxGraphModel) graph.getModel();
 	}
 	
-	void setSend(Object obj) throws MalformedFlowException {
+	void set(Object obj, Flow flowVal) throws MalformedFlowException {
 		if (flowMap.containsKey(obj)) {
-			if (flowMap.get(obj) != Flow.SEND) {
+			Flow realFlowVal = flowMap.get(obj);
+			if (realFlowVal != flowVal) {
 				Base value = Utils.base(graph, obj);
 				throw new MalformedFlowException(
-						"Tried setting the flow on an element to send, while it was already set to receiving. "
+						"Tried setting the flow on an element to " + flowVal.name() + ", while it was already set to " + realFlowVal.name() + ". "
 						+ "This usually means an and or or gate has a start or end stimuli on both sides. "
 						+ "Name of element in question: " + value.name + ". Type of element: " + value.getClass().getSimpleName(),
 						obj);
 			}
 		} else {
-			flowMap.put(obj, Flow.SEND);
+			flowMap.put(obj, flowVal);
 		}
+	}
+	
+	void setSend(Object obj) throws MalformedFlowException {
+		set(obj, Flow.SEND);
 	}
 
 	void setReceive(Object obj) throws MalformedFlowException {
-		if (flowMap.containsKey(obj)) {
-			if (flowMap.get(obj) != Flow.RECEIVE) {
-				Base value = Utils.base(graph, obj);
-				throw new MalformedFlowException(
-						"Tried setting the flow on an element to receive, while it was already set to receiving. "
-						+ "This usually means an and or or gate has a start or end stimuli on both sides. "
-						+ "Name of element in question: " + value.name + ". Type of element: " + value.getClass().getSimpleName(),
-						obj);
-			}
-		} else {
-			flowMap.put(obj, Flow.RECEIVE);
-		}
+		set(obj, Flow.RECEIVE);
+	}
+	
+	void setBoth(Object obj) throws MalformedFlowException {
+		set(obj, Flow.BOTH);
 	}
 	
 	/**
@@ -89,6 +91,106 @@ public class ConnectionVisitor {
 			
 			visit(child, edge, edgeInfo);
 		}
+	}
+	
+	void visitVIFromCE(Object vi) throws MalformedFlowException {
+		ValueInterface viInfo = (ValueInterface) graph.getModel().getValue(vi);
+		Resource viRes = exporter.getResource(viInfo.SUID);
+
+//		System.out.println("Visiting #" + viInfo.SUID + " from ce");
+		
+		Object dot = Utils.getChildrenWithValue(graph, vi, SignalDot.class).get(0);
+		Object ce = graph.getEdges(dot)[0];
+		ConnectionElement ceInfo = (ConnectionElement) graph.getModel().getValue(ce);
+		Resource ceRes = exporter.getResource(ceInfo.SUID);
+
+		viRes.addProperty(E3value.de_up_ce, ceRes);
+		
+		List<Object> valuePorts = Utils.getChildrenWithValue(graph, vi, ValuePort.class);
+		for (Object vp : valuePorts) {
+			Object[] edges = graph.getEdges(vp);
+			
+			boolean visitedVP = flowMap.containsKey(vp);
+			
+			if (edges.length > 1) {
+				setBoth(vp);
+			} else {
+				setSend(vp);
+			}
+			
+			if (!visitedVP) {
+				for (Object ve : graph.getEdges(vp)) {
+					Object downVP = Utils.getOpposite(graph, ve, vp);
+					if (!flowMap.containsKey(downVP)) {
+						Object otherVI = graph.getModel().getParent(downVP);
+						
+						visitVIFromVE(otherVI, ve, downVP);
+					}
+				}
+			}
+		}
+	}
+	
+	void visitVIFromVE(Object vi, Object ve, Object vp) throws MalformedFlowException {
+		// TODO: This method might have bad performance in case of looping value exchanges
+		// (i.e. value exchanges forming a circle, with one entry point being a signal dot,
+		// and an exit point being a signal dot) because of the recursion.
+//		{
+//			ValueInterface viInfo = (ValueInterface) graph.getModel().getValue(vi);
+//			System.out.println("Visiting #" + viInfo.SUID + " from ve");
+//		}
+		
+		// Check if we can travel outwards from the signal dot
+		Object dot = Utils.getChildrenWithValue(graph, vi, SignalDot.class).get(0);
+		
+		boolean visitedDot = flowMap.containsKey(dot);
+		if (!visitedDot) {
+			if (model.getEdgeCount(dot) == 1) {
+				setSend(dot);
+
+				Object edge = model.getEdgeAt(dot, 0);
+				ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
+
+				Base viInfo = (Base) model.getValue(vi);
+				Resource otherViRes = exporter.getResource(viInfo.SUID);
+				otherViRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.SUID));
+				
+				visit(dot, edge, edgeInfo);
+			}
+		}
+
+		// Get the ancestor/upstream value interface
+		Object upVI = graph.getModel().getParent(Utils.getOpposite(graph, ve, vp));
+		
+		// Get all value exchanges outgoing from this value exchange
+		// And visit each one that is not the one nor leads to the value interface we came from
+		for (Object otherVP : Utils.getChildrenWithValue(graph, vi, ValuePort.class)) {
+			for (Object otherVE : graph.getEdges(otherVP)) {
+				Object oppositeVP = Utils.getOpposite(graph, otherVE, otherVP);
+				Object downVI = graph.getModel().getParent(oppositeVP);
+
+				// Only handle this one if it's not upstream
+				if (downVI == upVI) {
+					continue;
+				}
+				
+				// Only handle this one if it has not been visited
+				// And test if we're still going the right way
+				boolean visitedVP = flowMap.containsKey(otherVP);
+				if (graph.getModel().getEdgeCount(oppositeVP) > 1) {
+					setBoth(oppositeVP);
+				} else {
+					setReceive(oppositeVP);
+				}
+				
+				if (visitedVP) {
+					continue;
+				}
+				
+				visitVIFromVE(downVI, otherVE, oppositeVP);
+			}
+		}
+		
 	}
 	
 	void visit(Object upDot, Object ce, ConnectionElement ceInfo) throws MalformedFlowException {
@@ -121,45 +223,10 @@ public class ConnectionVisitor {
 			}
 		}
 		
-		//System.out.println("Opposite: " + oppositeValue.getClass().getSimpleName());
+		// System.out.println("Opposite: " + oppositeValue.getClass().getSimpleName());
 		
 		if (oppositeValue instanceof ValueInterface) {
-			Resource viRes = exporter.getResource(oppositeValue.SUID);
-			viRes.addProperty(E3value.de_up_ce, ceRes);
-			
-			// TODO: This can be moved to its own function
-			// TODO: Maybe just rewrite this whole thing to use E3Walker? One day...
-			List<Object> ports = Utils.getChildrenWithValue(graph, opposite, ValuePort.class);
-			for (Object port : ports) {
-				if (model.getEdgeCount(port) > 0) {
-					Object otherPort = Utils.getOpposite(graph, model.getEdgeAt(port, 0), port);
-					Object valueInterface = model.getParent(otherPort);
-					
-					//System.out.println("Source value interface: " + oppositeValue.getSUID());
-					//System.out.println("End value interface: " + ((Base) model.getValue(valueInterface)).getSUID());
-					
-					Object otherDot = Utils.getChildrenWithValue(graph, valueInterface, SignalDot.class).get(0);
-					
-					if (flowMap.containsKey(otherDot)) {
-						// If flowmap contains otherDot, just check if it's set the right way, but don't
-						// visit it any further (it has already been visited)
-						setSend(otherDot);
-					} else {
-						setSend(otherDot);
-						
-						if (model.getEdgeCount(otherDot) == 1) {
-							Object edge = model.getEdgeAt(otherDot, 0);
-							ConnectionElement edgeInfo = (ConnectionElement) model.getValue(edge);
-
-							Base viInfo = (Base) model.getValue(valueInterface);
-							Resource otherViRes = exporter.getResource(viInfo.SUID);
-							otherViRes.addProperty(E3value.de_down_ce, exporter.getResource(edgeInfo.SUID));
-							
-							visit(otherDot, edge, edgeInfo);
-						}
-					}
-				}
-			}
+			visitVIFromCE(opposite);
 		} else if (oppositeValue instanceof LogicBase) {
 			LogicBase lbInfo = (LogicBase) model.getValue(opposite);
 			visit(downDot, opposite, lbInfo);

@@ -19,11 +19,13 @@ import design.info.ValuePort;
 
 /**
  * TODO: Add support for value ports with two value exchanges connected
+ * At the moment, this walker does not handle cases where a value interface has more than twice as many value exchanges as
+ * value ports attached not well. Do not use until that is fixed.
  * @author Bobe
  *
  */
 public class E3Walker {
-	private E3Graph graph;
+	public final E3Graph graph;
 	private Set<Object> visited = new HashSet<>();
 	private	Stack<Object> history = new Stack<>();
 
@@ -270,29 +272,58 @@ public class E3Walker {
 						markVisited(descendant);
 						history.push(descendant);
 					} else {
-						history.pop();
-					}
-				} else if (ancestorInfo instanceof ValueInterface) {
-					if (graph.getModel().getEdgeCount(subject) > 0) {
-						Object nextVE = graph.getModel().getEdgeAt(subject, 0);
+						// Visit all the other value exchanges that are on the "other side" of the value exchanges
+						// That is, if the ancestor VE does not come from a VI contained in the same container as this VP
+						// We should look only at the VE's going to an actor contained in the same container as this VP
+						
+						Object vpContainer = graph.getContainerOfChild(subject);
+						Object ancestorVP = Utils.getOpposite(graph, ancestor, subject);
+						Object ancestorContainer = graph.getContainerOfChild(ancestorVP);
+						
+						boolean onlyNestedValueExchanges = true;
+						if (graph.getModel().isAncestor(vpContainer, ancestorContainer)) {
+							onlyNestedValueExchanges = false;
+						}
+						
+						Object nextSubject = null;
+						
+						for (Object candidateSubject : graph.getEdges(subject)) {
+							if (candidateSubject == ancestor) continue;
 
-						if (!isVisited(nextVE)) {
-							Object other = null;
-							Object src = graph.getModel().getTerminal(nextVE, true);
-							Object dst = graph.getModel().getTerminal(nextVE, false);
-
-							if (src == subject) {
-								other = dst;
-							} else {
-								other = src;
-							}
-
-							visitValueExchange(subject, nextVE, other);
-							markVisited(nextVE);
-							history.push(nextVE);
+							Object candidateSubjectVP = Utils.getOpposite(graph, candidateSubject, subject);
+							boolean isNestedValueExchange = graph.getModel().isAncestor(vpContainer, graph.getContainerOfChild(candidateSubjectVP));
+							if (isNestedValueExchange != onlyNestedValueExchanges) continue;
+							
+							if (isVisited(candidateSubject)) continue;
+							
+							nextSubject = candidateSubject;
+							break;
+						}
+						
+						if (nextSubject != null) {
+							visitValueExchange(subject, nextSubject, Utils.getOpposite(graph, nextSubject, subject));
+							markVisited(nextSubject);
+							history.push(nextSubject);
 						} else {
 							history.pop();
 						}
+					}
+				} else if (ancestorInfo instanceof ValueInterface) {
+					Object nextVE = null;
+							
+					for (Object candidateVE : graph.getEdges(subject)) {
+						if (isVisited(candidateVE)) continue;
+						
+						nextVE = candidateVE;
+						break;
+					}
+
+					if (nextVE != null) {
+						Object otherVP = Utils.getOpposite(graph, nextVE, subject);
+
+						visitValueExchange(subject, nextVE, otherVP);
+						markVisited(nextVE);
+						history.push(nextVE);
 					} else {
 						history.pop();
 					}
@@ -338,9 +369,9 @@ public class E3Walker {
 	
 	/**
 	 * @param vp
-	 * @param in True if upstream is the value exchange
+	 * @param prev The previous link in the chain. Can either be a value exchange or a value interface
 	 */
-	public void visitValuePort(Object vp, boolean in) {
+	public void visitValuePort(Object vp, Object prev) {
 		
 	}
 

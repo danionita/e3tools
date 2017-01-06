@@ -2,7 +2,7 @@ package design.style;
 
 import design.E3Style;
 
-enum Element {
+public enum Element {
 	ACTOR("Actor", E3Style.ACTOR),
 	MARKET_SEGMENT("Market Segment", E3Style.MARKET_SEGMENT),
 	VALUE_ACTIVITY("Value Activity", E3Style.VALUE_ACTIVITY),

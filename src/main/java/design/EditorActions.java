@@ -12,10 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,15 +34,19 @@ import org.jfree.chart.JFreeChart;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxConstants;
 
 import design.checker.FlowChecker;
+import design.checker.WalkEntireModel;
 import design.export.JSONExport;
 import design.export.RDFExport;
 import design.info.Base;
 import design.info.EndSignal;
 import design.info.StartSignal;
 import design.info.ValueExchange;
+import design.style.E3StyleEditor;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.ProfitabilityAnalyser;
 import e3fraud.model.E3Model;
@@ -294,6 +295,8 @@ public class EditorActions {
 
                 return;
             }
+            
+            JOptionPane.showMessageDialog(Main.mainFrame, "RDF exported to: " + targetFile);
 
             // SVG test
             // TODO: Use this sometime for SVG export when JGraphX supports stencils.
@@ -601,15 +604,15 @@ public class EditorActions {
     }
 
     public static class ToggleGrid extends BaseAction {
-
         public ToggleGrid(Main main) {
             super("Toggle grid", main);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-        	main.getCurrentGraph().style.toggleGrid();
-        	main.getCurrentGraph().style.styleGraphComponent(main.getCurrentGraphComponent());
+        	mxGraphComponent graphComponent = main.getCurrentGraphComponent();
+        	graphComponent.setGridVisible(!graphComponent.isGridVisible());
+        	main.getCurrentGraph().refresh();
         }
     }
 
@@ -1034,9 +1037,9 @@ public class EditorActions {
         }
     }
 
-    public static class ChangeTheme extends BaseAction {
-		public ChangeTheme(Main main) {
-			super("Change theme...", main);
+    public static class SelectTheme extends BaseAction {
+		public SelectTheme(Main main) {
+			super("Select theme...", main);
 		}
 
 		@Override
@@ -1086,6 +1089,37 @@ public class EditorActions {
 			});
 		}
     }
+    
+    public static class EditTheme extends BaseAction {
+		public EditTheme(Main main) {
+			super("Edit current theme...", main);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			E3Graph graph = main.getCurrentGraph();
+			E3StyleEditor editor = new E3StyleEditor(graph);
+			editor.setModal(true);
+			editor.addListener(e3ThemeStyleEvent -> {
+				E3Style newStyle = new E3Style(graph.style);
+				boolean anythingChanged = newStyle.applyStyleDelta(e3ThemeStyleEvent);
+				
+				if (anythingChanged) {
+					ThemeChange themeChange = new ThemeChange(
+							main.getCurrentGraphComponent(),
+							main.getCurrentToolComponent(),
+							newStyle,
+							false);
+
+					Utils.update(graph, () -> {
+						((mxGraphModel) graph.getModel()).execute(themeChange);
+					});
+				}
+			});
+			
+			editor.setVisible(true);
+		}
+    }
 
 
     public static class ModelCheck extends BaseAction {
@@ -1097,13 +1131,23 @@ public class EditorActions {
         @Override
         public void actionPerformed(ActionEvent arg0) {
             E3Graph currentGraph = main.getCurrentGraph();
-            FlowChecker flowChecker = new FlowChecker(currentGraph);
-            if (flowChecker.getConflictingDots().size() > 0) {
+            System.out.println("Doing WEM");
+            WalkEntireModel wem = new WalkEntireModel(currentGraph);
+            System.out.println("Doing FC");
+            FlowChecker fc = new FlowChecker(currentGraph);
+            System.out.println("Done checking");
+            if (fc.getConflictingDots().size() > 0) {
             	//System.out.println("Conflicting dots detected! Suspects:");
-            	for (Object obj : flowChecker.getConflictingDots()) {
+            	for (Object obj : fc.getConflictingDots()) {
             		Base info = (Base) currentGraph.getModel().getValue(obj);
             		System.out.println(info.name + " (" + info.SUID + ")");
+            		
+					currentGraph.getView().getState(obj).getStyle().put(
+							mxConstants.STYLE_STROKECOLOR,
+							"#00FF00"
+							);
             	}
+            	currentGraph.repaint();
             }
         }
     }

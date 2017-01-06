@@ -196,7 +196,7 @@ public class ExampleModels {
 				graph.setValueExchangeLabelPosition(ve, 0.7, -41);
 				ve = graph.connectVE(providerARightVI, userARightVI);
 				graph.setValueObject(ve, "SERVICE");
-				graph.setValueExchangeLabel(ve, "Outgoing call");
+				graph.setValueExchangeLabel(ve, "Outgoing call\n");
 				graph.setValueExchangeLabelVisible(ve, true);
 				graph.setValueExchangeLabelPosition(ve, 0, -47);
 				
@@ -214,7 +214,7 @@ public class ExampleModels {
 				
 				ve = graph.connectVE(providerBRightVI, userBVI);
 				graph.setValueObject(ve, "SERVICE");
-				graph.setValueExchangeLabel(ve, "Incoming call");
+				graph.setValueExchangeLabel(ve, "Incoming call\n");
 				graph.setValueExchangeLabelVisible(ve, true);
 				graph.setValueExchangeLabelPosition(ve, 0, -50);
 				ve = graph.connectVE(userBVI, providerBRightVI);

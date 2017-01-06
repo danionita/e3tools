@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -43,6 +44,9 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
+
+import design.style.E3StyleEvent;
+import design.style.Element;
 
 /**
  * Class that contains and can apply a style to a graph.
@@ -70,8 +74,6 @@ import com.mxgraph.view.mxStylesheet;
  * - There is a name tag which is the name of the style. This should be the
  *   same as the folder name. It cannot contain spaces.
  * - There is a background tag. This contains the background color of the editor.
- * - There is a grid tag. This contains true or false, indicating whether the
- *   grid should be shown or not.
  * - Throughout the xml file you can use {!name}. This will be search-replaced upon
  *   loading the xml file with the name in the name tag plus a nonce. This is to
  *   prevent name clashes in mxGraph's internal style management, more specifically
@@ -100,17 +102,6 @@ import com.mxgraph.view.mxStylesheet;
  *
  */
 public class E3Style {
-	// Just added an option to toggle the grid. This changes both showGrid & the XML, and does some juggling
-	// to keep the vars doc & xml in sync.
-	// TODO: Right now this is the easiest way, but I don't like this. Somehow you have to keep both the flags
-	// in the XML and the member variables in sync... Everything should just be inferred from the initially parsed
-	// node always. If any options are added to the style class all the settings (showing grid and others)
-	// should just be derived from the XML.
-	// That way the getGrid() functions and the state of e3style are always in sync, and it's easy to serialize
-	// the style (just turn the doc var into XML).
-		
-	// TODO: Make grid not dependent on theme settings
-
 	public static final double DOTRADIUS 						= 4;
 
 	public static final String BASE_STYLE 						= "baseStyle";
@@ -139,7 +130,6 @@ public class E3Style {
 	public static final String EAST_TRIANGLE 					= "EastTriangle";
 	public static final String NAME_TEXT 						= "NameText";
 	public static final String NOTE 							= "Note";
-	
 	
 	public static int idCounter = 0;
 	// Must be kept in same order as constructor!
@@ -286,6 +276,23 @@ public class E3Style {
 		return mxXmlUtils.getXml(doc);
 	}
 	
+	public E3Style(E3Style other) {
+		this(
+				other.getXML(),
+				other.marketSegment_template,
+				other.startSignal,
+				other.endSignal,
+				other.valuePort,
+				other.note,
+				other.northTriangle,
+				other.eastTriangle,
+				other.southTriangle,
+				other.westTriangle,
+				other.bar,
+				other.dot
+				);
+	}
+	
 	public E3Style(
 			String xml,
 			String marketSegment_template,
@@ -354,7 +361,7 @@ public class E3Style {
 							.getNamedItem("as")
 							.getTextContent();
 					
-					if (as.equals("fillColor")) {
+					if (as.equals(mxConstants.STYLE_FILLCOLOR)) {
 						n = nl.item(i);
 					}
 				}
@@ -445,7 +452,6 @@ public class E3Style {
 		// Set the editor-specific settings
 		graphComponent.getViewport().setOpaque(true);
 		graphComponent.getViewport().setBackground(getModelBackgroundColor());
-		graphComponent.setGridVisible(getGrid());
 		
 		// To get rid of the folding icon
 		graphComponent.setFoldingEnabled(false);
@@ -551,43 +557,6 @@ public class E3Style {
 		return candidates;
 	}
 	
-	/**
-	 * True if the grid should be shown according to this style, false if not.
-	 * @return
-	 */
-	public boolean getGrid() {
-		return doc.getDocumentElement()
-			.getElementsByTagName("grid")
-			.item(0)
-			.equals("true");
-	}
-	
-	/**
-	 * Sets whether or not the grid should be shown according to this style.
-	 * Does not apply the new style to any graph. Use {@link #styleGraphComponent(mxGraphComponent)}.
-	 * @param newGrid
-	 */
-	public void setGrid(boolean newGrid) {
-		Node gridNode = doc
-			.getDocumentElement()
-			.getElementsByTagName("grid")
-			.item(0);
-
-		if (newGrid) {
-			gridNode.setTextContent("true");
-		} else {
-			gridNode.setTextContent("false");
-		}
-	}
-	
-	/**
-	 * Toggles whether or not the grid should be shown according to the current style.
-	 * Does not apply the new style to any graph. Use {@link #styleGraphComponent(mxGraphComponent)}.
-	 */
-	public void toggleGrid() {
-		setGrid(!getGrid());
-	}
-	
 	public Optional<Node> getAddFromNodeList(NodeList nl, String asValue) {
 		// Find the XML node with as="element"
 		Optional<Node> targetNodeOptional = Optional.empty();
@@ -677,7 +646,7 @@ public class E3Style {
 			return addOptional;
 		}
 		
-		Element node = doc.createElement("add");
+		org.w3c.dom.Element node = doc.createElement("add");
 		node.setAttribute("as", property);
 		node.setAttribute("value", defaultValue);
 		elementStyle.appendChild(node);
@@ -697,26 +666,18 @@ public class E3Style {
 		return getAttribute(propertyNode, "value");
 	}
 	
-	private Color getPropertyAsColor(String element, String property) {
-		Optional<Node> colorNodeOptional = getPropertyOfElement(element, property, true); 
+	private Optional<Color> getPropertyAsColor(String element, String property) {
+		Optional<String> stringProperty = getValueOfPropertyOfElement(element, property, true);
 		
-		if (!colorNodeOptional.isPresent()) {
-			return Color.BLACK;
-		}
+		if (stringProperty.isPresent()) {
+			try {
+				return Optional.of(Color.decode(stringProperty.get()));
+			} catch (NumberFormatException ex) {
+				return Optional.empty();
+			}
+		} 
 		
-		Optional<String> colorOptional = getAttribute(colorNodeOptional.get(), "value");
-		
-		if (!colorOptional.isPresent()) {
-			return Color.BLACK;
-		}
-		
-		String bgColor = colorOptional.get();
-		
-		try {
-			return Color.decode(bgColor);
-		} catch (NumberFormatException ex) {
-			return Color.BLACK;
-		}
+		return Optional.empty();
 	}
 	
 	private void setElementPropertyValue(String element, String property, String value) {
@@ -749,21 +710,21 @@ public class E3Style {
 		setElementPropertyValue(element, property, Utils.colorToHex(color));
 	}
 	
-	public Color getBackgroundColor(String element) {
-		return getPropertyAsColor(element, "fillColor");
+	public Optional<Color> getBackgroundColor(String element) {
+		return getPropertyAsColor(element, mxConstants.STYLE_FILLCOLOR);
 	}
 	
-	public Color getStrokeColor(String element) {
-		return getPropertyAsColor(element, "strokeColor");
+	public Optional<Color> getStrokeColor(String element) {
+		return getPropertyAsColor(element, mxConstants.STYLE_STROKECOLOR);
 	}
 	
-	public Color getFontColor(String element) {
-		return getPropertyAsColor(element, "fontColor");
+	public Optional<Color> getFontColor(String element) {
+		return getPropertyAsColor(element, mxConstants.STYLE_FONTCOLOR);
 	}
 	
 	public Font getFont(String element) {
-		String fontFamily = getValueOfPropertyOfElement(element, "fontFamily", true).orElse("Dialog");
-		String fontSizeStr = getValueOfPropertyOfElement(element, "fontSize", true).orElse("11");
+		String fontFamily = getValueOfPropertyOfElement(element, mxConstants.STYLE_FONTFAMILY, true).orElse("Dialog");
+		String fontSizeStr = getValueOfPropertyOfElement(element, mxConstants.STYLE_FONTSIZE, true).orElse("11");
 		int fontSize = 11;
 
 		try {
@@ -773,7 +734,7 @@ public class E3Style {
 			System.out.println("Could not parse fontsize: \"" + fontSizeStr + "\"");
 		}
 		
-		String fontStyleStr = getValueOfPropertyOfElement(element, "fontStyle", true).orElse("0");
+		String fontStyleStr = getValueOfPropertyOfElement(element, mxConstants.STYLE_FONTSTYLE, true).orElse("0");
 		int fontStyleInt = 0;
 
 		try {
@@ -782,7 +743,7 @@ public class E3Style {
 			// We just keep it at 0
 			System.out.println("Could not parse fontstyle: \"" + fontStyleStr + "\"");
 		}
-		
+
 		boolean isBold = (fontStyleInt & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD;
 		boolean isItalic = (fontStyleInt & mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC;
 		
@@ -797,21 +758,129 @@ public class E3Style {
 		return new Font(fontFamily, styleFlags, fontSize);
 	}
 	
+	/**
+	 * Sets the background color on an element. If it does not exist, it creates it.
+	 * @param element
+	 * @param color
+	 */
 	public void setBackgroundColor(String element, Color color) {
-		setPropertyColor(element, "fillColor", color);
+		setPropertyColor(element, mxConstants.STYLE_FILLCOLOR, color);
 	}
 	
+	/**
+	 * Sets the stroke color on an element. If it does not exist, it creates it.
+	 * @param element
+	 * @param color
+	 */
 	public void setStrokeColor(String element, Color color) {
-		setPropertyColor(element, "strokeColor", color);
+		setPropertyColor(element, mxConstants.STYLE_STROKECOLOR, color);
 	}
 	
+	/**
+	 * Sets the font color on an element. If it does not exist, it creates it.
+	 * @param element
+	 * @param color
+	 */
 	public void setFontColor(String element, Color color) {
-		setPropertyColor(element, "fontColor", color);
+		setPropertyColor(element, mxConstants.STYLE_FONTCOLOR, color);
 	}
 	
-	public void setFont(String element, Font font) {
-		// TODO: Implement this
-		System.out.println("setFont not implemented!");
+	/**
+	 * Sets the font size on an element. If it does not exist, it creates it.
+	 * @param element
+	 * @param size
+	 */
+	public void setFontSize(String element, int size) {
+		setElementPropertyValue(element, mxConstants.STYLE_FONTSIZE, size + "");
 	}
 	
+	/**
+	 * Sets the font family for an element. If it does not exist, it creates it.
+	 * @param element
+	 * @param fontFamily Any font, as long as java.awt.Font understands it.
+	 */
+	public void setFontFamily(String element, String fontFamily) {
+		setElementPropertyValue(element, mxConstants.STYLE_FONTFAMILY, fontFamily);
+	}
+	
+	/**
+	 * Sets the font style for an element. If it does not exist, it creates it.
+	 * @param element
+	 * @param isBold
+	 * @param isItalic
+	 */
+	public void setFontStyle(String element, boolean isBold, boolean isItalic) {
+		int styleFlags = 0;
+		if (isBold) {
+			styleFlags = styleFlags | mxConstants.FONT_BOLD;
+		}
+		if (isItalic) {
+			styleFlags = styleFlags | mxConstants.FONT_ITALIC;
+		}
+		
+		setElementPropertyValue(element, mxConstants.STYLE_FONTSTYLE, styleFlags + "");
+	}
+	
+	private class StringPair {
+		public final String left;
+		public final String right;
+		
+		StringPair(String left, String right) {
+			this.left = left;
+			this.right = right;
+		}
+	}
+	
+	/**
+	 * Applies every single style detail from every style element from style delta
+	 * to the current style if they have changed.
+	 * @param styleDelta
+	 * @return True if any elements were changed
+	 */
+	public boolean applyStyleDelta(Map<Element, E3StyleEvent> styleDelta) {
+		boolean anythingChanged = false;
+		
+		for (Entry<Element, E3StyleEvent> entry : styleDelta.entrySet()) {
+			String element = entry.getKey().getStyleName();
+			E3StyleEvent e3se = entry.getValue();
+			List<StringPair> pairs = new ArrayList<>();
+			
+			pairs.add(new StringPair(mxConstants.STYLE_FILLCOLOR, Utils.colorToHex(e3se.bgColor)));
+			pairs.add(new StringPair(mxConstants.STYLE_GRADIENTCOLOR, Utils.colorToHex(e3se.bgColor)));
+			pairs.add(new StringPair(mxConstants.STYLE_STROKECOLOR, Utils.colorToHex(e3se.strokeColor)));
+			pairs.add(new StringPair(mxConstants.STYLE_FONTCOLOR, Utils.colorToHex(e3se.fontColor)));
+			pairs.add(new StringPair(mxConstants.STYLE_FONTSIZE, e3se.font.getSize() + ""));
+			pairs.add(new StringPair(mxConstants.STYLE_FONTFAMILY, e3se.font.getFamily()));
+			
+			int styleFlags = 0;
+			if (e3se.font.isBold()) {
+				styleFlags |= mxConstants.FONT_BOLD;
+			}
+			if (e3se.font.isItalic()) {
+				styleFlags |= mxConstants.FONT_ITALIC;
+			}
+			
+			pairs.add(new StringPair(mxConstants.STYLE_FONTSTYLE, styleFlags + ""));
+			
+			for (StringPair pair : pairs) {
+				Optional<String> currentValueOptional = getValueOfPropertyOfElement(element, pair.left, true);
+				
+				if (currentValueOptional.isPresent()) {
+					// If the value is present, check if it is different.
+					String currentValue = currentValueOptional.get();
+					if (!currentValue.equals(pair.right)) {
+						// If it differs, set it
+						setElementPropertyValue(element, pair.left, pair.right);
+						anythingChanged = true;
+					}
+				} else {
+					// If it is not present, set it immediately
+					setElementPropertyValue(element, pair.left, pair.right);
+					anythingChanged = true;
+				}
+			}
+		}
+		
+		return anythingChanged;
+	}
 }

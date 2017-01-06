@@ -6,8 +6,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -107,9 +110,9 @@ public class E3StyleEditor extends JDialog {
 
 		E3Style style = graph.style;
 		
-		Color bgColor = style.getBackgroundColor(elementName);
-		Color strokeColor = style.getStrokeColor(elementName);
-		Color fontColor = style.getFontColor(elementName);
+		Color bgColor = style.getBackgroundColor(elementName).orElse(Color.BLACK);
+		Color strokeColor = style.getStrokeColor(elementName).orElse(Color.BLACK);
+		Color fontColor = style.getFontColor(elementName).orElse(Color.BLACK);
 		Font font = style.getFont(elementName);
 
 		E3StyleComponent e3sc = new E3StyleComponent(bgColor, strokeColor, fontColor, font);
@@ -139,7 +142,25 @@ public class E3StyleEditor extends JDialog {
 	public static void main(String[] args) {
         E3Graph graph = new E3Graph(E3Style.loadInternal("E3Style").get(), true);
         
+        List<Font> fonts = new ArrayList<>();
+        
         E3StyleEditor editor = new E3StyleEditor(graph);
+        editor.setModal(true);
+        editor.addListener(e -> {
+        	for (Entry<Element, E3StyleEvent> entry : e.entrySet()) {
+        		System.out.println("Changes for element " + entry.getKey().name());
+        		E3StyleEvent e3se = entry.getValue();
+        		
+        		System.out.println("Background color: " + e3se.bgColor);
+        		System.out.println("Font color: " + e3se.fontColor);
+        		System.out.println("Font: " + e3se.font);
+        		System.out.println("Stroke color: " + e3se.strokeColor);
+        		
+        		fonts.add(e3se.font);
+        	}
+        	
+        	System.out.println("Equality: " + fonts.get(0).equals(fonts.get(1)));
+        });
         
         editor.setVisible(true);
 	}

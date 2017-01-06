@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
  * an extra constructor to set the initial font.
  * TODO: Pull request for this feature?
  *
- * @author Christos Bohoris
+ * @author Christos Bohoris, with one small change by Bob Rubbens
  */
 public class E3FontChooserDialog extends JDialog {
 	
