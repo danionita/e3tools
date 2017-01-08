@@ -226,7 +226,7 @@ DecimalFormat df = new DecimalFormat("#.####");
      *
      * @param baseModel
      * @param mainActor
-     * @param hiddenTransfersPerExchange the number of value each hidden transfer can have. 
+     * @param hiddenTransfersPerExchange the number of values each hidden transfer can take. 
      * @return a set of models derived from baseModel with all possible
      * combinations of hidden (dotted) transactions
      */
@@ -280,7 +280,7 @@ DecimalFormat df = new DecimalFormat("#.####");
                     //if actor1 has a positive financial result
                     if (actor1Total > 0 ) {
                         //divide this result                                  
-                        step = actor1Total / hiddenTransfersPerExchange;
+                        step = actor1Total /(hiddenTransfersPerExchange + 1);
 
                         //and for each value
                         for (value = step; value < actor1Total; value = value + step) {
@@ -314,7 +314,7 @@ DecimalFormat df = new DecimalFormat("#.####");
                     //if actor2 has a positive financial result
                     if (actor2Total > 0) {
                         //divide this result 
-                        step = actor2Total / hiddenTransfersPerExchange;
+                        step = actor2Total / (hiddenTransfersPerExchange + 1);
 
                         //and for each value
                         for (value = step; value < actor2Total; value = value + step) {

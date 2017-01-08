@@ -431,8 +431,13 @@ public class E3Model {
      */
     private boolean isOfType(Resource transfer, String type) {
         transfer = model.getResource(transfer.getURI());
+        Resource port = null;
         //find the value object it belongs to
-        Resource port = transfer.getPropertyResourceValue(E3value.ve_has_in_po);
+        if (transfer.hasProperty(E3value.ve_has_in_po)){
+        port = transfer.getPropertyResourceValue(E3value.ve_has_in_po);}
+        else if(transfer.hasProperty(E3value.ve_has_first_vp)){            
+        port = transfer.getPropertyResourceValue(E3value.ve_has_first_vp);
+        }
         Resource valueObject = port.getPropertyResourceValue(E3value.vp_requests_offers_vo);
         //if it has been allocated  a value object
         if (valueObject != null) {
