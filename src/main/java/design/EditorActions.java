@@ -38,8 +38,8 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxCellRenderer;
 import com.mxgraph.util.mxConstants;
 
-import design.checker.FlowChecker;
 import design.checker.WalkEntireModel;
+import design.checker.checks.FlowChecker;
 import design.export.JSONExport;
 import design.export.RDFExport;
 import design.info.Base;

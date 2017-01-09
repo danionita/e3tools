@@ -9,15 +9,17 @@ import design.info.Base;
 import design.info.StartSignal;
 
 public class WalkEntireModel extends E3Walker {
+	
+	private final E3Graph graph;
 
 	public WalkEntireModel(E3Graph graph) {
-		super(graph);
+		this.graph = graph;
 		
 		Utils.getAllCells(graph).stream()
 			.filter(obj -> graph.getModel().getValue(obj) instanceof StartSignal)
 			.forEach(obj -> {
 				System.out.println("\n\n\nChecking");
-				checkPath(obj);
+				checkPath(graph, obj);
 				System.out.println("Done checking");
 			});
 	}

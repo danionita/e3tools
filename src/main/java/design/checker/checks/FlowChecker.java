@@ -1,15 +1,20 @@
-package design.checker;
+package design.checker.checks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import design.E3Graph;
 import design.Utils;
+import design.checker.E3ModelCheck;
+import design.checker.E3Walker;
+import design.checker.ModelError;
 import design.info.StartSignal;
 
-public class FlowChecker extends E3Walker {
+public class FlowChecker extends E3Walker implements E3ModelCheck {
 
 	private enum Flow {
 		SEND,
@@ -19,14 +24,21 @@ public class FlowChecker extends E3Walker {
 	private Map<Object, Flow> flow = new HashMap<>();
 	private Set<Object> conflictingDots = new HashSet<>();
 	
-	public FlowChecker(E3Graph graph) {
-		super(graph);
-		
+	@Override
+	public Optional<ModelError> check(E3Graph graph) {
 		Utils.getAllCells(graph).stream()
 			.filter(obj -> graph.getModel().getValue(obj) instanceof StartSignal)
 			.forEach(obj -> {
-				checkPath(obj);
+				checkPath(graph, obj);
 			});
+		
+		Set<Object> dots = getConflictingDots();
+		
+		if (dots.size() > 0) {
+			return Optional.of(new ModelError("Conflicting flow directions.", new ArrayList<>(dots)));
+		} else {
+			return Optional.empty();
+		}
 	}
 	
 	@Override

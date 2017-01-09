@@ -1,6 +1,8 @@
 package design.checker;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -18,21 +20,13 @@ import design.info.ValueInterface;
 import design.info.ValuePort;
 
 /**
- * TODO: Add support for value ports with two value exchanges connected
- * At the moment, this walker does not handle cases where a value interface has more than twice as many value exchanges as
- * value ports attached not well. Do not use until that is fixed.
  * @author Bobe
  *
  */
 public class E3Walker {
-	public final E3Graph graph;
 	private Set<Object> visited = new HashSet<>();
 	private	Stack<Object> history = new Stack<>();
 
-	public E3Walker(E3Graph graph) {
-		this.graph = graph;
-	}
-	
 	public void markVisited(Object obj) {
 		visited.add(obj);
 	}
@@ -41,7 +35,7 @@ public class E3Walker {
 		return visited.contains(obj);
 	}
 	
-	public void checkPath(Object startSignal) {
+	public void checkPath(E3Graph graph, Object startSignal) {
 		visited.clear();
 		history.clear();
 		
@@ -337,6 +331,14 @@ public class E3Walker {
 				throw new RuntimeException("Unexpected subject \"" + subjectInfo.getClass().getSimpleName() + "\"");
 			}
 		}
+	}
+	
+	public List<Object> getHistory() {
+		return new ArrayList<>(history);
+	}
+	
+	public Set<Object> getVisited() {
+		return new HashSet<>(visited);
 	}
 	
 	public void visitStartSignal(Object ss) {

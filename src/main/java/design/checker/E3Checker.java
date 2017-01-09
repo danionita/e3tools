@@ -19,11 +19,5 @@ public class E3Checker {
 	}
 	
 	public void checkForStartStimuli() {
-		if (Utils.getAllCells(graph).stream()
-				.map(graph.getModel()::getValue)
-				.filter(obj -> obj instanceof StartSignal)
-				.count() < 1) {
-			errors.add("At least once start stimuli is required for fraud generation.");
-		}
 	}
 }
