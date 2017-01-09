@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -1130,25 +1131,42 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
-            E3Graph currentGraph = main.getCurrentGraph();
-            System.out.println("Doing WEM");
-            WalkEntireModel wem = new WalkEntireModel(currentGraph);
-            System.out.println("Doing FC");
-            FlowChecker fc = new FlowChecker(currentGraph);
-            System.out.println("Done checking");
-            if (fc.getConflictingDots().size() > 0) {
-            	//System.out.println("Conflicting dots detected! Suspects:");
-            	for (Object obj : fc.getConflictingDots()) {
-            		Base info = (Base) currentGraph.getModel().getValue(obj);
-            		System.out.println(info.name + " (" + info.SUID + ")");
-            		
-					currentGraph.getView().getState(obj).getStyle().put(
-							mxConstants.STYLE_STROKECOLOR,
-							"#00FF00"
-							);
-            	}
-            	currentGraph.repaint();
-            }
+//            E3Graph currentGraph = main.getCurrentGraph();
+//            System.out.println("Doing WEM");
+//            WalkEntireModel wem = new WalkEntireModel(currentGraph);
+//            System.out.println("Doing FC");
+////            FlowChecker fc = new FlowChecker(currentGraph);
+//            System.out.println("Done checking");
+//            if (fc.getConflictingDots().size() > 0) {
+//            	//System.out.println("Conflicting dots detected! Suspects:");
+//            	for (Object obj : fc.getConflictingDots()) {
+//            		Base info = (Base) currentGraph.getModel().getValue(obj);
+//            		System.out.println(info.name + " (" + info.SUID + ")");
+//            		
+//					currentGraph.getView().getState(obj).getStyle().put(
+//							mxConstants.STYLE_STROKECOLOR,
+//							"#00FF00"
+//							);
+//            	}
+//            	currentGraph.repaint();
+//            }
+        	
+        	E3Graph graph = main.getCurrentGraph();
+        	
+        	Utils.getAllCells(graph).stream()
+        		.forEach(cell -> {
+        			System.out.println(graph.getModel().getStyle(cell));
+        			Map<String, Object> style = graph.getCellStyle(cell);
+        			
+        			Base val = (Base) graph.getModel().getValue(cell);
+        			System.out.println("Object #" + val.SUID);
+
+        			style.entrySet().stream().forEach(e -> {
+//        				System.out.println("\tKey: " + e.getKey() + " Value: " + e.getValue());
+					});
+        				
+        		});
+        		
         }
     }
 

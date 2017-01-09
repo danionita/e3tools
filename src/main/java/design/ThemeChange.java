@@ -43,7 +43,7 @@ public class ThemeChange extends mxAtomicGraphModelChange {
 							|| value instanceof ValueExchange;
 				})
 				.collect(Collectors.toMap(obj -> obj, obj -> {
-					return Utils.getStyle(obj);
+					return ((mxCell) obj).getStyle();
 				})));
 		
 		newStyles.putAll(Utils.getAllCells(graph).stream()
@@ -57,7 +57,7 @@ public class ThemeChange extends mxAtomicGraphModelChange {
 				})
 				.collect(Collectors.toMap(obj -> obj, obj -> {
 					if (preserveSpecificColoring) {
-						return Utils.getStyle(obj);
+						return ((mxCell) obj).getStyle();
 					} else {
 						Base info = Utils.base(graph, obj);
 						if (info instanceof Actor && ((Actor) info).colluded) {

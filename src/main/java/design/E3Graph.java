@@ -44,6 +44,8 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
 
+import design.Utils.CellStyle;
+import design.Utils.CellStyle.Entry;
 import design.Utils.GraphDelta;
 import design.Utils.IDReplacer;
 import design.info.Actor;
@@ -172,7 +174,7 @@ public class E3Graph extends mxGraph implements Serializable{
 				Object ac = getCellFromId(id);
 				setColludingActor(ac, true);
 				
-				//System.out.println("Colluding: " + id);
+//				System.out.println("Colluding: " + id);
 			} 
 		} finally {
 			getModel().endUpdate();
@@ -1129,23 +1131,25 @@ public class E3Graph extends mxGraph implements Serializable{
 		Actor acInfo = (Actor) Utils.base(this, ac);
 		acInfo.colluded = b;
 
-		getModel().beginUpdate();
-		try {
+		doUpdate(() -> {
 			getModel().setValue(ac, acInfo);
 
-			String oldStyle = getModel().getStyle(ac);
-
-			// We merely replace the style indicators here.
-			// If you would just do "setStyle(ac, "Actor");", 
-			// you would throw away all styling the user did.
+			CellStyle style = new CellStyle(getModel().getStyle(ac));
+			
 			if (acInfo.colluded) {
-				getModel().setStyle(ac, oldStyle.replace("Actor", "ColludedActor"));
+				style.removeStyle("Actor");
+				if (!style.containsStyle("ColludedActor")) {
+					style.add(new Entry("ColludedActor"));
+				}
 			} else {
-				getModel().setStyle(ac, oldStyle.replace("ColludedActor", "Actor"));
+				style.removeStyle("ColludedActor");
+				if (!style.containsStyle("Actor")) {
+					style.add(new Entry("Actor"));
+				}
 			}
-		} finally {
-			getModel().endUpdate();
-		}
+			
+			style.applyStyle(this, ac);
+		});
 	}
 	
 	public void setColludingMarketSegment(Object ms, boolean b) {
@@ -1155,13 +1159,21 @@ public class E3Graph extends mxGraph implements Serializable{
 		doUpdate(() -> {
 			getModel().setValue(ms, msInfo);
 			
-			String oldStyle = getModel().getStyle(ms);
+			CellStyle style = new CellStyle(getModel().getStyle(ms));
 
 			if (msInfo.colluded) {
-				getModel().setStyle(ms, oldStyle.replaceFirst("MarketSegment", "ColludedMarketSegment"));
+				style.removeStyle("MarketSegment");
+				if (!style.containsStyle("ColludedMarketSegment")) {
+					style.add(new Entry("ColludedMarketSegment"));
+				}
 			} else {
-				getModel().setStyle(ms, oldStyle.replaceFirst("ColludedMarketSegment", "MarketSegment"));
+				style.removeStyle("ColludedMarketSegment");
+				if (!style.containsStyle("MarketSegment")) {
+					style.add(new Entry("MarketSegment"));
+				}
 			}
+			
+			style.applyStyle(this, ms);
 		});
 	}
 	

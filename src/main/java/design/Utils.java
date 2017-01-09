@@ -23,17 +23,13 @@ package design;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -47,6 +43,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -748,10 +745,6 @@ public class Utils {
     	return result;
     }
     
-    public static String getStyle(Object cell) {
-    	return ((mxCell) cell).getStyle();
-    }
-    
     public static class IsEntityFilter {
     	public static Predicate<Object> forGraph(E3Graph graph) {
     		return (obj -> {
@@ -1003,6 +996,207 @@ public class Utils {
     	
     	public Object getOutVP() {
     		return outVP;
+    	}
+    }
+    
+    /**
+     * Parses the cell style string from jgraphx into a map. A stylename is a key value pair where
+     * the key is the style name, and the val
+     * 
+     * @param cellStyle A string of form [(stylename|key=value);] . Commonly used
+     * by jgraphx for internal cell styles.
+     * @return 
+     */
+    public static class CellStyle {
+    	public static class Entry {
+    		/**
+    		 * 	If true the entry is a style name. If false, it is a key value pair.
+    		 */
+    		private boolean isStyleName;
+    		
+    		private String styleName;
+    		private String key;
+    		private String value;
+    		
+    		Entry(String key, String value) {
+    			this.key = key;
+    			this.value = value;
+    			
+    			isStyleName = false;
+    		}
+    		
+    		Entry (String styleName) {
+    			this.styleName = styleName;
+    			
+    			isStyleName = true;
+    		}
+    		
+    		String getStyleName() {
+    			if (!isStyleName) {
+    				throw new IllegalStateException("StyleName of entry is requested, while entry is a key-value pair.");
+    			}
+    			
+    			return styleName;
+    		}
+    		
+    		String getKey() {
+    			if (isStyleName) {
+    				throw new IllegalStateException("Key of entry is requested, while entry is a stylename");
+    			}
+    			
+    			return key;
+    		}
+    		
+    		String getValue() {
+    			if (isStyleName) {
+    				throw new IllegalStateException("Value of entry is requested, while entry is a stylename");
+    			}
+
+    			return value;
+    		}
+    		
+    		boolean isStyleName() {
+    			return isStyleName;
+    		}
+    		
+    		boolean isKeyValuePair() {
+    			return !isStyleName;
+    		}
+    		
+    		public void setKeyValue(String key, String value) {
+    			this.key = key;
+    			this.value = value;
+    			
+    			isStyleName = false;
+    		}
+    		
+    		public void setStyleName(String styleName) {
+    			this.styleName = styleName;
+    			
+    			isStyleName = true;
+    		}
+    		
+    		@Override
+    		public String toString() {
+    			if (isStyleName) {
+    				return styleName;
+    			} else {
+    				return key + "=" + value;
+    			}
+    		}
+    	}
+    	
+    	private List<Entry> data;
+    	
+    	CellStyle(String style) {
+    		data = new ArrayList<>();
+    		
+    		String[] parts = style.split(";");
+    		for (String part : parts) {
+    			if (part.contains(";")) continue;
+    			
+    			if (part.contains("=")) {
+    				String[] pair = part.split("=");
+    				data.add(new Entry(pair[0], pair[1]));
+    			} else {
+    				data.add(new Entry(part));
+    			}
+    		}
+    	}
+    	
+    	/**
+    	 * See {@link List#size()}
+    	 * @return
+    	 */
+    	public int size() {
+    		return data.size();
+    	}
+    	
+    	/**
+    	 * See {@link List#add(Object)}
+    	 * @param entry
+    	 * @return
+    	 */
+    	public boolean add(Entry entry) {
+    		return data.add(entry);
+    	}
+    	
+    	/**
+    	 * See {@link List#add(int, Object)}
+    	 * @param entry
+    	 * @param index
+    	 */
+    	public void add(Entry entry, int index) {
+    		data.add(index, entry);
+    	}
+    	
+    	/**
+    	 * See {@link List#get(int)}
+    	 * @param i
+    	 * @return
+    	 */
+    	public Entry get(int i) {
+    		return data.get(i);
+    	}
+    	
+    	/**
+    	 * See {@link List#remove(int)}
+    	 * @param i
+    	 * @return
+    	 */
+    	public Entry remove(int i) {
+    		return data.remove(i);
+    	}
+    	
+    	/**
+    	 * @param styleName The stylename to look for
+    	 * @return True if the style is present in the cell style
+    	 */
+    	public boolean containsStyle(String styleName) {
+    		return data.stream()
+    				.filter(Entry::isStyleName)
+    				.map(Entry::getStyleName)
+    				.anyMatch(styleName::equals);
+    	}
+    	
+    	/**
+    	 * Removes every occurrence of stylename from the cellstyle
+    	 * @param styleName
+    	 */
+    	public void removeStyle(String styleName) {
+    		data = data.stream()
+    				.filter(entry -> {
+    					// If entry is a stylename...
+    					if (entry.isStyleName) {
+    						// Keep it if it is not equal to stylename
+    						return !entry.getStyleName().equals(styleName);
+    					}
+    					
+    					// Else keep it
+    					return true;
+    				})
+    				.collect(Collectors.toList());
+    	}
+    	
+    	public void applyStyle(E3Graph graph, Object cell) {
+    		Utils.update(graph, () -> {
+				graph.getModel().setStyle(cell, toString());
+    		});
+    	}
+    	
+    	/**
+    	 * Prints the jgraphx textual representation of a cell style
+    	 */
+    	@Override
+    	public String toString() {
+    		if (data.size() > 0) {
+				return data.stream()
+					.map(Entry::toString)
+					.reduce((l, r) -> l + ";" + r)
+					.get();
+    		} else {
+    			return "";
+    		}
     	}
     }
 }
