@@ -544,7 +544,7 @@ public class RDFExport {
 		
 		modelResult = Optional.of(model);
 
-		System.out.println(result.get());
+//		System.out.println(result.get());
 	}
 	
 	public void deriveValueTransactions() {
