@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1600,16 +1601,15 @@ public class E3Graph extends mxGraph implements Serializable{
 			// Since if they are not ancestors, nor share their parents, they cannot connect!
 			return false;
 		} else if (Utils.isDotValue(sourceVal) && Utils.isDotValue(targetVal)) {
-			// If source and target are in the same logic element (and/or gate)
-			// Do not allow an edge
-			if (sourceVal instanceof LogicDot && targetVal instanceof LogicDot) {
-				if (model.getParent(source) == model.getParent(target)) {
-					return false;
-				}
-			}
+			// If source and target are in the same top level element
+			// Do not allow an edge. Nesting is irrelevant
 			
-			// Otherwise, the two containers of the dots must be the same! Signals cannot go accross actor borders
-			return getContainerOfChild(source) == getContainerOfChild(target);
+			Optional<Object> sourceTopLevelParentOptional = Utils.getTopLevelParent(this, source);
+			Optional<Object> targetTopLevelParentOptional = Utils.getTopLevelParent(this, target);
+			
+			if (sourceTopLevelParentOptional.isPresent() && targetTopLevelParentOptional.isPresent()) {
+				return sourceTopLevelParentOptional.get() == targetTopLevelParentOptional.get();
+			}
 		}
 		
 		return false;

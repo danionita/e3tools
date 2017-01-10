@@ -1199,4 +1199,16 @@ public class Utils {
     		}
     	}
     }
+    
+    public static Optional<Object> getTopLevelParent(E3Graph graph, Object cell) {
+    	if (cell == graph.getDefaultParent()) return Optional.empty();
+    	if (graph.getModel().getParent(cell) == graph.getDefaultParent()) return Optional.empty();
+    	
+    	Object possibleTopLevelParent = graph.getModel().getParent(cell);
+    	while (graph.getModel().getParent(possibleTopLevelParent) != graph.getDefaultParent()) {
+    		possibleTopLevelParent = graph.getModel().getParent(possibleTopLevelParent);
+    	}
+    	
+    	return Optional.of(possibleTopLevelParent);
+    }
 }
