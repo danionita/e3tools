@@ -361,7 +361,7 @@ public class NCFDialog extends JDialog {
         }
 
      try{
-            RDFExport export = new RDFExport(diagram, false, true);
+            RDFExport export = new RDFExport(diagram, false, true, false);
             String result = export.getResult().get();
 
             InputStream stream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));

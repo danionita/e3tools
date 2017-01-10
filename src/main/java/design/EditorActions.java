@@ -45,6 +45,7 @@ import design.export.JSONExport;
 import design.export.RDFExport;
 import design.info.Base;
 import design.info.EndSignal;
+import design.info.MarketSegment;
 import design.info.StartSignal;
 import design.info.ValueExchange;
 import design.style.E3StyleEditor;
@@ -204,7 +205,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), false, true);
+            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), false, true, false);
             Optional<String> result = rdfExport.getResult();
 
             // Do not export to rdf if there was an error
@@ -809,6 +810,8 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+        	System.out.println("TEST!");
+        	
             if (main.views.getTabCount() == 0) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
@@ -829,8 +832,45 @@ public class EditorActions {
                     return;
                 }
             }
+            
+            boolean castMarketSegments = false;
+            if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) > 0) {
+            	String oneMSMessage = 
+                        "<html>"
+                        + "This model contains a market segment. "
+                        + "Would you like to convert it to <b>one</b> actor "
+                        + "to allow for the element to participate in collusion?"
+                        + "</html>";
+                        
+                String moreThanOneMessage =
+                		"<html>"
+                		+ "This model contains multiple market segments. "
+                		+ "Would you like to convert each market segment to <b>one</b> actor "
+                		+ "to allow for the elements to participate in collusions? "
+                		+ "</html>";
+                
+                String message;
+                if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) == 1) {
+                	message = oneMSMessage;
+                } else {
+                	message = moreThanOneMessage;
+                }
+            	
+                int choice = JOptionPane.showConfirmDialog(
+                        Main.mainFrame,
+                        message,
+                        "Market Segment conversion",
+                        JOptionPane.YES_NO_OPTION
+                        );
+                
+                castMarketSegments = choice == JOptionPane.YES_OPTION;
+            }
 
-            if (main.getCurrentGraph().countActors() < 2) {
+            long totalActors = (long) main.getCurrentGraph().countActors();
+            if (castMarketSegments) {
+            	totalActors += main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class);
+            }
+            if (totalActors < 2) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
                         "Fraud generation requires at least two actors. Please add more actors to the model",
@@ -870,7 +910,7 @@ public class EditorActions {
                 main.addNewTabAndSwitch(targetGraph);
             }
 
-            RDFExport rdfExporter = new RDFExport(targetGraph, true, true);
+            RDFExport rdfExporter = new RDFExport(targetGraph, true, true, castMarketSegments);
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
 
@@ -938,7 +978,7 @@ public class EditorActions {
                 return;
             }
 
-            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, true);
+            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, true, false);
 
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();

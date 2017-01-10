@@ -68,6 +68,7 @@ public class RDFExport {
 	private String base;
 	private boolean unsafe;
 	private boolean deriveVT;
+	private boolean castMarketSegments;
 	
 	/**
 	 * Tries to convert an E3Graph to RDF.
@@ -76,10 +77,11 @@ public class RDFExport {
 	 * and added.
 	 * @param deriveVT If true value transactions are derived naively.
 	 */
-	public RDFExport(mxGraph graph, boolean unsafe, boolean deriveVT) {
+	public RDFExport(mxGraph graph, boolean unsafe, boolean deriveVT, boolean castMarketSegments) {
 		this.unsafe = unsafe;
 		this.graph = (E3Graph) graph;
 		this.deriveVT = deriveVT;
+		this.castMarketSegments = castMarketSegments;
 		
 		convertToRdf();
 	}
@@ -379,8 +381,11 @@ public class RDFExport {
 					parent = graph.getModel().getParent(parent);
 				}
 			} else if (value instanceof MarketSegment) {
-				// TODO: Figure out if this is needed if the MS is colluding
-				res.addProperty(RDF.type, E3value.market_segment);
+				if (castMarketSegments) {
+					res.addProperty(RDF.type, E3value.actor);
+				} else {
+					res.addProperty(RDF.type, E3value.market_segment);
+				}
 
 				for (Object child : Utils.getChildrenWithValue(graph, cell, ValueInterface.class)) {
 					Base childInfo = (Base) graph.getModel().getValue(child);
@@ -539,7 +544,7 @@ public class RDFExport {
 		
 		modelResult = Optional.of(model);
 
-		//System.out.println(result.get());
+		System.out.println(result.get());
 	}
 	
 	public void deriveValueTransactions() {

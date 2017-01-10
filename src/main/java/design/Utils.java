@@ -831,7 +831,7 @@ public class Utils {
      */
     public static boolean doNCFAnalysis(E3Graph graph, File dstFile) {
 		try {
-			RDFExport export = new RDFExport(graph, false, true);
+			RDFExport export = new RDFExport(graph, false, true, false);
 			String result = export.getResult().get();
 					
 			InputStream stream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));
