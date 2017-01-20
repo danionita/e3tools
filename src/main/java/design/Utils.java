@@ -409,12 +409,19 @@ public class Utils {
         public void addHiddenTransaction(long from, long to, double value) {
             this.hiddenTransactions.add(new long[]{from, to});
             this.hiddenTransferValues.add(value);
-        }
-        
+        }        
 
         public void addColludedActor(long id) {
             this.colludedActors.add(id);
             //System.out.println("Adding collusion to changes");
+        }
+        
+        /**
+         * 
+         * @return a simple measure of complexity. Non-occuring transactions are weighted more and collusion is weighted the least.
+         */
+        public int getComplexity(){
+            return nonOccurringTransactions.size()*3+hiddenTransactions.size()*2+colludedActors.size();
         }
     }
 

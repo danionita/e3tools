@@ -395,10 +395,10 @@
                                           <Component id="groupSettingLabel" max="32767" attributes="0"/>
                                           <Component id="rankingSettingLabel" max="32767" attributes="0"/>
                                       </Group>
-                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="groupComboBox" alignment="0" pref="114" max="32767" attributes="0"/>
-                                          <Component id="sortComboBox" pref="126" max="32767" attributes="0"/>
+                                          <Component id="groupComboBox" alignment="0" pref="121" max="32767" attributes="0"/>
+                                          <Component id="sortComboBox" pref="121" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                   <Component id="FiltersLabel" alignment="0" max="32767" attributes="0"/>
@@ -464,8 +464,8 @@
                       <Properties>
                         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                           <StringArray count="2">
-                            <StringItem index="0" value="Loss of main actor"/>
-                            <StringItem index="1" value="Gain of other actors"/>
+                            <StringItem index="0" value="loss (of trusted actor)"/>
+                            <StringItem index="1" value="gain (of other actors)"/>
                           </StringArray>
                         </Property>
                       </Properties>
@@ -480,11 +480,14 @@
                       <Properties>
                         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                           <StringArray count="2">
-                            <StringItem index="0" value="none"/>
-                            <StringItem index="1" value="collusion"/>
+                            <StringItem index="0" value="financial result"/>
+                            <StringItem index="1" value="collusion groups"/>
                           </StringArray>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="groupComboBoxActionPerformed"/>
+                      </Events>
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                       </AuxValues>
@@ -612,12 +615,11 @@
                   <SubComponents>
                     <Component class="javax.swing.JTree" name="tree">
                       <Events>
-                        <EventHandler event="componentResized" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="treeComponentResized"/>
                         <EventHandler event="valueChanged" listener="javax.swing.event.TreeSelectionListener" parameters="javax.swing.event.TreeSelectionEvent" handler="treeValueChanged"/>
                       </Events>
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTree(treeModel)"/>
-                        <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="root = new DefaultMutableTreeNode(&quot;No models generated yet.&quot;);&#xa;treeModel = new DefaultTreeModel(root);"/>
+                        <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="root = new DefaultMutableTreeNode(&quot;No models generated yet...&quot;);&#xa;treeModel = new DefaultTreeModel(root);"/>
                         <AuxValue name="JavaCodeGenerator_DeclarationPost" type="java.lang.String" value="private DefaultMutableTreeNode root;&#xa;private DefaultTreeModel treeModel;"/>
                         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tree.setRowHeight(0);//hack to make rowHeight adjust to components instead of fixed (stupid LAF)&#xa;tree.setCellRenderer(new CustomTreeCellRenderer(tree));&#xa;tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);"/>
                       </AuxValues>

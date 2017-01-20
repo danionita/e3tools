@@ -58,7 +58,6 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
 
         for (String valueObjectName : valueObjects) {
             valueObjectsMap.put(valueObjectName, new JCheckBox(valueObjectName));
-            System.out.println("adding [" + valueObjectName + "] to map");
         }
 
         initComponents();
@@ -147,7 +146,6 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
             hiddenTransfersComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "50% of revenue", "33% and 66% of revenue", "25%, 50% and 75% of revenue" }));
 
             valueObjectCheckboxContainer.add(valueObjectCheckbox);
-            System.out.println("adding ["+ valueObjectCheckbox.getText() +"]");
         }
         valueObjectCheckboxContainer.setLayout(new javax.swing.BoxLayout(valueObjectCheckboxContainer, javax.swing.BoxLayout.LINE_AXIS));
 

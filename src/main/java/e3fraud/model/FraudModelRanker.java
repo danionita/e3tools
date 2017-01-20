@@ -17,6 +17,7 @@
 package e3fraud.model;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import design.Utils.GraphDelta;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +29,7 @@ import javax.swing.SwingWorker;
  *
  * @author Dan
  */
-public class ModelRanker {
+public class FraudModelRanker {
 
   
 
@@ -86,6 +87,17 @@ public class ModelRanker {
                         if (modelToPlaceMainActorAverage < modelInListMainActorAverage) {
                             sortedList.add(sortedList.indexOf(modelInList), modelToPlace);
                             break;
+                        }
+                        //if it is still equal, we need to sort by complexity
+                        else if(gainDeltaToPlace==gainDeltaInList){
+                            int modelToPlaceComplexity = modelToPlace.getFraudChanges().getComplexity();
+                            int modelInListComplexity = modelInList.getFraudChanges().getComplexity();
+                            if(modelToPlaceComplexity < modelInListComplexity){
+                             //and add it right before it
+                            //System.out.println("Found lower complexity. ADDED ANOTHER MODEL TO THE LIST");
+                            sortedList.add(sortedList.indexOf(modelInList), modelToPlace);
+                            break; 
+                            }
                         }
                     }
 
@@ -161,13 +173,22 @@ public class ModelRanker {
                         //check if any actor has higher gain DELTA (!)
                         double gainDeltaToPlace = modelToPlace.getLastKnownTopDelta();
                         double gainDeltaInList = modelInList.getLastKnownTopDelta();
-
-
                         if (gainDeltaToPlace > gainDeltaInList) {
                             //and add it right before it
                             //System.out.println("Found lower gain. ADDED ANOTHER MODEL TO THE LIST");
                             sortedList.add(sortedList.indexOf(modelInList), modelToPlace);
                             break;
+                        }
+                        //if it is still equal, we need to sort by complexity
+                        else if(gainDeltaToPlace==gainDeltaInList){
+                            int modelToPlaceComplexity = modelToPlace.getFraudChanges().getComplexity();
+                            int modelInListComplexity = modelInList.getFraudChanges().getComplexity();
+                            if(modelToPlaceComplexity < modelInListComplexity){
+                             //and add it right before it
+                            //System.out.println("Found lower complexity. ADDED ANOTHER MODEL TO THE LIST");
+                            sortedList.add(sortedList.indexOf(modelInList), modelToPlace);
+                            break; 
+                            }
                         }
                     }
                 }
@@ -213,6 +234,7 @@ public class ModelRanker {
                     highestDeltaActor = actorInSubIdealModel;
                     averageIdealGainOfTopGainActor = baseModelAverages.get(actorInSubIdealModel);
                 }
+                
             }
         }
         subIdealModel.setLastKnownTopDelta(highestDelta);

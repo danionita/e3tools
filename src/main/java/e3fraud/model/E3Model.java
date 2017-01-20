@@ -74,6 +74,7 @@ public class E3Model {
         this.model = jenaModel;
         this.evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
         this.enhance();
+        this.prefix = "";
         this.description = "Base Model";
         this.fraudChanges = null;
     }
@@ -89,7 +90,8 @@ public class E3Model {
     public E3Model(E3Model baseModel) {
         Model newJenaModel = ModelFactory.createDefaultModel();
         newJenaModel.add(baseModel.getJenaModel());
-        this.model = newJenaModel;
+        this.model = newJenaModel;        
+        this.prefix = "";
         this.description = baseModel.getDescription();
         this.colludedActorURI = baseModel.colludedActorURI;
         this.newActorURI = baseModel.newActorURI;

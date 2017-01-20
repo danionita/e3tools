@@ -165,7 +165,7 @@
     <Container class="javax.swing.JPanel" name="valueObjectCheckboxContainer">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="for (JCheckBox valueObjectCheckbox : valueObjectsMap.values()){"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="valueObjectCheckboxContainer.add(valueObjectCheckbox);&#xa;System.out.println(&quot;adding [&quot;+ valueObjectCheckbox.getText() +&quot;]&quot;);&#xa;}"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="valueObjectCheckboxContainer.add(valueObjectCheckbox);&#xa;}"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
