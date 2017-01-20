@@ -138,8 +138,11 @@ public class EvaluatedModel {
             	continue;
             }
             
+            String name;
             // Save the mapping from name to uid
-            String name = res.getProperty(E3value.e3_has_name).getString();
+            if(res.hasProperty(E3value.e3_has_name)){
+            name = res.getProperty(E3value.e3_has_name).getString();}
+            else{name="temp";}
             String uid = res.getProperty(E3value.e3_has_uid).getString();
 
             uidMap.put(name, uid);

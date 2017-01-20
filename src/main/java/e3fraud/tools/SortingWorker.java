@@ -38,7 +38,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class SortingWorker extends SwingWorker<ResultObject, String> {
 
-    private static boolean debug = true;
+    private static boolean debug = false;
     
     static private final String newline = "\n";
     private final E3Model baseModel;

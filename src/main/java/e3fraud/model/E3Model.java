@@ -46,7 +46,7 @@ import java.util.Optional;
  */
 public class E3Model {
 
-    private boolean debug = true; //use to toggle printing traversal steps
+    private boolean debug = false; //use to toggle printing traversal steps
 
     private final Model model;
     private String description;
@@ -271,6 +271,17 @@ public class E3Model {
     public Set<String> getActorStrings() {
         // select all the resources with a ,E3value.elementary_actor property
         ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.elementary_actor);
+        Set<String> actorStrings = new HashSet<>();
+        while (iter.hasNext()) {
+            Resource res = iter.next();
+            actorStrings.add(res.getProperty(E3value.e3_has_name).getLiteral().toString());
+        }
+        return actorStrings;
+    }
+    
+    public Set<String> getValueObjectStrings() {
+        // select all the resources with a ,E3value.value_object property
+        ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.value_object);
         Set<String> actorStrings = new HashSet<>();
         while (iter.hasNext()) {
             Resource res = iter.next();
