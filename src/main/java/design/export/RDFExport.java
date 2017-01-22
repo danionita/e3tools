@@ -410,7 +410,6 @@ public class RDFExport {
 				res.addProperty(RDF.type, E3value.value_interface);
 				
 				Base parentValue = (Base) graph.getModel().getValue(graph.getModel().getParent(cell));
-				Resource parentRes = getResource(parentValue.SUID);
 
 				if (parentValue instanceof Actor) {
 					Actor acInfo = (Actor) parentValue;
@@ -418,12 +417,22 @@ public class RDFExport {
 					if (acInfo.colluded) {
 						res.addProperty(E3value.vi_assigned_to_ac, colludedResource);
 					} else {
+						Resource parentRes = getResource(parentValue.SUID);
 						res.addProperty(E3value.vi_assigned_to_ac, parentRes);
 					}
-				} else if (parentValue instanceof MarketSegment) {
-					res.addProperty(E3value.vi_assigned_to_ms, parentRes);
-				} else if (parentValue instanceof ValueActivity) {
-					res.addProperty(E3value.vi_assigned_to_va, parentRes);
+				} else {
+					Resource parentRes = getResource(parentValue.SUID);
+					if (parentValue instanceof MarketSegment) {
+						res.addProperty(E3value.vi_assigned_to_ms, parentRes);
+					} else if (parentValue instanceof ValueActivity) {
+						res.addProperty(E3value.vi_assigned_to_va, parentRes);
+					} else {
+						String msg = "A ValueInterface has a parent not of type Actor, MarketSegment, or ValueActivity. "
+								+ "RDFupport for this is not implemented.";
+						error = Optional.of(msg);
+						System.err.println(msg);
+						return;
+					}
 				}
 				
 				getOfferingIn(viInfo.SUID);
