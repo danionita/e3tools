@@ -1,26 +1,33 @@
 package design.checker;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import com.mxgraph.util.mxConstants;
 
 import design.E3Graph;
 import design.Main;
 
+// TODO: Message like "no errors" in the list if there are no errors!
 public class E3CheckDialog extends JDialog {
 	public static boolean isOpened = false;
 	
@@ -28,17 +35,93 @@ public class E3CheckDialog extends JDialog {
 	List<ModelError> errors;
 	E3Graph graph;
 	Main main;
+	ModelError previousErrorMsg;
+	ChangeListener changeListener;
+	JList<String> errorList; 
+	
+	final String ERROR_COLOR = "#FFFF00";
+	final String ERROR_WIDTH = "2";
 
 	public E3CheckDialog(Main main) {
 		this.main = main;
 		
-		isOpened = false;
+		isOpened = true;
 		
 		setTitle("Error checking dialog");
+
+		model = new DefaultListModel<String>();
+		
+		// This should refresh the window every time the user switches to a new tab
+		changeListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				setFocusToCurrentGraph();
+			}
+		};
+		main.views.addChangeListener(changeListener);
+
+		// Clean up the graph when the window closes
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				cleanupGraph();
+				graph.repaint();
+
+				main.views.removeChangeListener(changeListener);
+				
+				isOpened = false;
+			}
+		});
 		
 		/**********************/
 		/** Build the dialog **/
 		/**********************/
+		
+		JPanel descriptionPanel = new JPanel();
+		descriptionPanel.setBorder(new EmptyBorder(6, 6, 6, 6));
+		getContentPane().add(descriptionPanel, BorderLayout.NORTH);
+		descriptionPanel.setLayout(new BorderLayout(0, 0));
+		
+		JLabel descriptionLabel = new JLabel("Select an error to highlight the objects involved in yellow.");
+		descriptionPanel.add(descriptionLabel);
+		
+		JPanel errorPanel = new JPanel();
+		errorPanel.setBorder(new EmptyBorder(6, 6, 0, 6));
+		getContentPane().add(errorPanel, BorderLayout.CENTER);
+		errorPanel.setLayout(new BorderLayout(0, 0));
+		
+		errorList = new JList<String>(model);
+		errorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		JScrollPane jsp = new JScrollPane(errorList);
+		errorPanel.add(jsp, BorderLayout.CENTER);
+		
+		errorList.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (e.getValueIsAdjusting()) return; // We only do something if the event is final, i.e. if the event is the last one
+				
+				int selectedIndex = errorList.getSelectedIndex();
+				if (selectedIndex == -1) return;
+				
+				// If there are no errors, ignore all selections.
+				if (errors.size() < 1) return;
+				
+				ModelError errorMsg = errors.get(selectedIndex);
+				System.out.println("Message: " + errorMsg.message);
+				
+				if (previousErrorMsg != null) {
+					removeHighlighting(previousErrorMsg);
+				}
+				
+				applyHighlighting(errorMsg);
+				
+				previousErrorMsg = errorMsg;
+
+				// Trigger repaint because we're kick-ass swing programmers.
+				graph.repaint();
+			}
+		});
 		
 		JPanel buttonPanel = new JPanel();
 		getContentPane().add(buttonPanel, BorderLayout.SOUTH);
@@ -49,6 +132,12 @@ public class E3CheckDialog extends JDialog {
 		buttonPanel.add(buttonSidePanel, BorderLayout.EAST);
 		
 		JButton refreshButton = new JButton("Refresh");
+		refreshButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				setFocusToCurrentGraph();
+			}
+		});
 		buttonSidePanel.add(refreshButton);
 		
 		JButton closeButton = new JButton("Close");
@@ -61,41 +150,65 @@ public class E3CheckDialog extends JDialog {
                 E3CheckDialog.this.dispatchEvent(new WindowEvent(E3CheckDialog.this, WindowEvent.WINDOW_CLOSING));
 			}
 		});
-		
-		JPanel errorPanel = new JPanel();
-		errorPanel.setBorder(new EmptyBorder(6, 6, 0, 6));
-		getContentPane().add(errorPanel, BorderLayout.CENTER);
-		errorPanel.setLayout(new BorderLayout(0, 0));
-		
-		model = new DefaultListModel<String>();
-		
-		JList<String> errorList = new JList<String>(model);
-		errorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
-		JScrollPane jsp = new JScrollPane(errorList);
-		errorPanel.add(jsp, BorderLayout.CENTER);
-		
+
+		setSize(400, 300);
+
 		/******************************/
 		/** Done building the dialog **/
 		/******************************/
 		
-		errorList.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				
-			}
-		});
-		
 		setFocusToCurrentGraph();
 	}
 	
-	public void cleanupGraph() {
+	public void removeHighlighting(ModelError errorMsg) {
+		if (errorMsg.subjects == null) return;
+
+		for (Object obj : errorMsg.subjects) {
+			// Set it to its original style
+			String originalStrokeColor = (String) graph.getCellStyle(obj).get(mxConstants.STYLE_STROKECOLOR);
+			if (originalStrokeColor == null) {
+				graph.getView().getState(obj).getStyle().remove(mxConstants.STYLE_STROKECOLOR);
+			} else {
+				graph.getView().getState(obj).getStyle().put(
+						mxConstants.STYLE_STROKECOLOR,
+						graph.getCellStyle(obj).get(mxConstants.STYLE_STROKECOLOR)
+						);
+			}
+			
+			String originalStrokeWidth = (String) graph.getCellStyle(obj).get(mxConstants.STYLE_STROKEWIDTH);
+			if (originalStrokeWidth == null) {
+				graph.getView().getState(obj).getStyle().remove(mxConstants.STYLE_STROKEWIDTH);
+			} else {
+				graph.getView().getState(obj).getStyle().put(
+						mxConstants.STYLE_STROKEWIDTH,
+						graph.getCellStyle(obj).get(mxConstants.STYLE_STROKEWIDTH)
+						);
+			}
+		}
+	}
+	
+	public void applyHighlighting(ModelError errorMsg) {
+		if (errorMsg.subjects == null) return;
 		
+		for (Object obj : errorMsg.subjects) {
+			// Make it fat red
+			graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, ERROR_COLOR);
+			graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKEWIDTH, ERROR_WIDTH);
+		}
+	}
+	
+	public void cleanupGraph() {
+		if (previousErrorMsg != null) {
+			removeHighlighting(previousErrorMsg);
+			
+			previousErrorMsg = null;
+		}
 	}
 	
 	public void setFocusToCurrentGraph() {
 		if (graph != null) {
 			cleanupGraph();
+			graph.repaint();
 		}
 		
 		// Get the new graph
@@ -108,18 +221,12 @@ public class E3CheckDialog extends JDialog {
 		model.clear();
 		
 		errors.stream().forEach(me -> model.addElement(me.message));
-	}
-
-	public static void main(String[] args) {
-//		try {
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//		} catch (Exception e) {
-//			System.out.println("Couldn't set Look and Feel to system");
-//		}
-//
-//		E3CheckDialog e3mcd = new E3CheckDialog(;
-//		
-//		e3mcd.setSize(400, 300);
-//		e3mcd.setVisible(true);
+		
+		if (errors.isEmpty()) {
+			model.addElement("No errors detected in currently selected model.");
+			errorList.setForeground(Color.GRAY);
+		} else {
+			errorList.setForeground(Color.BLACK);
+		}
 	}
 }

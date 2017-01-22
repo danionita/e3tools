@@ -198,8 +198,6 @@ public class Main {
         //exportMenu.add(new EditorActions.ExportJSON(this));
         exportMenu.add(new EditorActions.ExportImage(this));
         
-        fileMenu.add(new EditorActions.ModelCheck(this));
-
         fileMenu.add(exportMenu);
 
         //JMenu importMenu = new JMenu("Import...");
@@ -260,6 +258,7 @@ public class Main {
         modelMenu.addSeparator();
 
         modelMenu.add(new EditorActions.ShowValueObjectsPanel(this));
+        modelMenu.add(new EditorActions.ModelCheck(this));
         
         modelMenu.addSeparator();
 

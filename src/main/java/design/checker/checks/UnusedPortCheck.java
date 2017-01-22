@@ -23,16 +23,14 @@ public class UnusedPortCheck implements E3ModelCheck {
 		unusedPorts.addAll(
 				Utils.getAllCells(graph).stream()
 				.filter(obj -> graph.getModel().getValue(obj) instanceof ValuePort)
-				.map(graph.getModel()::getEdgeCount)
-				.filter(count -> count < 1)
+				.filter(obj -> graph.getModel().getEdgeCount(obj) < 1)
 				.collect(Collectors.toList())
 				);
 		
 		unusedPorts.addAll(
 				Utils.getAllCells(graph).stream()
 				.filter(obj -> graph.getModel().getValue(obj) instanceof LogicDot)
-				.map(graph.getModel()::getEdgeCount)
-				.filter(count -> count < 1)
+				.filter(obj -> graph.getModel().getEdgeCount(obj) < 1)
 				.collect(Collectors.toList())
 				);
 		

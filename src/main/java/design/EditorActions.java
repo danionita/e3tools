@@ -39,6 +39,7 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxCellRenderer;
 import com.mxgraph.util.mxConstants;
 
+import design.checker.E3CheckDialog;
 import design.checker.WalkEntireModel;
 import design.checker.checks.FlowChecker;
 import design.export.JSONExport;
@@ -1193,20 +1194,23 @@ public class EditorActions {
         	
         	E3Graph graph = main.getCurrentGraph();
         	
-        	Utils.getAllCells(graph).stream()
-        		.forEach(cell -> {
-        			System.out.println(graph.getModel().getStyle(cell));
-        			Map<String, Object> style = graph.getCellStyle(cell);
-        			
-        			Base val = (Base) graph.getModel().getValue(cell);
-        			System.out.println("Object #" + val.SUID);
-
-        			style.entrySet().stream().forEach(e -> {
-//        				System.out.println("\tKey: " + e.getKey() + " Value: " + e.getValue());
-					});
-        				
-        		});
-        		
+//        	Utils.getAllCells(graph).stream()
+//        		.forEach(cell -> {
+//        			System.out.println(graph.getModel().getStyle(cell));
+//        			Map<String, Object> style = graph.getCellStyle(cell);
+//        			
+//        			Base val = (Base) graph.getModel().getValue(cell);
+//        			System.out.println("Object #" + val.SUID);
+//
+//        			style.entrySet().stream().forEach(e -> {
+////        				System.out.println("\tKey: " + e.getKey() + " Value: " + e.getValue());
+//					});
+//        				
+//        		});
+        	
+        	E3CheckDialog e3cd = new E3CheckDialog(main);
+        	
+        	e3cd.setVisible(true);
         }
     }
 

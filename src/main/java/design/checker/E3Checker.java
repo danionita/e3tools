@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.bag.SynchronizedSortedBag;
+
 import design.E3Graph;
 import design.Utils;
 import design.checker.checks.EndStimuliCheck;

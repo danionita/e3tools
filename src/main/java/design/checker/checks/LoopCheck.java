@@ -11,7 +11,7 @@ public class LoopCheck implements E3ModelCheck {
 	@Override
 	public Optional<ModelError> check(E3Graph graph) {
 		// TODO Auto-generated method stub
-		return null;
+		return Optional.empty();
 	}
 
 }
