@@ -22,7 +22,7 @@ package e3fraud.tools;
  */
 import com.hp.hpl.jena.rdf.model.Resource;
 import e3fraud.model.E3Model;
-import e3fraud.model.SubIdealModelGenerator;
+import e3fraud.model.FraudModelGenerator;
 import e3fraud.tools.SettingsObjects.AdvancedGenerationSettings;
 import e3fraud.tools.SettingsObjects.GenerationSettings;
 import java.util.HashMap;
@@ -81,7 +81,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
 
         // Start generation
         System.out.println(currentTime.currentTime() + " Generating sub-ideal models...." + newline + "\t with need \"" + selectedNeedString + "\" " + "\toccuring " + startValue + " to " + endValue + " times..." + newline);
-        SubIdealModelGenerator subIdealModelGenerator = new SubIdealModelGenerator();
+        FraudModelGenerator subIdealModelGenerator = new FraudModelGenerator();
 
         int size = 0;
         Set<E3Model> colludedAndNonColludedModels = new HashSet<>();

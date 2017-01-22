@@ -74,8 +74,22 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
         if (node.getUserObject() instanceof E3Model) {
              model = (E3Model) node.getUserObject();
-             
-            left = new JLabel(Integer.toString(node.getParent().getIndex(node) + 1));
+            
+             if(node.getLevel()==3){
+                 left = new JLabel("");
+             }
+             else{
+                 int nephews = 0;
+                 DefaultMutableTreeNode sibling=node;
+                 while(sibling.getPreviousSibling()!=null){
+                 sibling = sibling.getPreviousSibling();
+                 if(sibling.getChildCount()>0){
+                 nephews += sibling.getChildAt(0).getChildCount();
+                 }
+                 }
+             left = new JLabel(Integer.toString(node.getParent().getIndex(node) + nephews + 1));
+             }
+
             left.setFont(new Font("Arial", Font.BOLD, 14));
 
             right = new JEditorPane();
@@ -120,8 +134,13 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
             return panel;
         } else {
             DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-            Component c = renderer.getTreeCellRendererComponent(tree, object, leaf, leaf, leaf, row, leaf);
-            c.setFont(c.getFont().deriveFont(Font.BOLD, 16));
+            Component c = renderer.getTreeCellRendererComponent(tree, object, false, expanded, leaf, row, hasFocus);
+            if(!(node.getLevel()==2)){c.setFont(c.getFont().deriveFont(Font.BOLD, 16));}
+            else{c.setFont(c.getFont().deriveFont(Font.ITALIC));}
+            renderer.setLeafIcon(null);
+            renderer.setClosedIcon(null);
+            renderer.setIcon(null);
+            renderer.setOpenIcon(null);
             return c;
         }
     }

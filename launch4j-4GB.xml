@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>D:\WORK\NetBeans projects\e3tools\target\e3tools-0.4.5-jar-with-dependencies.jar</jar>
+  <outfile>D:\WORK\NetBeans projects\e3tools\target\e3tools-0.4.5-4GB.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine>-Xmx4096m</cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>D:\WORK\NetBeans projects\e3tools\src\main\resources\e3icon.ico</icon>
+  <jre>
+    <path></path>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>1.1.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+    <initialHeapPercent>5</initialHeapPercent>
+    <maxHeapPercent>75</maxHeapPercent>
+  </jre>
+</launch4jConfig>

@@ -182,7 +182,7 @@ public class SettingsObjects {
         /**
          * @param sortCriteria 0 - do not sort, 1 - sort by loss first, 2- sort
          * by gain first
-         * @param groupingCriteria 0 - do not group, 1 - group based on
+         * @param groupingCriteria 0 - group based on result (default), 1 - group based on collusion,
          * generated collusion groups
          */
         public SortingAndGroupingSettings(int sortCriteria, int groupingCriteria) {
