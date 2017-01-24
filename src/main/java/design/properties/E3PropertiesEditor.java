@@ -27,8 +27,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +48,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -67,8 +64,8 @@ import design.E3Graph;
 import design.Main;
 import design.Utils;
 import design.info.Base;
-import design.info.EndSignal;
 import design.info.StartSignal;
+import java.awt.BorderLayout;
 
 /**
  * TODO: Rewrite this window with the WindowBuilder Pro from Eclipse
@@ -262,14 +259,16 @@ public class E3PropertiesEditor {
 		JScrollPane formulaPane = new JScrollPane(formulaTable);
 		formulaPane.setPreferredSize(new Dimension(1, 1));
 		
-		JPanel buttonPane = new JPanel();
-		buttonPane.add(new JButton(new AbstractAction("New row") {
+		JPanel buttonPane = new JPanel(new BorderLayout());
+                JPanel rowButtons= new JPanel();
+                JPanel saveAndCancelButtons = new JPanel();
+		rowButtons.add(new JButton(new AbstractAction("New row") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				((DefaultTableModel) formulaTable.getModel()).addRow(new String[]{"", ""});
 			}
 		}));
-		buttonPane.add(new JButton(new AbstractAction("Delete row") {
+		rowButtons.add(new JButton(new AbstractAction("Delete row") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int row = formulaTable.getSelectedRow();
@@ -309,7 +308,7 @@ public class E3PropertiesEditor {
 				((DefaultTableModel) formulaTable.getModel()).removeRow(row);
 			}
 		}));
-		buttonPane.add(new JButton(new AbstractAction("Save changes") {
+		saveAndCancelButtons.add(new JButton(new AbstractAction("Save") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// If the name has not changed, apply it.
@@ -381,18 +380,22 @@ public class E3PropertiesEditor {
 				dialog.dispose();
 			}
 		}));
-		buttonPane.add(new JButton(new AbstractAction("Cancel") {
+		saveAndCancelButtons.add(new JButton(new AbstractAction("Cancel") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				dialog.dispose();
 			}
 		}));
+                
+                buttonPane.add(rowButtons,BorderLayout.NORTH);
+                buttonPane.add(saveAndCancelButtons,BorderLayout.CENTER);
 
 		List<String> labels = new ArrayList<>(Arrays.asList("ID:", "Type:", "Name:", "Formulas:", ""));
 		List<Component> labelComponents = new ArrayList<>();
 		for (String label : labels) {
 			labelComponents.add(new JLabel(label));
 		}
+                
 		
 		List<Component> components = new ArrayList<>(Arrays.asList(idLabel, typeLabel, nameField, formulaPane, buttonPane));
 		
