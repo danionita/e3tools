@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -63,6 +64,8 @@ public class EvaluatedModel {
     private Workbook wb;
     private Sheet sheet;
     private int nextRow;
+    private Optional<String> lastUID;
+    private Optional<String> lastFormulaName;
 
     /**
      * Matches strings like: e3{'Subscription fee'.VALUATION}
@@ -99,8 +102,6 @@ public class EvaluatedModel {
 
     private EvaluatedModel(Model model) {
         this.model = model;
-
-        evaluateAll();
     }
 
     /**
@@ -110,11 +111,47 @@ public class EvaluatedModel {
      */
     public static Optional<EvaluatedModel> evaluateModel(Model model) {
         try {
-            return Optional.of(new EvaluatedModel(model));
+            Optional<EvaluatedModel> em = Optional.of(new EvaluatedModel(model));
+            em.get().evaluateAll();
+            return em;
         } catch (FormulaParseException e) {
             System.out.println("Could not parse formula!");
             e.printStackTrace();
             return Optional.empty();
+        }
+    }
+    
+    public static class ModelOrError {
+    	ModelOrError() {
+    		optionalModel = Optional.empty();
+    		badUID = Optional.empty();
+    		badFormulaName = Optional.empty();
+    	}
+    	
+    	public Optional<EvaluatedModel> optionalModel;
+    	public Optional<String> badUID;
+    	public Optional<String> badFormulaName;
+    }
+    
+    public static ModelOrError evaluateModelOrError(Model model) {
+		EvaluatedModel em = new EvaluatedModel(model);
+
+        try {
+            em.evaluateAll();
+
+        	ModelOrError moe = new ModelOrError();
+        	moe.optionalModel = Optional.of(em);
+
+        	return moe;
+        } catch (FormulaParseException e) {
+            System.out.println("Could not parse formula!");
+            e.printStackTrace();
+
+        	ModelOrError moe = new ModelOrError();
+        	moe.badUID = em.lastUID;
+        	moe.badFormulaName = em.lastFormulaName;
+
+            return moe;
         }
     }
 
@@ -188,6 +225,10 @@ public class EvaluatedModel {
                 String formulaName = formulaEntry.split("=")[0];
                 // Remove all e3references
                 String formula = e3ExpressionToExcel(uid, formulaEntry.split("=")[1]);
+                
+                // Save the debug information in case of an exception
+                lastUID = Optional.of(uid);
+                lastFormulaName = Optional.of(formulaName);
 
                 // Create the cell containing the UID and formulaname and fill in the formula
                 // TODO: This is actually a superfluous column, since we save the mapping

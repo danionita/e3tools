@@ -11,8 +11,10 @@ import org.apache.commons.collections4.bag.SynchronizedSortedBag;
 
 import design.E3Graph;
 import design.Utils;
+import design.checker.checks.CorrectFormulaCheck;
 import design.checker.checks.EndStimuliCheck;
 import design.checker.checks.FlowChecker;
+import design.checker.checks.IdenticalValueObjectCheck;
 import design.checker.checks.LoopCheck;
 import design.checker.checks.StartStimuliCheck;
 import design.checker.checks.UnusedPortCheck;
@@ -29,7 +31,9 @@ public class E3Checker {
 			new FlowChecker(),
 			new LoopCheck(),
 			new StartStimuliCheck(),
-			new UnusedPortCheck()
+			new UnusedPortCheck(),
+			new IdenticalValueObjectCheck(),
+			new CorrectFormulaCheck()
 			);
 	}
 	
