@@ -149,7 +149,7 @@ public class E3Walker {
 				}
 				
 				if (!isVisited(descendant)) {
-					visitValuePort(descendant, true);
+					visitValuePort(descendant, subject);
 					markVisited(descendant);
 					history.push(descendant);
 				} else {
@@ -250,7 +250,7 @@ public class E3Walker {
 					if (nextClass == SignalDot.class) {
 						visitSignalDot(descendant, false);
 					} else if (nextClass == ValuePort.class) {
-						visitValuePort(descendant, false);
+						visitValuePort(descendant, subject);
 					}
 
 					markVisited(descendant);
@@ -339,6 +339,10 @@ public class E3Walker {
 	
 	public Set<Object> getVisited() {
 		return new HashSet<>(visited);
+	}
+	
+	public boolean isInHistory(Object object) {
+		return history.contains(object);
 	}
 	
 	public void visitStartSignal(Object ss) {

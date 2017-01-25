@@ -68,6 +68,7 @@ import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
+import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 
 import design.export.RDFExport;
@@ -203,6 +204,7 @@ public class Utils {
     }
 
     public static List<Object> getAllCells(mxGraph graph) {
+    	if (graph == null) return new ArrayList<>();
         return getAllCells(graph, graph.getDefaultParent());
     }
 
@@ -1217,5 +1219,42 @@ public class Utils {
     	}
     	
     	return Optional.of(possibleTopLevelParent);
+    }
+    
+    public static boolean resetCellStateProperty(E3Graph graph, Object cell, String prop) {
+		// Set it to its original style
+    	Map<String, Object> originalCellStyle = graph.getCellStyle(cell);
+    	
+    	// If null, the cell does not exist anymore
+    	if (originalCellStyle == null) return false;
+
+		Object originalValue = originalCellStyle.get(prop);
+
+    	// If null, the cell does not exist anymore
+		mxCellState cs = graph.getView().getState(cell);
+		if (cs == null) return false;
+
+		if (originalValue == null) {
+			// There was not a value before, so we remove it
+			cs.getStyle().remove(prop);
+		} else {
+			cs.getStyle().put(prop, originalValue);
+		}
+		
+		return true;
+    }
+    
+    public static boolean setCellStateProperty(E3Graph graph, Object cell, String prop, Object value) {
+    	mxCellState state = graph.getView().getState(cell);
+    	
+    	if (state == null) return false;
+    		
+    	if (state.getStyle() == null) return false;
+    	
+    	Map<String, Object> style = state.getStyle();
+    	
+    	style.put(prop, value);
+    	
+    	return true;
     }
 }

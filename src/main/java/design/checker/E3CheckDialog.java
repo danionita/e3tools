@@ -26,8 +26,30 @@ import com.mxgraph.util.mxConstants;
 
 import design.E3Graph;
 import design.Main;
+import design.Utils;
+import design.info.Bar;
+import design.info.Base;
+import design.info.LogicBase;
+import design.info.Triangle;
 
-// TODO: Message like "no errors" in the list if there are no errors!
+/**
+ * TODO: Checks still to be implemented:
+ * - Check wrong formulas
+ * - For an and gate, if checkable, incoming ce's must have the same occurrence rates
+ * 
+ * Done:
+ * - Loops
+ * - End stimuli check
+ * - Conflicting flow check
+ * - Start stimuli check
+ * - Unused ports
+ * - Connected ports must have the same value objects (Dan? doubly ports or ports on either side of a VE)
+ *   - But we cannot assign value objects to ports, so only doubly edges?
+ *   - Jup!
+ *   
+ * @author bobe
+ *
+ */
 public class E3CheckDialog extends JDialog {
 	public static boolean isOpened = false;
 	
@@ -164,36 +186,46 @@ public class E3CheckDialog extends JDialog {
 		if (errorMsg.subjects == null) return;
 
 		for (Object obj : errorMsg.subjects) {
-			// Set it to its original style
-			String originalStrokeColor = (String) graph.getCellStyle(obj).get(mxConstants.STYLE_STROKECOLOR);
-			if (originalStrokeColor == null) {
-				graph.getView().getState(obj).getStyle().remove(mxConstants.STYLE_STROKECOLOR);
-			} else {
-				graph.getView().getState(obj).getStyle().put(
-						mxConstants.STYLE_STROKECOLOR,
-						graph.getCellStyle(obj).get(mxConstants.STYLE_STROKECOLOR)
-						);
+			Base info = (Base) graph.getModel().getValue(obj);
+
+			// If highlighting a logic base, highlight the triangle/bar
+			if (info instanceof LogicBase) {
+				for (int i = 0; i < graph.getModel().getChildCount(obj); i++) {
+					Object c =  graph.getModel().getChildAt(obj, i);
+					if (graph.getModel().getValue(c) == null) {
+						obj = c;
+						break;
+					}
+				}
 			}
-			
-			String originalStrokeWidth = (String) graph.getCellStyle(obj).get(mxConstants.STYLE_STROKEWIDTH);
-			if (originalStrokeWidth == null) {
-				graph.getView().getState(obj).getStyle().remove(mxConstants.STYLE_STROKEWIDTH);
-			} else {
-				graph.getView().getState(obj).getStyle().put(
-						mxConstants.STYLE_STROKEWIDTH,
-						graph.getCellStyle(obj).get(mxConstants.STYLE_STROKEWIDTH)
-						);
-			}
+
+			Utils.resetCellStateProperty(graph, obj, mxConstants.STYLE_STROKECOLOR);
+			Utils.resetCellStateProperty(graph, obj, mxConstants.STYLE_STROKEWIDTH);
 		}
 	}
 	
 	public void applyHighlighting(ModelError errorMsg) {
 		if (errorMsg.subjects == null) return;
 		
+		System.out.println("Applying highlighting!");
+		
 		for (Object obj : errorMsg.subjects) {
-			// Make it fat red
-			graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKECOLOR, ERROR_COLOR);
-			graph.getView().getState(obj).getStyle().put(mxConstants.STYLE_STROKEWIDTH, ERROR_WIDTH);
+			Base info = (Base) graph.getModel().getValue(obj);
+
+			// If highlighting a logic base, highlight the triangle/bar
+			if (info instanceof LogicBase) {
+				for (int i = 0; i < graph.getModel().getChildCount(obj); i++) {
+					Object c =  graph.getModel().getChildAt(obj, i);
+					if (graph.getModel().getValue(c) == null) {
+						obj = c;
+						break;
+					}
+				}
+			}
+
+			// Make it fat error color
+			Utils.setCellStateProperty(graph, obj, mxConstants.STYLE_STROKECOLOR, ERROR_COLOR);
+			Utils.setCellStateProperty(graph, obj, mxConstants.STYLE_STROKEWIDTH, ERROR_WIDTH);
 		}
 	}
 	
