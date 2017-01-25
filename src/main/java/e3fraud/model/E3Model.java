@@ -46,7 +46,7 @@ import java.util.Optional;
  */
 public class E3Model {
 
-    private boolean debug = false; //use to toggle printing traversal steps
+    private boolean debug = true; //use to toggle printing traversal steps
 
     private final Model model;
     private String description;
@@ -901,7 +901,8 @@ public class E3Model {
                         Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
                         connectedValueInterfaces.add(reciprocalValueInterface);
                     }
-                } else if (valuePort.hasProperty(E3value.vp_out_connects_ve) && outer) {
+                }
+                if (valuePort.hasProperty(E3value.vp_out_connects_ve) && outer) {
                     StmtIterator valueExchanges = valuePort.listProperties(E3value.vp_out_connects_ve);
                     while (valueExchanges.hasNext()) {
                         Resource valueExchange = valueExchanges.next().getResource();
@@ -910,7 +911,8 @@ public class E3Model {
                         Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
                         connectedValueInterfaces.add(reciprocalValueInterface);
                     }
-                } else if (valuePort.hasProperty(E3value.vp_first_connects_ve) && inner) {
+                }
+                if (valuePort.hasProperty(E3value.vp_first_connects_ve) && inner) {
                     StmtIterator valueExchanges = valuePort.listProperties(E3value.vp_first_connects_ve);
                     while (valueExchanges.hasNext()) {
                         Resource valueExchange = valueExchanges.next().getResource();
@@ -919,7 +921,8 @@ public class E3Model {
                         Resource reciprocalValueInterface = reciprocalValueOffering.getProperty(E3value.vo_in_vi).getResource();
                         connectedValueInterfaces.add(reciprocalValueInterface);
                     }
-                } else if (valuePort.hasProperty(E3value.vp_second_connects_ve) && inner) {
+                }
+                if (valuePort.hasProperty(E3value.vp_second_connects_ve) && inner) {
                     StmtIterator valueExchanges = valuePort.listProperties(E3value.vp_second_connects_ve);
                     while (valueExchanges.hasNext()) {
                         Resource valueExchange = valueExchanges.next().getResource();
@@ -1254,9 +1257,9 @@ public class E3Model {
                 if (debug) {
                     System.out.println("\t\t\t... it is a ValueInterface with no connected CE (exchanges on both sides)");
                 }
-
                 //First, find out which is (are) the next value interface(s)                
                 HashSet<Resource> connectedValueInterfaces = getConnectedInterfaces(nextElement, true, true);
+                System.out.println("connected value interfaces: "+connectedValueInterfaces.toString());
                 HashSet<Resource> outgoingConnectedValueInterfaces = new HashSet<>();
                 //by looking through all connected interfaces
                 for (Resource connectedValueInterface : connectedValueInterfaces) {
@@ -1265,7 +1268,7 @@ public class E3Model {
                         outgoingConnectedValueInterfaces.add(connectedValueInterface);
                     } //or which are in turn connected to another interface  which has an outgoing CE
                     else if (!connectedValueInterface.hasProperty(E3value.de_down_ce)) {
-                        HashSet<Resource> secondConnectedValueInterfaces = getConnectedInterfaces(nextElement, true, true);
+                        HashSet<Resource> secondConnectedValueInterfaces = getConnectedInterfaces(connectedValueInterface, true, true);
                         for (Resource secondConnectedValueInterface : secondConnectedValueInterfaces) {
                             if (secondConnectedValueInterface.hasProperty(E3value.de_down_ce)) {
                                 outgoingConnectedValueInterfaces.add(connectedValueInterface);
@@ -1273,6 +1276,8 @@ public class E3Model {
                         }
                     }
                 }
+                
+                System.out.println("outgoing connected value interfaces: "+outgoingConnectedValueInterfaces.toString());
 
                 //Second, find out if we are entering or exiting a MarketSegment
                 //and divide or multiple the occurence by its count as needed
