@@ -258,6 +258,7 @@ public class Main {
         modelMenu.addSeparator();
 
         modelMenu.add(new EditorActions.ShowValueObjectsPanel(this));
+        modelMenu.add(new EditorActions.ShowValueTransactionsPanel(this));
         modelMenu.add(new EditorActions.ModelCheck(this));
         
         modelMenu.addSeparator();

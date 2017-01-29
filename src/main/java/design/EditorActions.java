@@ -784,7 +784,38 @@ public class EditorActions {
             new ValueObjectDialog(main).show();
         }
     }
+    
+    public static class ShowValueTransactionsPanel extends BaseAction {
 
+        public ShowValueTransactionsPanel(Main main) {
+            super("Edit Value Transactions", main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (main.views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to display its ValueTransactions. Click File ➡ New model to open a new model.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (ValueTransactionDialog.isOpened) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A value object dialog is already open.",
+                        "Dialog already open",
+                        JOptionPane.ERROR_MESSAGE);
+
+                ValueObjectDialog.dialogInstance.requestFocus();
+                return;
+            }
+
+            new ValueTransactionDialog(main).setVisible(true);
+        }
+    }
 
     public static class AnalyzeTransactions extends BaseAction {
 
