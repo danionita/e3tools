@@ -75,7 +75,7 @@ public class E3Graph extends mxGraph implements Serializable{
 	public final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "MONEY-SECURED", "SERVICE")
 			);
-	public final ArrayList<ValueTransaction> valueTransactions = new ArrayList<>();
+	public ArrayList<ValueTransaction> valueTransactions = new ArrayList<>();
 
 	public boolean isFraud;
 	public GraphDelta delta;
