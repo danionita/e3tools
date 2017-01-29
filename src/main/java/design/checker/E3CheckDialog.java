@@ -33,19 +33,6 @@ import design.info.LogicBase;
 import design.info.Triangle;
 
 /**
- * TODO: Checks still to be implemented:
- * - For an and gate, if checkable, incoming ce's must have the same occurrence rates
- * 
- * Done:
- * - Check wrong formulas
- * - Loops
- * - End stimuli check
- * - Conflicting flow check
- * - Start stimuli check
- * - Unused ports
- * - Connected ports must have the same value objects (Dan? doubly ports or ports on either side of a VE)
- *   - But we cannot assign value objects to ports, so only doubly edges?
- *   - Jup!
  *   
  * @author bobe
  *

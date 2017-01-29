@@ -1,16 +1,11 @@
 package design.checker;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.bag.SynchronizedSortedBag;
-
 import design.E3Graph;
-import design.Utils;
 import design.checker.checks.CorrectFormulaCheck;
 import design.checker.checks.EndStimuliCheck;
 import design.checker.checks.FlowChecker;
@@ -19,8 +14,20 @@ import design.checker.checks.LoopCheck;
 import design.checker.checks.OcurrenceCheck;
 import design.checker.checks.StartStimuliCheck;
 import design.checker.checks.UnusedPortCheck;
-import design.info.StartSignal;
 
+/*
+ * Checks:
+ * - For an and gate, if checkable, incoming ce's must have the same occurrence rates
+ * - Check wrong formulas
+ * - Loops
+ * - End stimuli check
+ * - Conflicting flow check
+ * - Start stimuli check
+ * - Unused ports
+ * - Connected ports must have the same value objects (Dan? doubly ports or ports on either side of a VE)
+ *   - But we cannot assign value objects to ports, so only doubly edges?
+ *   - Jup!
+ */
 public class E3Checker {
 	
 	/**
