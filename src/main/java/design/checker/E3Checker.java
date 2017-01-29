@@ -16,6 +16,7 @@ import design.checker.checks.EndStimuliCheck;
 import design.checker.checks.FlowChecker;
 import design.checker.checks.IdenticalValueObjectCheck;
 import design.checker.checks.LoopCheck;
+import design.checker.checks.OcurrenceCheck;
 import design.checker.checks.StartStimuliCheck;
 import design.checker.checks.UnusedPortCheck;
 import design.info.StartSignal;
@@ -33,7 +34,8 @@ public class E3Checker {
 			new StartStimuliCheck(),
 			new UnusedPortCheck(),
 			new IdenticalValueObjectCheck(),
-			new CorrectFormulaCheck()
+			new CorrectFormulaCheck(),
+			new OcurrenceCheck()
 			);
 	}
 	

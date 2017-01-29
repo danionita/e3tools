@@ -20,8 +20,6 @@ public class CorrectFormulaCheck implements E3ModelCheck {
 	@Override
 	public Optional<ModelError> check(E3Graph graph) {
 
-//    public static Optional<EvaluatedModel> evaluateModel(Model model) {
-
 		RDFExport rdfExporter = new RDFExport(graph, true, true, true);
 
 		if (!rdfExporter.getModel().isPresent()) {

@@ -34,10 +34,10 @@ import design.info.Triangle;
 
 /**
  * TODO: Checks still to be implemented:
- * - Check wrong formulas
  * - For an and gate, if checkable, incoming ce's must have the same occurrence rates
  * 
  * Done:
+ * - Check wrong formulas
  * - Loops
  * - End stimuli check
  * - Conflicting flow check
