@@ -442,7 +442,7 @@ public class EvaluatedModel {
      * such that local references (e.g. e3{VALUATION}) can be resolved. If null
      * is passed, these references will simply not be resolved if present.
      */
-    public void changeExistingFormula(String reference, String uidScope, String formula) {
+     public void changeExistingFormula(String reference, String uidScope, String formula) {
         // If the row does not exists, abort
         if (!rowMap.containsKey(reference)) {
             System.out.println("Reference \"" + reference + "\" refers to non-existing formula.");
@@ -456,8 +456,12 @@ public class EvaluatedModel {
         Cell cell = sheet.getRow(row).getCell(1);
         cell.setCellFormula(formula);
 
-        XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+        //XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
     }
+     
+     public void reEvaluate(){
+                 XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+     }
 
     /**
      * Argument reference can only be of form <code>#123.VALUATION</code>.
@@ -507,6 +511,7 @@ public class EvaluatedModel {
         } else {
             addNewFormula(reference, uidScope, formula);
         }
+        XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
     }
 
     /**

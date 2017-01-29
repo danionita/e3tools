@@ -90,7 +90,7 @@ public class E3Model {
     public E3Model(E3Model baseModel) {
         Model newJenaModel = ModelFactory.createDefaultModel();
         newJenaModel.add(baseModel.getJenaModel());
-        this.model = newJenaModel;        
+        this.model = newJenaModel;
         this.prefix = "";
         this.description = baseModel.getDescription();
         this.colludedActorURI = baseModel.colludedActorURI;
@@ -280,7 +280,7 @@ public class E3Model {
         }
         return actorStrings;
     }
-    
+
     public Set<String> getValueObjectStrings() {
         // select all the resources with a ,E3value.value_object property
         ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.value_object);
@@ -446,10 +446,10 @@ public class E3Model {
         transfer = model.getResource(transfer.getURI());
         Resource port = null;
         //find the value object it belongs to
-        if (transfer.hasProperty(E3value.ve_has_in_po)){
-        port = transfer.getPropertyResourceValue(E3value.ve_has_in_po);}
-        else if(transfer.hasProperty(E3value.ve_has_first_vp)){            
-        port = transfer.getPropertyResourceValue(E3value.ve_has_first_vp);
+        if (transfer.hasProperty(E3value.ve_has_in_po)) {
+            port = transfer.getPropertyResourceValue(E3value.ve_has_in_po);
+        } else if (transfer.hasProperty(E3value.ve_has_first_vp)) {
+            port = transfer.getPropertyResourceValue(E3value.ve_has_first_vp);
         }
         Resource valueObject = port.getPropertyResourceValue(E3value.vp_requests_offers_vo);
         //if it has been allocated  a value object
@@ -527,8 +527,7 @@ public class E3Model {
     /**
      * Updates the OCCURRENCE attribute of a need to a given number. This only
      * triggers a quickEnhance, and therefore only affects the dependency path
-     * of the updated need. Used for generating charts (when rapid enhancements
-     * are possible under the assumption that the update does not impact the
+     * of the updated need. Used for generating charts (under the assumption that the update does not impact the
      * rest of the model).
      *
      * @param need
@@ -550,6 +549,7 @@ public class E3Model {
                 break;
             }
         }
+        //this.enhance();
         this.quickEnhance(need);
         return true;
     }
@@ -1026,21 +1026,20 @@ public class E3Model {
                 System.out.println("\t...Starting traversal from " + startStimulus.getProperty(E3value.e3_has_name).getLiteral().toString() + " with OCCURRENCE =  " + occurrences);
             }
             //and go down the depdendecy path until the end, adding OCCURENCE rates to value interfaces
-            traverse(nextElement, occurrences);
+            traverse(nextElement, occurrences, false);
         }
         if (debug) {
             System.out.println("\t...Finished!\n");
         }
-        // TODO: Same as above (error handling)
         evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
     }
 
     /**
-     * Computes and appends NUMERICAL occurrence rates only to ValueInterface
-     * connected to the dependency path of the given need, but only updates the
-     * occurrence rate of the need in the EvaluatedModel. WARNING: this leaves
-     * the OCCURRENCE attributes attached of ValueInterfaces in
-     * theevaluatedModel in an inconsistent state.
+     * Computes and appends occurrence expressions only to ValueInterface
+     * connected to the dependency path of the given need.
+     * This is faster than enhance() but can only be when no other changes 
+     * to the model have taken place since the last call to enhance()
+     * (such as when generating charts).
      *
      * @param need A start stimulus whose OCCURRENCE rate was was recently
      * updated to a number
@@ -1063,7 +1062,7 @@ public class E3Model {
                 System.out.println("\t...Starting traversal from " + need.getProperty(E3value.e3_has_name).getLiteral().toString() + " with OCCURRENCE =  " + occurrences);
             }
             //and go down the depdendecy path until the end, adding OCCURENCE rates to value interfaces
-            traverse(nextElement, occurrences);
+            traverse(nextElement, occurrences,true);
 
         }
         if (debug) {
@@ -1071,6 +1070,7 @@ public class E3Model {
         }
         String ID = need.getURI().split("#")[1];
         evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, occurrences);
+        evaluatedModel.reEvaluate();
     }
 
     /**
@@ -1083,7 +1083,7 @@ public class E3Model {
      * traversing downwards
      * @param occurences the occurrence rate of nextElement
      */
-    private void traverse(Resource nextElement, String occurrences) {
+    private void traverse(Resource nextElement, String occurrences, boolean update) {
         //While this is not the last element (i.e. an end stimulus)
         while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {
             if (debug) {
@@ -1131,7 +1131,7 @@ public class E3Model {
                     }
 
                     //and then go down outgoing CE
-                    traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences);
+                    traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences, update);
                     return;
 
                     //## OR fork ##
@@ -1159,7 +1159,7 @@ public class E3Model {
                             //Keep it as an expression
                             occurrences = "(" + occurrences + ")*" + ratio;
                         }
-                        traverse(node.getResource(), occurrences);
+                        traverse(node.getResource(), occurrences,update);
                     }
                     return;
                 }
@@ -1170,18 +1170,48 @@ public class E3Model {
                 StmtIterator incomingNodes = nextElement.listProperties(E3value.de_up_ce);
                 List<Statement> outgoingNodeList = outgoingNodes.toList();
                 List<Statement> incomingNodeList = incomingNodes.toList();
-                if (debug) {
-                    System.out.println("\t\t\t ...found AND  node with " + incomingNodeList.size() + " incoming ports and " + outgoingNodeList.size() + " outgoing ports");
-                }
 
 //                //## AND join ##
-//                if (incomingNodeList.size() > 1) {
-//                    //TODO: add AND join behaviour
-                //PROBLEM: potential inconsistencies here (incoming paths with different occurrences are illegal), which should be picked up earlier on;
-                // When all incoming paths have equal occurrence rates, then the AND-fork behaviour applies for AND-joins too
-//                }
+                if (incomingNodeList.size() > 1) {
+                    if (debug) {
+                        System.out.println("\t\t\t ...found AND  join with " + incomingNodeList.size() + " incoming ports.");
+                    }
+
+                    //check if all incoming paths have been considered,
+                    for (Statement incomingNode : incomingNodeList) {
+                        //and if not
+                        if (!incomingNode.getResource().hasProperty(E3value.e3_has_formula, "VISITED=1")) {
+                            if(debug){System.out.println("\t\t\t ...waiting for the other incoming paths to be computed");}
+                            //wait for the other paths
+                            return;
+                        }
+                    }
+
+                    //If all paths were computed,     
+                    //take the smallest 
+                    String outgoingOccurrences = incomingNodeList.get(0).getResource().getProperty(E3value.down_fraction).getString();
+                    for (int i=1; i< incomingNodeList.size(); i++) {
+                        String incomingOccurrence = incomingNodeList.get(i).getResource().getProperty(E3value.down_fraction).getString();
+                        if (outgoingOccurrences.matches("\\d*\\.?\\d*") && incomingOccurrence.matches("\\d*\\.?\\d*")) {
+                            int comparissonResult = (Double.valueOf(outgoingOccurrences).compareTo(Double.valueOf(incomingOccurrence)));
+                                if (comparissonResult > 0){
+                                    outgoingOccurrences = incomingOccurrence;
+                                }
+                        } else {
+                            outgoingOccurrences = "IF("+ outgoingOccurrences + ">" + incomingOccurrence + ","+ incomingOccurrence + ","+outgoingOccurrences+")";
+                        }
+                    }
+                    if (debug) {
+                        System.out.println("\t\t\t ... smallest occurrence rate = " + outgoingOccurrences);
+                    }
+
+                    //and then go down outgoing CE
+                    traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences,update);
+                    return;
+                }
+
                 //## AND fork ##
-                //else{
+                else{
                 //Go down each path using occurence = OCCURENCE*fraction
                 for (Statement node : outgoingNodeList) {
                     double ratio = node.getResource().getProperty(E3value.up_fraction).getFloat();
@@ -1195,9 +1225,10 @@ public class E3Model {
                         //Keep it as an expression
                         occurrences = "(" + occurrences + ")*" + ratio;
                     }
-                    traverse(node.getResource(), occurrences);
+                    traverse(node.getResource(), occurrences,update);
                     //}
                     return;
+                }
                 }
 
                 //###  connection_element  ###
@@ -1222,6 +1253,11 @@ public class E3Model {
                 }
                 //add occurrences to it (before taking count into consideration)
                 updateValueInterfaceOccurrences(nextElement, occurrences);
+                //also update the evaluatedModel if we are in update mode
+                if (update) {
+                    String ID = nextElement.getURI().split("#")[1];
+                    evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, occurrences);
+                }
                 //if the Value Interface was part of a MarketSegment, multiply the occurence by the count of this MarketSegment
                 if (nextElement.hasProperty(E3value.vi_assigned_to_ms)) {
                     Resource marketSegment = nextElement.getPropertyResourceValue(E3value.vi_assigned_to_ms);
@@ -1233,7 +1269,7 @@ public class E3Model {
 
                 //and continue the traversal through each one
                 for (Resource connectedValueInterface : connectedValueInterfaces) {
-                    traverse(connectedValueInterface, occurrences);
+                    traverse(connectedValueInterface, occurrences,update);
                 }
                 return;
 
@@ -1250,6 +1286,11 @@ public class E3Model {
                 }
                 //Then, add occurrences to it 
                 updateValueInterfaceOccurrences(nextElement, occurrences);
+                
+                if (update) {
+                    String ID = nextElement.getURI().split("#")[1];
+                    evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, occurrences);
+                }
                 nextElement = nextElement.getProperty(E3value.de_down_ce).getResource();//choose the next Connection Element                
 
                 //###  value_interface with no connected CE (exchanges on either sides)  ###
@@ -1259,7 +1300,7 @@ public class E3Model {
                 }
                 //First, find out which is (are) the next value interface(s)                
                 HashSet<Resource> connectedValueInterfaces = getConnectedInterfaces(nextElement, true, true);
-                System.out.println("connected value interfaces: "+connectedValueInterfaces.toString());
+                System.out.println("connected value interfaces: " + connectedValueInterfaces.toString());
                 HashSet<Resource> outgoingConnectedValueInterfaces = new HashSet<>();
                 //by looking through all connected interfaces
                 for (Resource connectedValueInterface : connectedValueInterfaces) {
@@ -1276,8 +1317,8 @@ public class E3Model {
                         }
                     }
                 }
-                
-                System.out.println("outgoing connected value interfaces: "+outgoingConnectedValueInterfaces.toString());
+
+                System.out.println("outgoing connected value interfaces: " + outgoingConnectedValueInterfaces.toString());
 
                 //Second, find out if we are entering or exiting a MarketSegment
                 //and divide or multiple the occurence by its count as needed
@@ -1295,7 +1336,7 @@ public class E3Model {
                 updateValueInterfaceOccurrences(nextElement, occurrences);
                 //and continue the traversal through each one
                 for (Resource outgoingConnectedValueInterface : outgoingConnectedValueInterfaces) {
-                    traverse(outgoingConnectedValueInterface, occurrences);
+                    traverse(outgoingConnectedValueInterface, occurrences,update);
                 }
                 return;
             }
@@ -1454,9 +1495,11 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                 if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
+                                {
+                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
+                                }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                             } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                                 if (ideal == true) {//If we want the expected case
@@ -1464,9 +1507,11 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                 if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
+                                {
+                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
+                                }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                             }
 
@@ -1602,9 +1647,11 @@ public class E3Model {
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                             if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
+                            {
+                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
+                            }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                         } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                             //deduct expenses from valuation
@@ -1614,9 +1661,11 @@ public class E3Model {
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                             if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
+                            {
+                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
+                            }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                         }
 
