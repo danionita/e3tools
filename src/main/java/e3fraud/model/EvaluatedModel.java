@@ -80,6 +80,13 @@ public class EvaluatedModel {
             "e3\\{" + alphaNumericID + "\\('(" + alphaNumericWithSpacesID + ")'\\)\\.(" + alphaNumericID + ")\\}"
     );
     /**
+     * Matches strings like: #123.VALUATION
+     */
+    private static final Pattern refPat = Pattern.compile(
+            "(#" + zeroOrNumberUID + ").(" + alphaNumericID + ")"
+    );
+    
+        /**
      * Matches strings like: 'Subscription fee'.VALUATION
      */
     private static final Pattern namePat = Pattern.compile(
@@ -229,7 +236,6 @@ public class EvaluatedModel {
                 // Save the debug information in case of an exception
                 lastUID = Optional.of(uid);
                 lastFormulaName = Optional.of(formulaName);
-
                 // Create the cell containing the UID and formulaname and fill in the formula
                 // TODO: This is actually a superfluous column, since we save the mapping
                 // from reference (i.e. #123.VALUATION) to row. Therefore, this should be 
@@ -471,7 +477,7 @@ public class EvaluatedModel {
      */
     public void addNewFormula(String reference, String uidScope, String formula) {
         // If the formula already exists, or is not in good form, abort.
-        if (!namePat.matcher(reference).matches()) {
+        if (!refPat.matcher(reference).matches()) {
             System.out.println("\"" + reference + "\" is not a valid e3value UID reference.");
             return;
         }
@@ -480,18 +486,18 @@ public class EvaluatedModel {
             System.out.println("Reference \"" + reference + "\" already exists.");
             return;
         }
-
         // Convert the formula, get a new row, create the row and cells,
         // and update the sheet
-        formula = e3ExpressionToExcel(uidScope, formula);
+        formula = e3ExpressionToExcel(uidScope, formula);    
+        int newRow = nextRow++;
+        rowMap.put(reference, newRow);
+         //System.out.println("ADding "+formula+" to "+reference + "(row "+newRow+")");
 
-        int rowNum = nextRow++;
+        Row row = sheet.createRow(newRow);
+        row.createCell(0).setCellValue(reference);
+        row.createCell(1).setCellFormula(formula);
 
-        Row row = sheet.createRow(rowNum);
-        row.getCell(0).setCellValue(reference);
-        row.getCell(1).setCellFormula(formula);
-
-        XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+        //XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
     }
 
     /**
@@ -509,7 +515,7 @@ public class EvaluatedModel {
         if (rowMap.containsKey(reference)) {
             changeExistingFormula(reference, uidScope, formula);
         } else {
-            addNewFormula(reference, uidScope, formula);
+            addNewFormula(reference, uidScope, formula);            
         }
         XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
     }

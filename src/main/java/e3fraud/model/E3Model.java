@@ -68,12 +68,11 @@ public class E3Model {
     /**
      * Create e new E3Model object containing the jenaModel
      *
-     * @param jenaModel
+     * @param jenaModel the Jena model to use as a source
      */
     public E3Model(Model jenaModel) {
         this.model = jenaModel;
-        this.evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
-        this.enhance();
+        this.evaluatedModel = EvaluatedModel.evaluateModel(model).get();
         this.prefix = "";
         this.description = "Base Model";
         this.fraudChanges = null;
@@ -84,7 +83,6 @@ public class E3Model {
      * different E3Model. This method is used when wanting to duplicate an
      * E3Model.
      *
-     * @param jenaModel the jena model to include
      * @param baseModel the E3model to take description and collusion info from
      */
     public E3Model(E3Model baseModel) {
@@ -95,6 +93,7 @@ public class E3Model {
         this.description = baseModel.getDescription();
         this.colludedActorURI = baseModel.colludedActorURI;
         this.newActorURI = baseModel.newActorURI;
+        this.evaluatedModel = null;
     }
 
 //getters and setters
@@ -510,31 +509,29 @@ public class E3Model {
      * @param newOccurrenceExpression
      */
     private void updateValueInterfaceOccurrences(Resource valueInterface, String newOccurrenceExpression) {
+        String ID = valueInterface.getURI().split("#")[1];
         //add the respective OCCURRENCE rate
         if (valueInterface.hasProperty(E3value.e3_has_formula)) {
             valueInterface.getProperty(E3value.e3_has_formula).changeObject("OCCURRENCES=" + newOccurrenceExpression);
-            if (debug) {
-                System.out.println("\t\t\t...updated OCCURRENCES=" + newOccurrenceExpression + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());
-            }
+            evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, newOccurrenceExpression);
+            if (debug) {System.out.println("\t\t\t...updated OCCURRENCES=" + newOccurrenceExpression + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());}
         } else {
+            evaluatedModel.addNewFormula("#" + ID + ".OCCURRENCES", ID, newOccurrenceExpression);
             valueInterface.addProperty(E3value.e3_has_formula, "OCCURRENCES=" + newOccurrenceExpression);
-            if (debug) {
-                System.out.println("\t\t\t...added OCCURRENCES=" + newOccurrenceExpression + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());
-            }
+            if (debug) {System.out.println("\t\t\t...added OCCURRENCES=" + newOccurrenceExpression + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());}
         }
+
     }
 
     /**
-     * Updates the OCCURRENCE attribute of a need to a given number. This only
-     * triggers a quickEnhance, and therefore only affects the dependency path
-     * of the updated need. Used for generating charts (under the assumption that the update does not impact the
-     * rest of the model).
+     * Updates the OCCURRENCE attribute of a need to a given number.. 
      *
      * @param need
      * @param occurrence
      * @return
      */
     private boolean updateNeedOccurrence(Resource need, double occurrence) {
+        String ID = need.getURI().split("#")[1];
         //first, check if input is really a need:
         if (!need.hasProperty(RDF.type, E3value.start_stimulus)) {
             System.err.println("Attempted to set occurence rate on a node which is not a need!");
@@ -545,43 +542,15 @@ public class E3Model {
             Statement formula = formulas.next();
             String attribute = formula.getString().split("=", 2)[0];
             if (attribute.equals("OCCURRENCES")) {
-                formula.changeObject("OCCURRENCES=" + occurrence);
-                break;
-            }
-        }
-        //this.enhance();
-        this.quickEnhance(need);
-        return true;
-    }
-
-    /**
-     * Changes the OCCURRENCE attribute of a need to a String. This triggers
-     * full Enhance() and is therefore slower. Used for changing the OCCURRENCE
-     * attribute to a expresssion (which means that all ValueInterfaces on its
-     * dependency paths will also get formulas).
-     *
-     * @param need
-     * @param occurrence
-     * @return
-     */
-    private boolean changeNeedOccurrence(Resource need, String occurrence) {
-        //first, check if input is really a need:
-        if (!need.hasProperty(RDF.type, E3value.start_stimulus)) {
-            System.err.println("Attempted to set occurence rate on a node which is not a need!");
-            return false;
-        }
-        StmtIterator formulas = need.listProperties(E3value.e3_has_formula);
-        while (formulas.hasNext()) {
-            Statement formula = formulas.next();
-            String attribute = formula.getString().split("=", 2)[0];
-            if (attribute.equals("OCCURRENCES")) {
-                formula.changeObject("OCCURRENCES=" + occurrence);
+                formula.changeObject("OCCURRENCES=" + occurrence);                
+                evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, String.valueOf(occurrence));
                 break;
             }
         }
         this.enhance();
         return true;
     }
+
 
     public String getNeedOccurrence(Resource need) {
         String value = null;
@@ -990,18 +959,20 @@ public class E3Model {
         return occurrences;
     }
 
-/// Evaluate, enhance and traverse methods
-    public void evaluate() {
-        this.evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
-    }
+/// Enhance and traverse methods
 
     /**
      * Computes and appends occurrence expressions to all ValueInterface and
      * resolves all references. * This is to allow easier computation of Profit
      * per actor by getTotalForActor and getSeries and getSeriesForActor
      * methods.
+     * 
      */
     public void enhance() {
+        if(evaluatedModel==null){            
+            evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
+        }
+        
         //get a list of Start Stimuli
         ResIterator startStimuli = model.listSubjectsWithProperty(RDF.type, E3value.start_stimulus);
 
@@ -1026,52 +997,15 @@ public class E3Model {
                 System.out.println("\t...Starting traversal from " + startStimulus.getProperty(E3value.e3_has_name).getLiteral().toString() + " with OCCURRENCE =  " + occurrences);
             }
             //and go down the depdendecy path until the end, adding OCCURENCE rates to value interfaces
-            traverse(nextElement, occurrences, false);
+            traverse(nextElement, occurrences);
         }
         if (debug) {
             System.out.println("\t...Finished!\n");
         }
-        evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
-    }
-
-    /**
-     * Computes and appends occurrence expressions only to ValueInterface
-     * connected to the dependency path of the given need.
-     * This is faster than enhance() but can only be when no other changes 
-     * to the model have taken place since the last call to enhance()
-     * (such as when generating charts).
-     *
-     * @param need A start stimulus whose OCCURRENCE rate was was recently
-     * updated to a number
-     */
-    public void quickEnhance(Resource need) {
-        String occurrences = null;
-
-        StmtIterator startStimulusFormulas = need.listProperties(E3value.e3_has_formula);
-        while (startStimulusFormulas.hasNext()) {
-            Statement formula = startStimulusFormulas.next();
-            String attribute = formula.getString().split("=", 2)[0];
-            String value = formula.getString().split("=", 2)[1];
-            if (attribute.equals("OCCURRENCES")) {
-                occurrences = value;
-            }
-
-            //get nextElement down the line
-            Resource nextElement = need.getProperty(E3value.de_down_ce).getResource();
-            if (debug) {
-                System.out.println("\t...Starting traversal from " + need.getProperty(E3value.e3_has_name).getLiteral().toString() + " with OCCURRENCE =  " + occurrences);
-            }
-            //and go down the depdendecy path until the end, adding OCCURENCE rates to value interfaces
-            traverse(nextElement, occurrences,true);
-
-        }
-        if (debug) {
-            System.out.println("\t...Finished!\n");
-        }
-        String ID = need.getURI().split("#")[1];
-        evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, occurrences);
+   
         evaluatedModel.reEvaluate();
     }
+
 
     /**
      * Starting from nextElement, goes down the dependency path, until reaching
@@ -1083,7 +1017,7 @@ public class E3Model {
      * traversing downwards
      * @param occurences the occurrence rate of nextElement
      */
-    private void traverse(Resource nextElement, String occurrences, boolean update) {
+    private void traverse(Resource nextElement, String occurrences) {
         //While this is not the last element (i.e. an end stimulus)
         while (!nextElement.hasProperty(RDF.type, E3value.end_stimulus)) {
             if (debug) {
@@ -1131,7 +1065,7 @@ public class E3Model {
                     }
 
                     //and then go down outgoing CE
-                    traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences, update);
+                    traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences);
                     return;
 
                     //## OR fork ##
@@ -1159,7 +1093,7 @@ public class E3Model {
                             //Keep it as an expression
                             occurrences = "(" + occurrences + ")*" + ratio;
                         }
-                        traverse(node.getResource(), occurrences,update);
+                        traverse(node.getResource(), occurrences);
                     }
                     return;
                 }
@@ -1206,7 +1140,7 @@ public class E3Model {
                     }
 
                     //and then go down outgoing CE
-                    traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences,update);
+                    traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences);
                     return;
                 }
 
@@ -1225,7 +1159,7 @@ public class E3Model {
                         //Keep it as an expression
                         occurrences = "(" + occurrences + ")*" + ratio;
                     }
-                    traverse(node.getResource(), occurrences,update);
+                    traverse(node.getResource(), occurrences);
                     //}
                     return;
                 }
@@ -1253,11 +1187,7 @@ public class E3Model {
                 }
                 //add occurrences to it (before taking count into consideration)
                 updateValueInterfaceOccurrences(nextElement, occurrences);
-                //also update the evaluatedModel if we are in update mode
-                if (update) {
-                    String ID = nextElement.getURI().split("#")[1];
-                    evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, occurrences);
-                }
+
                 //if the Value Interface was part of a MarketSegment, multiply the occurence by the count of this MarketSegment
                 if (nextElement.hasProperty(E3value.vi_assigned_to_ms)) {
                     Resource marketSegment = nextElement.getPropertyResourceValue(E3value.vi_assigned_to_ms);
@@ -1269,7 +1199,7 @@ public class E3Model {
 
                 //and continue the traversal through each one
                 for (Resource connectedValueInterface : connectedValueInterfaces) {
-                    traverse(connectedValueInterface, occurrences,update);
+                    traverse(connectedValueInterface, occurrences);
                 }
                 return;
 
@@ -1286,15 +1216,11 @@ public class E3Model {
                 }
                 //Then, add occurrences to it 
                 updateValueInterfaceOccurrences(nextElement, occurrences);
-                
-                if (update) {
-                    String ID = nextElement.getURI().split("#")[1];
-                    evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, occurrences);
-                }
+                                
                 nextElement = nextElement.getProperty(E3value.de_down_ce).getResource();//choose the next Connection Element                
 
                 //###  value_interface with no connected CE (exchanges on either sides)  ###
-            } else if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {
+                } else if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {
                 if (debug) {
                     System.out.println("\t\t\t... it is a ValueInterface with no connected CE (exchanges on both sides)");
                 }
@@ -1334,9 +1260,11 @@ public class E3Model {
 
                 //Then, add occurrences to it 
                 updateValueInterfaceOccurrences(nextElement, occurrences);
+
+                
                 //and continue the traversal through each one
                 for (Resource outgoingConnectedValueInterface : outgoingConnectedValueInterfaces) {
-                    traverse(outgoingConnectedValueInterface, occurrences,update);
+                    traverse(outgoingConnectedValueInterface, occurrences);
                 }
                 return;
             }
@@ -1713,7 +1641,7 @@ public class E3Model {
             XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());
             actorSeriesMap.put(actor, actorSeries);
         }
-        String initialOccurenceRate = this.getNeedOccurrence(need);
+         double initialOccurenceRate = Double.valueOf(this.getNeedOccurrence(need));
 
         //we only need 50 values so divide interval to 50
         if (startValue < endValue) {
@@ -1739,7 +1667,7 @@ public class E3Model {
             PopUps.infoBox("Start value must be lower than end value!", "Error");
         }
 
-        this.changeNeedOccurrence(need, initialOccurenceRate);
+        this.updateNeedOccurrence(need, initialOccurenceRate);
 
         setLastKnownSeries(actorSeriesMap);
         return actorSeriesMap;

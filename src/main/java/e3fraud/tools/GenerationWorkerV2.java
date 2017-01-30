@@ -114,6 +114,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
             int i = 1;
             if (generateHidden) {
                 for (E3Model intermediaryModel : intermediaryModels) {
+                    intermediaryModel.enhance();
                     subIdealModels.addAll(subIdealModelGenerator.generateHiddenTransactions(intermediaryModel, mainActor,hiddenTransfersPerExchange));
                 }
             }
