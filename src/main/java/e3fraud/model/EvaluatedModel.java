@@ -305,6 +305,7 @@ public class EvaluatedModel {
         // As soon as we start using their new API we'll
         // use the appropriate function call.
         CellType cellType = cell.getCellTypeEnum();
+                System.out.println("valueOf("+e3ref+")="+cell.getNumericCellValue());
         switch (cellType) {
             case NUMERIC:
                 return Optional.of(cell.getNumericCellValue());
@@ -314,6 +315,7 @@ public class EvaluatedModel {
                 System.out.println(e3ref + " is not numeric but " + cellType);
                 return Optional.empty();
         }
+
     }
 
     /**
@@ -448,6 +450,25 @@ public class EvaluatedModel {
      * such that local references (e.g. e3{VALUATION}) can be resolved. If null
      * is passed, these references will simply not be resolved if present.
      */
+     public void changeExistingFormula(String reference, String uidScope, double value) {
+        // If the row does not exists, abort
+        if (!rowMap.containsKey(reference)) {
+            System.out.println("Reference \"" + reference + "\" refers to non-existing formula.");
+            return;
+        }
+        // Get the row, convert the formula, change the expression, update the sheet
+        int row = rowMap.get(reference);
+
+        Cell cell = sheet.getRow(row).getCell(1);
+        cell.setCellValue(value);
+        cell.setCellType(CellType.NUMERIC);
+    }
+    /**
+     * Argument reference can only be of form <code>#123.VALUATION</code>.
+     * uidScope contains the UID of the enity that owns the formula. This is
+     * such that local references (e.g. e3{VALUATION}) can be resolved. If null
+     * is passed, these references will simply not be resolved if present.
+     */
      public void changeExistingFormula(String reference, String uidScope, String formula) {
         // If the row does not exists, abort
         if (!rowMap.containsKey(reference)) {
@@ -460,9 +481,7 @@ public class EvaluatedModel {
         formula = e3ExpressionToExcel(uidScope, formula);
 
         Cell cell = sheet.getRow(row).getCell(1);
-        cell.setCellFormula(formula);
-
-        //XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+        cell.setCellFormula(formula);             
     }
      
      public void reEvaluate(){

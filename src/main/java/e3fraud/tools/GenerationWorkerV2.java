@@ -75,9 +75,8 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
 
     @Override
     protected java.util.HashMap<String, java.util.Set<E3Model>> doInBackground() throws Exception {
-
-        //baseModel.enhance();
-        baseModel.getAveragesForActors(selectedNeed, startValue, endValue, true);
+        //compute values for the base model
+        baseModel.generateSeriesAndComputeAverages(selectedNeed, startValue, endValue, true);
 
         // Start generation
         System.out.println(currentTime.currentTime() + " Generating sub-ideal models...." + newline + "\t with need \"" + selectedNeedString + "\" " + "\toccuring " + startValue + " to " + endValue + " times..." + newline);

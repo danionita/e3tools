@@ -49,7 +49,7 @@ public class CorrectFormulaCheck implements E3ModelCheck {
 			
 			try {
 				long uid = new Long(badUIDStr);
-				return Optional.of(new ModelError("Formula of object with UID #" + uid + " has an error in formula \"" + badFormulaName + "\"", Arrays.asList(uid)));
+				return Optional.of(new ModelError("Object #" + uid + " has an error in the expression for \"" + badFormulaName + "\"", Arrays.asList(uid)));
 			} catch (NumberFormatException e) {
 				System.out.println("Could not parse the badUIDStr: " + badUIDStr);
 				return Optional.empty();

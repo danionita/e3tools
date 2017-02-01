@@ -269,6 +269,13 @@ public class E3Model {
         return actorSet;
     }
 
+    public Set<Resource> getMarketSegments() {
+        // select all the resources with a ,E3value.elementary_actor
+        ResIterator msIter = model.listSubjectsWithProperty(RDF.type, E3value.market_segment);
+        Set msSet = msIter.toSet();
+        return msSet;
+    }
+
     public Set<String> getActorStrings() {
         // select all the resources with a ,E3value.elementary_actor property
         ResIterator iter = model.listSubjectsWithProperty(RDF.type, E3value.elementary_actor);
@@ -378,6 +385,30 @@ public class E3Model {
             actorsMap.put(actorString, need);
         }
         return actorsMap;
+    }
+
+    /**
+     * Returns all actor Resources + their names
+     *
+     * @return A map of non-duplicate Strings of actors and their respective IDs
+     */
+    public Map<String, Resource> getMSMap() {
+        Map<String, Resource> msMap = new HashMap();
+        Set<Resource> marketSegments = getMarketSegments();
+        //get a list of the actors as Strings
+        for (Resource marketSegment : marketSegments) {
+            String marketSegmentString = marketSegment.getProperty(E3value.e3_has_name).getLiteral().toString();
+            //rename duplicate names
+            int n = 1;
+            if (msMap.containsKey(marketSegmentString)) {
+                while (msMap.containsKey(marketSegmentString.concat("[" + n + "]"))) {
+                    n++;
+                }
+                marketSegmentString = marketSegmentString.concat("[" + n + "]");
+            }
+            msMap.put(marketSegmentString, marketSegment);
+        }
+        return msMap;
     }
 
     /**
@@ -514,17 +545,21 @@ public class E3Model {
         if (valueInterface.hasProperty(E3value.e3_has_formula)) {
             valueInterface.getProperty(E3value.e3_has_formula).changeObject("OCCURRENCES=" + newOccurrenceExpression);
             evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, newOccurrenceExpression);
-            if (debug) {System.out.println("\t\t\t...updated OCCURRENCES=" + newOccurrenceExpression + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());}
+            if (debug) {
+                System.out.println("\t\t\t...updated OCCURRENCES=" + newOccurrenceExpression + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());
+            }
         } else {
             evaluatedModel.addNewFormula("#" + ID + ".OCCURRENCES", ID, newOccurrenceExpression);
             valueInterface.addProperty(E3value.e3_has_formula, "OCCURRENCES=" + newOccurrenceExpression);
-            if (debug) {System.out.println("\t\t\t...added OCCURRENCES=" + newOccurrenceExpression + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());}
+            if (debug) {
+                System.out.println("\t\t\t...added OCCURRENCES=" + newOccurrenceExpression + " to " + valueInterface.getProperty(E3value.e3_has_name).getString());
+            }
         }
 
     }
 
     /**
-     * Updates the OCCURRENCE attribute of a need to a given number.. 
+     * Updates the OCCURRENCE attribute of a need to a given number..
      *
      * @param need
      * @param occurrence
@@ -542,8 +577,8 @@ public class E3Model {
             Statement formula = formulas.next();
             String attribute = formula.getString().split("=", 2)[0];
             if (attribute.equals("OCCURRENCES")) {
-                formula.changeObject("OCCURRENCES=" + occurrence);                
-                evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, String.valueOf(occurrence));
+                formula.changeObject("OCCURRENCES=" + occurrence);
+                evaluatedModel.changeExistingFormula("#" + ID + ".OCCURRENCES", ID, occurrence);
                 break;
             }
         }
@@ -551,6 +586,33 @@ public class E3Model {
         return true;
     }
 
+    /**
+     * Updates the COUNT attribute of a Market Segment to a given number..
+     *
+     * @param ms the market segment to update
+     * @param count the new COUNT value
+     * @return
+     */
+    private boolean updateCount(Resource ms, double count) {
+        String ID = ms.getURI().split("#")[1];
+        //first, check if input is really a need:
+        if (!ms.hasProperty(RDF.type, E3value.market_segment)) {
+            System.err.println("Attempted to set count rate on a node which is not a market segment!");
+            return false;
+        }
+        StmtIterator formulas = ms.listProperties(E3value.e3_has_formula);
+        while (formulas.hasNext()) {
+            Statement formula = formulas.next();
+            String attribute = formula.getString().split("=", 2)[0];
+            if (attribute.equals("COUNT")) {
+                formula.changeObject("COUNT=" + count);
+                evaluatedModel.changeExistingFormula("#" + ID + ".COUNT", ID, count);
+                break;
+            }
+        }
+        this.enhance();
+        return true;
+    }
 
     public String getNeedOccurrence(Resource need) {
         String value = null;
@@ -559,6 +621,20 @@ public class E3Model {
             Statement formula = formulas.next();
             String attribute = formula.getString().split("=", 2)[0];
             if (attribute.equals("OCCURRENCES")) {
+                value = formula.getString().split("=", 2)[1];
+                break;
+            }
+        }
+        return value;
+    }
+
+    public String getMarketSegmentCount(Resource ms) {
+        String value = null;
+        StmtIterator formulas = ms.listProperties(E3value.e3_has_formula);
+        while (formulas.hasNext()) {
+            Statement formula = formulas.next();
+            String attribute = formula.getString().split("=", 2)[0];
+            if (attribute.equals("COUNT")) {
                 value = formula.getString().split("=", 2)[1];
                 break;
             }
@@ -917,11 +993,10 @@ public class E3Model {
             }
         }
         if (debug) {
-            System.out.println("\t\t\t... Entering MS. Dividing occurences by " + count);
+            System.out.println("\t\t\t... Entering MS '"+ marketSegment.getProperty(E3value.e3_has_name).getLiteral().toString()+ "'. Dividing occurences by " + count);
         }
 
-        //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
-        //Therefore, if the occurrence rate is a number
+        //If the occurrence rate is a number
         if (occurrences.matches("\\d*\\.?\\d*")) {
             //Compute it now to keep it a number
             occurrences = Double.toString(Double.valueOf(occurrences) / count);
@@ -946,8 +1021,7 @@ public class E3Model {
         if (debug) {
             System.out.println("\t\t\t... Exiting  MS; Multiplying occurences by " + count);
         }
-        //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
-        //Therefore, if the occurrence rate is a number
+        //If the occurrence rate is a number
         if (occurrences.matches("\\d*\\.?\\d*")) {
             //Compute it now to keep it a number
             occurrences = Double.toString(Double.valueOf(occurrences) * count);
@@ -960,19 +1034,17 @@ public class E3Model {
     }
 
 /// Enhance and traverse methods
-
     /**
      * Computes and appends occurrence expressions to all ValueInterface and
      * resolves all references. * This is to allow easier computation of Profit
-     * per actor by getTotalForActor and getSeries and getSeriesForActor
-     * methods.
-     * 
+     * per actor by getTotalForActor and getSeries methods.
+     *
      */
     public void enhance() {
-        if(evaluatedModel==null){            
+        if (evaluatedModel == null) {
             evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
         }
-        
+
         //get a list of Start Stimuli
         ResIterator startStimuli = model.listSubjectsWithProperty(RDF.type, E3value.start_stimulus);
 
@@ -1002,10 +1074,9 @@ public class E3Model {
         if (debug) {
             System.out.println("\t...Finished!\n");
         }
-   
+
         evaluatedModel.reEvaluate();
     }
-
 
     /**
      * Starting from nextElement, goes down the dependency path, until reaching
@@ -1083,8 +1154,7 @@ public class E3Model {
                     //Second, go down each path using occurence = OCCURENCE*FRACTION/Total_FRACTIONs
                     for (Statement node : outgoingNodeList) {
                         double ratio = node.getResource().getProperty(E3value.up_fraction).getFloat() / totalFractions;
-                        //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
-                        //Therefore, if the occurrence rate is a number
+                        //If the occurrence rate is a number
                         if (occurrences.matches("\\d*\\.?\\d*")) {
                             //Compute it now to keep it a number
                             occurrences = Double.toString(Double.valueOf(occurrences) * ratio);
@@ -1108,14 +1178,16 @@ public class E3Model {
 //                //## AND join ##
                 if (incomingNodeList.size() > 1) {
                     if (debug) {
-                        System.out.println("\t\t\t ...found AND  join with " + incomingNodeList.size() + " incoming ports.");
+                        System.out.println("\t\t\t ...it is an AND  join with " + incomingNodeList.size() + " incoming ports.");
                     }
 
                     //check if all incoming paths have been considered,
                     for (Statement incomingNode : incomingNodeList) {
                         //and if not
                         if (!incomingNode.getResource().hasProperty(E3value.e3_has_formula, "VISITED=1")) {
-                            if(debug){System.out.println("\t\t\t ...waiting for the other incoming paths to be computed");}
+                            if (debug) {
+                                System.out.println("\t\t\t ...waiting for the other incoming paths to be computed");
+                            }
                             //wait for the other paths
                             return;
                         }
@@ -1124,15 +1196,15 @@ public class E3Model {
                     //If all paths were computed,     
                     //take the smallest 
                     String outgoingOccurrences = incomingNodeList.get(0).getResource().getProperty(E3value.down_fraction).getString();
-                    for (int i=1; i< incomingNodeList.size(); i++) {
+                    for (int i = 1; i < incomingNodeList.size(); i++) {
                         String incomingOccurrence = incomingNodeList.get(i).getResource().getProperty(E3value.down_fraction).getString();
                         if (outgoingOccurrences.matches("\\d*\\.?\\d*") && incomingOccurrence.matches("\\d*\\.?\\d*")) {
                             int comparissonResult = (Double.valueOf(outgoingOccurrences).compareTo(Double.valueOf(incomingOccurrence)));
-                                if (comparissonResult > 0){
-                                    outgoingOccurrences = incomingOccurrence;
-                                }
+                            if (comparissonResult > 0) {
+                                outgoingOccurrences = incomingOccurrence;
+                            }
                         } else {
-                            outgoingOccurrences = "IF("+ outgoingOccurrences + ">" + incomingOccurrence + ","+ incomingOccurrence + ","+outgoingOccurrences+")";
+                            outgoingOccurrences = "IF(" + outgoingOccurrences + ">" + incomingOccurrence + "," + incomingOccurrence + "," + outgoingOccurrences + ")";
                         }
                     }
                     if (debug) {
@@ -1142,27 +1214,27 @@ public class E3Model {
                     //and then go down outgoing CE
                     traverse(nextElement.getProperty(E3value.de_down_ce).getResource(), outgoingOccurrences);
                     return;
-                }
+                } //## AND fork ##
+                else {
 
-                //## AND fork ##
-                else{
-                //Go down each path using occurence = OCCURENCE*fraction
-                for (Statement node : outgoingNodeList) {
-                    double ratio = node.getResource().getProperty(E3value.up_fraction).getFloat();
-                    //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers, and a normal enhance when they are expressions
-                    //Therefore, if the occurrence rate is a number
-                    if (occurrences.matches("\\d*\\.?\\d*")) {
-                        //Compute it now to keep it a number
-                        occurrences = Double.toString(Double.valueOf(occurrences) * ratio);
-                    } //if it is an expression
-                    else {
-                        //Keep it as an expression
-                        occurrences = "(" + occurrences + ")*" + ratio;
+                    if (debug) {
+                        System.out.println("\t\t\t ...it is an AND  fork with " + outgoingNodeList.size() + " outgoing ports.");
                     }
-                    traverse(node.getResource(), occurrences);
-                    //}
+                    //Go down each path using occurence = OCCURENCE*fraction
+                    for (Statement node : outgoingNodeList) {
+                        double ratio = node.getResource().getProperty(E3value.up_fraction).getFloat();
+                        //Therefore, if the occurrence rate is a number
+                        if (occurrences.matches("\\d*\\.?\\d*")) {
+                            //Compute it now to keep it a number
+                            occurrences = Double.toString(Double.valueOf(occurrences) * ratio);
+                        } //if it is an expression
+                        else {
+                            //Keep it as an expression
+                            occurrences = "(" + occurrences + ")*" + ratio;
+                        }
+                        traverse(node.getResource(), occurrences);
+                    }
                     return;
-                }
                 }
 
                 //###  connection_element  ###
@@ -1216,11 +1288,11 @@ public class E3Model {
                 }
                 //Then, add occurrences to it 
                 updateValueInterfaceOccurrences(nextElement, occurrences);
-                                
+
                 nextElement = nextElement.getProperty(E3value.de_down_ce).getResource();//choose the next Connection Element                
 
                 //###  value_interface with no connected CE (exchanges on either sides)  ###
-                } else if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {
+            } else if (nextElement.hasProperty(RDF.type, E3value.value_interface)) {
                 if (debug) {
                     System.out.println("\t\t\t... it is a ValueInterface with no connected CE (exchanges on both sides)");
                 }
@@ -1261,7 +1333,6 @@ public class E3Model {
                 //Then, add occurrences to it 
                 updateValueInterfaceOccurrences(nextElement, occurrences);
 
-                
                 //and continue the traversal through each one
                 for (Resource outgoingConnectedValueInterface : outgoingConnectedValueInterfaces) {
                     traverse(outgoingConnectedValueInterface, occurrences);
@@ -1523,8 +1594,7 @@ public class E3Model {
                     String attribute = formula.getString().split("=", 2)[0];
                     String value = formula.getString().split("=", 2)[1];
                     if (attribute.equals("OCCURRENCES")) {
-                        //To speed things up, we use a quickEnhance which does not update the EvaluatedModel when updating OCCURRENCE rates to numbers
-                        //Therefore, if it is a number
+                        // if it is a number
                         if (value.matches("\\d*\\.?\\d*")) {
                             //we must use it directly (since the evaluatedModel will not be up-to-date)
                             occurences = Double.valueOf(value);
@@ -1620,35 +1690,48 @@ public class E3Model {
     }
 
     /**
-     * Computes and stores Series (plots of actor totals on Y-axis and occurence
-     * rate on X-axis).
+     * Computes and stores series for all actors across an interval of either
+     * occurrence rates (if the given resource is a need) or counts (if given
+     * resource is a Market segment)
      *
-     * @param need the need to use on X-axis
+     * @param needOrMarketSegment the need or market segment to be used on the
+     * X-axis
      * @param startValue minimum occurrence rate of need
      * @param endValue maximum occurrence rate of need
      * @param ideal ideal or sub-ideal case
      * @return a map of <Actor,XY series>, where XYSeries represents the
-     * profitability graph of each actor. The X-axis represents the number of
+     * profitability graph of each actor. The X-axis shows the number of
      * occurrences of need (in the interval startValue endValue) and the Y-axis
-     * represents the profit
+     * shows the financial result.
      */
-    public Map<Resource, XYSeries> getSeries(Resource need, int startValue, int endValue, boolean ideal) {
+    public Map<Resource, XYSeries> getSeries(Resource needOrMarketSegment, int startValue, int endValue, boolean ideal) {
         //make sure the resources are from this model
-        need = model.getResource(need.getURI());
+        needOrMarketSegment = model.getResource(needOrMarketSegment.getURI());
         Map<Resource, XYSeries> actorSeriesMap = new HashMap();
         Set<Resource> actors = this.getActorsAndMarketSegments();
         for (Resource actor : actors) {
             XYSeries actorSeries = new XYSeries(actor.getProperty(E3value.e3_has_name).getString());
             actorSeriesMap.put(actor, actorSeries);
         }
-         double initialOccurenceRate = Double.valueOf(this.getNeedOccurrence(need));
+
+        double initialValue = 0;
+
+        if (needOrMarketSegment.hasProperty(RDF.type, (E3value.market_segment))) {
+            initialValue = Double.valueOf(this.getMarketSegmentCount(needOrMarketSegment));
+        } else if (needOrMarketSegment.hasProperty(RDF.type, (E3value.start_stimulus))) {
+            initialValue = Double.valueOf(this.getNeedOccurrence(needOrMarketSegment));
+        }
 
         //we only need 50 values so divide interval to 50
         if (startValue < endValue) {
             double step = ((float) endValue - (float) startValue) / 50;
             //calculate profit for each (occurence) value:
             for (double i = startValue; i <= endValue; i += step) {
-                this.updateNeedOccurrence(need, i);
+                if (needOrMarketSegment.hasProperty(RDF.type, (E3value.market_segment))) {
+                    this.updateCount(needOrMarketSegment, i);
+                } else if (needOrMarketSegment.hasProperty(RDF.type, (E3value.start_stimulus))) {
+                    this.updateNeedOccurrence(needOrMarketSegment, i);
+                }
                 //For each actor
                 for (Resource actor : actors) {
                     //add it's profit to the relevant series
@@ -1657,7 +1740,12 @@ public class E3Model {
             }
         } else if (startValue == endValue) {
             double i = startValue;
-            this.updateNeedOccurrence(need, i);
+            if (needOrMarketSegment.hasProperty(RDF.type, (E3value.market_segment))) {
+                this.updateCount(needOrMarketSegment, i);
+            } else if (needOrMarketSegment.hasProperty(RDF.type, (E3value.start_stimulus))) {
+                this.updateNeedOccurrence(needOrMarketSegment, i);
+            }
+
             //For each actor
             for (Resource actor : actors) {
                 //add it's profit to the relevant series
@@ -1667,28 +1755,33 @@ public class E3Model {
             PopUps.infoBox("Start value must be lower than end value!", "Error");
         }
 
-        this.updateNeedOccurrence(need, initialOccurenceRate);
+        if (needOrMarketSegment.hasProperty(RDF.type, (E3value.market_segment))) {
+            this.updateCount(needOrMarketSegment, initialValue);
+        } else if (needOrMarketSegment.hasProperty(RDF.type, (E3value.start_stimulus))) {
+
+            this.updateNeedOccurrence(needOrMarketSegment, initialValue);
+        }
 
         setLastKnownSeries(actorSeriesMap);
         return actorSeriesMap;
     }
 
     /**
-     * Computes, appends to series and stores averages for all actors
+     * Computes and stores series and averages for all actors across an interval
+     * of either occurrence rates (if the given resource is a need) or counts
+     * (if given resource is a Market segment)
      *
-     * @param actor main actor
-     * @param need
+     * @param needOrMarketSegment
      * @param startValue
      * @param endValue
      * @param ideal
-     * @return
      */
-    public Map<Resource, Double> getAveragesForActors(Resource need, int startValue, int endValue, boolean ideal) {
+    public void generateSeriesAndComputeAverages(Resource needOrMarketSegment, int startValue, int endValue, boolean ideal) {
 
-        need = model.getResource(need.getURI());
+        needOrMarketSegment = model.getResource(needOrMarketSegment.getURI());
         Map<Resource, Double> averagesMap = new HashMap<>();
 
-        Map<Resource, XYSeries> seriesMap = getSeries(need, startValue, endValue, ideal);
+        Map<Resource, XYSeries> seriesMap = getSeries(needOrMarketSegment, startValue, endValue, ideal);
 
         for (Resource actor : seriesMap.keySet()) {
             double sum = 0;
@@ -1702,7 +1795,6 @@ public class E3Model {
             averagesMap.put(actor, mean);
         }
         this.lastKnownAverages = averagesMap;
-        return averagesMap;
     }
 
 }
