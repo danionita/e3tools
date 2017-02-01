@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>D:\WORK\NetBeans projects\e3tools\target\e3tools-0.4.5-jar-with-dependencies.jar</jar>
-  <outfile>D:\WORK\NetBeans projects\e3tools\target\e3tools-0.4.5-4GB.exe</outfile>
+  <jar>D:\WORK\NetBeans projects\e3tools\target\e3tools-0.5-jar-with-dependencies.jar</jar>
+  <outfile>D:\WORK\NetBeans projects\e3tools\target\e3tools-0.5-4GB.exe</outfile>
   <errTitle></errTitle>
   <cmdLine>-Xmx4096m</cmdLine>
   <chdir>.</chdir>

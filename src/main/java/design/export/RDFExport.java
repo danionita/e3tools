@@ -382,7 +382,7 @@ public class RDFExport {
 				}
 			} else if (value instanceof MarketSegment) {
 				if (castMarketSegments) {
-					res.addProperty(RDF.type, E3value.actor);
+					res.addProperty(RDF.type, E3value.elementary_actor);
 				} else {
 					res.addProperty(RDF.type, E3value.market_segment);
 				}
@@ -553,7 +553,7 @@ public class RDFExport {
 		
 		modelResult = Optional.of(model);
 
-//		System.out.println(result.get());
+		System.out.println(result.get());
 	}
 	
 	public void deriveValueTransactions() {
