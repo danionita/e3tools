@@ -42,6 +42,9 @@ import com.mxgraph.util.mxConstants;
 import design.checker.E3CheckDialog;
 import design.checker.WalkEntireModel;
 import design.checker.checks.FlowChecker;
+import design.dialog.SearchDialog;
+import design.dialog.ValueObjectDialog;
+import design.dialog.ValueTransactionDialog;
 import design.export.JSONExport;
 import design.export.RDFExport;
 import design.export.RDFExport.VTMode;
@@ -786,6 +789,39 @@ public class EditorActions {
         }
     }
     
+    public static class ShowValueObjectDialog extends BaseAction {
+
+        public ShowValueObjectDialog(Main main) {
+            super("Edit Value Objects... ", getIcon("old/vo"), main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO: Maybe prefer greyed out menu item?
+            if (main.views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to display its ValueObjects. Click File ➡ New model to open a new model.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (ValueObjectDialog.isOpened) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A value object dialog is already open.",
+                        "Dialog already open",
+                        JOptionPane.ERROR_MESSAGE);
+
+                ValueObjectDialog.dialogInstance.requestFocus();
+                return;
+            }
+
+            new ValueObjectDialog(main).show();
+        }
+    }
+    
     public static class ShowValueTransactionsPanel extends BaseAction {
 
         public ShowValueTransactionsPanel(Main main) {
@@ -816,6 +852,39 @@ public class EditorActions {
             }
 
             new ValueTransactionDialog(main).setVisible(true);
+        }
+    }
+    
+    public static class ShowSearchDialog extends BaseAction {
+
+        public ShowSearchDialog(Main main) {
+            super("Search...", main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO: Maybe prefer greyed out menu item?
+            if (main.views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to display its ValueObjects. Click File ➡ New model to open a new model.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (SearchDialog.isOpen) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A search dialog is already open.",
+                        "Dialog already open",
+                        JOptionPane.ERROR_MESSAGE);
+
+                SearchDialog.dialogInstance.requestFocus();
+                return;
+            }
+
+            new SearchDialog(main).setVisible(true);
         }
     }
     

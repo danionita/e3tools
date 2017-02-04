@@ -47,12 +47,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -66,12 +70,12 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 
-import design.EditorActions.ModelCheck;
 import design.checker.E3Checker;
 import design.checker.ModelError;
 import design.export.RDFExport;
@@ -1320,4 +1324,59 @@ public class Utils {
     	
     	return true;
     }
+    
+    public static void addChangeListener(JTextField field, Consumer<DocumentEvent> c) {
+		field.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				exec(e);
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				exec(e);
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				exec(e);
+			}
+			
+			public void exec(DocumentEvent e) {
+				c.accept(e);
+			}
+		});
+    }
+
+	public void removeHighlight(E3Graph graph) {
+		Utils.getAllCells(graph).stream()
+			.filter(cell -> graph.getModel().getValue(cell) instanceof ValueExchange)
+			.forEach(ve -> {
+				Utils.resetCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR);
+			});
+
+		graph.repaint();
+	}
+
+	public void highlight(E3Graph graph, ValueTransaction vt) {
+		Utils.getAllCells(graph).stream()
+			.filter(cell -> {
+				Base info = (Base) graph.getModel().getValue(cell);
+				if (info == null) return false;
+
+				return vt.exchanges.contains(info.SUID);
+			})
+			.forEach(ve -> {
+				Utils.setCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR, HIGHLIGHT_COLOR);
+			});
+		
+		graph.repaint();
+	}
+	
+	public void highlight(E3Graph graph, Base info) {
+		Utils.getAllCells(graph).parallelStream()
+			.filter(cell -> graph.getModel().getValue(cell) instanceof Base)
+			.map(info -> (Base) info)
+	}
+	
 }

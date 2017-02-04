@@ -1,4 +1,4 @@
-package design;
+package design.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
@@ -26,6 +26,10 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 
+import design.E3Graph;
+import design.E3GraphComponent;
+import design.Main;
+import design.Utils;
 import design.info.Base;
 import design.info.ValueExchange;
 import design.info.ValueTransaction;
@@ -92,28 +96,11 @@ public class ValueTransactionDialog extends JDialog {
 		dataPanel.add(nameField, "cell 1 0,grow");
 		nameField.setColumns(10);
 		
-		nameField.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void changedUpdate(DocumentEvent arg0) {
-				exec(arg0);
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent arg0) {
-				exec(arg0);
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent arg0) {
-				exec(arg0);
-			}
-			
-			public void exec(DocumentEvent arg0) {
-				if (selectedValueTransaction != null) {
-					selectedValueTransaction.name = nameField.getText();
-					if (vtList != null && !doNotUpdateUI) {
-						vtList.updateUI();
-					}
+		Utils.addChangeListener(nameField, e -> {
+			if (selectedValueTransaction != null) {
+				selectedValueTransaction.name = nameField.getText();
+				if (vtList != null && !doNotUpdateUI) {
+					vtList.updateUI();
 				}
 			}
 		});
@@ -125,28 +112,11 @@ public class ValueTransactionDialog extends JDialog {
 		dataPanel.add(fractionField, "cell 1 1,grow");
 		fractionField.setColumns(10);
 		
-		fractionField.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				exec(e);
-			}
-			
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				exec(e);
-			}
-			
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				exec(e);
-			}
-			
-			public void exec(DocumentEvent e) {
-				if (selectedValueTransaction != null) {
-					selectedValueTransaction.formulas.put("FRACTION", fractionField.getText());
-					if (vtList != null && !doNotUpdateUI) {
-						vtList.updateUI();
-					}
+		Utils.addChangeListener(fractionField, e -> {
+			if (selectedValueTransaction != null) {
+				selectedValueTransaction.formulas.put("FRACTION", fractionField.getText());
+				if (vtList != null && !doNotUpdateUI) {
+					vtList.updateUI();
 				}
 			}
 		});
@@ -351,7 +321,7 @@ public class ValueTransactionDialog extends JDialog {
 		graph.repaint();
 	}
 	
-	public void removeHighlight() {
+	public void removeHighlight(E3Graph graph) {
 		Utils.getAllCells(graph).stream()
 			.filter(cell -> graph.getModel().getValue(cell) instanceof ValueExchange)
 			.forEach(ve -> {

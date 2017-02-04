@@ -51,6 +51,7 @@ public class CorrectFormulaCheck implements E3ModelCheck {
 				long uid = new Long(badUIDStr);
 				
 				Optional<Object> infoOpt = Utils.getAllCells(graph).stream()
+						.filter(obj -> ((Base) graph.getModel().getValue(obj)).SUID == uid)
 					.filter(obj -> ((Base) graph.getModel().getValue(obj)).SUID == uid)
 					.findAny();
 				

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with e3tool.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package design;
+package design.dialog;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -49,6 +49,10 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 
+import design.E3Graph;
+import design.E3GraphComponent;
+import design.Main;
+import design.Utils;
 import design.info.Base;
 import design.info.ValueExchange;
 

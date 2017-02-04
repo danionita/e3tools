@@ -257,9 +257,10 @@ public class Main {
         
         modelMenu.addSeparator();
 
-        modelMenu.add(new EditorActions.ShowValueObjectsPanel(this));
+        modelMenu.add(new EditorActions.ShowValueObjectDialog(this));
         modelMenu.add(new EditorActions.ShowValueTransactionsPanel(this));
         modelMenu.add(new EditorActions.ModelCheck(this));
+        modelMenu.add(new EditorActions.ShowSearchDialog(this));
         
         modelMenu.addSeparator();
 
@@ -356,7 +357,7 @@ public class Main {
 
         addToolbarButton(new EditorActions.DuplicateModel(this));
         addToolbarButton(new EditorActions.ChangeModelType(this));
-        addToolbarButton(new EditorActions.ShowValueObjectsPanel(this));
+        addToolbarButton(new EditorActions.ShowValueObjectDialog(this));
         //addToolbarButton("old/vt", new EditorActions.AnalyzeTransactions(this));
 
         toolbar.addSeparator();
