@@ -92,6 +92,7 @@ import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
+import design.info.ValueTransaction;
 import e3fraud.tools.currentTime;
 import e3fraud.vocabulary.E3value;
 
@@ -1348,7 +1349,7 @@ public class Utils {
 		});
     }
 
-	public void removeHighlight(E3Graph graph) {
+	public static void removeHighlight(E3Graph graph) {
 		Utils.getAllCells(graph).stream()
 			.filter(cell -> graph.getModel().getValue(cell) instanceof ValueExchange)
 			.forEach(ve -> {
@@ -1358,8 +1359,8 @@ public class Utils {
 		graph.repaint();
 	}
 
-	public void highlight(E3Graph graph, ValueTransaction vt) {
-		Utils.getAllCells(graph).stream()
+	public static void highlight(E3Graph graph, ValueTransaction vt, String highlightColor) {
+		Utils.getAllCells(graph).parallelStream()
 			.filter(cell -> {
 				Base info = (Base) graph.getModel().getValue(cell);
 				if (info == null) return false;
@@ -1367,16 +1368,35 @@ public class Utils {
 				return vt.exchanges.contains(info.SUID);
 			})
 			.forEach(ve -> {
-				Utils.setCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR, HIGHLIGHT_COLOR);
+				Utils.setCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR, highlightColor);
 			});
 		
 		graph.repaint();
 	}
 	
-	public void highlight(E3Graph graph, Base info) {
+	public static void highlight(E3Graph graph, Base info, String highlightColor) {
 		Utils.getAllCells(graph).parallelStream()
-			.filter(cell -> graph.getModel().getValue(cell) instanceof Base)
-			.map(info -> (Base) info)
+			.filter(cell -> graph.getModel().getValue(cell) == info)
+			.findFirst()
+			.ifPresent(cell -> {
+				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKECOLOR, highlightColor);
+			});
+	}
+	
+	public static void highlight(E3Graph graph, long id, String highlightColor) {
+		Utils.getAllCells(graph).parallelStream()
+			.filter(cell -> {
+				Object val = graph.getModel().getValue(cell);
+				if (val instanceof Base) {
+					return ((Base) val).SUID == id;
+				}
+				
+				return false;
+			})
+			.findFirst()
+			.ifPresent(cell -> {
+				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKECOLOR, highlightColor);
+			});
 	}
 	
 }

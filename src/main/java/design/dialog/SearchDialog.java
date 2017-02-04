@@ -189,7 +189,7 @@ public class SearchDialog extends JDialog {
 				
 				SearchHit sh = listModel.getElementAt(selectedIndex);
 				
-				Utils.removeHighlighting(graph);
+				Utils.removeHighlight(graph);
 				Utils.highlight(graph, sh.getSUID(), "#00FF00");
 			}
 		});

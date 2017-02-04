@@ -176,8 +176,8 @@ public class ValueTransactionDialog extends JDialog {
 				ValueTransaction vt = listModel.getElementAt(selectedIndex);
 				
 				selectedValueTransaction = vt;
-				removeHighlight();
-				highlight(vt);
+				Utils.removeHighlight(graph);
+				Utils.highlight(graph, vt, HIGHLIGHT_COLOR);
 
 				// @Hack this is so ugly
 				doNotUpdateUI = true;
@@ -266,7 +266,7 @@ public class ValueTransactionDialog extends JDialog {
 			graph.valueTransactions.add(listModel.getElementAt(i));
 		}
 		
-		removeHighlight();
+		Utils.removeHighlight(graph);
 		
 		graph.repaint();
 
@@ -300,35 +300,10 @@ public class ValueTransactionDialog extends JDialog {
 	
 	public void updateListAndGraph() {
 		vtList.updateUI();
-		removeHighlight();
+		Utils.removeHighlight(graph);
 		if (vtList.getSelectedIndex() != -1) {
-			highlight(vtList.getSelectedValue());
+			Utils.highlight(graph, vtList.getSelectedValue(), HIGHLIGHT_COLOR);
 		}
-	}
-	
-	public void highlight(ValueTransaction vt) {
-		Utils.getAllCells(graph).stream()
-			.filter(cell -> {
-				Base info = (Base) graph.getModel().getValue(cell);
-				if (info == null) return false;
-
-				return vt.exchanges.contains(info.SUID);
-			})
-			.forEach(ve -> {
-				Utils.setCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR, HIGHLIGHT_COLOR);
-			});
-		
-		graph.repaint();
-	}
-	
-	public void removeHighlight(E3Graph graph) {
-		Utils.getAllCells(graph).stream()
-			.filter(cell -> graph.getModel().getValue(cell) instanceof ValueExchange)
-			.forEach(ve -> {
-				Utils.resetCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR);
-			});
-
-		graph.repaint();
 	}
 	
 	public void rebuildList() {
