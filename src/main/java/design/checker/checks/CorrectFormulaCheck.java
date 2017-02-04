@@ -10,6 +10,7 @@ import design.Utils;
 import design.checker.E3ModelCheck;
 import design.checker.ModelError;
 import design.export.RDFExport;
+import design.export.RDFExport.VTMode;
 import design.info.Base;
 import e3fraud.model.EvaluatedModel;
 import e3fraud.model.EvaluatedModel.ModelOrError;
@@ -19,7 +20,7 @@ public class CorrectFormulaCheck implements E3ModelCheck {
 	@Override
 	public Optional<ModelError> check(E3Graph graph) {
 
-		RDFExport rdfExporter = new RDFExport(graph, true, true, true);
+		RDFExport rdfExporter = new RDFExport(graph, true, VTMode.DERIVE_ORPHANED, true);
 
 		if (!rdfExporter.getModel().isPresent()) {
 			Optional<String> error = rdfExporter.getError();

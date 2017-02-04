@@ -50,9 +50,38 @@ import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
+import design.info.ValueTransaction;
 import e3fraud.vocabulary.E3value;
 
 public class RDFExport {
+
+	/*
+	 * Indicates how ValueTransactions should be handled.
+	 */
+	public enum VTMode {
+		/**
+		 * Derives all value transactions naively, disregarding any value transactions
+		 * specified by the user.
+		 */
+		DERIVE_ALL,
+		/**
+		 * DEFAULT
+		 * 
+		 * Only derives value transactions for value exchanges that have no value
+		 * transactions. Merges the derived value transactions with the value
+		 * transactions specified by the user. 
+		 */
+		DERIVE_ORPHANED,
+		/**
+		 * Only keeps the value transactions specified by the user.
+		 */
+		ONLY_GIVEN_VALUE_TRANSACTIONS,
+		/**
+		 * Ensures that the exported RDF model contains no trace of value transactions
+		 * whatsoever.
+		 */
+		NONE
+	}
 	
 	public final E3Graph graph;
 	Optional<String> result = Optional.empty();
@@ -67,20 +96,22 @@ public class RDFExport {
 	private Resource diagramRes;
 	private String base;
 	private boolean unsafe;
-	private boolean deriveVT;
 	private boolean castMarketSegments;
+	VTMode vtMode;
 	
 	/**
 	 * Tries to convert an E3Graph to RDF.
 	 * @param graph The graph to convert
 	 * and merged actors and market segments will be converted from strings to ints
 	 * and added.
-	 * @param deriveVT If true value transactions are derived naively.
+	 * @param unsafe Assumes that every field from the graph is a number and can be added
+	 * @param vtMode Describes how value transactions should be handled.
+	 * @param castMarketSegments Specifies if a market segment should be cast to an actor.
 	 */
-	public RDFExport(mxGraph graph, boolean unsafe, boolean deriveVT, boolean castMarketSegments) {
+	public RDFExport(mxGraph graph, boolean unsafe, VTMode vtMode, boolean castMarketSegments) {
 		this.unsafe = unsafe;
 		this.graph = (E3Graph) graph;
-		this.deriveVT = deriveVT;
+		this.vtMode = vtMode;
 		this.castMarketSegments = castMarketSegments;
 		
 		convertToRdf();
@@ -542,9 +573,7 @@ public class RDFExport {
 		}
 		
 		// Derive value transactions
-		if (deriveVT) {
-			deriveValueTransactions();
-		}
+		deriveValueTransactions();
 		
 		// Convert to RDF
 		StringWriter out = new StringWriter();
@@ -559,10 +588,26 @@ public class RDFExport {
 	public void deriveValueTransactions() {
 		Map<Set<Object>, List<Long>> transactions = new HashMap<>(); 
 		
+		// First we derive transactoins naively as in accordance with VTMode
 		Utils.getAllCells(graph).stream()
 			.filter(obj -> {
 				Object val = graph.getModel().getValue(obj);
 				return val instanceof ValueExchange;
+			})
+			.filter(ve -> {
+				// If the present value transactions should be ignore, derive a VT for every VE
+				if (vtMode == VTMode.DERIVE_ALL) return true;
+				
+				
+				if (vtMode == VTMode.DERIVE_ORPHANED) {
+					// Otherwise include every VE that has no VT
+					return !graph.veHasTransaction(((Base) graph.getModel().getValue(ve)).SUID);
+				}
+				
+				// If neither DERIVE_ALL or DERIVE_ORPHANED is set, we don't need
+				// to derive any value transactions, and hence we can just filter 
+				// them all out here.
+				return false;
 			})
 			.forEach(ve -> {
 				Base veInfo = (Base) graph.getModel().getValue(ve);
@@ -586,23 +631,45 @@ public class RDFExport {
 				transactions.get(trx).add(veInfo.SUID);
 			});
 		
+		// Add all gathered value transactions to the model
 		transactions.keySet().stream()
 			.forEach(pair -> {
 				long id = Utils.getUnusedID(graph, base, model);
-				Resource res = getResource(id);
-				res.addProperty(RDF.type, E3value.value_transaction);
-				// TODO: Maybe collides with one of the names from the model?
-				res.addProperty(E3value.e3_has_name, "vt" + id);
-				// TODO: Original editor does this; our ontology
-				// does not allow it.
-				res.addProperty(E3value.vt_has_fraction, "1");
-				transactions.get(pair).stream().forEach(veID -> {
-					res.addProperty(E3value.vt_consists_of_ve, getResource(veID));
-					getResource(veID).addProperty(E3value.ve_in_vt, res);
-				});
+				ValueTransaction vtInfo = new ValueTransaction(id);
+				vtInfo.name = "vt" + id;
+				vtInfo.formulas.put("FRACTION", "1");
+				vtInfo.exchanges = new ArrayList<>(transactions.get(pair));
+				
+				addValueTransaction(vtInfo);
 			});
 		
-		System.out.println("Transactions: " + transactions.size());
+		System.out.println("Naively derived transactions: " + transactions.size());
+		
+		if (vtMode == VTMode.DERIVE_ORPHANED || vtMode == VTMode.ONLY_GIVEN_VALUE_TRANSACTIONS) {
+			// Then, if allowed by vtMode, we add all value transactions specified by the user.
+			for (ValueTransaction vtInfo : graph.valueTransactions) {
+				addValueTransaction(vtInfo);
+			}
+			
+			System.out.println("Specified transactions: " + graph.valueTransactions.size());
+		} else {
+			System.out.println("Specified transactions [forced]: 0");
+		}
+	}
+	
+	public void addValueTransaction(ValueTransaction vtInfo) {
+		long id = vtInfo.SUID;
+		Resource res = getResource(id);
+		res.addProperty(RDF.type, E3value.value_transaction);
+		// TODO: Maybe collides with one of the names from the model?
+		res.addProperty(E3value.e3_has_name, vtInfo.name);
+		// TODO: Original editor does this; our ontology
+		// does not allow it.
+		res.addProperty(E3value.vt_has_fraction, vtInfo.formulas.getOrDefault("FRACTION", "1"));
+		for(long veID : vtInfo.exchanges) {
+			res.addProperty(E3value.vt_consists_of_ve, getResource(veID));
+			getResource(veID).addProperty(E3value.ve_in_vt, res);
+		}
 	}
 	
 	public Optional<String> getResult() {

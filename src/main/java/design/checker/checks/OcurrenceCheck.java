@@ -16,6 +16,7 @@ import design.checker.E3ModelCheck;
 import design.checker.E3Walker;
 import design.checker.ModelError;
 import design.export.RDFExport;
+import design.export.RDFExport.VTMode;
 import design.info.LogicBase;
 import design.info.LogicDot;
 import design.info.StartSignal;
@@ -25,7 +26,7 @@ import e3fraud.model.EvaluatedModel.ModelOrError;
 public class OcurrenceCheck extends E3Walker implements E3ModelCheck{
 	
 	Optional<EvaluatedModel> getEvaluatedModel(E3Graph graph) {
-		RDFExport rdfExporter = new RDFExport(graph, true, true, true);
+		RDFExport rdfExporter = new RDFExport(graph, true, VTMode.DERIVE_ORPHANED, true);
 
 		if (!rdfExporter.getModel().isPresent()) {
 			Optional<String> error = rdfExporter.getError();

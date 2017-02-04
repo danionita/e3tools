@@ -1836,6 +1836,16 @@ public class E3Graph extends mxGraph implements Serializable{
 			return isParentOf(parent, getModel().getParent(child));
     	}
     }
+    
+    public boolean veHasTransaction(long SUID) {
+    	for (ValueTransaction vtInfo : valueTransactions) {
+    		if (vtInfo.exchanges.contains(SUID)) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
             
 
 //	@Override

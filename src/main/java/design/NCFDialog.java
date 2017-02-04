@@ -23,6 +23,7 @@ import com.e3value.eval.ncf.E3ParseException;
 import com.e3value.eval.ncf.ProfGenerator;
 import com.e3value.eval.ncf.ontology.model;
 import design.export.RDFExport;
+import design.export.RDFExport.VTMode;
 import e3fraud.tools.SettingsObjects.NCFSettings;
 import javax.swing.*;
 
@@ -361,7 +362,7 @@ public class NCFDialog extends JDialog {
         }
 
      try{
-            RDFExport export = new RDFExport(diagram, false, true, false);
+            RDFExport export = new RDFExport(diagram, false, VTMode.DERIVE_ORPHANED, false);
             String result = export.getResult().get();
 
             InputStream stream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));

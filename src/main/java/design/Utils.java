@@ -75,6 +75,7 @@ import design.EditorActions.ModelCheck;
 import design.checker.E3Checker;
 import design.checker.ModelError;
 import design.export.RDFExport;
+import design.export.RDFExport.VTMode;
 import design.info.Actor;
 import design.info.Base;
 import design.info.ConnectionElement;
@@ -855,7 +856,7 @@ public class Utils {
      */
     public static boolean doNCFAnalysis(E3Graph graph, File dstFile) {
 		try {
-			RDFExport export = new RDFExport(graph, false, true, false);
+			RDFExport export = new RDFExport(graph, false, VTMode.DERIVE_ORPHANED, false);
 			String result = export.getResult().get();
 					
 			InputStream stream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));

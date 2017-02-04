@@ -44,6 +44,7 @@ import design.checker.WalkEntireModel;
 import design.checker.checks.FlowChecker;
 import design.export.JSONExport;
 import design.export.RDFExport;
+import design.export.RDFExport.VTMode;
 import design.info.Base;
 import design.info.EndSignal;
 import design.info.MarketSegment;
@@ -206,7 +207,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), false, true, false);
+            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), false, VTMode.DERIVE_ORPHANED, false);
             Optional<String> result = rdfExport.getResult();
 
             // Do not export to rdf if there was an error
@@ -950,7 +951,7 @@ public class EditorActions {
                 main.addNewTabAndSwitch(targetGraph);
             }
             
-            RDFExport rdfExporter = new RDFExport(targetGraph, true, true, castMarketSegments);
+            RDFExport rdfExporter = new RDFExport(targetGraph, true, VTMode.DERIVE_ORPHANED, castMarketSegments);
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
 
@@ -1012,7 +1013,7 @@ public class EditorActions {
             	return;
             }
 
-            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, true, false);
+            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, VTMode.DERIVE_ORPHANED, false);
 
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
