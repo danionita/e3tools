@@ -17,6 +17,7 @@
 package e3fraud.gui;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
@@ -37,7 +38,7 @@ import org.jfree.data.xy.XYSeries;
  */
 public class ChartGenerator {
 
-    public static JFreeChart generateChart(E3Model model, Resource need, int startValue, int endValue, boolean expected) {
+    public static JFreeChart generateChart(E3Model model, Resource needOrMarketSegment, int startValue, int endValue, boolean expected) {
         //Get list of actors
         Set<Resource> actors = model.getActorsAndMarketSegments();
 
@@ -52,12 +53,15 @@ public class ChartGenerator {
         }
 
         /* Step -2:Define the JFreeChart object to create line chart */
-        JFreeChart lineChartObject;
-        if (expected) {
-            lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
-        } else {
-            lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + need.getProperty(E3value.e3_has_name).getString() + " \"", "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
-        }
+        JFreeChart lineChartObject = null;
+
+
+            if (needOrMarketSegment.hasProperty(RDF.type, (E3value.market_segment))) {
+            lineChartObject = ChartFactory.createScatterPlot("", "Count of \"" + needOrMarketSegment.getProperty(E3value.e3_has_name).getString() + " \"", "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
+            } else if (needOrMarketSegment.hasProperty(RDF.type, (E3value.start_stimulus))) {
+                lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + needOrMarketSegment.getProperty(E3value.e3_has_name).getString() + " \"", "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
+            }
+
         return lineChartObject;
     }
 

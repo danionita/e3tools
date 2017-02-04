@@ -193,8 +193,7 @@ public class FraudModelGenerator {
                     description += " and \"" + actorj.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"";
                 }
                 generatedModel.appendDescription(description);
-                //generatedModel.collude(actor1, actor2);
-                generatedModel.evaluate();
+                generatedModel.enhance();
                 subIdealModels.add(generatedModel);
             }
         }
@@ -263,7 +262,7 @@ public class FraudModelGenerator {
                     generatedModel.appendDescription("<b>Non-occuring</b> exchange " + exchange.getProperty(E3value.e3_has_name).getLiteral().toString());
                 }
                 //System.out.println("Generated:" + generatedModel.getDescription());
-                generatedModel.evaluate();
+                generatedModel.enhance();
                 subIdealModels.add(generatedModel);
             }
         }
@@ -377,7 +376,7 @@ public class FraudModelGenerator {
                             if (debug) {
                                 System.out.println("\t\t\t\t\t\tadding the new model to the list");
                             }
-                            generatedModel.evaluate();
+                            generatedModel.enhance();
                             subIdealModels.add(generatedModel);
                         }
                     }
@@ -407,7 +406,7 @@ public class FraudModelGenerator {
                             int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
                             generatedModel.getFraudChanges().addHiddenTransaction(interface2ID, interface1ID, value);
                             generatedModel.appendDescription("<b>Hidden</b>  transfer of value " + df.format(value) + " (out of " + df.format(actor2Total) + ") from \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
-                            generatedModel.evaluate();
+                          generatedModel.enhance();   
                             subIdealModels.add(generatedModel);
                         }
                     }

@@ -57,7 +57,7 @@ public class FraudModelRanker {
         for (E3Model modelToPlace : models) {
             //subIdealModel.enhance();
             //pre-compute averages and top gains
-            modelToPlace.getAveragesForActors(need, startValue, endValue, false);
+            modelToPlace.generateSeriesAndComputeAverages(need, startValue, endValue, false);
             computeTopGain(modelToPlace, baseModel, actor);            
             Double gainDeltaToPlace = modelToPlace.getLastKnownTopDelta();
             //Then,                 
@@ -144,7 +144,7 @@ public class FraudModelRanker {
         for (E3Model modelToPlace : models) {
             //subIdealModel.enhance();
             //pre-compute averages and top gains
-            modelToPlace.getAveragesForActors(need, startValue, endValue, false);
+            modelToPlace.generateSeriesAndComputeAverages(need, startValue, endValue, false);
             computeTopGain(modelToPlace, baseModel, actor);
             
             Map<Resource, Double> modelToPlaceAverages = modelToPlace.getLastKnownAverages();
