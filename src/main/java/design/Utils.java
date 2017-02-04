@@ -71,6 +71,9 @@ import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 
+import design.EditorActions.ModelCheck;
+import design.checker.E3Checker;
+import design.checker.ModelError;
 import design.export.RDFExport;
 import design.info.Actor;
 import design.info.Base;
@@ -1254,6 +1257,53 @@ public class Utils {
     	Map<String, Object> style = state.getStyle();
     	
     	style.put(prop, value);
+    	
+    	return true;
+    }
+    
+    /**
+     * Checks if the model contains any errors. If so, asks the user to either:
+     * - Ignore them
+     * - Stop
+     * - Stop and go to the model checker
+     * @param graph The graph to check
+     * @return true if the caller can continue, false if the caller should abort
+     */
+    public static boolean doModelCheck(E3Graph graph, Main main) {
+    	List<ModelError> errors = E3Checker.checkForErrors(graph);
+    	
+    	if (errors.size() > 0) {
+    		// Ask the user
+    		// The captions of the buttons in the dialog. Left to right
+    		String[] opts = new String[]{"Open model checker", "Cancel", "Ignore"};
+
+    		int choice = JOptionPane.showOptionDialog(
+    				Main.mainFrame,
+    				"The model contains " + errors.size() + " error"
+    						+ (errors.size() > 1 ? "s" : "") + ". "
+    						+ "Would you like to go to the model checker to inspect them, "
+    						+ "stop, or ignore them? Ignoring the errors can cause erratic behavior.", 
+    				"Errors detected in model", 
+    				JOptionPane.YES_NO_CANCEL_OPTION, 
+    				JOptionPane.WARNING_MESSAGE, 
+    				null, 
+    				opts,
+    				// Model checker is selected by default
+    				opts[0]
+    				);
+
+    		// If the user picked model checker, go to the model checker
+    		if (choice == 0) {
+    			new EditorActions.ModelCheck(main).actionPerformed(graph);
+    			return false;
+    		} else if (choice == 2) {
+    			// if the user picked ignore, carry on!
+    			return true;
+    		} else { // Choice == 1 || Choice == -1. Cancel!
+    			//  If the user picked cancel, abort!
+    			return false;
+    		}
+    	}
     	
     	return true;
     }

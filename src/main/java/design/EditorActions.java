@@ -853,17 +853,17 @@ public class EditorActions {
                 return;
             }
 
-            if (!main.getCurrentGraph().isValid()) {
-                int choice = JOptionPane.showConfirmDialog(
-                        Main.mainFrame,
-                        invalidModelMessage,
-                        "Model is not well formed.",
-                        JOptionPane.YES_NO_OPTION);
-
-                if (choice == JOptionPane.NO_OPTION) {
-                    return;
-                }
-            }
+//            if (!main.getCurrentGraph().isValid()) {
+//                int choice = JOptionPane.showConfirmDialog(
+//                        Main.mainFrame,
+//                        invalidModelMessage,
+//                        "Model is not well formed.",
+//                        JOptionPane.YES_NO_OPTION);
+//
+//                if (choice == JOptionPane.NO_OPTION) {
+//                    return;
+//                }
+//            }
             
             boolean castMarketSegments = false;
             if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) > 0) {
@@ -913,6 +913,13 @@ public class EditorActions {
             }
 
             E3Graph targetGraph = main.getCurrentGraph();
+            
+            // Check if the model checker fails or not
+            boolean cont = Utils.doModelCheck(targetGraph, main);
+            
+            if (!cont) {
+            	return;
+            }
 
             if (main.getCurrentGraph().isFraud) {
                 int choice = JOptionPane.showConfirmDialog(
@@ -941,7 +948,7 @@ public class EditorActions {
                 targetGraph = targetGraph.toValue();
                 main.addNewTabAndSwitch(targetGraph);
             }
-
+            
             RDFExport rdfExporter = new RDFExport(targetGraph, true, true, castMarketSegments);
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
@@ -987,19 +994,7 @@ public class EditorActions {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-            if (!main.getCurrentGraph().isValid()) {
-                int choice = JOptionPane.showConfirmDialog(
-                        Main.mainFrame,
-                        invalidModelMessage,
-                        "Model is not well formed.",
-                        JOptionPane.YES_NO_OPTION);
-
-                if (choice == JOptionPane.NO_OPTION) {
-                    return;
-                }
-            }
-
+            
             if (main.getCurrentGraph().countActors() < 1) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
@@ -1008,6 +1003,12 @@ public class EditorActions {
                         JOptionPane.ERROR_MESSAGE);
 
                 return;
+            }
+            
+            boolean cont = Utils.doModelCheck(main.getCurrentGraph(), main);
+            
+            if (!cont) {
+            	return;
             }
 
             RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, true, false);
@@ -1203,6 +1204,10 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
+        	actionPerformed(main.getCurrentGraph());
+        }
+        
+        public void actionPerformed(E3Graph graph) {
 //            E3Graph currentGraph = main.getCurrentGraph();
 //            System.out.println("Doing WEM");
 //            WalkEntireModel wem = new WalkEntireModel(currentGraph);
@@ -1223,7 +1228,7 @@ public class EditorActions {
 //            	currentGraph.repaint();
 //            }
         	
-        	E3Graph graph = main.getCurrentGraph();
+//        	E3Graph graph = main.getCurrentGraph();
         	
 //        	Utils.getAllCells(graph).stream()
 //        		.forEach(cell -> {
@@ -1253,6 +1258,12 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
+        	boolean cont = Utils.doModelCheck(main.getCurrentGraph(), main);
+        	
+        	if (!cont) {
+        		return;
+        	}
+
             NCFDialog myDialog = new NCFDialog(main.getCurrentGraph());
         }
     }
