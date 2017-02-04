@@ -6,7 +6,7 @@ import java.util.List;
 public class ValueTransaction extends Base {
 	private static final long serialVersionUID = 8694277899772783482L;
 	
-	public List<Double> exchanges;
+	public List<Long> exchanges;
 
 	public ValueTransaction(long SUID) {
 		super(SUID);

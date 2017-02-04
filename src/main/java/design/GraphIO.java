@@ -19,6 +19,7 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.swing.JOptionPane;
 
 import com.mxgraph.io.mxCodecRegistry;
@@ -39,6 +40,7 @@ import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
+import design.info.ValueTransaction;
 
 /**
  * Houses all the functionality and global state involved with importing models
@@ -262,6 +264,27 @@ public class GraphIO {
 			}
 		}
 		
+		if (json.containsKey("valueTransactions")) {
+			graph.valueTransactions.clear();
+			JsonArray valueTransactions = json.getJsonArray("valueTransactions");
+			for (int i = 0; i < valueTransactions.size(); i++) {
+				JsonObject vtObj = valueTransactions.getJsonObject(i);
+				long SUID = vtObj.getJsonNumber("SUID").longValue();
+				
+				ValueTransaction vtInfo = new ValueTransaction(SUID);
+				
+				vtInfo.name = vtObj.getString("name");
+				vtInfo.formulas.put("FRACTION", vtObj.getString("FRACTION"));
+				
+				JsonArray valueExchanges = vtObj.getJsonArray("valueExchanges");
+				for (int j = 0; j < valueExchanges.size(); j++) {
+					vtInfo.exchanges.add(valueExchanges.getJsonNumber(j).longValue());
+				}
+				
+				graph.valueTransactions.add(vtInfo);
+			}
+		}
+		
 		// For each market segment, if it has a MarketSegmentStencil#FFFFFF
 		// shape, add that color shape to the registry
 		Utils.getAllCells(graph).stream()
@@ -302,11 +325,31 @@ public class GraphIO {
 		for (String vo : graph.valueObjects) {
 			valueObjectsJson.add(vo);
 		}
+		
+		JsonArrayBuilder valueTransactionsJson = Json.createArrayBuilder();
+		for (ValueTransaction vtInfo : graph.valueTransactions) {
+			JsonObjectBuilder vtObj = Json.createObjectBuilder();
+			
+			JsonArrayBuilder valueExchanges = Json.createArrayBuilder();
+			for (long ve : vtInfo.exchanges) {
+				valueExchanges.add(ve);
+			}
+			
+			vtObj
+				.add("SUID", vtInfo.SUID)
+				.add("name", vtInfo.name)
+				.add("FRACTION", vtInfo.formulas.getOrDefault("FRACTION", "1.0"))
+				.add("valueExchanges", valueExchanges)
+				;
+			
+			valueTransactionsJson.add(vtObj);
+		}
 				
 		String properties = Json.createObjectBuilder()
 				.add("fraud", graph.isFraud)
 				.add("title", graph.title == null ? "" : graph.title)
 				.add("valueObjects", valueObjectsJson)
+				.add("valueTransactions", valueTransactionsJson)
 				.build().toString();
 		
 		// Create a zip

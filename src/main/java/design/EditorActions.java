@@ -788,11 +788,12 @@ public class EditorActions {
     public static class ShowValueTransactionsPanel extends BaseAction {
 
         public ShowValueTransactionsPanel(Main main) {
-            super("Edit Value Transactions", main);
+            super("Edit Value Transactions...", main);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            // TODO: Maybe prefer greyed out menu item?
             if (main.views.getTabCount() == 0) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
@@ -805,18 +806,18 @@ public class EditorActions {
             if (ValueTransactionDialog.isOpened) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
-                        "A value object dialog is already open.",
+                        "A value transaction dialog is already open.",
                         "Dialog already open",
                         JOptionPane.ERROR_MESSAGE);
 
-                ValueObjectDialog.dialogInstance.requestFocus();
+//                ValueTransactionDialog.dialogInstance.requestFocus();
                 return;
             }
 
             new ValueTransactionDialog(main).setVisible(true);
         }
     }
-
+    
     public static class AnalyzeTransactions extends BaseAction {
 
         public AnalyzeTransactions(Main main) {

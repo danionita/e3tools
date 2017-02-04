@@ -38,6 +38,8 @@ import net.miginfocom.swing.MigLayout;
  * - (de-)serialization & saving
  * - do/undo?
  * @author bobe
+ * 
+ * TODO: @Incomplete There's no do/undo mechanism in place for value transactions.
  *
  */
 public class ValueTransactionDialog extends JDialog {
@@ -54,6 +56,8 @@ public class ValueTransactionDialog extends JDialog {
 	private JTextField nameField;
 	private JList<ValueTransaction> vtList;
 	private DefaultListModel<ValueTransaction> listModel;
+	
+	private boolean doNotUpdateUI = false;
 	
 	ValueTransaction selectedValueTransaction = null;
 
@@ -107,6 +111,9 @@ public class ValueTransactionDialog extends JDialog {
 			public void exec(DocumentEvent arg0) {
 				if (selectedValueTransaction != null) {
 					selectedValueTransaction.name = nameField.getText();
+					if (vtList != null && !doNotUpdateUI) {
+						vtList.updateUI();
+					}
 				}
 			}
 		});
@@ -137,6 +144,9 @@ public class ValueTransactionDialog extends JDialog {
 			public void exec(DocumentEvent e) {
 				if (selectedValueTransaction != null) {
 					selectedValueTransaction.formulas.put("FRACTION", fractionField.getText());
+					if (vtList != null && !doNotUpdateUI) {
+						vtList.updateUI();
+					}
 				}
 			}
 		});
@@ -165,14 +175,21 @@ public class ValueTransactionDialog extends JDialog {
 		
 		newButton.addActionListener(e -> {
 			long SUID = Utils.getUnusedID(graph);
-			listModel.addElement(new ValueTransaction(SUID));
+			ValueTransaction vtInfo = new ValueTransaction(SUID);
+
+			listModel.addElement(vtInfo);
+			graph.valueTransactions.add(vtInfo);
 		});
 		
 		JButton deleteButton = new JButton("Delete");
 		buttonPanel.add(deleteButton);
 		
 		deleteButton.addActionListener(e -> {
-			listModel.remove(listModel.indexOf(selectedValueTransaction));
+			if (listModel.contains(selectedValueTransaction)) {
+				listModel.remove(listModel.indexOf(selectedValueTransaction));
+				graph.valueTransactions.remove(selectedValueTransaction);
+				updateListAndGraph();
+			}
 		});
 		
 		listModel = new DefaultListModel<>();
@@ -185,19 +202,25 @@ public class ValueTransactionDialog extends JDialog {
 				
 				int selectedIndex = vtList.getSelectedIndex();
 				if (selectedIndex == -1) return;
-				
+
 				ValueTransaction vt = listModel.getElementAt(selectedIndex);
+				
 				selectedValueTransaction = vt;
 				removeHighlight();
 				highlight(vt);
-				
+
+				// @Hack this is so ugly
+				doNotUpdateUI = true;
 				nameField.setText(vt.name);
 				fractionField.setText(vt.formulas.getOrDefault("FRACTION", "1"));
+				doNotUpdateUI = false;
 			}
 		});
 		
 		JScrollPane scrollPane = new JScrollPane(vtList);
 		listPanel.add(scrollPane, BorderLayout.CENTER);
+		
+		setSize(400, 300);
 		
 		//////////////////////////////
 		// Done building the dialog //
@@ -236,37 +259,31 @@ public class ValueTransactionDialog extends JDialog {
 			public void mouseClicked(MouseEvent e) {
 				// Get the currently selected value object.
 				// If nothing is selected, we don't have to do anything.
-//				int index = valueObjectsList.getSelectedIndex();
-//				if (index == -1) return;
-//				String newVO = graph.valueObjects.get(index);
-//
-//				// Get the info object of the cell below the click position
-//				Object cell = main.getCurrentGraphComponent().getCellAt(e.getX(), e.getY());
-//				// Get the info object and copy it implicitly
-//				Base value = Utils.base(graph, cell);
-//
-//				// If it is a value exchange...
-//				if (value instanceof ValueExchange) {
-//					ValueExchange veInfo = (ValueExchange) value;
-//
-//					// If the valueexchange already has the value object, remove it.
-//					// Otherwise assign it. This way you can "toggle" value objects
-//					// by clicking.
-//					if (veInfo.valueObject != null && veInfo.valueObject.equals(newVO)) {
-//						veInfo.valueObject = null;
-//					} else {
-//						veInfo.valueObject = newVO;
-//					}
-//					
-//					// Update the graph with the new value exchange info object
-//					graph.getModel().beginUpdate();
-//					try {
-//						graph.getModel().setValue(cell, veInfo);
-//					} finally {
-//						graph.getModel().endUpdate();
-//					}
-//				}
-				System.out.println("Mouse clicked!");
+				int index = vtList.getSelectedIndex();
+				if (index == -1) return;
+				ValueTransaction vtInfo = vtList.getSelectedValue();
+
+				// Get the info object of the cell below the click position
+				Object cell = main.getCurrentGraphComponent().getCellAt(e.getX(), e.getY());
+				// Get the info object and copy it implicitly
+				Base value = Utils.base(graph, cell);
+
+				// If it is a value exchange...
+				if (value instanceof ValueExchange) {
+					ValueExchange veInfo = (ValueExchange) value;
+					
+					if (!vtInfo.exchanges.contains(veInfo.SUID)) {
+						vtInfo.exchanges.add(veInfo.SUID);
+					} else {
+						vtInfo.exchanges.remove((Long) veInfo.SUID);
+					}
+					
+					// @Incomplete Ideally there'd be an undo event here.
+					// But I'm doing that only if the rest turns out to be easy
+
+					System.out.println("Added VE #" + veInfo.SUID + " to VT " + vtInfo.SUID);
+					updateListAndGraph();
+				}
 			}
 		};
 		
@@ -311,6 +328,14 @@ public class ValueTransactionDialog extends JDialog {
 		}
 	}
 	
+	public void updateListAndGraph() {
+		vtList.updateUI();
+		removeHighlight();
+		if (vtList.getSelectedIndex() != -1) {
+			highlight(vtList.getSelectedValue());
+		}
+	}
+	
 	public void highlight(ValueTransaction vt) {
 		Utils.getAllCells(graph).stream()
 			.filter(cell -> {
@@ -337,7 +362,7 @@ public class ValueTransactionDialog extends JDialog {
 	}
 	
 	public void rebuildList() {
-		
+		System.out.println("rebuildList called!");
 	}
 
 }

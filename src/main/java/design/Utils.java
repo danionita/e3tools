@@ -470,6 +470,8 @@ public class Utils {
     }
     
     public static long getUnusedID(mxGraph graph) {
+    	// @Optimize this can be optimized. It's basically
+    	// a fold over all ID's with the max operator.
     	Set<Long> usedIDs = getAllCells(graph)
     		.stream()
     		.map(c -> graph.getModel().getValue(c))
@@ -479,6 +481,16 @@ public class Utils {
     		.map(v -> v.SUID)
     		.collect(Collectors.toSet())
     		;
+    	
+    	if (graph instanceof E3Graph) {
+    		E3Graph e3graph = (E3Graph) graph;
+    		
+    		Set<Long> vtIDs = e3graph.valueTransactions.stream()
+    				.map(vtInfo -> vtInfo.SUID)
+    				.collect(Collectors.toSet());
+    		
+    		usedIDs.addAll(vtIDs);
+    	}
     	
     	long nextID = 0;
     	while (usedIDs.contains(nextID)) nextID++;
