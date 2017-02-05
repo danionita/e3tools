@@ -1351,15 +1351,15 @@ public class Utils {
 
 	public static void removeHighlight(E3Graph graph) {
 		Utils.getAllCells(graph).stream()
-			.filter(cell -> graph.getModel().getValue(cell) instanceof ValueExchange)
 			.forEach(ve -> {
 				Utils.resetCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR);
+				Utils.resetCellStateProperty(graph, ve, mxConstants.STYLE_STROKEWIDTH);
 			});
 
 		graph.repaint();
 	}
 
-	public static void highlight(E3Graph graph, ValueTransaction vt, String highlightColor) {
+	public static void highlight(E3Graph graph, ValueTransaction vt, String highlightColor, int width) {
 		Utils.getAllCells(graph).parallelStream()
 			.filter(cell -> {
 				Base info = (Base) graph.getModel().getValue(cell);
@@ -1369,21 +1369,23 @@ public class Utils {
 			})
 			.forEach(ve -> {
 				Utils.setCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR, highlightColor);
+				Utils.setCellStateProperty(graph, ve, mxConstants.STYLE_STROKEWIDTH, width);
 			});
 		
 		graph.repaint();
 	}
 	
-	public static void highlight(E3Graph graph, Base info, String highlightColor) {
+	public static void highlight(E3Graph graph, Base info, String highlightColor, int width) {
 		Utils.getAllCells(graph).parallelStream()
 			.filter(cell -> graph.getModel().getValue(cell) == info)
 			.findFirst()
 			.ifPresent(cell -> {
 				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKECOLOR, highlightColor);
+				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKEWIDTH, width);
 			});
 	}
 	
-	public static void highlight(E3Graph graph, long id, String highlightColor) {
+	public static void highlight(E3Graph graph, long id, String highlightColor, int width) {
 		Utils.getAllCells(graph).parallelStream()
 			.filter(cell -> {
 				Object val = graph.getModel().getValue(cell);
@@ -1396,6 +1398,7 @@ public class Utils {
 			.findFirst()
 			.ifPresent(cell -> {
 				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKECOLOR, highlightColor);
+				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKEWIDTH, width);
 			});
 	}
 	

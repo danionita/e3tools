@@ -177,7 +177,7 @@ public class ValueTransactionDialog extends JDialog {
 				
 				selectedValueTransaction = vt;
 				Utils.removeHighlight(graph);
-				Utils.highlight(graph, vt, HIGHLIGHT_COLOR);
+				Utils.highlight(graph, vt, HIGHLIGHT_COLOR, 2);
 
 				// @Hack this is so ugly
 				doNotUpdateUI = true;
@@ -302,7 +302,7 @@ public class ValueTransactionDialog extends JDialog {
 		vtList.updateUI();
 		Utils.removeHighlight(graph);
 		if (vtList.getSelectedIndex() != -1) {
-			Utils.highlight(graph, vtList.getSelectedValue(), HIGHLIGHT_COLOR);
+			Utils.highlight(graph, vtList.getSelectedValue(), HIGHLIGHT_COLOR, 2);
 		}
 	}
 	
