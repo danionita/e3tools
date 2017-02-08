@@ -193,6 +193,8 @@ public class FraudModelGenerator {
                     description += " and \"" + actorj.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"";
                 }
                 generatedModel.appendDescription(description);
+                System.out.println("enhancing "+generatedModel.getDescription());
+                generatedModel.evaluateModel();
                 generatedModel.enhance();
                 subIdealModels.add(generatedModel);
             }

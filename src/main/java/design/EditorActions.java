@@ -838,14 +838,14 @@ public class EditorActions {
             if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) > 0) {
             	String oneMSMessage = 
                         "<html>"
-                        + "This model contains a market segment. "
+                        + "This model contains a market segment. </br>"
                         + "Would you like to convert it to <b>one</b> actor "
                         + "to allow for the element to participate in collusion?"
                         + "</html>";
                         
                 String moreThanOneMessage =
                 		"<html>"
-                		+ "This model contains multiple market segments. "
+                		+ "This model contains multiple market segments. </br>"
                 		+ "Would you like to convert each market segment to <b>one</b> actor "
                 		+ "to allow for the elements to participate in collusions? "
                 		+ "</html>";
@@ -874,7 +874,7 @@ public class EditorActions {
             if (totalActors < 2) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
-                        "Fraud generation requires at least two actors. Please add more actors to the model",
+                        "Fraud generation requires at least two actors or market segments. Please add more actors to the model",
                         "Not enough actors.",
                         JOptionPane.ERROR_MESSAGE);
 
@@ -943,7 +943,7 @@ public class EditorActions {
     public static class ProfitabilityChart extends BaseAction {
 
         public ProfitabilityChart(Main main) {
-            super("Profitability chart...", getIcon("chart_curve"), main);
+            super("Sensitivity analysis...", getIcon("chart_curve"), main);
         }
 
         @Override
@@ -972,7 +972,7 @@ public class EditorActions {
             if (main.getCurrentGraph().countActors() < 1) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
-                        "Fraud generation requires at least one actor. Please add more actors to the model",
+                        "Sensitivity analysis requires at least one actor. Please add more actors to the model",
                         "Not enough actors.",
                         JOptionPane.ERROR_MESSAGE);
 

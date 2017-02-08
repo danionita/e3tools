@@ -1033,6 +1033,10 @@ public class E3Model {
         return occurrences;
     }
 
+    public void evaluateModel(){
+        evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
+    }
+    
 /// Enhance and traverse methods
     /**
      * Computes and appends occurrence expressions to all ValueInterface and
@@ -1042,7 +1046,7 @@ public class E3Model {
      */
     public void enhance() {
         if (evaluatedModel == null) {
-            evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
+            evaluateModel();
         }
 
         //get a list of Start Stimuli
@@ -1074,7 +1078,6 @@ public class E3Model {
         if (debug) {
             System.out.println("\t...Finished!\n");
         }
-
         evaluatedModel.reEvaluate();
     }
 
