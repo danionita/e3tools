@@ -3,15 +3,15 @@ package design.checker.checks;
 import java.util.Arrays;
 import java.util.Optional;
 
-import javax.swing.JOptionPane;
-
 import com.hp.hpl.jena.rdf.model.Model;
 
 import design.E3Graph;
-import design.Main;
+import design.Utils;
 import design.checker.E3ModelCheck;
 import design.checker.ModelError;
 import design.export.RDFExport;
+import design.export.RDFExport.VTMode;
+import design.info.Base;
 import e3fraud.model.EvaluatedModel;
 import e3fraud.model.EvaluatedModel.ModelOrError;
 
@@ -20,7 +20,7 @@ public class CorrectFormulaCheck implements E3ModelCheck {
 	@Override
 	public Optional<ModelError> check(E3Graph graph) {
 
-		RDFExport rdfExporter = new RDFExport(graph, true, true, true);
+		RDFExport rdfExporter = new RDFExport(graph, true, VTMode.DERIVE_ORPHANED, true);
 
 		if (!rdfExporter.getModel().isPresent()) {
 			Optional<String> error = rdfExporter.getError();
@@ -49,7 +49,18 @@ public class CorrectFormulaCheck implements E3ModelCheck {
 			
 			try {
 				long uid = new Long(badUIDStr);
-				return Optional.of(new ModelError("Object #" + uid + " has an error in the expression for \"" + badFormulaName + "\"", Arrays.asList(uid)));
+				
+				Optional<Object> infoOpt = Utils.getAllCells(graph).stream()
+						.filter(obj -> ((Base) graph.getModel().getValue(obj)).SUID == uid)
+					.filter(obj -> ((Base) graph.getModel().getValue(obj)).SUID == uid)
+					.findAny();
+				
+				if (infoOpt.isPresent()) {
+					return Optional.of(new ModelError("Formula of object with UID #" + uid + " has an error in formula \"" + badFormulaName + "\"", Arrays.asList(infoOpt.get())));
+				} else {
+					System.out.println("Could not find cell with SUID " + uid);
+					return Optional.empty();
+				}
 			} catch (NumberFormatException e) {
 				System.out.println("Could not parse the badUIDStr: " + badUIDStr);
 				return Optional.empty();

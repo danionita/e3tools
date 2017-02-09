@@ -42,8 +42,12 @@ import com.mxgraph.util.mxConstants;
 import design.checker.E3CheckDialog;
 import design.checker.WalkEntireModel;
 import design.checker.checks.FlowChecker;
+import design.dialog.SearchDialog;
+import design.dialog.ValueObjectDialog;
+import design.dialog.ValueTransactionDialog;
 import design.export.JSONExport;
 import design.export.RDFExport;
+import design.export.RDFExport.VTMode;
 import design.info.Base;
 import design.info.EndSignal;
 import design.info.MarketSegment;
@@ -206,7 +210,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), false, true, false);
+            RDFExport rdfExport = new RDFExport(main.getCurrentGraph(), false, VTMode.DERIVE_ORPHANED, false);
             Optional<String> result = rdfExport.getResult();
 
             // Do not export to rdf if there was an error
@@ -784,8 +788,106 @@ public class EditorActions {
             new ValueObjectDialog(main).show();
         }
     }
+    
+    public static class ShowValueObjectDialog extends BaseAction {
 
+        public ShowValueObjectDialog(Main main) {
+            super("Edit Value Objects... ", getIcon("old/vo"), main);
+        }
 
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO: Maybe prefer greyed out menu item?
+            if (main.views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to display its ValueObjects. Click File ➡ New model to open a new model.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (ValueObjectDialog.isOpened) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A value object dialog is already open.",
+                        "Dialog already open",
+                        JOptionPane.ERROR_MESSAGE);
+
+                ValueObjectDialog.dialogInstance.requestFocus();
+                return;
+            }
+
+            new ValueObjectDialog(main).show();
+        }
+    }
+    
+    public static class ShowValueTransactionsPanel extends BaseAction {
+
+        public ShowValueTransactionsPanel(Main main) {
+            super("Edit Value Transactions...", main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO: Maybe prefer greyed out menu item?
+            if (main.views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to display its ValueTransactions. Click File ➡ New model to open a new model.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (ValueTransactionDialog.isOpened) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A value transaction dialog is already open.",
+                        "Dialog already open",
+                        JOptionPane.ERROR_MESSAGE);
+
+//                ValueTransactionDialog.dialogInstance.requestFocus();
+                return;
+            }
+
+            new ValueTransactionDialog(main).setVisible(true);
+        }
+    }
+    
+    public static class ShowSearchDialog extends BaseAction {
+
+        public ShowSearchDialog(Main main) {
+            super("Search...", main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO: Maybe prefer greyed out menu item?
+            if (main.views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to display its ValueObjects. Click File ➡ New model to open a new model.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (SearchDialog.isOpen) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A search dialog is already open.",
+                        "Dialog already open",
+                        JOptionPane.ERROR_MESSAGE);
+
+                SearchDialog.dialogInstance.requestFocus();
+                return;
+            }
+
+            new SearchDialog(main).setVisible(true);
+        }
+    }
+    
     public static class AnalyzeTransactions extends BaseAction {
 
         public AnalyzeTransactions(Main main) {
@@ -822,17 +924,17 @@ public class EditorActions {
                 return;
             }
 
-            if (!main.getCurrentGraph().isValid()) {
-                int choice = JOptionPane.showConfirmDialog(
-                        Main.mainFrame,
-                        invalidModelMessage,
-                        "Model is not well formed.",
-                        JOptionPane.YES_NO_OPTION);
-
-                if (choice == JOptionPane.NO_OPTION) {
-                    return;
-                }
-            }
+//            if (!main.getCurrentGraph().isValid()) {
+//                int choice = JOptionPane.showConfirmDialog(
+//                        Main.mainFrame,
+//                        invalidModelMessage,
+//                        "Model is not well formed.",
+//                        JOptionPane.YES_NO_OPTION);
+//
+//                if (choice == JOptionPane.NO_OPTION) {
+//                    return;
+//                }
+//            }
             
             boolean castMarketSegments = false;
             if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) > 0) {
@@ -882,6 +984,13 @@ public class EditorActions {
             }
 
             E3Graph targetGraph = main.getCurrentGraph();
+            
+            // Check if the model checker fails or not
+            boolean cont = Utils.doModelCheck(targetGraph, main);
+            
+            if (!cont) {
+            	return;
+            }
 
             if (main.getCurrentGraph().isFraud) {
                 int choice = JOptionPane.showConfirmDialog(
@@ -910,8 +1019,8 @@ public class EditorActions {
                 targetGraph = targetGraph.toValue();
                 main.addNewTabAndSwitch(targetGraph);
             }
-
-            RDFExport rdfExporter = new RDFExport(targetGraph, true, true, castMarketSegments);
+            
+            RDFExport rdfExporter = new RDFExport(targetGraph, true, VTMode.DERIVE_ORPHANED, castMarketSegments);
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
 
@@ -956,19 +1065,7 @@ public class EditorActions {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-            if (!main.getCurrentGraph().isValid()) {
-                int choice = JOptionPane.showConfirmDialog(
-                        Main.mainFrame,
-                        invalidModelMessage,
-                        "Model is not well formed.",
-                        JOptionPane.YES_NO_OPTION);
-
-                if (choice == JOptionPane.NO_OPTION) {
-                    return;
-                }
-            }
-
+            
             if (main.getCurrentGraph().countActors() < 1) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
@@ -978,8 +1075,14 @@ public class EditorActions {
 
                 return;
             }
+            
+            boolean cont = Utils.doModelCheck(main.getCurrentGraph(), main);
+            
+            if (!cont) {
+            	return;
+            }
 
-            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, true, false);
+            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, VTMode.DERIVE_ORPHANED, false);
 
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
@@ -1172,6 +1275,10 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
+        	actionPerformed(main.getCurrentGraph());
+        }
+        
+        public void actionPerformed(E3Graph graph) {
 //            E3Graph currentGraph = main.getCurrentGraph();
 //            System.out.println("Doing WEM");
 //            WalkEntireModel wem = new WalkEntireModel(currentGraph);
@@ -1192,7 +1299,7 @@ public class EditorActions {
 //            	currentGraph.repaint();
 //            }
         	
-        	E3Graph graph = main.getCurrentGraph();
+//        	E3Graph graph = main.getCurrentGraph();
         	
 //        	Utils.getAllCells(graph).stream()
 //        		.forEach(cell -> {
@@ -1222,6 +1329,12 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
+        	boolean cont = Utils.doModelCheck(main.getCurrentGraph(), main);
+        	
+        	if (!cont) {
+        		return;
+        	}
+
             NCFDialog myDialog = new NCFDialog(main.getCurrentGraph());
         }
     }

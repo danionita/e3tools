@@ -47,12 +47,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -66,12 +70,16 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 
+import design.checker.E3Checker;
+import design.checker.ModelError;
 import design.export.RDFExport;
+import design.export.RDFExport.VTMode;
 import design.info.Actor;
 import design.info.Base;
 import design.info.ConnectionElement;
@@ -84,6 +92,7 @@ import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
+import design.info.ValueTransaction;
 import e3fraud.tools.currentTime;
 import e3fraud.vocabulary.E3value;
 
@@ -467,6 +476,8 @@ public class Utils {
     }
     
     public static long getUnusedID(mxGraph graph) {
+    	// @Optimize this can be optimized. It's basically
+    	// a fold over all ID's with the max operator.
     	Set<Long> usedIDs = getAllCells(graph)
     		.stream()
     		.map(c -> graph.getModel().getValue(c))
@@ -476,6 +487,16 @@ public class Utils {
     		.map(v -> v.SUID)
     		.collect(Collectors.toSet())
     		;
+    	
+    	if (graph instanceof E3Graph) {
+    		E3Graph e3graph = (E3Graph) graph;
+    		
+    		Set<Long> vtIDs = e3graph.valueTransactions.stream()
+    				.map(vtInfo -> vtInfo.SUID)
+    				.collect(Collectors.toSet());
+    		
+    		usedIDs.addAll(vtIDs);
+    	}
     	
     	long nextID = 0;
     	while (usedIDs.contains(nextID)) nextID++;
@@ -840,7 +861,7 @@ public class Utils {
      */
     public static boolean doNCFAnalysis(E3Graph graph, File dstFile) {
 		try {
-			RDFExport export = new RDFExport(graph, false, true, false);
+			RDFExport export = new RDFExport(graph, false, VTMode.DERIVE_ORPHANED, false);
 			String result = export.getResult().get();
 					
 			InputStream stream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));
@@ -1257,4 +1278,128 @@ public class Utils {
     	
     	return true;
     }
+    
+    /**
+     * Checks if the model contains any errors. If so, asks the user to either:
+     * - Ignore them
+     * - Stop
+     * - Stop and go to the model checker
+     * @param graph The graph to check
+     * @return true if the caller can continue, false if the caller should abort
+     */
+    public static boolean doModelCheck(E3Graph graph, Main main) {
+    	List<ModelError> errors = E3Checker.checkForErrors(graph);
+    	
+    	if (errors.size() > 0) {
+    		// Ask the user
+    		// The captions of the buttons in the dialog. Left to right
+    		String[] opts = new String[]{"Open model checker", "Cancel", "Ignore"};
+
+    		int choice = JOptionPane.showOptionDialog(
+    				Main.mainFrame,
+    				"The model contains " + errors.size() + " error"
+    						+ (errors.size() > 1 ? "s" : "") + ". "
+    						+ "Would you like to go to the model checker to inspect them, "
+    						+ "stop, or ignore them? Ignoring the errors can cause erratic behavior.", 
+    				"Errors detected in model", 
+    				JOptionPane.YES_NO_CANCEL_OPTION, 
+    				JOptionPane.WARNING_MESSAGE, 
+    				null, 
+    				opts,
+    				// Model checker is selected by default
+    				opts[0]
+    				);
+
+    		// If the user picked model checker, go to the model checker
+    		if (choice == 0) {
+    			new EditorActions.ModelCheck(main).actionPerformed(graph);
+    			return false;
+    		} else if (choice == 2) {
+    			// if the user picked ignore, carry on!
+    			return true;
+    		} else { // Choice == 1 || Choice == -1. Cancel!
+    			//  If the user picked cancel, abort!
+    			return false;
+    		}
+    	}
+    	
+    	return true;
+    }
+    
+    public static void addChangeListener(JTextField field, Consumer<DocumentEvent> c) {
+		field.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				exec(e);
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				exec(e);
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				exec(e);
+			}
+			
+			public void exec(DocumentEvent e) {
+				c.accept(e);
+			}
+		});
+    }
+
+	public static void removeHighlight(E3Graph graph) {
+		Utils.getAllCells(graph).stream()
+			.forEach(ve -> {
+				Utils.resetCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR);
+				Utils.resetCellStateProperty(graph, ve, mxConstants.STYLE_STROKEWIDTH);
+			});
+
+		graph.repaint();
+	}
+
+	public static void highlight(E3Graph graph, ValueTransaction vt, String highlightColor, int width) {
+		Utils.getAllCells(graph).parallelStream()
+			.filter(cell -> {
+				Base info = (Base) graph.getModel().getValue(cell);
+				if (info == null) return false;
+
+				return vt.exchanges.contains(info.SUID);
+			})
+			.forEach(ve -> {
+				Utils.setCellStateProperty(graph, ve, mxConstants.STYLE_STROKECOLOR, highlightColor);
+				Utils.setCellStateProperty(graph, ve, mxConstants.STYLE_STROKEWIDTH, width);
+			});
+		
+		graph.repaint();
+	}
+	
+	public static void highlight(E3Graph graph, Base info, String highlightColor, int width) {
+		Utils.getAllCells(graph).parallelStream()
+			.filter(cell -> graph.getModel().getValue(cell) == info)
+			.findFirst()
+			.ifPresent(cell -> {
+				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKECOLOR, highlightColor);
+				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKEWIDTH, width);
+			});
+	}
+	
+	public static void highlight(E3Graph graph, long id, String highlightColor, int width) {
+		Utils.getAllCells(graph).parallelStream()
+			.filter(cell -> {
+				Object val = graph.getModel().getValue(cell);
+				if (val instanceof Base) {
+					return ((Base) val).SUID == id;
+				}
+				
+				return false;
+			})
+			.findFirst()
+			.ifPresent(cell -> {
+				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKECOLOR, highlightColor);
+				Utils.setCellStateProperty(graph, cell, mxConstants.STYLE_STROKEWIDTH, width);
+			});
+	}
+	
 }

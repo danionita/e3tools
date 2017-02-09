@@ -194,8 +194,6 @@ public class E3CheckDialog extends JDialog {
 	public void applyHighlighting(ModelError errorMsg) {
 		if (errorMsg.subjects == null) return;
 		
-		System.out.println("Applying highlighting!");
-		
 		for (Object obj : errorMsg.subjects) {
 			Base info = (Base) graph.getModel().getValue(obj);
 
@@ -209,6 +207,9 @@ public class E3CheckDialog extends JDialog {
 					}
 				}
 			}
+
+			System.out.println("Info: " + info);
+			System.out.println("Applying highlighting for obj " + info.SUID + "!");
 
 			// Make it fat error color
 			Utils.setCellStateProperty(graph, obj, mxConstants.STYLE_STROKECOLOR, ERROR_COLOR);

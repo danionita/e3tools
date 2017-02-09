@@ -64,6 +64,7 @@ import design.info.ValueActivity;
 import design.info.ValueExchange;
 import design.info.ValueInterface;
 import design.info.ValuePort;
+import design.info.ValueTransaction;
 import e3fraud.tools.SettingsObjects.NCFSettings;
 
 public class E3Graph extends mxGraph implements Serializable{
@@ -74,6 +75,8 @@ public class E3Graph extends mxGraph implements Serializable{
 	public final ArrayList<String> valueObjects = new ArrayList<>(
 			Arrays.asList("MONEY", "MONEY-SECURED", "SERVICE")
 			);
+	public ArrayList<ValueTransaction> valueTransactions = new ArrayList<>();
+
 	public boolean isFraud;
 	public GraphDelta delta;
 	public String title = "";
@@ -120,8 +123,15 @@ public class E3Graph extends mxGraph implements Serializable{
 		getModel().beginUpdate();
 		try {
 			addCells(original.cloneCellsKeepSUIDs(original.getChildCells(original.getDefaultParent())));
+			
+			// Not sure why this stuff is between begin/end updates.
 			valueObjects.clear();
 			valueObjects.addAll(original.valueObjects);
+			
+			valueTransactions.clear();
+			original.valueTransactions.stream()
+				.map(x -> (ValueTransaction) x.getCopy())
+				.forEach(valueTransactions::add);
 		} finally {
 			getModel().endUpdate();
 		}
@@ -328,6 +338,14 @@ public class E3Graph extends mxGraph implements Serializable{
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				saveBeforeExit = true;
+			}
+		});
+		
+		graph.addListener(mxEvent.CELLS_REMOVED, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				// TODO: Check, if a value exchange is deleted, if it should be removed from any ValueTransactions.
+				System.out.println("Checking for removed value exchanges!");
 			}
 		});
 	}
@@ -1813,6 +1831,16 @@ public class E3Graph extends mxGraph implements Serializable{
     	} else {
 			return isParentOf(parent, getModel().getParent(child));
     	}
+    }
+    
+    public boolean veHasTransaction(long SUID) {
+    	for (ValueTransaction vtInfo : valueTransactions) {
+    		if (vtInfo.exchanges.contains(SUID)) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
     }
             
 
