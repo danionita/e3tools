@@ -923,31 +923,19 @@ public class EditorActions {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-//            if (!main.getCurrentGraph().isValid()) {
-//                int choice = JOptionPane.showConfirmDialog(
-//                        Main.mainFrame,
-//                        invalidModelMessage,
-//                        "Model is not well formed.",
-//                        JOptionPane.YES_NO_OPTION);
-//
-//                if (choice == JOptionPane.NO_OPTION) {
-//                    return;
-//                }
-//            }
             
             boolean castMarketSegments = false;
             if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) > 0) {
             	String oneMSMessage = 
                         "<html>"
-                        + "This model contains a market segment. </br>"
+                        + "This model contains a market segment. <br>"
                         + "Would you like to convert it to <b>one</b> actor "
                         + "to allow for the element to participate in collusion?"
                         + "</html>";
                         
                 String moreThanOneMessage =
                 		"<html>"
-                		+ "This model contains multiple market segments. </br>"
+                		+ "This model contains multiple market segments. <br>"
                 		+ "Would you like to convert each market segment to <b>one</b> actor "
                 		+ "to allow for the elements to participate in collusions? "
                 		+ "</html>";
@@ -1018,6 +1006,11 @@ public class EditorActions {
 
                 targetGraph = targetGraph.toValue();
                 main.addNewTabAndSwitch(targetGraph);
+            }       
+           
+            if(castMarketSegments){
+                targetGraph = new E3Graph(targetGraph, false);
+                targetGraph.castMSsToActors();
             }
             
             RDFExport rdfExporter = new RDFExport(targetGraph, true, VTMode.DERIVE_ORPHANED, castMarketSegments);

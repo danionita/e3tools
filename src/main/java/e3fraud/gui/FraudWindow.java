@@ -631,12 +631,8 @@ public class FraudWindow extends javax.swing.JPanel {
 
                 //create a graph
                 graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
-//                System.out.println("CHANGES:");
-//                System.out.println("\t colludedActors:"+ selectedModel.getFraudChanges().colludedActors);
-//                System.out.println("\t hiddenTransactions:"+ selectedModel.getFraudChanges().hiddenTransactions);
-//                System.out.println("\t nonOccurringTransactions:"+ selectedModel.getFraudChanges().nonOccurringTransactions);
 
-                // Then just create a graph panel from scratch
+                // Then create a graph panel
                 graphPanel = new E3GraphComponent(graph);
                 // Disable right mouse clicks
                 graphPanel.setPopupTriggerEnabled(false);
@@ -785,9 +781,9 @@ public class FraudWindow extends javax.swing.JPanel {
                 } catch (InterruptedException | ExecutionException ex) {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     generateButton.setVisible(true);
-                    System.err.println("Exception encountered during generation: \n" + ex);
+                    System.err.println("Exception encountered during generation: \n");
                     ex.printStackTrace();
-                    PopUps.infoBox("Encountered an error. Most likely out of memory; try increasing the heap size of JVM", "Error");
+                    PopUps.infoBox("<html>Encountered an error ("+ex.toString()+"). <br> Please send a description of the steps taken to: danionita@gmail.com.</html>", "Error");
                 }
             }
         };
@@ -866,9 +862,9 @@ public class FraudWindow extends javax.swing.JPanel {
                     //catch all in case something goes wrong
                 } catch (InterruptedException | ExecutionException ex) {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    System.err.println(ex.getMessage() + "exception encountered during generation: \n");
+                    System.err.println("Exception encountered during generation: \n");
                     ex.printStackTrace();
-                    PopUps.infoBox("Encountered an error. Most likely out of memory; try increasing the heap size of JVM", "Error");
+                    PopUps.infoBox("<html>Encountered an error ("+ex.toString()+"). <br> Please send a description of the steps taken to: danionita@gmail.com.</html>", "Error");
                 }
             }
         };
@@ -972,25 +968,6 @@ public class FraudWindow extends javax.swing.JPanel {
         graphPanel.refresh();
     }
 
-    /**
-     * Create the GUI and show it. For thread safety, this method should be
-     * invoked from the event dispatch thread.
-     *
-     * @param model
-     */
-    public static void createAndShowGUI(E3Model model) {
-        //Create and set up the window.
-        JFrame frame = new JFrame("e3fraud");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        //Add content to the window.
-        mainWindowInstance = new FraudWindow(null, model, null, frame);
-        frame.setContentPane(mainWindowInstance);
-
-        //Display the window.
-        frame.pack();
-        frame.setVisible(true);
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel FiltersLabel;

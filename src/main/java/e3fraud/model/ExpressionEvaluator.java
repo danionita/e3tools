@@ -46,14 +46,15 @@ import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
+import e3fraud.gui.PopUps;
 
 import e3fraud.parser.FileParser;
 import e3fraud.vocabulary.E3value;
 
-public class EvaluatedModel {
+public class ExpressionEvaluator {
 
     public static final String alphaNumericID = "[a-zA-Z][a-zA-Z0-9]*";
-    public static final String alphaNumericWithSpacesID = "[a-zA-Z][a-zA-Z0-9 ]*";
+    public static final String alphaNumericWithSpacesID = "[a-zA-Z][a-zA-Z0-9 +]*";
     public static final String zeroOrNumberUID = "(?:[1-9][0-9]*?|0)";
 
     private final boolean DEBUG = false;
@@ -107,7 +108,7 @@ public class EvaluatedModel {
             "e3\\{(#" + zeroOrNumberUID + "\\." + alphaNumericID + ")\\}"
     );
 
-    private EvaluatedModel(Model model) {
+    private ExpressionEvaluator(Model model) {
         this.model = model;
     }
 
@@ -116,13 +117,14 @@ public class EvaluatedModel {
      * right. If the model is inconsistent (i.e. a formula refers to some entity
      * or formula that does not exist), empty is returned.
      */
-    public static Optional<EvaluatedModel> evaluateModel(Model model) {
+    public static Optional<ExpressionEvaluator> evaluateModel(Model model) {
         try {
-            Optional<EvaluatedModel> em = Optional.of(new EvaluatedModel(model));
+            Optional<ExpressionEvaluator> em = Optional.of(new ExpressionEvaluator(model));
             em.get().evaluateAll();
             return em;
         } catch (FormulaParseException e) {
-            System.out.println("Could not parse formula!");
+            PopUps.infoBox(e.toString(), "Error");
+            System.err.println("Could not parse formula!");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -135,13 +137,13 @@ public class EvaluatedModel {
     		badFormulaName = Optional.empty();
     	}
     	
-    	public Optional<EvaluatedModel> optionalModel;
+    	public Optional<ExpressionEvaluator> optionalModel;
     	public Optional<String> badUID;
     	public Optional<String> badFormulaName;
     }
     
     public static ModelOrError evaluateModelOrError(Model model) {
-		EvaluatedModel em = new EvaluatedModel(model);
+		ExpressionEvaluator em = new ExpressionEvaluator(model);
 
         try {
             em.evaluateAll();
@@ -150,8 +152,9 @@ public class EvaluatedModel {
         	moe.optionalModel = Optional.of(em);
 
         	return moe;
-        } catch (FormulaParseException e) {
-            System.out.println("Could not parse formula!");
+        } catch (FormulaParseException e) {            
+            PopUps.infoBox(e.toString(), "Error");
+            System.err.println("Could not parse formula!");
             e.printStackTrace();
 
         	ModelOrError moe = new ModelOrError();
@@ -197,15 +200,11 @@ public class EvaluatedModel {
 
             // For each formula attached to this entity...
             StmtIterator stmtIt = res.listProperties(E3value.e3_has_formula);
-
             while (stmtIt.hasNext()) {
                 String formula = stmtIt.next().getString();
-//				System.out.println("Considering \"" + formula + "\" of " + name + "(#" + uid + ")");
                 String formulaName = formula.split("=")[0];
                 // Give it its own row
                 rowMap.put("#" + uid + "." + formulaName, nextRow++);
-
-//				System.out.println("Putting: " + "#" + uid + "." + formulaName + " at " + (nextRow - 1));
             }
         }
 
@@ -231,8 +230,8 @@ public class EvaluatedModel {
                 String formulaEntry = stmtIt.next().getString();
                 String formulaName = formulaEntry.split("=")[0];
                 // Remove all e3references
-                String formula = e3ExpressionToExcel(uid, formulaEntry.split("=")[1]);
-                
+                String formula = e3ExpressionToExcel(uid, formulaEntry.split("=")[1]);                
+
                 // Save the debug information in case of an exception
                 lastUID = Optional.of(uid);
                 lastFormulaName = Optional.of(formulaName);
@@ -305,7 +304,6 @@ public class EvaluatedModel {
         // As soon as we start using their new API we'll
         // use the appropriate function call.
         CellType cellType = cell.getCellTypeEnum();
-                System.out.println("valueOf("+e3ref+")="+cell.getNumericCellValue());
         switch (cellType) {
             case NUMERIC:
                 return Optional.of(cell.getNumericCellValue());
@@ -335,8 +333,9 @@ public class EvaluatedModel {
         String newF = formulaPat.matcher(formula).replaceAll("e3{#" + uid + ".$1}");
 
         if (DEBUG && !formula.equals(newF)) {
-            System.out.println("Old: " + formula);
-            System.out.println("New: " + newF);
+            System.out.println("Replacing locals....");
+            System.out.println("\tOld: " + formula);
+            System.out.println("\tNew: " + newF);
         }
 
         return newF;
@@ -374,7 +373,6 @@ public class EvaluatedModel {
             String attr = match.group(2);
             int start = match.start();
             int end = match.end();
-
             formula = formula.substring(0, start)
                     + "e3{#" + uidMap.get(name) + "." + attr + "}"
                     + formula.substring(end);
@@ -383,8 +381,9 @@ public class EvaluatedModel {
         }
 
         if (DEBUG && oldFormula != formula) {
-            System.out.println("Old: " + oldFormula);
-            System.out.println("New: " + formula);
+            System.out.println("Replacing names....");
+            System.out.println("\tOld: " + oldFormula);
+            System.out.println("\tNew: " + formula);
         }
 
         return formula;
@@ -420,13 +419,14 @@ public class EvaluatedModel {
 
                 match = uidPat.matcher(formula);
             } else {
-                System.out.println("Not found!");
+                System.err.println("Not found!");
             }
         }
 
-        if (DEBUG && oldFormula != formula) {
-            System.out.println("Old: " + oldFormula);
-            System.out.println("New: " + formula);
+        if (DEBUG && oldFormula != formula) {            
+            System.out.println("Replacing UIDs....");
+            System.out.println("\tOld: " + oldFormula);
+            System.out.println("\tNew: " + formula);
         }
 
         return formula;
@@ -471,7 +471,8 @@ public class EvaluatedModel {
      */
      public void changeExistingFormula(String reference, String uidScope, String formula) {
         // If the row does not exists, abort
-        if (!rowMap.containsKey(reference)) {
+        if (!rowMap.containsKey(reference)) {            
+            PopUps.infoBox("Reference \"" + reference + "\" refers to non-existing formula.", "Error");
             System.out.println("Reference \"" + reference + "\" refers to non-existing formula.");
             return;
         }
@@ -496,7 +497,8 @@ public class EvaluatedModel {
      */
     public void addNewFormula(String reference, String uidScope, String formula) {
         // If the formula already exists, or is not in good form, abort.
-        if (!refPat.matcher(reference).matches()) {
+        if (!refPat.matcher(reference).matches()) {            
+            PopUps.infoBox("Reference \"" + reference + "\" is not a valid e3value UID reference.", "Error");
             System.out.println("\"" + reference + "\" is not a valid e3value UID reference.");
             return;
         }
@@ -553,7 +555,7 @@ public class EvaluatedModel {
 
         for (int i = 0; i < 100; i++) {
             System.out.println(i);
-            EvaluatedModel eModel = new EvaluatedModel(model.getJenaModel());
+            ExpressionEvaluator eModel = new ExpressionEvaluator(model.getJenaModel());
         }
 
 //		Optional<Double> val = eModel.valueOf("#7.VALUATION");

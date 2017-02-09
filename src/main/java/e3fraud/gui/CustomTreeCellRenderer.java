@@ -87,7 +87,7 @@ class CustomTreeCellRenderer extends JPanel implements TreeCellRenderer {
                  nephews += sibling.getChildAt(0).getChildCount();
                  }
                  }
-             left = new JLabel(Integer.toString(node.getParent().getIndex(node) + nephews + 1));
+             left = new JLabel(Integer.toString(node.getParent().getIndex(node)  + 1));
              }
 
             left.setFont(new Font("Arial", Font.BOLD, 14));

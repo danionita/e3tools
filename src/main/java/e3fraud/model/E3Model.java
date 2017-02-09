@@ -27,6 +27,7 @@ import org.jfree.data.xy.XYSeries;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -46,14 +47,14 @@ import java.util.Optional;
  */
 public class E3Model {
 
-    private boolean debug = true; //use to toggle printing traversal steps
+    private boolean debug = false; //use to toggle printing traversal steps
 
     private final Model model;
     private String description;
     private boolean isFraud;
     private Utils.GraphDelta fraudChanges;
     private String prefix;
-    private EvaluatedModel evaluatedModel;
+    private ExpressionEvaluator evaluatedModel;
     public String colludedActorURI;
     public String newActorURI;
 
@@ -72,7 +73,7 @@ public class E3Model {
      */
     public E3Model(Model jenaModel) {
         this.model = jenaModel;
-        this.evaluatedModel = EvaluatedModel.evaluateModel(model).get();
+        this.evaluatedModel = ExpressionEvaluator.evaluateModel(model).get();
         this.prefix = "";
         this.description = "Base Model";
         this.fraudChanges = null;
@@ -815,7 +816,8 @@ public class E3Model {
         //First, merge their names
         String actor1Name = actor1.getProperty(E3value.e3_has_name).getString();
         String actor2Name = actor2.getProperty(E3value.e3_has_name).getString();
-        actor1.getProperty(E3value.e3_has_name).changeObject(actor1Name + " + " + actor2Name);
+        String newActorName = actor1Name + " + " + actor2Name;
+        actor1.getProperty(E3value.e3_has_name).changeObject(newActorName);
 
         //Next add up their expenses and investment
         if (actor1.hasProperty(E3value.e3_has_formula)) {
@@ -836,8 +838,8 @@ public class E3Model {
                     String actor2FormulaAttribute = actor2Formula.getString().split("=", 2)[0];
                     String actor2FormulaValue = actor2Formula.getString().split("=", 2)[1];
                     //if it does
-                    if (actor1FormulaAttribute.equals(actor2FormulaAttribute)) {
-                        //add up actor1's and actor2's values or expressions                       
+                    if (actor1FormulaAttribute.equals(actor2FormulaAttribute) && !actor2FormulaAttribute.equals("COUNT")) {
+                        //add up actor1's and actor2's values or expressions  (except for COUNT)                     
                         String newActorFormulaValue = actor1FormulaValue + " + " + actor2FormulaValue;
                         String newActorFormulaAttribute = actor1FormulaAttribute;
                         newActorFormulas.add(newActorFormulaAttribute + "=" + newActorFormulaValue);
@@ -912,6 +914,19 @@ public class E3Model {
 
         //Finally, delete actor2      
         actor2.removeProperties();
+
+        //To make sure ar references are still resolvable,
+        //cycle through all expressions in the model and replace references as needed
+        String emptyString = null;
+        StmtIterator expressionStatements = model.listStatements(null,E3value.e3_has_formula,emptyString);       
+        List<Statement> expressionStatementsList = expressionStatements.toList();
+        for(Statement expressionStatement : expressionStatementsList) {
+            String expression = expressionStatement.getLiteral().toString();
+            expression = expression.replace("'"+actor1Name+"'", "'"+newActorName+"'");
+            expression = expression.replace("'"+actor2Name+"'", "'"+newActorName+"'");
+            expression = expression.replace("#"+actor2ID, "#"+actor1ID);   
+            expressionStatement.changeObject(expression);
+        }
 
     }
 
@@ -993,7 +1008,7 @@ public class E3Model {
             }
         }
         if (debug) {
-            System.out.println("\t\t\t... Entering MS '"+ marketSegment.getProperty(E3value.e3_has_name).getLiteral().toString()+ "'. Dividing occurences by " + count);
+            System.out.println("\t\t\t... Entering MS '" + marketSegment.getProperty(E3value.e3_has_name).getLiteral().toString() + "'. Dividing occurences by " + count);
         }
 
         //If the occurrence rate is a number
@@ -1033,10 +1048,14 @@ public class E3Model {
         return occurrences;
     }
 
-    public void evaluateModel(){
-        evaluatedModel = EvaluatedModel.evaluateModel(this.getJenaModel()).get();
+    /**
+     * Re(creates) this E3Model's expressionEvaluator from this E3Model's Jena
+     * Model.
+     */
+    public void createExpressionEvaluator() {
+        this.evaluatedModel = ExpressionEvaluator.evaluateModel(this.getJenaModel()).get();
     }
-    
+
 /// Enhance and traverse methods
     /**
      * Computes and appends occurrence expressions to all ValueInterface and
@@ -1046,7 +1065,7 @@ public class E3Model {
      */
     public void enhance() {
         if (evaluatedModel == null) {
-            evaluateModel();
+            createExpressionEvaluator();
         }
 
         //get a list of Start Stimuli
@@ -1497,11 +1516,9 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                {
-                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
+                                 if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
-                                }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                             } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                                 if (ideal == true) {//If we want the expected case
@@ -1509,11 +1526,9 @@ public class E3Model {
                                         valuePortValuation = 0; //nullify it
                                     }
                                 } else//If we want the real case
-                                {
-                                    if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
+                                 if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                         valuePortValuation = 0; //nullify it
                                     }
-                                }
                                 valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                             }
 
@@ -1648,11 +1663,9 @@ public class E3Model {
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                            {
-                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
+                             if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource())) {//and it's respective (outgoing) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
-                            }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_out_connects_ve).getResource());// then multiply with cardinality of respective (outgoing) ve                             
                         } else if (valuePort.getResource().hasProperty(E3value.vp_in_connects_ve)) {//if it's an (incoming) ValuePort
                             //deduct expenses from valuation
@@ -1662,11 +1675,9 @@ public class E3Model {
                                     valuePortValuation = 0; //nullify it
                                 }
                             } else//If we want the real case
-                            {
-                                if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
+                             if (isNonOccurring(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource())) {//and it's respective (incoming) Value Exchange is nonOccurring
                                     valuePortValuation = 0; //nullify it
                                 }
-                            }
                             valuePortValuation *= getCardinality(valuePort.getResource().getProperty(E3value.vp_in_connects_ve).getResource());// then multiply with cardinality of respective (incoming) ve
                         }
 

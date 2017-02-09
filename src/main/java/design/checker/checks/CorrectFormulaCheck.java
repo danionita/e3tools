@@ -12,8 +12,8 @@ import design.checker.ModelError;
 import design.export.RDFExport;
 import design.export.RDFExport.VTMode;
 import design.info.Base;
-import e3fraud.model.EvaluatedModel;
-import e3fraud.model.EvaluatedModel.ModelOrError;
+import e3fraud.model.ExpressionEvaluator;
+import e3fraud.model.ExpressionEvaluator.ModelOrError;
 
 public class CorrectFormulaCheck implements E3ModelCheck {
 
@@ -37,7 +37,7 @@ public class CorrectFormulaCheck implements E3ModelCheck {
 
 		Model model = rdfExporter.getModel().get();
 		
-		ModelOrError moe = EvaluatedModel.evaluateModelOrError(model);
+		ModelOrError moe = ExpressionEvaluator.evaluateModelOrError(model);
 		
 		if (moe.optionalModel.isPresent()) {
 			return Optional.empty();

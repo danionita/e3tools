@@ -27,4 +27,8 @@ public class MarketSegment extends Base {
 	public String toString() {
 		return name;
 	}
+        
+        public Actor toAc(){
+            return new Actor(serialVersionUID);
+        }
 }
