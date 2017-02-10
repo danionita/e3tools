@@ -124,7 +124,7 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
 
             advancedGenerationSettingsLabel.setText("Generate fraud scenarios containing:");
 
-            collusionSpinner.setModel(new javax.swing.SpinnerNumberModel(1, 0, 3, 1));
+            collusionSpinner.setModel(new javax.swing.SpinnerNumberModel(2, 2, null, 1));
             collusionSpinner.setEnabled(generateCollusionCheckbox.isSelected());
 
             actorsLabel.setText("actors");
@@ -159,8 +159,7 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(cancelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
+                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -178,7 +177,8 @@ public class AdvancedGenerationSettingsDialog extends javax.swing.JDialog {
                                 .addComponent(generateNonOccurringTransfersCheckbox)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(valueObjectCheckboxContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelButton, okButton});

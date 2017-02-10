@@ -96,9 +96,8 @@ public class SettingsObjects {
     public static class GenerationSettings {
         //TODO: use this object in the rest of the code
 
-        private String selectedActorString, selectedNeedString;
-        private Resource selectedActor, selectedNeed;
-        private int startValue, endValue;
+        private String selectedActorString;
+        private Resource selectedActor;
 
         /**
          *
@@ -112,11 +111,7 @@ public class SettingsObjects {
          */
         public GenerationSettings(String selectedActorString, String selectedNeedString, Resource selectedActor, Resource selectedNeed, int startValue, int endValue) {
             this.selectedActorString = selectedActorString;
-            this.selectedNeedString = selectedNeedString;
             this.selectedActor = selectedActor;
-            this.selectedNeed = selectedNeed;
-            this.startValue = startValue;
-            this.endValue = endValue;
         }
 
         /**
@@ -133,44 +128,12 @@ public class SettingsObjects {
             this.selectedActorString = selectedActorString;
         }
 
-        public String getSelectedNeedString() {
-            return selectedNeedString;
-        }
-
-        public void setSelectedNeedString(String selectedNeedString) {
-            this.selectedNeedString = selectedNeedString;
-        }
-
         public Resource getSelectedActor() {
             return selectedActor;
         }
 
         public void setSelectedActor(Resource selectedActor) {
             this.selectedActor = selectedActor;
-        }
-
-        public Resource getSelectedNeed() {
-            return selectedNeed;
-        }
-
-        public void setSelectedNeed(Resource selectedNeed) {
-            this.selectedNeed = selectedNeed;
-        }
-
-        public int getStartValue() {
-            return startValue;
-        }
-
-        public void setStartValue(int startValue) {
-            this.startValue = startValue;
-        }
-
-        public int getEndValue() {
-            return endValue;
-        }
-
-        public void setEndValue(int endValue) {
-            this.endValue = endValue;
         }
     }
 
@@ -412,9 +375,6 @@ public class SettingsObjects {
 
         public void setCreateTransactions(boolean createTransactions) {
             this.createTransactions = createTransactions;
-        }
-        
-        
-}
-    
+        }             
+}  
 }

@@ -303,7 +303,7 @@ public class Main {
         toolMenu.add(new EditorActions.NCF(this)).setEnabled(true);
 
         //toolMenu.addSeparator();
-        toolMenu.add(new EditorActions.ProfitabilityChart(this));
+        toolMenu.add(new EditorActions.SensitivityChart(this));
         toolMenu.add(new EditorActions.FraudGeneration(this));
 
 
@@ -363,7 +363,7 @@ public class Main {
         toolbar.addSeparator();
 
         addToolbarButton(new EditorActions.NCF(this));
-        addToolbarButton(new EditorActions.ProfitabilityChart(this));
+        addToolbarButton(new EditorActions.SensitivityChart(this));
         addToolbarButton(new EditorActions.FraudGeneration(this));
         
         toolbar.addSeparator();

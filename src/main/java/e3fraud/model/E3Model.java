@@ -55,15 +55,6 @@ public class E3Model {
     private Utils.GraphDelta fraudChanges;
     private String prefix;
     private ExpressionEvaluator evaluatedModel;
-    public String colludedActorURI;
-    public String newActorURI;
-
-    //the following are needed to save time on calcualting the averages and deltas everytime when sorting 
-    private Map<Resource, Double> lastKnownAverages;
-    private Map<Resource, XYSeries> lastKnownSeries = new HashMap();
-    private double lastKnownTopDelta;
-    private Resource topDeltaActor;
-    private double lastKnownIdealAverageForTopGainActor;
 
 //constructors
     /**
@@ -92,8 +83,6 @@ public class E3Model {
         this.model = newJenaModel;
         this.prefix = "";
         this.description = baseModel.getDescription();
-        this.colludedActorURI = baseModel.colludedActorURI;
-        this.newActorURI = baseModel.newActorURI;
         this.evaluatedModel = null;
     }
 
@@ -140,46 +129,6 @@ public class E3Model {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
-    }
-
-    public Resource getTopDeltaActor() {
-        return topDeltaActor;
-    }
-
-    public Map<Resource, Double> getLastKnownAverages() {
-        return lastKnownAverages;
-    }
-
-    public void setLastKnownAverages(Map<Resource, Double> averages) {
-        this.lastKnownAverages = averages;
-    }
-
-    public Map<Resource, XYSeries> getLastKnownSeries() {
-        return lastKnownSeries;
-    }
-
-    public void setLastKnownSeries(Map<Resource, XYSeries> series) {
-        this.lastKnownSeries = series;
-    }
-
-    public void setTopDeltaActor(Resource topDeltaActor) {
-        this.topDeltaActor = topDeltaActor;
-    }
-
-    public double getLastKnownTopDelta() {
-        return lastKnownTopDelta;
-    }
-
-    public void setLastKnownTopDelta(double lastKnownTopDelta) {
-        this.lastKnownTopDelta = lastKnownTopDelta;
-    }
-
-    public void setLastKnownIdealAverageForTopGainActor(double lastKnownIdealAverageForTopGainActor) {
-        this.lastKnownIdealAverageForTopGainActor = lastKnownIdealAverageForTopGainActor;
-    }
-
-    public double getLastKnownIdealAverageForTopGainActor() {
-        return lastKnownIdealAverageForTopGainActor;
     }
 
     @Override
@@ -804,8 +753,8 @@ public class E3Model {
      */
     void collude(Resource actor1, Resource actor2) {
 
-        int actor1ID = Integer.parseInt(actor1.getProperty(E3value.e3_has_uid).getString());
-        int actor2ID = Integer.parseInt(actor2.getProperty(E3value.e3_has_uid).getString());
+        long actor1ID = Long.parseLong(actor1.getProperty(E3value.e3_has_uid).getString());
+        long actor2ID = Long.parseLong(actor2.getProperty(E3value.e3_has_uid).getString());
         this.fraudChanges.addColludedActor(actor1ID);
         this.fraudChanges.addColludedActor(actor2ID);
 
@@ -905,9 +854,6 @@ public class E3Model {
             //and update its reference
             actor2Interface.getResource().getProperty(E3value.vi_assigned_to_ac).changeObject((RDFNode) actor1);
         }
-
-        colludedActorURI = actor2.getURI();
-        newActorURI = actor1.getURI();
 
         //and remove them from actor2
         actor2.removeAll(E3value.ac_has_vi);
@@ -1572,8 +1518,9 @@ public class E3Model {
 
         //First, check if input is really an actor:
         if (!actor.hasProperty(RDF.type, E3value.elementary_actor) && !actor.hasProperty(RDF.type, E3value.market_segment)) {
-            System.err.println("Not an actor!");
-            return 0;
+            System.err.println(actor.getProperty(E3value.e3_has_name) + "(UID "+actor.getProperty(E3value.e3_has_uid)+") is not an actor!");
+            throw new IndexOutOfBoundsException("fuuck");
+            //return 0;
         }
 
         //Second, take into account Investment, Expenses and Interest:
@@ -1704,7 +1651,7 @@ public class E3Model {
     }
 
     /**
-     * Computes and stores series for all actors across an interval of either
+     * Computes and returns series for all actors across an interval of either
      * occurrence rates (if the given resource is a need) or counts (if given
      * resource is a Market segment)
      *
@@ -1714,9 +1661,8 @@ public class E3Model {
      * @param endValue maximum occurrence rate of need
      * @param ideal ideal or sub-ideal case
      * @return a map of <Actor,XY series>, where XYSeries represents the
-     * profitability graph of each actor. The X-axis shows the number of
-     * occurrences of need (in the interval startValue endValue) and the Y-axis
-     * shows the financial result.
+     * sensitivity chart of each actor. The X-axis shows the parameter range
+     *  and the Y-axis shows the financial result.
      */
     public Map<Resource, XYSeries> getSeries(Resource needOrMarketSegment, int startValue, int endValue, boolean ideal) {
         //make sure the resources are from this model
@@ -1776,27 +1722,17 @@ public class E3Model {
             this.updateNeedOccurrence(needOrMarketSegment, initialValue);
         }
 
-        setLastKnownSeries(actorSeriesMap);
         return actorSeriesMap;
     }
 
     /**
-     * Computes and stores series and averages for all actors across an interval
-     * of either occurrence rates (if the given resource is a need) or counts
-     * (if given resource is a Market segment)
+     * Computes averages for each of the series and attaches them to the chart
      *
-     * @param needOrMarketSegment
-     * @param startValue
-     * @param endValue
-     * @param ideal
+     * @param seriesMap containing the series to calculate averages on and the
+     * resources they belong to
+     * @return the same seriesMap, but with the series keys containing Averages
      */
-    public void generateSeriesAndComputeAverages(Resource needOrMarketSegment, int startValue, int endValue, boolean ideal) {
-
-        needOrMarketSegment = model.getResource(needOrMarketSegment.getURI());
-        Map<Resource, Double> averagesMap = new HashMap<>();
-
-        Map<Resource, XYSeries> seriesMap = getSeries(needOrMarketSegment, startValue, endValue, ideal);
-
+    public Map<Resource, XYSeries> appendAverages(Map<Resource, XYSeries> seriesMap ) {
         for (Resource actor : seriesMap.keySet()) {
             double sum = 0;
             for (Object dataItemObject : seriesMap.get(actor).getItems()) {
@@ -1806,9 +1742,8 @@ public class E3Model {
             double mean = sum / seriesMap.get(actor).getItemCount();
             DecimalFormat df = new DecimalFormat("#.##");
             seriesMap.get(actor).setKey(seriesMap.get(actor).getKey() + "\n [Avg.\t = \t" + df.format(mean) + "]");;
-            averagesMap.put(actor, mean);
         }
-        this.lastKnownAverages = averagesMap;
+        return seriesMap;
     }
 
 }

@@ -55,7 +55,7 @@ import design.info.StartSignal;
 import design.info.ValueExchange;
 import design.style.E3StyleEditor;
 import e3fraud.gui.FraudWindow;
-import e3fraud.gui.ProfitabilityAnalyser;
+import e3fraud.gui.SensitivityAnalysis;
 import e3fraud.model.E3Model;
 
 @SuppressWarnings(value = {"serial"})
@@ -913,7 +913,6 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-        	System.out.println("TEST!");
         	
             if (main.views.getTabCount() == 0) {
                 JOptionPane.showMessageDialog(
@@ -1042,9 +1041,9 @@ public class EditorActions {
         }
     }
 
-    public static class ProfitabilityChart extends BaseAction {
+    public static class SensitivityChart extends BaseAction {
 
-        public ProfitabilityChart(Main main) {
+        public SensitivityChart(Main main) {
             super("Sensitivity analysis...", getIcon("chart_curve"), main);
         }
 
@@ -1097,9 +1096,9 @@ public class EditorActions {
 
             Model model = rdfExporter.getModel().get();
 
-            JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(model), !main.getCurrentGraph().isFraud);
+            JFreeChart chart = SensitivityAnalysis.getSensitivityChart(Main.mainFrame, new E3Model(model), !main.getCurrentGraph().isFraud);
             if (chart != null) {
-                ChartFrame chartframe1 = new ChartFrame("Profitability of \"" + main.getCurrentGraphTitle() + "\"", chart);
+                ChartFrame chartframe1 = new ChartFrame("" + main.getCurrentGraphTitle() + " - sensitivity chart", chart);
                 chartframe1.setPreferredSize(new Dimension(Main.DEFAULT_CHART_WIDTH, Main.DEFAULT_CHART_HEIGHT));
                 chartframe1.pack();
                 chartframe1.setLocationByPlatform(true);

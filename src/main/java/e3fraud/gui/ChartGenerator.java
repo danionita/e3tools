@@ -38,12 +38,11 @@ import org.jfree.data.xy.XYSeries;
  */
 public class ChartGenerator {
 
-    public static JFreeChart generateChart(E3Model model, Resource needOrMarketSegment, int startValue, int endValue, boolean expected) {
+    public static JFreeChart generateChart(Map<Resource, XYSeries> actorSeriesMap, String parameter) {
         //Get list of actors
-        Set<Resource> actors = model.getActorsAndMarketSegments();
+        Set<Resource> actors = actorSeriesMap.keySet();
 
         XYSeriesCollection line_chart_dataset = new XYSeriesCollection();   
-        Map<Resource, XYSeries> actorSeriesMap = model.getLastKnownSeries();
 
         //Then, for each actor
         for (Resource actor : actors) {
@@ -54,13 +53,7 @@ public class ChartGenerator {
 
         /* Step -2:Define the JFreeChart object to create line chart */
         JFreeChart lineChartObject = null;
-
-
-            if (needOrMarketSegment.hasProperty(RDF.type, (E3value.market_segment))) {
-            lineChartObject = ChartFactory.createScatterPlot("", "Count of \"" + needOrMarketSegment.getProperty(E3value.e3_has_name).getString() + " \"", "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
-            } else if (needOrMarketSegment.hasProperty(RDF.type, (E3value.start_stimulus))) {
-                lineChartObject = ChartFactory.createScatterPlot("", "Occurences of \"" + needOrMarketSegment.getProperty(E3value.e3_has_name).getString() + " \"", "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
-            }
+        lineChartObject = ChartFactory.createScatterPlot("", parameter, "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
 
         return lineChartObject;
     }

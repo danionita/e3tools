@@ -35,13 +35,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, java.util.Set<E3Model>>, String> {
 
+    boolean debug = true;
     static private final String newline = "\n";
     private final E3Model baseModel;
-    private final String selectedNeedString;
     private final Resource mainActor;
-    private final Resource selectedNeed;
-    private final int startValue;
-    private final int endValue;
     private final int collusions;
     private final java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
     private final DefaultMutableTreeNode root;
@@ -59,10 +56,6 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
     public GenerationWorkerV2(E3Model baseModel, GenerationSettings generationSettings, AdvancedGenerationSettings advancedGenerationSettings) {
         this.baseModel = baseModel;
         this.mainActor = generationSettings.getSelectedActor();
-        this.selectedNeed = generationSettings.getSelectedNeed();
-        this.selectedNeedString = generationSettings.getSelectedNeedString();
-        this.startValue = generationSettings.getStartValue();
-        this.endValue = generationSettings.getEndValue();
         this.root = new DefaultMutableTreeNode("root");
         this.groupedSubIdealModels = new HashMap<>();
         this.generateNonOccurring = advancedGenerationSettings.isGenerateNonOccurring();
@@ -75,11 +68,18 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
 
     @Override
     protected java.util.HashMap<String, java.util.Set<E3Model>> doInBackground() throws Exception {
-        //compute values for the base model
-        baseModel.generateSeriesAndComputeAverages(selectedNeed, startValue, endValue, true);
+        //Analyze the baseModel (so we can compare the fraud scenarios to it)
+        //baseModel.generateSeriesAndComputeAverages(selectedNeed, startValue, endValue, true);
 
         // Start generation
-        System.out.println(currentTime.currentTime() + " Generating sub-ideal models...." + newline + "\t with need \"" + selectedNeedString + "\" " + "\toccuring " + startValue + " to " + endValue + " times..." + newline);
+        if(debug){
+            String generationAnnouncement=" Generating sub-ideal models containing: ";
+            if (generateNonOccurring){generationAnnouncement+="non-occurring transfers (of types "+typesOfNonOccurringTransfers+"), ";} 
+            if (generateHidden){generationAnnouncement+="hidden transfers (of "+hiddenTransfersPerExchange+" different values), ";} 
+            if (generateCollusions){generationAnnouncement+="collusion (of up to "+collusions+" actors).";} 
+            System.out.println(currentTime.currentTime() + generationAnnouncement  + newline);
+        }
+
         FraudModelGenerator subIdealModelGenerator = new FraudModelGenerator();
 
         int size = 0;
@@ -96,6 +96,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
             Set<E3Model> intermediaryModels = new HashSet<>();
             Set<E3Model> subIdealModels = new HashSet<>();
             String category;
+            
             //create a category for it
             if (model.getDescription().equals("Base Model")) {
                 category = "No collusion";
@@ -104,10 +105,12 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
                 //and add the colluded models to the result 
                 subIdealModels.add(model);
             }
+            
             //then generate
             if (generateNonOccurring) {
                 intermediaryModels.addAll(subIdealModelGenerator.generateNonoccurringTransactions(model,mainActor,typesOfNonOccurringTransfers));
             }
+            
             subIdealModels.addAll(intermediaryModels);
             intermediaryModels.add(model);
             int i = 1;
@@ -118,14 +121,13 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
                 }
             }
 
-
             size += subIdealModels.size();
             //System.out.println("\t\tGenerated " + subIdealModels.size() + " sub-ideal models for category " + category + ":");
             groupedSubIdealModels.put(category, subIdealModels);
+            
         }
         // generation done
         System.out.println(currentTime.currentTime() + " Generated : " + size + " sub-ideal models (" + colludedAndNonColludedModels.size() + " groups)!" + newline);
-
         return groupedSubIdealModels;
     }
 
