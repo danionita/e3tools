@@ -52,7 +52,7 @@ public class MainV2 {
 //			System.out.println("Couldn't set Look and Feel to system");
 //		}
             	
-                FraudWindow.createAndShowGUI(FileParser.parseFile(new File("C:\\Users\\Dan\\Documents\\Scenario 1.rdf")));
+//                FraudWindow.createAndShowGUI(FileParser.parseFile(new File("C:\\Users\\Dan\\Documents\\Scenario 1.rdf")));
             }
         });
     }

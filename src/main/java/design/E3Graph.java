@@ -1926,18 +1926,6 @@ public class E3Graph extends mxGraph implements Serializable {
     	
 		return duplicate;
     }
-
-    public void castMSsToActors() {
-        this.getModel().beginUpdate();
-        Utils.getAllCells(this).stream()
-                .map(getModel()::getValue)
-                .filter(cellValue -> MarketSegment.class.isInstance(cellValue))
-                .forEach(cell -> cell = ((MarketSegment)cell).toAc());
-        this.getModel().endUpdate();
-    }
-
-
-
     
 //	@Override
 //	public mxRectangle getCellBounds(Object cell, boolean includeEdges, boolean includeDescendants,

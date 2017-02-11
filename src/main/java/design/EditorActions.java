@@ -1012,8 +1012,7 @@ public class EditorActions {
             }       
            
             if(castMarketSegments){
-                targetGraph = new E3Graph(targetGraph, false);
-                targetGraph.castMSsToActors();
+                targetGraph.castMarketSegmentsToActors();
             }
             
             RDFExport rdfExporter = new RDFExport(targetGraph, true, VTMode.DERIVE_ORPHANED, castMarketSegments);
