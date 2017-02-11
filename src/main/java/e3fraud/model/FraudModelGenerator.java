@@ -16,6 +16,8 @@
  */
 package e3fraud.model;
 
+import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -193,6 +195,8 @@ public class FraudModelGenerator {
                     description += " and \"" + actorj.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"";
                 }
                 generatedModel.appendDescription(description);
+             
+                
                 generatedModel.enhance();
                 subIdealModels.add(generatedModel);
             }

@@ -55,7 +55,7 @@ import design.info.StartSignal;
 import design.info.ValueExchange;
 import design.style.E3StyleEditor;
 import e3fraud.gui.FraudWindow;
-import e3fraud.gui.ProfitabilityAnalyser;
+import e3fraud.gui.SensitivityAnalysis;
 import e3fraud.model.E3Model;
 
 @SuppressWarnings(value = {"serial"})
@@ -913,7 +913,6 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-        	System.out.println("TEST!");
         	
             if (main.views.getTabCount() == 0) {
                 JOptionPane.showMessageDialog(
@@ -923,31 +922,19 @@ public class EditorActions {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-//            if (!main.getCurrentGraph().isValid()) {
-//                int choice = JOptionPane.showConfirmDialog(
-//                        Main.mainFrame,
-//                        invalidModelMessage,
-//                        "Model is not well formed.",
-//                        JOptionPane.YES_NO_OPTION);
-//
-//                if (choice == JOptionPane.NO_OPTION) {
-//                    return;
-//                }
-//            }
             
             boolean castMarketSegments = false;
             if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) > 0) {
             	String oneMSMessage = 
                         "<html>"
-                        + "This model contains a market segment. "
+                        + "This model contains a market segment. <br>"
                         + "Would you like to convert it to <b>one</b> actor "
                         + "to allow for the element to participate in collusion?"
                         + "</html>";
                         
                 String moreThanOneMessage =
                 		"<html>"
-                		+ "This model contains multiple market segments. "
+                		+ "This model contains multiple market segments. <br>"
                 		+ "Would you like to convert each market segment to <b>one</b> actor "
                 		+ "to allow for the elements to participate in collusions? "
                 		+ "</html>";
@@ -976,7 +963,7 @@ public class EditorActions {
             if (totalActors < 2) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
-                        "Fraud generation requires at least two actors. Please add more actors to the model",
+                        "Fraud generation requires at least two actors or market segments. Please add more actors to the model",
                         "Not enough actors.",
                         JOptionPane.ERROR_MESSAGE);
 
@@ -1022,6 +1009,11 @@ public class EditorActions {
 
                 targetGraph = targetGraph.toValue();
                 main.addNewTabAndSwitch(targetGraph);
+            }       
+           
+            if(castMarketSegments){
+                targetGraph = new E3Graph(targetGraph, false);
+                targetGraph.castMSsToActors();
             }
             
             RDFExport rdfExporter = new RDFExport(targetGraph, true, VTMode.DERIVE_ORPHANED, castMarketSegments);
@@ -1053,10 +1045,10 @@ public class EditorActions {
         }
     }
 
-    public static class ProfitabilityChart extends BaseAction {
+    public static class SensitivityChart extends BaseAction {
 
-        public ProfitabilityChart(Main main) {
-            super("Profitability chart...", getIcon("chart_curve"), main);
+        public SensitivityChart(Main main) {
+            super("Sensitivity analysis...", getIcon("chart_curve"), main);
         }
 
         @Override
@@ -1073,7 +1065,7 @@ public class EditorActions {
             if (main.getCurrentGraph().countActors() < 1) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
-                        "Fraud generation requires at least one actor. Please add more actors to the model",
+                        "Sensitivity analysis requires at least one actor. Please add more actors to the model",
                         "Not enough actors.",
                         JOptionPane.ERROR_MESSAGE);
 
@@ -1108,9 +1100,9 @@ public class EditorActions {
 
             Model model = rdfExporter.getModel().get();
 
-            JFreeChart chart = ProfitabilityAnalyser.getProfitabilityAnalysis(new E3Model(model), !main.getCurrentGraph().isFraud);
+            JFreeChart chart = SensitivityAnalysis.getSensitivityChart(Main.mainFrame, new E3Model(model), !main.getCurrentGraph().isFraud);
             if (chart != null) {
-                ChartFrame chartframe1 = new ChartFrame("Profitability of \"" + main.getCurrentGraphTitle() + "\"", chart);
+                ChartFrame chartframe1 = new ChartFrame("" + main.getCurrentGraphTitle() + " - sensitivity chart", chart);
                 chartframe1.setPreferredSize(new Dimension(Main.DEFAULT_CHART_WIDTH, Main.DEFAULT_CHART_HEIGHT));
                 chartframe1.pack();
                 chartframe1.setLocationByPlatform(true);

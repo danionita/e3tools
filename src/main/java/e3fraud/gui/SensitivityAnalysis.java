@@ -28,12 +28,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYSeries;
 
 /**
  *
  * @author Dan
  */
-public class ProfitabilityAnalyser {
+public class SensitivityAnalysis {
 
     static boolean debug = false;
     
@@ -42,8 +43,8 @@ public class ProfitabilityAnalyser {
     private static JFreeChart chart;
     private static String selectedActorString;
 
-    public static JFreeChart getProfitabilityAnalysis(E3Model model, boolean ideal) {
-        if(debug) System.out.println(currentTime.currentTime() + " Starting profitability analysis...");
+    public static JFreeChart getSensitivityChart(JFrame parent, E3Model model, boolean ideal) {
+        if(debug) System.out.println(currentTime.currentTime() + " Starting sensitivity analysis...");
         Map<String, Resource> msMap = model.getMSMap();        
         Map<String, Resource> needsMap = model.getNeedsMap();
         
@@ -57,8 +58,7 @@ public class ProfitabilityAnalyser {
         }
 
             //have the user select a need via pop-up
-            JFrame frame2 = new JFrame("Select chart parameter");
-            String selectedParameter = (String) JOptionPane.showInputDialog(frame2,
+            String selectedParameter = (String) JOptionPane.showInputDialog(parent,
                     "Which parameter would you like to use on the X-axis?",
                     "Choose parameter",
                     JOptionPane.QUESTION_MESSAGE,
@@ -66,7 +66,7 @@ public class ProfitabilityAnalyser {
                     parameters.keySet().toArray(),
                     parameters.keySet().toArray()[0]);
             if (selectedParameter == null) {
-                if(debug) System.out.println(currentTime.currentTime() + "Profitability analysis cancelled by user!");
+                if(debug) System.out.println(currentTime.currentTime() + "Sensitivity analysis cancelled by user!");
             } else {
                 //have the user select occurence interval via pop-up
                 JTextField xField = new JTextField("1", 4);
@@ -77,25 +77,20 @@ public class ProfitabilityAnalyser {
                 myPanel.add(Box.createHorizontalStrut(15)); // a spacer
                 myPanel.add(new JLabel("End value:"));
                 myPanel.add(yField);
-                int result = JOptionPane.showConfirmDialog(null, myPanel,
+                int result = JOptionPane.showConfirmDialog(parent, myPanel,
                         "Please enter X-axis range", JOptionPane.OK_CANCEL_OPTION);
                 
                 if (result == JOptionPane.CANCEL_OPTION) {
-                    if(debug) System.out.println(currentTime.currentTime() + "Profitability analysis cancelled by user!");
+                    if(debug) System.out.println(currentTime.currentTime() + "Sensitivity analysis cancelled by user!");
                 } else if (result == JOptionPane.OK_OPTION) {
                     needStartValue = Integer.parseInt(xField.getText());
                     needEndValue = Integer.parseInt(yField.getText());
                     selectedNeedOrMarketSegment = parameters.get(selectedParameter);
-                    model.generateSeriesAndComputeAverages(selectedNeedOrMarketSegment, needStartValue, needEndValue, ideal);
-                    
-                    try {
-                        chart = ChartGenerator.generateChart(model, selectedNeedOrMarketSegment, needStartValue, needEndValue, ideal);
-                        return chart;
-                    } catch (java.lang.IllegalArgumentException e) {
-                        PopUps.infoBox("Duplicate actors are not supported. Please make sure all actors have unique names", "Error");
-                    }
+                    Map<Resource, XYSeries> seriesMap = model.getSeries(selectedNeedOrMarketSegment, needStartValue, needEndValue, ideal);
+                    seriesMap = model.appendAverages(seriesMap);
+                    chart = ChartGenerator.generateChart(seriesMap, selectedParameter);
+                    return chart;
                 }
-
             }
         return null;
     }

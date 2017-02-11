@@ -40,6 +40,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.mxgraph.model.mxGeometry;
@@ -58,22 +59,18 @@ import e3fraud.tools.SettingsObjects.AdvancedGenerationSettings;
 import e3fraud.tools.SettingsObjects.FilteringSettings;
 import e3fraud.tools.SettingsObjects.GenerationSettings;
 import e3fraud.tools.SettingsObjects.SortingAndGroupingSettings;
-import java.awt.Dimension;
 import java.util.Enumeration;
-import javax.swing.JTable;
-import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.JFreeChart;
 
 /**
  *
  * @author Dan
  */
-public class FraudWindow extends javax.swing.JPanel {
+public class FraudWindow_old extends javax.swing.JPanel {
 
     static private final String newline = "\n";
-    private JTable table = null;
+    private JFreeChart chart = null;
     private E3Model baseModel = null;
     private final E3Graph baseGraph;
     private final Main mainFrame;
@@ -86,10 +83,10 @@ public class FraudWindow extends javax.swing.JPanel {
     private final Map<String, Resource> actorsMap;
     private final Map<String, Resource> needsMap;
     private java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
-    private JScrollPane tableScrollPane;
+    private ChartPanel chartPanel;
     private ResultObject results;
     private E3GraphComponent graphPanel;
-    public static FraudWindow mainWindowInstance;
+    public static FraudWindow_old mainWindowInstance;
     private JFrame myFrame;
 
     /**
@@ -100,7 +97,7 @@ public class FraudWindow extends javax.swing.JPanel {
      * @param mainFrame the parent frame
      * @param myFrame
      */
-    public FraudWindow(E3Graph original, E3Model baseModel, Main mainFrame, JFrame myFrame) {
+    public FraudWindow_old(E3Graph original, E3Model baseModel, Main mainFrame, JFrame myFrame) {
         this.baseGraph = original;
         this.baseModel = baseModel;
         this.mainFrame = mainFrame;
@@ -132,13 +129,20 @@ public class FraudWindow extends javax.swing.JPanel {
         generationSettingsPanel = new javax.swing.JPanel();
         mainActorLabel = new javax.swing.JLabel();
         mainActorComboBox = new javax.swing.JComboBox<>();
+        needLabel = new javax.swing.JLabel();
+        needComboBox = new javax.swing.JComboBox<>();
+        occuringLabel = new javax.swing.JLabel();
         generationSettingsSeparator1 = new javax.swing.JSeparator();
+        needToLabel = new javax.swing.JLabel();
+        timesLabel = new javax.swing.JLabel();
         advancedSettingsLabel = new javax.swing.JLabel();
         resultCountLabel = new javax.swing.JLabel();
         generationSettingsLabel = new javax.swing.JLabel();
         generationLayeredPane = new javax.swing.JLayeredPane();
         generateButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
+        needStartField = new javax.swing.JFormattedTextField();
+        needEndField = new javax.swing.JFormattedTextField();
         showAllLabel = new javax.swing.JLabel();
         listPane = new javax.swing.JSplitPane();
         listSettingsPanel = new javax.swing.JPanel();
@@ -180,6 +184,18 @@ public class FraudWindow extends javax.swing.JPanel {
         mainActorLabel.setToolTipText("The main actor is the trusted actor (usually the one which is coducting the assessment)");
 
         mainActorComboBox.setModel(new DefaultComboBoxModel(actorsMap.keySet().toArray()));
+
+        needLabel.setText("Need:");
+        needLabel.setToolTipText("This is the need that will be parametrized and shown on the x-axis of the profitability chart");
+
+        needComboBox.setModel(new DefaultComboBoxModel(needsMap.keySet().toArray()));
+
+        occuringLabel.setText("occurs");
+        occuringLabel.setToolTipText("The range of the x-axis");
+
+        needToLabel.setText("to");
+
+        timesLabel.setText("times");
 
         advancedSettingsLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         advancedSettingsLabel.setForeground(new java.awt.Color(6, 69, 173));
@@ -230,6 +246,12 @@ public class FraudWindow extends javax.swing.JPanel {
                 .addComponent(progressBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE))
         );
 
+        needStartField.setText("1");
+        needStartField.setPreferredSize(new java.awt.Dimension(25, 22));
+
+        needEndField.setText("500");
+        needEndField.setPreferredSize(new java.awt.Dimension(25, 22));
+
         showAllLabel.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         showAllLabel.setForeground(new java.awt.Color(6, 69, 173));
         showAllLabel.setText("(show all)");
@@ -253,12 +275,27 @@ public class FraudWindow extends javax.swing.JPanel {
                             .addGroup(generationSettingsPanelLayout.createSequentialGroup()
                                 .addComponent(mainActorLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(mainActorComboBox, 0, 89, Short.MAX_VALUE))
+                                .addComponent(mainActorComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(generationSettingsPanelLayout.createSequentialGroup()
+                                .addComponent(needLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(needComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addComponent(resultCountLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(generationLayeredPane)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
                                 .addGap(2, 2, 2)
-                                .addComponent(advancedSettingsLabel)))
+                                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
+                                        .addComponent(occuringLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(needStartField, javax.swing.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(needToLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(needEndField, javax.swing.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(timesLabel))
+                                    .addComponent(advancedSettingsLabel, javax.swing.GroupLayout.Alignment.TRAILING))))
                         .addContainerGap())))
             .addGroup(generationSettingsPanelLayout.createSequentialGroup()
                 .addGap(81, 81, 81)
@@ -276,13 +313,24 @@ public class FraudWindow extends javax.swing.JPanel {
                     .addComponent(mainActorComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(generationSettingsSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 1, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(86, 86, 86)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(needComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(needLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(occuringLabel)
+                    .addComponent(needToLabel)
+                    .addComponent(needStartField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(needEndField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(timesLabel))
+                .addGap(22, 22, 22)
                 .addComponent(generationLayeredPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultCountLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(showAllLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
                 .addComponent(advancedSettingsLabel)
                 .addContainerGap())
         );
@@ -400,14 +448,14 @@ public class FraudWindow extends javax.swing.JPanel {
                             .addComponent(gainLabel))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
-                        .addComponent(groupSettingLabel)
+                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(groupSettingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(rankingSettingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(groupComboBox, 0, 121, Short.MAX_VALUE))
-                    .addComponent(FiltersLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(listSettingsPanelLayout.createSequentialGroup()
-                        .addComponent(rankingSettingLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sortComboBox, 0, 1, Short.MAX_VALUE)))
+                        .addGroup(listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(groupComboBox, 0, 121, Short.MAX_VALUE)
+                            .addComponent(sortComboBox, 0, 121, Short.MAX_VALUE)))
+                    .addComponent(FiltersLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(6, 6, 6))
         );
         listSettingsPanelLayout.setVerticalGroup(
@@ -480,7 +528,7 @@ public class FraudWindow extends javax.swing.JPanel {
         tableLabel.setBackground(new java.awt.Color(255, 255, 255));
         tableLabel.setForeground(new java.awt.Color(51, 51, 51));
         tableLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        tableLabel.setText("Profitability <double-click for sensitivity analysis>");
+        tableLabel.setText("Profitability <right-click for sensitivity analysis>");
         tablePane.add(tableLabel, java.awt.BorderLayout.PAGE_START);
 
         visualizationPane.setRightComponent(tablePane);
@@ -552,103 +600,88 @@ public class FraudWindow extends javax.swing.JPanel {
     private void treeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_treeValueChanged
         //on selection
         if (!tree.isSelectionEmpty()) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+             
+             if(node.getUserObject() instanceof E3Model){
+             
+            //enable visualization
+            visualizationPane.setVisible(true);
+            placeholderLabel.setVisible(false);
 
             if (node.getUserObject() instanceof E3Model) {
+                //grab the E3Model of the selected row
+                selectedModel = (E3Model) node.getUserObject();
+                //create a chart 
+                chart = ChartGenerator.generateChart(selectedModel, generationSettings.getSelectedNeed(), generationSettings.getStartValue(), generationSettings.getEndValue(), false);
+                //then, 
+                // if the chartPanel exists, update it
+                if (chartPanel != null) {
+                    chartPanel.setChart(chart);
+                }//otherwise create one and add it the window
+                else {
+                    chartPanel = new ChartPanel(chart);
+                    tablePane.add(chartPanel);
+                    chartPanel.setVisible(true);
+                }
 
-                //enable visualization
-                visualizationPane.setVisible(true);
-                placeholderLabel.setVisible(false);
+                // Remove current e3graph if it's already there
+                if (graphPane.getComponentCount() > 1) {
+                    graphPane.remove(1);
+                }
 
-                if (node.getUserObject() instanceof E3Model) {
-                    //grab the E3Model of the selected row
-                    selectedModel = (E3Model) node.getUserObject();
+                //create a graph
+                graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
 
-                    //First create a table
-                    table = TableGenerator.generateTable(selectedModel, baseModel);
-                    table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
-
-                    tableScrollPane = new JScrollPane(table);
-                    tablePane.add(tableScrollPane);
-                    tableScrollPane.setVisible(true);
-                    tableScrollPane.addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                            // On doubleclick
-                            if (e.getClickCount() == 2) {
-                                JFreeChart chart = SensitivityAnalysis.getSensitivityChart(myFrame,selectedModel, false);
-                                if (chart != null) {                                    
-                                    String label = String.valueOf(root.getIndex(node));
-                                    if(node.getLevel()==3){
-                                        label+= "."+String.valueOf(node.getParent().getIndex(node));
-                                    }
-                                    ChartFrame chartframe1 = new ChartFrame("Fraud scenario "+label+" - sensitivity chart", chart);
-                                    chartframe1.setPreferredSize(new Dimension(Main.DEFAULT_CHART_WIDTH, Main.DEFAULT_CHART_HEIGHT));
-                                    chartframe1.pack();
-                                    chartframe1.setLocationByPlatform(true);
-                                    chartframe1.setVisible(true);
-                                }
-                            }
+                // Then create a graph panel
+                graphPanel = new E3GraphComponent(graph);
+                // Disable right mouse clicks
+                graphPanel.setPopupTriggerEnabled(false);
+                // Prevent other funny business
+                graphPanel.setEnabled(false);
+                // Apparently mxGraphControl takes care of mouse business of
+                // mxGraph (which is the parent of E3Graph)
+                graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        System.out.println("Mouse clicked on graph!");
+                        // On doubleclick
+                        if (e.getClickCount() == 2) {
+                            // Create a new tab with the current graph
+                            FraudWindow_old.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph(), false));
+                            // Switch to the screen
+                            FraudWindow_old.this.mainFrame.mainFrame.requestFocus();
                         }
-                    });
-
-                    //NExt, create a graph
-                    graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
-
-                    // Remove current e3graph if it's already there
-                    if (graphPane.getComponentCount() > 1) {
-                        graphPane.remove(1);
                     }
+                });
 
-                    // Then create a graph panel
-                    graphPanel = new E3GraphComponent(graph);
-                    // Disable right mouse clicks
-                    graphPanel.setPopupTriggerEnabled(false);
-                    // Prevent other funny business
-                    graphPanel.setEnabled(false);
-                    // Apparently mxGraphControl takes care of mouse business of
-                    // mxGraph (which is the parent of E3Graph)
-                    graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                            // On doubleclick
-                            if (e.getClickCount() == 2) {
-                                // Create a new tab with the current graph
-                                FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph(), false));
-                                // Switch to the screen
-                                FraudWindow.this.mainFrame.mainFrame.requestFocus();
-                            }
-                        }
-                    });
+                // Refresh E3GraphComponent to make sure E3Style is used
+                graphPanel.refresh();
+                // Add it 
+                graphPane.add(graphPanel);
+                // Set it visible if it isn't already
+                graphPanel.setVisible(true);
 
-                    // Refresh E3GraphComponent to make sure E3Style is used
-                    graphPanel.refresh();
-                    // Add it 
-                    graphPane.add(graphPanel);
-                    // Set it visible if it isn't already
-                    graphPanel.setVisible(true);
-
-                    // Graph scaling code
-                    // To ensure that the size is not 0
-                    if (graphPane.getVisibleRect().getWidth() < 10) {
-                        myFrame.revalidate();
-                    }
-
-                    graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
-
-                    // Make the scrollbars disappear
-                    graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                    graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-
+                // Graph scaling code
+                // To ensure that the size is not 0
+                if (graphPane.getVisibleRect().getWidth() < 10) {
                     myFrame.revalidate();
                 }
-            } else {
-                visualizationPane.setVisible(false);
-                placeholderLabel.setVisible(true);
+
+                graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
+
+                // Make the scrollbars disappear
+                graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+
+                myFrame.revalidate();
             }
         } else {
             visualizationPane.setVisible(false);
             placeholderLabel.setVisible(true);
+        }}
+        else {
+            visualizationPane.setVisible(false);
+            placeholderLabel.setVisible(true);        
         }
     }//GEN-LAST:event_treeValueChanged
 
@@ -657,7 +690,7 @@ public class FraudWindow extends javax.swing.JPanel {
         Enumeration<TreePath> expandedDescendants = tree.getExpandedDescendants(new TreePath(root.getPath()));
         tree.setModel(null);
         tree.setModel(oldModel);
-        while (expandedDescendants != null && expandedDescendants.hasMoreElements()) {
+        while(expandedDescendants!=null && expandedDescendants.hasMoreElements()){
             tree.expandPath(expandedDescendants.nextElement());
         }
     }//GEN-LAST:event_resultScrollPaneComponentResized
@@ -750,7 +783,7 @@ public class FraudWindow extends javax.swing.JPanel {
                     generateButton.setVisible(true);
                     System.err.println("Exception encountered during generation: \n");
                     ex.printStackTrace();
-                    PopUps.infoBox("<html>Encountered an error (" + ex.toString() + "). <br> Please send a description of the steps taken to: danionita@gmail.com.</html>", "Error");
+                    PopUps.infoBox("<html>Encountered an error ("+ex.toString()+"). <br> Please send a description of the steps taken to: danionita@gmail.com.</html>", "Error");
                 }
             }
         };
@@ -792,32 +825,33 @@ public class FraudWindow extends javax.swing.JPanel {
                         //Hide root to save space
                         tree.setRootVisible(false);
                     } else {
-                        root = new DefaultMutableTreeNode("No valid fraud scenarios found (check generation settings or filters)");
+                        root = new DefaultMutableTreeNode("No fraud scenarios found (check generation settings or filters)");
                         tree.setRootVisible(true);
                     }
 
                     //show tree
                     treeModel.setRoot(root);
-                    tree.setModel(treeModel);
-                    tree.updateUI();
-
+                    tree.setModel(treeModel);                    
+                    tree.updateUI();                    
+                                            
                     //if default grouping is used, expand all level 1 nodes
-                    if (sortingAndGroupingSettings.getGroupingCriteria() == 0) {
-                        Enumeration e = root.breadthFirstEnumeration();
-                        while (e.hasMoreElements()) {
-                            DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.nextElement();
-                            if (node.getLevel() == 1) {
-                                tree.expandPath(new TreePath(((DefaultMutableTreeNode) node).getPath()));
+                    if(sortingAndGroupingSettings.getGroupingCriteria()==0){
+                        Enumeration e = root.breadthFirstEnumeration();                        
+                        while(e.hasMoreElements()) {                                 
+                            DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.nextElement();  
+                            if(node.getLevel()==1){
+                            tree.expandPath(new TreePath(((DefaultMutableTreeNode)node).getPath()));                            
                             }
-                        }
-                    } //else show the root
-                    else {
+                        }                   
+                    }
+                    //else show the root
+                    else{           
                         root.setUserObject("Collusion groups:");
                         tree.setRootVisible(true);
-
-                        tree.updateUI();
+                                 
+                    tree.updateUI();   
                     }
-
+                                        
                     //Replace progress bar with generate button
                     progressBar.setVisible(false);
                     generateButton.setVisible(true);
@@ -830,7 +864,7 @@ public class FraudWindow extends javax.swing.JPanel {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     System.err.println("Exception encountered during generation: \n");
                     ex.printStackTrace();
-                    PopUps.infoBox("<html>Encountered an error (" + ex.toString() + "). <br> Please send a description of the steps taken to: danionita@gmail.com.</html>", "Error");
+                    PopUps.infoBox("<html>Encountered an error ("+ex.toString()+"). <br> Please send a description of the steps taken to: danionita@gmail.com.</html>", "Error");
                 }
             }
         };
@@ -859,9 +893,17 @@ public class FraudWindow extends javax.swing.JPanel {
      */
     private void readSettings() {
         //read and store generation settings        
+        int needStartValue = Integer.parseInt(needStartField.getText());
+        int needEndValue = Integer.parseInt(needEndField.getText());
         String selectedActorString = mainActorComboBox.getSelectedItem().toString();
+        String selectedNeedString = needComboBox.getSelectedItem().toString();
         Resource selectedActor = actorsMap.get(selectedActorString);
+        Resource selectedNeed = needsMap.get(selectedNeedString);
+        generationSettings.setStartValue(needStartValue);
+        generationSettings.setEndValue(needEndValue);
         generationSettings.setSelectedActor(selectedActor);
+        generationSettings.setSelectedNeed(selectedNeed);
+        generationSettings.setSelectedNeedString(selectedNeedString);
         generationSettings.setSelectedActorString(selectedActorString);
 
         //read and store sorting and grouping settings
@@ -956,6 +998,12 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> mainActorComboBox;
     private javax.swing.JLabel mainActorLabel;
     private javax.swing.JSplitPane mainPane;
+    private javax.swing.JComboBox<String> needComboBox;
+    private javax.swing.JFormattedTextField needEndField;
+    private javax.swing.JLabel needLabel;
+    private javax.swing.JFormattedTextField needStartField;
+    private javax.swing.JLabel needToLabel;
+    private javax.swing.JLabel occuringLabel;
     private javax.swing.JLabel placeholderLabel;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel rankingSettingLabel;
@@ -966,6 +1014,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> sortComboBox;
     private javax.swing.JLabel tableLabel;
     private javax.swing.JPanel tablePane;
+    private javax.swing.JLabel timesLabel;
     private javax.swing.JSplitPane topPane;
     private javax.swing.JTree tree;
     private DefaultMutableTreeNode root;

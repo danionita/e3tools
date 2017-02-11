@@ -20,12 +20,12 @@ import design.export.RDFExport.VTMode;
 import design.info.LogicBase;
 import design.info.LogicDot;
 import design.info.StartSignal;
-import e3fraud.model.EvaluatedModel;
-import e3fraud.model.EvaluatedModel.ModelOrError;
+import e3fraud.model.ExpressionEvaluator;
+import e3fraud.model.ExpressionEvaluator.ModelOrError;
 
 public class OcurrenceCheck extends E3Walker implements E3ModelCheck{
 	
-	Optional<EvaluatedModel> getEvaluatedModel(E3Graph graph) {
+	Optional<ExpressionEvaluator> getEvaluatedModel(E3Graph graph) {
 		RDFExport rdfExporter = new RDFExport(graph, true, VTMode.DERIVE_ORPHANED, true);
 
 		if (!rdfExporter.getModel().isPresent()) {
@@ -43,7 +43,7 @@ public class OcurrenceCheck extends E3Walker implements E3ModelCheck{
 
 		Model model = rdfExporter.getModel().get();
 		
-		ModelOrError moe = EvaluatedModel.evaluateModelOrError(model);
+		ModelOrError moe = ExpressionEvaluator.evaluateModelOrError(model);
 		
 		if (moe.optionalModel.isPresent()) {
 			return moe.optionalModel;
@@ -52,14 +52,14 @@ public class OcurrenceCheck extends E3Walker implements E3ModelCheck{
 		return Optional.empty();
 	}
 	
-	EvaluatedModel em;
+	ExpressionEvaluator em;
 	E3Graph graph;
 	Optional<Double> currentOccurrences = Optional.empty();
 	Map<Object, Double> occurrenceMap;
 	
 	@Override
 	public Optional<ModelError> check(E3Graph graph) {
-		Optional<EvaluatedModel> emOpt = getEvaluatedModel(graph);
+		Optional<ExpressionEvaluator> emOpt = getEvaluatedModel(graph);
 		
 		if (!emOpt.isPresent()) {
 			return Optional.empty();
