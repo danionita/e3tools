@@ -1846,6 +1846,50 @@ public class E3Graph extends mxGraph implements Serializable{
     	
     	return false;
     }
+    
+    /**
+     * Casts all market segments to actors and returns a new graph.
+     * @return
+     */
+    public E3Graph castMarketSegmentsToActors() {
+    	// Make a copy of the graph
+    	E3Graph duplicate = new E3Graph(this, false);
+    	
+    	// For all cells...
+    	Utils.getAllCells(duplicate).stream()
+    		// Only consider market segment cells
+    		.filter(cell -> duplicate.getModel().getValue(cell) instanceof MarketSegment)
+    		.forEach(ms -> {
+    			// Get the info object
+    			MarketSegment msInfo = (MarketSegment) Utils.base(duplicate, ms);
+    			
+    			// Make an actor info object with the same SUID
+    			Actor acInfo = new Actor(msInfo.SUID);
+    			
+    			// Copy all the common info (name, formulas, etc.)
+    			Base.setCommons(msInfo, acInfo);
+    			
+    			// Copy whether or not it is colluding
+    			acInfo.colluded = msInfo.colluded;
+    			
+    			// Set the new actor value for the market segment
+    			duplicate.getModel().setValue(ms,  acInfo);
+    			
+    			// get the old style (which is in jgraphx string style format)
+    			String oldStyle = duplicate.getModel().getStyle(ms);
+    			
+    			// Parse the jgraphx style
+    			CellStyle msCellStyle = new CellStyle(oldStyle);
+    			// Remove the market segment style
+    			msCellStyle.removeStyle("MarketSegment");
+    			// Add the actor at the end
+    			msCellStyle.add(new CellStyle.Entry("Actor"));
+    			// Apply the new style to the cell
+    			msCellStyle.applyStyle(duplicate, ms);
+    		});
+    	
+		return duplicate;
+    }
             
 
 //	@Override

@@ -985,6 +985,10 @@ public class EditorActions {
 
             E3Graph targetGraph = main.getCurrentGraph();
             
+            if (castMarketSegments) {
+            	targetGraph = targetGraph.castMarketSegmentsToActors();
+            }
+            
             // Check if the model checker fails or not
             boolean cont = Utils.doModelCheck(targetGraph, main);
             
