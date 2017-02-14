@@ -25,6 +25,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import design.Utils.GraphDelta;
 import e3fraud.vocabulary.E3value;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,27 +41,27 @@ import org.paukov.combinatorics.ICombinatoricsVector;
  */
 public class FraudModelGenerator {
 
-    boolean debug = false;
+    boolean DEBUG = false;
     DecimalFormat df = new DecimalFormat("#.####");
 
-    public Set<E3Model> generateAll(E3Model baseModel, Resource mainActor, int maxCollusions, int hiddenTransfersPerExchange, List<String> typesOfNonOccurringTransfers) {
+    public Set<E3Model> generateAll(E3Model baseModel,  HashMap<String,Resource> trustedActors, int maxCollusions, int hiddenTransfersPerExchange, List<String> typesOfNonOccurringTransfers) {
 
-        if (debug) {
+        if (DEBUG) {
             System.out.println("GENERATING MODELS...\n\n\n");
         }
         Set<E3Model> subIdealModels = new HashSet<>();
-        if (debug) {
+        if (DEBUG) {
             System.out.println("GENERATING collusions...");
         }
-        Set<E3Model> colludedModels = generateCollusions(baseModel, mainActor, maxCollusions);
-        if (debug) {
+        Set<E3Model> colludedModels = generateCollusions(baseModel, trustedActors, maxCollusions);
+        if (DEBUG) {
             System.out.println("GENERATING hidden...");
         }
-        Set<E3Model> hiddenModels = generateHiddenTransactions(baseModel, mainActor, hiddenTransfersPerExchange);
-        if (debug) {
+        Set<E3Model> hiddenModels = generateHiddenTransactions(baseModel, trustedActors, hiddenTransfersPerExchange);
+        if (DEBUG) {
             System.out.println("GENERATING nonOcurring...");
         }
-        Set<E3Model> nonOccuringModels = generateNonoccurringTransactions(baseModel, mainActor, typesOfNonOccurringTransfers);
+        Set<E3Model> nonOccuringModels = generateNonoccurringTransactions(baseModel, trustedActors, typesOfNonOccurringTransfers);
         Set<E3Model> colludedAndNonOccuringModels = new HashSet<>();
         Set<E3Model> hiddenAndNonOccuringModels = new HashSet<>();
         Set<E3Model> colludedAndHiddenModels = new HashSet<>();
@@ -69,8 +70,8 @@ public class FraudModelGenerator {
         //for each combination of collusion
         for (E3Model colludedModel : colludedModels) {
             //generate all possible combinations of non-occuring transactions to the result
-            colludedAndNonOccuringModels.addAll(generateNonoccurringTransactions(colludedModel, mainActor, typesOfNonOccurringTransfers));
-            colludedAndHiddenModels.addAll(generateHiddenTransactions(colludedModel, mainActor, hiddenTransfersPerExchange));
+            colludedAndNonOccuringModels.addAll(generateNonoccurringTransactions(colludedModel, trustedActors, typesOfNonOccurringTransfers));
+            colludedAndHiddenModels.addAll(generateHiddenTransactions(colludedModel, trustedActors, hiddenTransfersPerExchange));
         }
 
         //for each combination of nonOccuraning transactions
@@ -78,11 +79,11 @@ public class FraudModelGenerator {
         int j = 1;
         for (E3Model nonOccuringModel : nonOccuringModels) {
             //generate all possible combinations of hidden transactions to the result            
-            if (debug) {
+            if (DEBUG) {
                 System.out.println("adding hidden transfers to nonOccuring model " + j + " out of " + i);
             }
             j++;
-            hiddenAndNonOccuringModels.addAll(generateHiddenTransactions(nonOccuringModel, mainActor, hiddenTransfersPerExchange));
+            hiddenAndNonOccuringModels.addAll(generateHiddenTransactions(nonOccuringModel, trustedActors, hiddenTransfersPerExchange));
         }
 
         //for each combination of collusion and non-occuring transaction
@@ -90,14 +91,14 @@ public class FraudModelGenerator {
         j = 1;
         for (E3Model colludedAndNonOccuringModel : colludedAndNonOccuringModels) {
             //generate all possible combinations of hidden transactions                         
-            if (debug) {
+            if (DEBUG) {
                 System.out.println("adding hidden transfers to nonOccuring  and colluded model " + j + " out of " + i);
             }
             j++;
-            colludedHiddenAndNonOccuringModels.addAll(generateHiddenTransactions(colludedAndNonOccuringModel, mainActor, hiddenTransfersPerExchange));
+            colludedHiddenAndNonOccuringModels.addAll(generateHiddenTransactions(colludedAndNonOccuringModel, trustedActors, hiddenTransfersPerExchange));
         }
 
-        if (debug) {
+        if (DEBUG) {
             //*********TEST STUFF***************
             System.out.println("\nGENERATING colludedModels");
             for (E3Model generatedModel : colludedModels) {
@@ -126,46 +127,46 @@ public class FraudModelGenerator {
         }
         //*******END OF TEST STUFF*************
         subIdealModels.addAll(colludedModels);
-        if (debug) {
+        if (DEBUG) {
             System.out.println("colludedModels.size()= " + colludedModels.size());
         }
         subIdealModels.addAll(hiddenModels);
-        if (debug) {
+        if (DEBUG) {
             System.out.println("hiddenModels.size()= " + hiddenModels.size());
         }
         subIdealModels.addAll(nonOccuringModels);
-        if (debug) {
+        if (DEBUG) {
             System.out.println("nonOccuringModels.size()= " + nonOccuringModels.size());
         }
         subIdealModels.addAll(hiddenAndNonOccuringModels);
-        if (debug) {
+        if (DEBUG) {
             System.out.println("hiddenAndNonOccuringModels.size()= " + hiddenAndNonOccuringModels.size());
         }
         subIdealModels.addAll(colludedAndNonOccuringModels);
-        if (debug) {
+        if (DEBUG) {
             System.out.println("colludedAndNonOccuringModels.size()= " + colludedAndNonOccuringModels.size());
         }
         subIdealModels.addAll(colludedAndHiddenModels);
-        if (debug) {
+        if (DEBUG) {
             System.out.println("colludedAndHiddenModels.size()= " + colludedAndHiddenModels.size());
         }
         subIdealModels.addAll(colludedHiddenAndNonOccuringModels);
-        if (debug) {
+        if (DEBUG) {
             System.out.println("colludedHiddenAndNonOccuringModels.size()= " + colludedHiddenAndNonOccuringModels.size());
         }
 
         return subIdealModels;
     }
 
-    public Set<E3Model> generateCollusions(E3Model baseModel, Resource mainActor, int maxCollusions) {
+    public Set<E3Model> generateCollusions(E3Model baseModel, HashMap<String,Resource> trustedActors, int maxCollusions) {
         Set<E3Model> subIdealModels = new HashSet<>();
         Set<Resource> secondaryActors = baseModel.getActors();
-        secondaryActors.remove(mainActor);
+        
+        secondaryActors.removeAll(trustedActors.values());
 
-        //System.out.println("maxCollusions = "+ maxCollusions);
         //for each size of actor collusion
         for (int i = 1; i <= maxCollusions; i++) {
-            if (debug) {
+            if (DEBUG) {
                 System.out.println("Generating collusions of " + i + " actors...");
             }
             //generate combinations of i secondary actors
@@ -212,18 +213,19 @@ public class FraudModelGenerator {
      * @return a set of models derived from baseModel with all possible
      * combinations of non-occurring (dotted) transactions
      */
-    public Set<E3Model> generateNonoccurringTransactions(E3Model baseModel, Resource mainActor, List<String> typesOfNonOccurringTransfers) {
+    public Set<E3Model> generateNonoccurringTransactions(E3Model baseModel,  HashMap<String,Resource> trustedActors, List<String> typesOfNonOccurringTransfers) {
         Set<E3Model> subIdealModels = new HashSet<>();
-
         Set<Resource> potentialNonOccurringExchanges = baseModel.getExchangesOfTypes(typesOfNonOccurringTransfers);
 
         ///exclude exchanges originating from trusted actor
-        Set<Resource> exchangesPerformedByTrustedActor = baseModel.getExchangesPerformedBy(mainActor);
-        potentialNonOccurringExchanges.removeAll(exchangesPerformedByTrustedActor);
+        for (String actorString : trustedActors.keySet()){
+            Set<Resource> exchangesPerformedByTrustedActor = baseModel.getExchangesPerformedBy(trustedActors.get(actorString));
+            potentialNonOccurringExchanges.removeAll(exchangesPerformedByTrustedActor);
+        }
+        
 
         //exclude exchanges of 0 valuation        
         Set<Resource> exchangesOfZeroValue = new HashSet<>();
-        potentialNonOccurringExchanges.removeAll(exchangesPerformedByTrustedActor);
         for (Resource exchange : potentialNonOccurringExchanges) {
             StmtIterator formulas = exchange.listProperties(E3value.e3_has_formula);
             while (formulas.hasNext()) {
@@ -283,16 +285,16 @@ public class FraudModelGenerator {
      * @return a set of models derived from baseModel with all possible
      * combinations of hidden (dotted) transactions
      */
-    public Set<E3Model> generateHiddenTransactions(E3Model baseModel, Resource mainActor, int hiddenTransfersPerExchange) {
+    public Set<E3Model> generateHiddenTransactions(E3Model baseModel,  HashMap<String,Resource> trustedActors, int hiddenTransfersPerExchange) {
         Set<E3Model> subIdealModels = new HashSet<>();
-        Set<Resource> secondaryActors = baseModel.getActorsAndMarketSegments();
-        secondaryActors.remove(mainActor);
-        //baseModel.enhance();    
+        Set<Resource> secondaryActors = baseModel.getActorsAndMarketSegments();            
+        secondaryActors.removeAll(trustedActors.values());
 
+        
         double value;
         double step;
 
-        if (debug) {
+        if (DEBUG) {
             System.out.println("\t generating hidden transactions for model: " + baseModel.getDescription());
         }
         //generate combinations of 2 secondary actors
@@ -301,13 +303,13 @@ public class FraudModelGenerator {
         //for each combination of two secondary actors:
         for (ICombinatoricsVector<Resource> secondaryActorsCombination : secondaryActorsCombinations) {
 
-            if (debug) {
+            if (DEBUG) {
                 System.out.println("\t\t parsing a combination");
             }
             Resource actor1 = secondaryActorsCombination.getValue(0);
             Resource actor2 = secondaryActorsCombination.getValue(1);
 
-            if (debug) {
+            if (DEBUG) {
                 System.out.println("\t\t\t checking if they have a transaction between them");
             }
             //check if they  have a transaction between them
@@ -316,7 +318,7 @@ public class FraudModelGenerator {
             //and if they do
             if (!commonInterfaces.isEmpty()) {
 
-                if (debug) {
+                if (DEBUG) {
                     System.out.println("\t\t\t\t found " + commonInterfaces.size() + " transaction between them");
                 }
                 Iterator commonInterfaceIterator = commonInterfaces.entrySet().iterator();
@@ -324,7 +326,7 @@ public class FraudModelGenerator {
                 while (commonInterfaceIterator.hasNext()) {
                     Map.Entry<Resource, Resource> commonInterfacePair = (Map.Entry) commonInterfaceIterator.next();
 
-                    if (debug) {
+                    if (DEBUG) {
                         System.out.println("\t\t\t\t\t getting totals");
                     }
                     //First we get the total of each corresponding actor FOR THE CORRESPONDING DEPENDENCY PATH, in this model
@@ -333,11 +335,11 @@ public class FraudModelGenerator {
                     Resource interface2 = commonInterfacePair.getValue();
                     double actor2Total = baseModel.getTotalForActorPerOccurence(actor2, interface2, false);
 
-                    if (debug) {
+                    if (DEBUG) {
                         System.out.println("\t\t\t\t\t total for actor 1 is " + actor1Total + " and total for actor 2 is " + actor2Total);
                     }
                     //Then, we create outgoing hidden transactions for each actor of up to the total we just computed:
-                    if (debug) {
+                    if (DEBUG) {
                         System.out.println("\t\t\t\t\tcreating hidden transactions");
                     }
 
@@ -349,12 +351,12 @@ public class FraudModelGenerator {
 
                         //and for each value
                         for (value = step; value < actor1Total; value = value + step) {
-                            if (debug) {
+                            if (DEBUG) {
                                 System.out.println("\t\t\t\t\t\tcreating new model");
                             }
                             //Create a duplicate model
                             E3Model generatedModel = new E3Model(baseModel);
-                            if (debug) {
+                            if (DEBUG) {
                                 System.out.println("\t\t\t\t\t adding a hidden transfer of " + value + " between \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" and \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
                             }
 
@@ -368,7 +370,7 @@ public class FraudModelGenerator {
                             generatedModel.setFraudChanges(new GraphDelta(baseModel.getFraudChanges()));
                             //add a transfer from actor1 to actor 2 of the value
 
-                            if (debug) {
+                            if (DEBUG) {
                                 System.out.println("\t\t\t\t\t\tadding a hidden transfer");
                             }
                             generatedModel.addTransfer(interface1, interface2, (float) value);
@@ -377,7 +379,7 @@ public class FraudModelGenerator {
                             generatedModel.getFraudChanges().addHiddenTransaction(interface1ID, interface2ID, value);
                             generatedModel.appendDescription("<b>Hidden</b> transfer of value " + df.format(value) + " (out of " + df.format(actor1Total) + ") per occurence from \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
 
-                            if (debug) {
+                            if (DEBUG) {
                                 System.out.println("\t\t\t\t\t\tadding the new model to the list");
                             }
                             generatedModel.enhance();

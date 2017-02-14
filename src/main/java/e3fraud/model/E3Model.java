@@ -318,8 +318,8 @@ public class E3Model {
      *
      * @return A map of non-duplicate Strings of actors and their respective IDs
      */
-    public Map<String, Resource> getActorsMap() {
-        Map<String, Resource> actorsMap = new HashMap();
+    public HashMap<String, Resource> getActorsMap() {
+        HashMap<String, Resource> actorsMap = new HashMap();
         Set<Resource> actors = getActorsAndMarketSegments();
         //get a list of the actors as Strings
         for (Resource need : actors) {

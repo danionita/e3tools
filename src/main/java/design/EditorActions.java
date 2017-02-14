@@ -972,6 +972,10 @@ public class EditorActions {
 
             E3Graph targetGraph = main.getCurrentGraph();
             
+            if (castMarketSegments) {
+            	targetGraph = targetGraph.castMarketSegmentsToActors();
+            }
+            
             // Check if the model checker fails or not
             boolean cont = Utils.doModelCheck(targetGraph, main);
             
@@ -1008,8 +1012,7 @@ public class EditorActions {
             }       
            
             if(castMarketSegments){
-                targetGraph = new E3Graph(targetGraph, false);
-                targetGraph.castMSsToActors();
+                targetGraph.castMarketSegmentsToActors();
             }
             
             RDFExport rdfExporter = new RDFExport(targetGraph, true, VTMode.DERIVE_ORPHANED, castMarketSegments);

@@ -15,17 +15,17 @@ import java.util.List;
  */
 public class SettingsObjects {
 
-    public static class AdvancedGenerationSettings {
+    public static class GenerationSettings {
 
         private boolean generateHidden, generateNonOccurring, generateCollusion;
-        private int colludingActors, numberOfHiddenTransfersPerExchange;
+        private int maximumNumberOfColludingActors, numberOfHiddenTransfersPerExchange;
         private List<String> typesOfNonOccurringTransfers;
 
-        public AdvancedGenerationSettings(boolean generateHidden, boolean generateNonOccurring, boolean generateCollusion, int collusions, int numberOfHiddenTransfersPerExchange, List<String> typesOfNonOccurringTransfers) {
+        public GenerationSettings(boolean generateHidden, boolean generateNonOccurring, boolean generateCollusion, int collusions, int numberOfHiddenTransfersPerExchange, List<String> typesOfNonOccurringTransfers) {
             this.generateHidden = generateHidden;
             this.generateNonOccurring = generateNonOccurring;
             this.generateCollusion = generateCollusion;
-            this.colludingActors = collusions;
+            this.maximumNumberOfColludingActors = collusions;
             this.numberOfHiddenTransfersPerExchange = numberOfHiddenTransfersPerExchange;
             this.typesOfNonOccurringTransfers = typesOfNonOccurringTransfers;
         }
@@ -33,11 +33,11 @@ public class SettingsObjects {
         /**
          * Creates a advancedGenerationSettings object with default values
          */
-        public AdvancedGenerationSettings() {
+        public GenerationSettings() {
             generateHidden = true;
             generateNonOccurring = true;
             generateCollusion = true;
-            colludingActors = 2;
+            maximumNumberOfColludingActors = 2;
             numberOfHiddenTransfersPerExchange = 2;
             typesOfNonOccurringTransfers = new ArrayList<>();
             typesOfNonOccurringTransfers.add("MONEY");
@@ -76,11 +76,11 @@ public class SettingsObjects {
         }
 
         public int getColludingActors() {
-            return colludingActors;
+            return maximumNumberOfColludingActors;
         }
 
         public void setColludingActors(int colludingActors) {
-            this.colludingActors = colludingActors;
+            this.maximumNumberOfColludingActors = colludingActors;
         }
 
         public int getNumberOfHiddenTransfersPerExchange() {
@@ -93,49 +93,6 @@ public class SettingsObjects {
 
     }
 
-    public static class GenerationSettings {
-        //TODO: use this object in the rest of the code
-
-        private String selectedActorString;
-        private Resource selectedActor;
-
-        /**
-         *
-         * @param selectedActorString the main actor's name
-         * @param selectedActor the main actor's RDF resource
-         * @param selectedNeed the selected need's RDF resource
-         * @param selectedNeedString the selected need's name
-         * @param startValue the min occurrence rate of need
-         * @param endValue the max occurrence rate of need
-         * 
-         */
-        public GenerationSettings(String selectedActorString, String selectedNeedString, Resource selectedActor, Resource selectedNeed, int startValue, int endValue) {
-            this.selectedActorString = selectedActorString;
-            this.selectedActor = selectedActor;
-        }
-
-        /**
-         * Creates a advancedGenerationSettings object with empty values
-         */
-        public GenerationSettings() {
-        }
-
-        public String getSelectedActorString() {
-            return selectedActorString;
-        }
-
-        public void setSelectedActorString(String selectedActorString) {
-            this.selectedActorString = selectedActorString;
-        }
-
-        public Resource getSelectedActor() {
-            return selectedActor;
-        }
-
-        public void setSelectedActor(Resource selectedActor) {
-            this.selectedActor = selectedActor;
-        }
-    }
 
     public static class SortingAndGroupingSettings {
 

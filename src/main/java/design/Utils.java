@@ -1030,10 +1030,9 @@ public class Utils {
     }
     
     /**
-     * Parses the cell style string from jgraphx into a map. A stylename is a key value pair where
-     * the key is the style name, and the val
+     * Parses the cell style string from jgraphx into a map. 
      * 
-     * @param cellStyle A string of form [(stylename|key=value);] . Commonly used
+     * @param cellStyle A string of form [(stylename|key=value);]* . Commonly used
      * by jgraphx for internal cell styles.
      * @return 
      */

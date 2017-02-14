@@ -78,16 +78,14 @@
                               <Component id="generationSettingsLabel" max="32767" attributes="0"/>
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="generationSettingsSeparator1" max="32767" attributes="0"/>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="mainActorLabel" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="mainActorComboBox" pref="89" max="32767" attributes="0"/>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                       </Group>
                                       <Component id="resultCountLabel" max="32767" attributes="0"/>
                                       <Component id="generationLayeredPane" alignment="0" max="32767" attributes="0"/>
                                       <Group type="102" alignment="1" attributes="0">
-                                          <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                                          <EmptySpace min="2" pref="63" max="32767" attributes="0"/>
                                           <Component id="advancedSettingsLabel" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -100,6 +98,14 @@
                           <Component id="showAllLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jSeparator1" max="32767" attributes="0"/>
+                              <Component id="trustedActorsTextField" max="32767" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -108,19 +114,18 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="generationSettingsLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="mainActorLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="mainActorComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="generationSettingsSeparator1" min="-2" pref="1" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="86" max="-2" attributes="0"/>
+                          <Component id="mainActorLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="trustedActorsTextField" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jSeparator1" min="-2" pref="10" max="-2" attributes="0"/>
+                          <EmptySpace pref="46" max="32767" attributes="0"/>
                           <Component id="generationLayeredPane" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="resultCountLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="showAllLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="29" max="32767" attributes="0"/>
+                          <EmptySpace pref="43" max="32767" attributes="0"/>
                           <Component id="advancedSettingsLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -130,21 +135,9 @@
               <SubComponents>
                 <Component class="javax.swing.JLabel" name="mainActorLabel">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Trusted actor:"/>
+                    <Property name="text" type="java.lang.String" value="Trusted actors:"/>
                     <Property name="toolTipText" type="java.lang.String" value="The main actor is the trusted actor (usually the one which is coducting the assessment)"/>
                   </Properties>
-                </Component>
-                <Component class="javax.swing.JComboBox" name="mainActorComboBox">
-                  <Properties>
-                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new DefaultComboBoxModel(actorsMap.keySet().toArray())" type="code"/>
-                    </Property>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-                  </AuxValues>
-                </Component>
-                <Component class="javax.swing.JSeparator" name="generationSettingsSeparator1">
                 </Component>
                 <Component class="javax.swing.JLabel" name="advancedSettingsLabel">
                   <Properties>
@@ -250,6 +243,21 @@
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="showAllLabel.setVisible(false);"/>
                   </AuxValues>
+                </Component>
+                <Component class="javax.swing.JTextField" name="trustedActorsTextField">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="&lt;none&gt; (click to add)"/>
+                    <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                      <Color id="Hand Cursor"/>
+                    </Property>
+                    <Property name="focusable" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="mouseDragged" listener="java.awt.event.MouseMotionListener" parameters="java.awt.event.MouseEvent" handler="trustedActorsTextFieldMouseDragged"/>
+                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="trustedActorsTextFieldMouseClicked"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JSeparator" name="jSeparator1">
                 </Component>
               </SubComponents>
             </Container>
@@ -384,8 +392,8 @@
                       <Properties>
                         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                           <StringArray count="2">
-                            <StringItem index="0" value="loss (of trusted actor)"/>
-                            <StringItem index="1" value="gain (of other actors)"/>
+                            <StringItem index="0" value="highest loss (of trusted actor)"/>
+                            <StringItem index="1" value="highest gain (of other actors)"/>
                           </StringArray>
                         </Property>
                       </Properties>

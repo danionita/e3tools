@@ -35,25 +35,31 @@
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="okButton" linkSize="1" min="-2" pref="67" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="generateHiddenTransfersCheckbox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="hiddenTransfersComboBox" pref="55" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jLabel2" min="-2" pref="16" max="-2" attributes="0"/>
+                  </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="generateHiddenTransfersCheckbox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="hiddenTransfersComboBox" max="32767" attributes="0"/>
-                          </Group>
                           <Component id="advancedGenerationSettingsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="generateNonOccurringTransfersCheckbox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jLabel3" min="-2" pref="32" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="valueObjectCheckboxContainer" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="generateCollusionCheckbox" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="collusionSpinner" min="-2" pref="30" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="actorsLabel" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="generateNonOccurringTransfersCheckbox" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="valueObjectCheckboxContainer" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel4" min="-2" pref="24" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -69,22 +75,27 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="advancedGenerationSettingsLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="generateHiddenTransfersCheckbox" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
-                  <Component id="hiddenTransfersComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="generateHiddenTransfersCheckbox" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
+                      <Component id="hiddenTransfersComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="jLabel2" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="generateNonOccurringTransfersCheckbox" min="-2" max="-2" attributes="0"/>
+                  <Component id="generateNonOccurringTransfersCheckbox" max="32767" attributes="0"/>
                   <Component id="valueObjectCheckboxContainer" max="32767" attributes="0"/>
+                  <Component id="jLabel3" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="generateCollusionCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="collusionSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="actorsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="0" min="-2" pref="25" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="7" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="okButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -164,11 +175,34 @@
     </Component>
     <Container class="javax.swing.JPanel" name="valueObjectCheckboxContainer">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="for (JCheckBox valueObjectCheckbox : valueObjectsMap.values()){"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="valueObjectCheckboxContainer.add(valueObjectCheckbox);&#xa;}"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="for (JCheckBox valueObjectCheckbox : valueObjectsMap.values()){&#xa;valueObjectCheckboxContainer.add(valueObjectCheckbox);&#xa;}"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
     </Container>
+    <Component class="javax.swing.JLabel" name="jLabel2">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/icons/information.png"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Hidden transfers are transfers which were not present in the value model. Hidden transfers are generated by identifying pairs of untrusted actors, computing their expected profit and adding hidden transfers originating from whichever actor has a positive financial result. The value of these hidden transfers is computed as a fraction of the actors&apos; financial result."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel3">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/icons/information.png"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Non-occurring transfers are transfers which were present in the value model but do not take place. Non-occurring transfers are created by invalidating individual transfers. "/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel4">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/icons/information.png"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Collusion takes place when two or more actors are acting as one: they pool their budgets and collectively bear all expenses and profit. Only untrusted can collude"/>
+      </Properties>
+    </Component>
   </SubComponents>
 </Form>
