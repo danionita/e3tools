@@ -55,10 +55,10 @@ import e3fraud.tools.SortingAndFilteringWorker;
 import e3fraud.tools.SettingsObjects.FilteringSettings;
 import e3fraud.tools.SettingsObjects.GenerationSettings;
 import e3fraud.tools.SettingsObjects.SortingAndGroupingSettings;
+import e3fraud.vocabulary.E3value;
 import java.awt.Dimension;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Set;
 import javax.swing.JTable;
 import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
 import javax.swing.tree.TreePath;
@@ -71,7 +71,6 @@ import org.jfree.chart.JFreeChart;
  */
 public class FraudWindow extends javax.swing.JPanel {
 
-    static private final String newline = "\n";
     private JTable table = null;
     private E3Model baseModel = null;
     private final E3Graph baseGraph;
@@ -87,7 +86,8 @@ public class FraudWindow extends javax.swing.JPanel {
     private ResultObject results;
     private E3GraphComponent graphPanel;
     public static FraudWindow mainWindowInstance;
-    private JFrame myFrame;
+    private final JFrame myFrame;
+    private Map<Integer, Resource> actorMap = new HashMap<>();
 
     /**
      * Creates new form MainWindowV2
@@ -134,8 +134,10 @@ public class FraudWindow extends javax.swing.JPanel {
         generateButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
         showAllLabel = new javax.swing.JLabel();
-        trustedActorsTextField = new javax.swing.JTextField();
         jSeparator1 = new javax.swing.JSeparator();
+        jLabel2 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        trustedActorsTextField = new javax.swing.JTextField();
         listPane = new javax.swing.JSplitPane();
         listSettingsPanel = new javax.swing.JPanel();
         rankingSettingLabel = new javax.swing.JLabel();
@@ -233,6 +235,9 @@ public class FraudWindow extends javax.swing.JPanel {
             }
         });
 
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/information.png"))); // NOI18N
+        jLabel2.setToolTipText("Trusted actors will never collude with other actors, will always perform all outgoing value transfers as expected and will never be involved in hidden transfers.");
+
         trustedActorsTextField.setText("<none> (click to add)");
         trustedActorsTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         trustedActorsTextField.setFocusable(false);
@@ -246,36 +251,41 @@ public class FraudWindow extends javax.swing.JPanel {
                 trustedActorsTextFieldMouseClicked(evt);
             }
         });
+        trustedActorsTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                trustedActorsTextFieldActionPerformed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(trustedActorsTextField);
 
         javax.swing.GroupLayout generationSettingsPanelLayout = new javax.swing.GroupLayout(generationSettingsPanel);
         generationSettingsPanel.setLayout(generationSettingsPanelLayout);
         generationSettingsPanelLayout.setHorizontalGroup(
             generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(generationSettingsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(generationSettingsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(generationSettingsPanelLayout.createSequentialGroup()
-                        .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(generationSettingsPanelLayout.createSequentialGroup()
-                                .addComponent(mainActorLabel)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(resultCountLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(generationLayeredPane)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, generationSettingsPanelLayout.createSequentialGroup()
-                                .addGap(2, 63, Short.MAX_VALUE)
-                                .addComponent(advancedSettingsLabel)))
-                        .addContainerGap())))
-            .addGroup(generationSettingsPanelLayout.createSequentialGroup()
                 .addGap(81, 81, 81)
                 .addComponent(showAllLabel)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(generationSettingsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator1)
-                    .addComponent(trustedActorsTextField))
+                .addComponent(jSeparator1)
                 .addContainerGap())
+            .addGroup(generationSettingsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(generationSettingsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(generationSettingsPanelLayout.createSequentialGroup()
+                        .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1)
+                            .addGroup(generationSettingsPanelLayout.createSequentialGroup()
+                                .addComponent(mainActorLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel2)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(resultCountLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
+                            .addComponent(generationLayeredPane)
+                            .addComponent(advancedSettingsLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addContainerGap())))
         );
         generationSettingsPanelLayout.setVerticalGroup(
             generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -283,18 +293,20 @@ public class FraudWindow extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(generationSettingsLabel)
                 .addGap(18, 18, 18)
-                .addComponent(mainActorLabel)
+                .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(mainActorLabel)
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(trustedActorsTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+                .addGap(31, 31, 31)
                 .addComponent(generationLayeredPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultCountLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(showAllLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
                 .addComponent(advancedSettingsLabel)
                 .addContainerGap())
         );
@@ -314,23 +326,30 @@ public class FraudWindow extends javax.swing.JPanel {
 
         groupSettingLabel.setText("Group by:");
 
-        sortComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "highest loss (of trusted actor)", "highest gain (of other actors)" }));
-        sortComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sortComboBoxActionPerformed(evt);
-            }
-        });
+        sortComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<no criteria>", "highest loss", "highest gain" }));
+        sortComboBox.setSelectedIndex(1);
+        sortComboBox.setToolTipText("");
+        actorMap = new HashMap<>();
+        int i = 0;
+        for (Resource actor : baseModel.getActorsAndMarketSegments()){
+            String actorName = actor.getProperty(E3value.e3_has_name).getLiteral().toString();
+            sortComboBox.addItem("Loss of \'"+actorName+"'");
+            actorMap.put(i,actor);
+            i++;
+        }
 
-        groupComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "financial result", "collusion groups" }));
-        groupComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                groupComboBoxActionPerformed(evt);
-            }
-        });
+        for (Resource actor : baseModel.getActorsAndMarketSegments()){
+            String actorName = actor.getProperty(E3value.e3_has_name).getLiteral().toString();
+            sortComboBox.addItem("Gain of \'"+actorName+"'");
+            actorMap.put(i,actor);
+            i++;
+        }
 
-        gainLabel.setText("Gain of other actors ");
+        groupComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "financial result", "collusion" }));
 
-        lossLabel.setText("Loss of main actor");
+        gainLabel.setText("Gain between");
+
+        lossLabel.setText("Loss between");
 
         refreshButton.setText("Apply");
         refreshButton.addActionListener(new java.awt.event.ActionListener() {
@@ -358,9 +377,9 @@ public class FraudWindow extends javax.swing.JPanel {
             }
         });
 
-        gainToLabel.setText("to");
+        gainToLabel.setText("-");
 
-        lossToLabel.setText("to");
+        lossToLabel.setText("-");
 
         lossEndField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0.##"))));
         lossEndField.setPreferredSize(new java.awt.Dimension(60, 22));
@@ -414,13 +433,13 @@ public class FraudWindow extends javax.swing.JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, listSettingsPanelLayout.createSequentialGroup()
                         .addComponent(groupSettingLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(groupComboBox, 0, 121, Short.MAX_VALUE))
+                        .addComponent(groupComboBox, 0, 115, Short.MAX_VALUE))
                     .addComponent(FiltersLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(listSettingsPanelLayout.createSequentialGroup()
                         .addComponent(rankingSettingLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(sortComboBox, 0, 1, Short.MAX_VALUE)))
-                .addGap(6, 6, 6))
+                .addContainerGap())
         );
         listSettingsPanelLayout.setVerticalGroup(
             listSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -674,35 +693,12 @@ public class FraudWindow extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_resultScrollPaneComponentResized
 
-    private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
-        readSettings();
-        generateSortAndDisplay();
-    }//GEN-LAST:event_generateButtonActionPerformed
-
-    private void advancedSettingsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_advancedSettingsLabelMouseClicked
-        GenerationSettingsDialog dialog = new GenerationSettingsDialog(this.myFrame, true, this.generationSettings, baseModel.getValueObjectStrings());
-        if (dialog.getSettings() != null) {
-            this.generationSettings = dialog.getSettings();
-        }
-    }//GEN-LAST:event_advancedSettingsLabelMouseClicked
-
     private void graphPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_graphPaneComponentResized
         if (graphPanel != null && graphPane != null) {
             graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
             myFrame.revalidate();
         }
     }//GEN-LAST:event_graphPaneComponentResized
-
-    private void showAllLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showAllLabelMouseClicked
-        readSettings();
-        // store current filter settings
-        FilteringSettings tempFilteringSettings = this.filteringSettings;
-        //remove filter settings
-        this.filteringSettings.clearFilters();
-        sortAndDisplay();
-        //restore filter settings
-        this.filteringSettings = tempFilteringSettings;
-    }//GEN-LAST:event_showAllLabelMouseClicked
 
     private void gainEndFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_gainEndFieldFocusLost
         if (gainEndField.getText() == null || gainEndField.getText().isEmpty()) {
@@ -733,30 +729,54 @@ public class FraudWindow extends javax.swing.JPanel {
         sortAndDisplay();
     }//GEN-LAST:event_refreshButtonActionPerformed
 
-    private void sortComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sortComboBoxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_sortComboBoxActionPerformed
-
-    private void groupComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_groupComboBoxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_groupComboBoxActionPerformed
-
     private void trustedActorsTextFieldMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_trustedActorsTextFieldMouseClicked
-    TrustedActorsDialog dialog = new TrustedActorsDialog(this.myFrame, true, baseModel.getActorsMap(), this.trustedActors);
+        TrustedActorsDialog dialog = new TrustedActorsDialog(this.myFrame, true, baseModel.getActorsMap(), this.trustedActors);
         if (dialog.getActors() != null) {
             this.trustedActors = dialog.getActors();
             String newTrustedActorsString = "";
-            for (String trustedActor : trustedActors.keySet()){
-                newTrustedActorsString += "'"+trustedActor + "', ";
+            if(trustedActors.size()>0){
+                for (String trustedActor : trustedActors.keySet()){
+                    newTrustedActorsString += "'"+trustedActor + "', ";
+                }
+                newTrustedActorsString = newTrustedActorsString.substring(0,newTrustedActorsString.length() - 2);
+                trustedActorsTextField.setText(newTrustedActorsString);}
+            else {
+                trustedActorsTextField.setText("<none> (click to add)");
             }
-            newTrustedActorsString = newTrustedActorsString.substring(0,newTrustedActorsString.length() - 2);
-            trustedActorsTextField.setText(newTrustedActorsString);
-        } 
+
+        }
     }//GEN-LAST:event_trustedActorsTextFieldMouseClicked
 
     private void trustedActorsTextFieldMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_trustedActorsTextFieldMouseDragged
         trustedActorsTextFieldMouseClicked(evt);
     }//GEN-LAST:event_trustedActorsTextFieldMouseDragged
+
+    private void showAllLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showAllLabelMouseClicked
+        readSettings();
+        // store current filter settings
+        FilteringSettings tempFilteringSettings = this.filteringSettings;
+        //remove filter settings
+        this.filteringSettings.clearFilters();
+        sortAndDisplay();
+        //restore filter settings
+        this.filteringSettings = tempFilteringSettings;
+    }//GEN-LAST:event_showAllLabelMouseClicked
+
+    private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
+        readSettings();
+        generateSortAndDisplay();
+    }//GEN-LAST:event_generateButtonActionPerformed
+
+    private void advancedSettingsLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_advancedSettingsLabelMouseClicked
+        GenerationSettingsDialog dialog = new GenerationSettingsDialog(this.myFrame, true, this.generationSettings, baseModel.getValueObjectStrings());
+        if (dialog.getSettings() != null) {
+            this.generationSettings = dialog.getSettings();
+        }
+    }//GEN-LAST:event_advancedSettingsLabelMouseClicked
+
+    private void trustedActorsTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trustedActorsTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_trustedActorsTextFieldActionPerformed
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
@@ -796,7 +816,7 @@ public class FraudWindow extends javax.swing.JPanel {
 
     private void sortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
-        SortingAndFilteringWorker rankingWorker = new SortingAndFilteringWorker(groupedSubIdealModels, baseModel, trustedActors, sortingAndGroupingSettings, filteringSettings) {
+        SortingAndFilteringWorker rankingWorker = new SortingAndFilteringWorker(groupedSubIdealModels, baseModel, sortingAndGroupingSettings, filteringSettings) {
             //make it so that when Worker is done
             @Override
             protected void done() {
@@ -890,8 +910,21 @@ public class FraudWindow extends javax.swing.JPanel {
         //read and store sorting and grouping settings
         int sortCriteria = sortComboBox.getSelectedIndex();
         int groupingCriteria = groupComboBox.getSelectedIndex();
+        
+        //if we need to sort by loss or gain of specific actor
+        if (sortCriteria > 2 ){
+            int actorIndex = sortCriteria-3;
+            //get the actor
+            Resource actor = actorMap.get(actorIndex);
+            sortingAndGroupingSettings.setActor(actor);
+            //then adjust the sortCriteria (3 for loss, 4 for gain)
+            sortingAndGroupingSettings.setSortCriteria(actorIndex > baseModel.getActorsAndMarketSegments().size() ? 4 : 3);
+        }
+        else{
+            sortingAndGroupingSettings.setSortCriteria(sortCriteria);
+        }
+        
         sortingAndGroupingSettings.setGroupingCriteria(groupingCriteria);
-        sortingAndGroupingSettings.setSortCriteria(sortCriteria);
 
         //read and store filtering settings
         double gainMin, gainMax, lossMin, lossMax;
@@ -968,6 +1001,8 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JPanel graphPane;
     private javax.swing.JComboBox<String> groupComboBox;
     private javax.swing.JLabel groupSettingLabel;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSplitPane listPane;
     private javax.swing.JPanel listSettingsPanel;

@@ -96,18 +96,26 @@ public class SettingsObjects {
 
     public static class SortingAndGroupingSettings {
 
-        //TODO: use this object in the rest of the code 
         private int sortCriteria, groupingCriteria;
+        private Resource actor;
 
         /**
          * @param sortCriteria 0 - do not sort, 1 - sort by loss first, 2- sort
-         * by gain first
+         * by gain first, 3 - sort by loss of specific actor, 4 - sort by gain of specific actor
          * @param groupingCriteria 0 - group based on result (default), 1 - group based on collusion,
          * generated collusion groups
          */
         public SortingAndGroupingSettings(int sortCriteria, int groupingCriteria) {
             this.sortCriteria = sortCriteria;
             this.groupingCriteria = groupingCriteria;
+        }
+
+        public Resource getActor() {
+            return actor;
+        }
+
+        public void setActor(Resource actor) {
+            this.actor = actor;
         }
 
         /**

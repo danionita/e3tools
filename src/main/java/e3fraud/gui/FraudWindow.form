@@ -72,39 +72,36 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace min="-2" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="generationSettingsLabel" max="32767" attributes="0"/>
-                              <Group type="102" attributes="0">
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" alignment="0" attributes="0">
-                                          <Component id="mainActorLabel" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                      </Group>
-                                      <Component id="resultCountLabel" max="32767" attributes="0"/>
-                                      <Component id="generationLayeredPane" alignment="0" max="32767" attributes="0"/>
-                                      <Group type="102" alignment="1" attributes="0">
-                                          <EmptySpace min="2" pref="63" max="32767" attributes="0"/>
-                                          <Component id="advancedSettingsLabel" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                  </Group>
-                                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                      </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="81" max="-2" attributes="0"/>
                           <Component id="showAllLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
+                      <Group type="102" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jSeparator1" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jSeparator1" max="32767" attributes="0"/>
-                              <Component id="trustedActorsTextField" max="32767" attributes="0"/>
+                              <Component id="generationSettingsLabel" max="32767" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jScrollPane1" max="32767" attributes="0"/>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="mainActorLabel" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Component id="resultCountLabel" pref="176" max="32767" attributes="0"/>
+                                      <Component id="generationLayeredPane" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="advancedSettingsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                              </Group>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -114,18 +111,21 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="generationSettingsLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="mainActorLabel" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="mainActorLabel" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="trustedActorsTextField" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jScrollPane1" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="jSeparator1" min="-2" pref="10" max="-2" attributes="0"/>
-                          <EmptySpace pref="46" max="32767" attributes="0"/>
+                          <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
                           <Component id="generationLayeredPane" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="resultCountLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="showAllLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="43" max="32767" attributes="0"/>
+                          <EmptySpace pref="50" max="32767" attributes="0"/>
                           <Component id="advancedSettingsLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -244,21 +244,36 @@
                     <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="showAllLabel.setVisible(false);"/>
                   </AuxValues>
                 </Component>
-                <Component class="javax.swing.JTextField" name="trustedActorsTextField">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="&lt;none&gt; (click to add)"/>
-                    <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-                      <Color id="Hand Cursor"/>
-                    </Property>
-                    <Property name="focusable" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="mouseDragged" listener="java.awt.event.MouseMotionListener" parameters="java.awt.event.MouseEvent" handler="trustedActorsTextFieldMouseDragged"/>
-                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="trustedActorsTextFieldMouseClicked"/>
-                  </Events>
-                </Component>
                 <Component class="javax.swing.JSeparator" name="jSeparator1">
                 </Component>
+                <Component class="javax.swing.JLabel" name="jLabel2">
+                  <Properties>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/icons/information.png"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" value="Trusted actors will never collude with other actors, will always perform all outgoing value transfers as expected and will never be involved in hidden transfers."/>
+                  </Properties>
+                </Component>
+                <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+
+                  <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                  <SubComponents>
+                    <Component class="javax.swing.JTextField" name="trustedActorsTextField">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="&lt;none&gt; (click to add)"/>
+                        <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                          <Color id="Hand Cursor"/>
+                        </Property>
+                        <Property name="focusable" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="mouseDragged" listener="java.awt.event.MouseMotionListener" parameters="java.awt.event.MouseEvent" handler="trustedActorsTextFieldMouseDragged"/>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="trustedActorsTextFieldMouseClicked"/>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="trustedActorsTextFieldActionPerformed"/>
+                      </Events>
+                    </Component>
+                  </SubComponents>
+                </Container>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JSplitPane" name="listPane">
@@ -322,7 +337,7 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="groupSettingLabel" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="groupComboBox" pref="121" max="32767" attributes="0"/>
+                                      <Component id="groupComboBox" pref="115" max="32767" attributes="0"/>
                                   </Group>
                                   <Component id="FiltersLabel" alignment="0" max="32767" attributes="0"/>
                                   <Group type="102" attributes="0">
@@ -331,7 +346,7 @@
                                       <Component id="sortComboBox" pref="0" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -391,16 +406,17 @@
                     <Component class="javax.swing.JComboBox" name="sortComboBox">
                       <Properties>
                         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                          <StringArray count="2">
-                            <StringItem index="0" value="highest loss (of trusted actor)"/>
-                            <StringItem index="1" value="highest gain (of other actors)"/>
+                          <StringArray count="3">
+                            <StringItem index="0" value="&lt;no criteria&gt;"/>
+                            <StringItem index="1" value="highest loss"/>
+                            <StringItem index="2" value="highest gain"/>
                           </StringArray>
                         </Property>
+                        <Property name="selectedIndex" type="int" value="1"/>
+                        <Property name="toolTipText" type="java.lang.String" value=""/>
                       </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sortComboBoxActionPerformed"/>
-                      </Events>
                       <AuxValues>
+                        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="actorMap = new HashMap&lt;&gt;();&#xa;int i = 0;&#xa;for (Resource actor : baseModel.getActorsAndMarketSegments()){&#xa;String actorName = actor.getProperty(E3value.e3_has_name).getLiteral().toString();&#xa;sortComboBox.addItem(&quot;Loss of \&apos;&quot;+actorName+&quot;&apos;&quot;);&#xa;actorMap.put(i,actor);&#xa;i++;&#xa;}&#xa;&#xa;for (Resource actor : baseModel.getActorsAndMarketSegments()){&#xa;String actorName = actor.getProperty(E3value.e3_has_name).getLiteral().toString();&#xa;sortComboBox.addItem(&quot;Gain of \&apos;&quot;+actorName+&quot;&apos;&quot;);&#xa;actorMap.put(i,actor);&#xa;i++;&#xa;}"/>
                         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                       </AuxValues>
                     </Component>
@@ -409,13 +425,10 @@
                         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                           <StringArray count="2">
                             <StringItem index="0" value="financial result"/>
-                            <StringItem index="1" value="collusion groups"/>
+                            <StringItem index="1" value="collusion"/>
                           </StringArray>
                         </Property>
                       </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="groupComboBoxActionPerformed"/>
-                      </Events>
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                       </AuxValues>
@@ -424,12 +437,12 @@
                     </Component>
                     <Component class="javax.swing.JLabel" name="gainLabel">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Gain of other actors "/>
+                        <Property name="text" type="java.lang.String" value="Gain between"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="lossLabel">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Loss of main actor"/>
+                        <Property name="text" type="java.lang.String" value="Loss between"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JButton" name="refreshButton">
@@ -471,12 +484,12 @@
                     </Component>
                     <Component class="javax.swing.JLabel" name="gainToLabel">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="to"/>
+                        <Property name="text" type="java.lang.String" value="-"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="lossToLabel">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="to"/>
+                        <Property name="text" type="java.lang.String" value="-"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JFormattedTextField" name="lossEndField">

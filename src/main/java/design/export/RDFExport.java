@@ -673,7 +673,7 @@ public class RDFExport {
                     addValueTransaction(vtInfo);
                 });
 
-        System.out.println("Naively derived transactions: " + transactions.size());
+        //System.out.println("Naively derived transactions: " + transactions.size());
 
         if (vtMode == VTMode.DERIVE_ORPHANED || vtMode == VTMode.ONLY_GIVEN_VALUE_TRANSACTIONS) {
             // Then, if allowed by vtMode, we add all value transactions specified by the user.
@@ -681,9 +681,9 @@ public class RDFExport {
                 addValueTransaction(vtInfo);
             }
 
-            System.out.println("Specified transactions: " + graph.valueTransactions.size());
+           // System.out.println("Specified transactions: " + graph.valueTransactions.size());
         } else {
-            System.out.println("Specified transactions [forced]: 0");
+            //System.out.println("Specified transactions [forced]: 0");
         }
     }
 

@@ -1516,10 +1516,11 @@ public class E3Model {
         double result = 0;
         actor = model.getResource(actor.getURI());
 
+        
         //First, check if input is really an actor:
         if (!actor.hasProperty(RDF.type, E3value.elementary_actor) && !actor.hasProperty(RDF.type, E3value.market_segment)) {
             System.err.println(actor.getProperty(E3value.e3_has_name) + "(UID "+actor.getProperty(E3value.e3_has_uid)+") is not an actor!");
-            throw new IndexOutOfBoundsException("fuuck");
+            throw new IllegalArgumentException("Attempted to compute profit of a non-actor");
             //return 0;
         }
 

@@ -1034,7 +1034,7 @@ public class EditorActions {
             }
             Model model = rdfExporter.getModel().get();
 
-            JFrame frame = new JFrame("Fraud analysis of \"" + main.getCurrentGraphTitle() + "\"");
+            JFrame frame = new JFrame(main.getCurrentGraphTitle() + " - Fraud scenario generation");
             FraudWindow fraudWindowInstance = new FraudWindow(new E3Graph(targetGraph, false), new E3Model(model), main, frame);
 
             frame.add(fraudWindowInstance);
