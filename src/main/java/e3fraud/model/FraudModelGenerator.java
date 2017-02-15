@@ -195,10 +195,9 @@ public class FraudModelGenerator {
                     generatedModel.collude(actor1, actorj);
                     description += " and \"" + actorj.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"";
                 }
-                generatedModel.appendDescription(description);
-             
+                generatedModel.appendDescription(description);             
                 
-                generatedModel.enhance();
+                //generatedModel.enhance();
                 subIdealModels.add(generatedModel);
             }
         }
@@ -267,8 +266,7 @@ public class FraudModelGenerator {
                     generatedModel.makeNonOccurring(exchange);
                     generatedModel.appendDescription("<b>Non-occuring</b> exchange " + exchange.getProperty(E3value.e3_has_name).getLiteral().toString());
                 }
-                //System.out.println("Generated:" + generatedModel.getDescription());
-                generatedModel.enhance();
+                //generatedModel.enhance();
                 subIdealModels.add(generatedModel);
             }
         }
@@ -408,11 +406,11 @@ public class FraudModelGenerator {
 
                             //add a transfer from actor1 to actor 2 of the value
                             generatedModel.addTransfer(interface2, interface1, value);
-                            int interface1ID = interface1.getProperty(E3value.e3_has_uid).getInt(); // Integer.parseInt(interface1.getProperty(E3value.e3_has_uid).toString());
-                            int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); //  Integer.parseInt(interface2.getProperty(E3value.e3_has_uid).toString());
+                            int interface1ID = interface1.getProperty(E3value.e3_has_uid).getInt(); 
+                            int interface2ID = interface2.getProperty(E3value.e3_has_uid).getInt(); 
                             generatedModel.getFraudChanges().addHiddenTransaction(interface2ID, interface1ID, value);
                             generatedModel.appendDescription("<b>Hidden</b>  transfer of value " + df.format(value) + " (out of " + df.format(actor2Total) + ") from \"" + actor2.getProperty(E3value.e3_has_name).getLiteral().toString() + "\" to \"" + actor1.getProperty(E3value.e3_has_name).getLiteral().toString() + "\"");
-                          generatedModel.enhance();   
+                            generatedModel.enhance();   
                             subIdealModels.add(generatedModel);
                         }
                     }

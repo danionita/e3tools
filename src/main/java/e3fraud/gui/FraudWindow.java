@@ -38,7 +38,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.view.mxGraphView;
@@ -78,7 +77,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private E3Graph graph;
     private E3Model selectedModel;
     private FilteringSettings filteringSettings;
-    private HashMap<String,Resource> trustedActors; 
+    private HashMap<String, Resource> trustedActors;
     private SortingAndGroupingSettings sortingAndGroupingSettings;
     private GenerationSettings generationSettings;
     private java.util.HashMap<String, java.util.Set<E3Model>> groupedSubIdealModels;
@@ -108,7 +107,7 @@ public class FraudWindow extends javax.swing.JPanel {
         this.sortingAndGroupingSettings = new SortingAndGroupingSettings();
         this.filteringSettings = new FilteringSettings();
         this.trustedActors = new HashMap<>();
-        
+
         initComponents();
         readSettings();
     }
@@ -238,6 +237,9 @@ public class FraudWindow extends javax.swing.JPanel {
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/information.png"))); // NOI18N
         jLabel2.setToolTipText("Trusted actors will never collude with other actors, will always perform all outgoing value transfers as expected and will never be involved in hidden transfers.");
 
+        jScrollPane1.setToolTipText("");
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
         trustedActorsTextField.setText("<none> (click to add)");
         trustedActorsTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         trustedActorsTextField.setFocusable(false);
@@ -282,7 +284,7 @@ public class FraudWindow extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel2)
                                 .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(resultCountLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
+                            .addComponent(resultCountLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)
                             .addComponent(generationLayeredPane)
                             .addComponent(advancedSettingsLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addContainerGap())))
@@ -296,17 +298,17 @@ public class FraudWindow extends javax.swing.JPanel {
                 .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(mainActorLabel)
                     .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(4, 4, 4)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
+                .addGap(19, 19, 19)
                 .addComponent(generationLayeredPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(resultCountLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(showAllLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
                 .addComponent(advancedSettingsLabel)
                 .addContainerGap())
         );
@@ -607,13 +609,13 @@ public class FraudWindow extends javax.swing.JPanel {
                         public void mouseClicked(MouseEvent e) {
                             // On doubleclick
                             if (e.getClickCount() == 2) {
-                                JFreeChart chart = SensitivityAnalysis.getSensitivityChart(myFrame,selectedModel, false);
-                                if (chart != null) {                                    
+                                JFreeChart chart = SensitivityAnalysis.getSensitivityChart(myFrame, selectedModel, false);
+                                if (chart != null) {
                                     String label = String.valueOf(root.getIndex(node));
-                                    if(node.getLevel()==3){
-                                        label+= "."+String.valueOf(node.getParent().getIndex(node));
+                                    if (node.getLevel() == 3) {
+                                        label += "." + String.valueOf(node.getParent().getIndex(node));
                                     }
-                                    ChartFrame chartframe1 = new ChartFrame("Fraud scenario "+label+" - sensitivity chart", chart);
+                                    ChartFrame chartframe1 = new ChartFrame("Fraud scenario " + label + " - sensitivity chart", chart);
                                     chartframe1.setPreferredSize(new Dimension(Main.DEFAULT_CHART_WIDTH, Main.DEFAULT_CHART_HEIGHT));
                                     chartframe1.pack();
                                     chartframe1.setLocationByPlatform(true);
@@ -734,13 +736,13 @@ public class FraudWindow extends javax.swing.JPanel {
         if (dialog.getActors() != null) {
             this.trustedActors = dialog.getActors();
             String newTrustedActorsString = "";
-            if(trustedActors.size()>0){
-                for (String trustedActor : trustedActors.keySet()){
-                    newTrustedActorsString += "'"+trustedActor + "', ";
+            if (trustedActors.size() > 0) {
+                for (String trustedActor : trustedActors.keySet()) {
+                    newTrustedActorsString += "'" + trustedActor + "', ";
                 }
-                newTrustedActorsString = newTrustedActorsString.substring(0,newTrustedActorsString.length() - 2);
-                trustedActorsTextField.setText(newTrustedActorsString);}
-            else {
+                newTrustedActorsString = newTrustedActorsString.substring(0, newTrustedActorsString.length() - 2);
+                trustedActorsTextField.setText(newTrustedActorsString);
+            } else {
                 trustedActorsTextField.setText("<none> (click to add)");
             }
 
@@ -799,7 +801,11 @@ public class FraudWindow extends javax.swing.JPanel {
                     generateButton.setVisible(true);
                     System.err.println("Exception encountered during generation: \n");
                     ex.printStackTrace();
-                    PopUps.infoBox("<html>Encountered an error (" + ex.toString() + "). <br> Please send a description of the steps taken to: danionita@gmail.com.</html>", "Error");
+                    if (ex instanceof ExecutionException) {
+                        PopUps.infoBox("<html> Out of memory (search space too large)... <br> Either restrict generation settings (e.g. add more trusted actors, disable some heuristics) or increase memory allocation to the Java VM (by launching e3tools.jar with '-Xmx4096m' as a command line argument or using the 4GB version of e3tools)</html>", "Error");
+                    } else {
+                        PopUps.infoBox("<html>Encountered an error (" + ex.toString() + "). <br> Please send a description of the steps taken to produce this error: danionita@gmail.com.</html>", "Error");
+                    }
                 }
             }
         };
@@ -879,7 +885,11 @@ public class FraudWindow extends javax.swing.JPanel {
                     setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     System.err.println("Exception encountered during generation: \n");
                     ex.printStackTrace();
-                    PopUps.infoBox("<html>Encountered an error (" + ex.toString() + "). <br> Please send a description of the steps taken to: danionita@gmail.com.</html>", "Error");
+                    if (ex instanceof ExecutionException) {
+                        PopUps.infoBox("<html> Out of memory (search space too large)... <br> Either restrict generation settings (e.g. add more trusted actors, disable some heuristics) or increase memory allocation to the Java VM (by launching e3tools.jar with '-Xmx4096m' as a command line argument or using the 4GB version of e3tools)</html>", "Error");
+                    } else {
+                        PopUps.infoBox("<html>Encountered an error (" + ex.toString() + "). <br> Please send a description of the steps taken to produce this error: danionita@gmail.com.</html>", "Error");
+                    }
                 }
             }
         };
@@ -893,10 +903,10 @@ public class FraudWindow extends javax.swing.JPanel {
             }
         });
         //replace generate button with progress bar
+        progressBar.setString("Sorting & filtering...");
         generateButton.setVisible(false);
         progressBar.setVisible(true);
         progressBar.setIndeterminate(false);
-        progressBar.setString("Sorting & filtering...");
         //change mouse cursor 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         //and run the worker
@@ -904,26 +914,26 @@ public class FraudWindow extends javax.swing.JPanel {
     }
 
     /**
-     * reads and stores the value of all settings which appear in the fraudWindow
+     * reads and stores the value of all settings which appear in the
+     * fraudWindow
      */
     private void readSettings() {
         //read and store sorting and grouping settings
         int sortCriteria = sortComboBox.getSelectedIndex();
         int groupingCriteria = groupComboBox.getSelectedIndex();
-        
+
         //if we need to sort by loss or gain of specific actor
-        if (sortCriteria > 2 ){
-            int actorIndex = sortCriteria-3;
+        if (sortCriteria > 2) {
+            int actorIndex = sortCriteria - 3;
             //get the actor
             Resource actor = actorMap.get(actorIndex);
             sortingAndGroupingSettings.setActor(actor);
             //then adjust the sortCriteria (3 for loss, 4 for gain)
             sortingAndGroupingSettings.setSortCriteria(actorIndex > baseModel.getActorsAndMarketSegments().size() ? 4 : 3);
-        }
-        else{
+        } else {
             sortingAndGroupingSettings.setSortCriteria(sortCriteria);
         }
-        
+
         sortingAndGroupingSettings.setGroupingCriteria(groupingCriteria);
 
         //read and store filtering settings

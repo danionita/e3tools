@@ -71,7 +71,7 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
             String generationAnnouncement=" Generating sub-ideal models containing: ";
             if (generateNonOccurring){generationAnnouncement+="non-occurring transfers (of types "+typesOfNonOccurringTransfers+"), ";} 
             if (generateHidden){generationAnnouncement+="hidden transfers (of "+hiddenTransfersPerExchange+" different values), ";} 
-            if (generateCollusions){generationAnnouncement+="collusion (of up to "+collusions+" actors).";} 
+            if (generateCollusions){generationAnnouncement+="collusion (of up to "+(collusions+1)+" actors).";} 
             System.out.println(currentTime.currentTime() + generationAnnouncement  + newline);
         }
 
@@ -108,7 +108,6 @@ public class GenerationWorkerV2 extends SwingWorker<java.util.HashMap<String, ja
             
             subIdealModels.addAll(intermediaryModels);
             intermediaryModels.add(model);
-            int i = 1;
             if (generateHidden) {
                 for (E3Model intermediaryModel : intermediaryModels) {
                     intermediaryModel.enhance();

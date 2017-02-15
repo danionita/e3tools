@@ -54,7 +54,7 @@ import e3fraud.vocabulary.E3value;
 public class ExpressionEvaluator {
 
     public static final String alphaNumericID = "[a-zA-Z][a-zA-Z0-9]*";
-    public static final String alphaNumericWithSpacesID = "[a-zA-Z][a-zA-Z0-9 +]*";
+    public static final String alphaNumericWithSpacesPlusAndNewLineID = "[a-zA-Z][a-zA-Z0-9 + \\r\\n]*";
     public static final String zeroOrNumberUID = "(?:[1-9][0-9]*?|0)";
 
     private final boolean DEBUG = false;
@@ -71,14 +71,12 @@ public class ExpressionEvaluator {
     /**
      * Matches strings like: e3{'Subscription fee'.VALUATION}
      */
-    private static final Pattern newNamePat = Pattern.compile(
-            "e3\\{'(" + alphaNumericWithSpacesID + ")'\\.(" + alphaNumericID + ")\\}"
+    private static final Pattern newNamePat = Pattern.compile("e3\\{'(" + alphaNumericWithSpacesPlusAndNewLineID + ")'\\.(" + alphaNumericID + ")\\}"
     );
     /**
      * Matches strings like: e3{ValuePort('Subscription fee').VALUATION}
      */
-    private static final Pattern oldNamePat = Pattern.compile(
-            "e3\\{" + alphaNumericID + "\\('(" + alphaNumericWithSpacesID + ")'\\)\\.(" + alphaNumericID + ")\\}"
+    private static final Pattern oldNamePat = Pattern.compile("e3\\{" + alphaNumericID + "\\('(" + alphaNumericWithSpacesPlusAndNewLineID + ")'\\)\\.(" + alphaNumericID + ")\\}"
     );
     /**
      * Matches strings like: #123.VALUATION
@@ -90,8 +88,7 @@ public class ExpressionEvaluator {
         /**
      * Matches strings like: 'Subscription fee'.VALUATION
      */
-    private static final Pattern namePat = Pattern.compile(
-            "'(" + alphaNumericWithSpacesID + ")'.(" + alphaNumericID + ")"
+    private static final Pattern namePat = Pattern.compile("'(" + alphaNumericWithSpacesPlusAndNewLineID + ")'.(" + alphaNumericID + ")"
     );
 
     /**
@@ -358,6 +355,7 @@ public class ExpressionEvaluator {
             int start = match.start();
             int end = match.end();
 
+            
             formula = formula.substring(0, start)
                     + "e3{#" + uidMap.get(name) + "." + attr + "}"
                     + formula.substring(end);
