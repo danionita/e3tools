@@ -519,7 +519,7 @@ public class FraudWindow extends javax.swing.JPanel {
         tablePane.add(tableLabel, java.awt.BorderLayout.PAGE_START);
 
         sensitivityAnalysisButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/chart_curve.png"))); // NOI18N
-        sensitivityAnalysisButton.setText("Click here to run sensitivity analysis");
+        sensitivityAnalysisButton.setText("Run sensitivity analysis");
         tablePane.add(sensitivityAnalysisButton, java.awt.BorderLayout.PAGE_END);
 
         visualizationPane.setRightComponent(tablePane);
@@ -604,23 +604,23 @@ public class FraudWindow extends javax.swing.JPanel {
 
                 //Create the table
                 table = TableGenerator.generateTable(selectedModel, baseModel);
-                table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);     
+                table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
                 table.setAutoCreateRowSorter(true);
-                
+
                 // Remove current table if one is present
                 if (tablePane.getComponentCount() > 2) {
                     tablePane.remove(tableScrollPane);
-                    System.out.println("removing old table");                }
-                
+                }
+
                 //Add the table & sensititivy analaysis button
                 tableScrollPane = new JScrollPane(table);
                 tablePane.add(tableScrollPane, java.awt.BorderLayout.CENTER);
                 tablePane.add(sensitivityAnalysisButton, java.awt.BorderLayout.PAGE_END);
                 tableScrollPane.setVisible(true);
-                
+
                 tablePane.repaint();
                 tablePane.revalidate();
-                
+
                 //Create the graph
                 graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
 

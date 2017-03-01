@@ -13,7 +13,6 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,11 +36,8 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxCellRenderer;
-import com.mxgraph.util.mxConstants;
 
 import design.checker.E3CheckDialog;
-import design.checker.WalkEntireModel;
-import design.checker.checks.FlowChecker;
 import design.dialog.SearchDialog;
 import design.dialog.ValueObjectDialog;
 import design.dialog.ValueTransactionDialog;
@@ -56,13 +52,17 @@ import design.info.ValueExchange;
 import design.style.E3StyleEditor;
 import e3fraud.gui.FraudWindow;
 import e3fraud.gui.SensitivityAnalysis;
+import e3fraud.gui.TableGenerator;
 import e3fraud.model.E3Model;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
 
 @SuppressWarnings(value = {"serial"})
 public class EditorActions {
 
     private static String conversionMessage[] = {"Converting a fraud model to a value model will "
-        + "cause fraud annotations such as colluded actors, hidden"
+        + "cause fraud annotations such as colluded actors, hidden "
         + "transfers, and non-occurring transfers "
         + "to be lost."
         + "\nContinue? (a duplicate will be created "
@@ -80,7 +80,7 @@ public class EditorActions {
             super(caption);
             this.main = main;
         }
-        
+
         public BaseAction(String caption, Icon icon, Main main) {
             super(caption, icon);
             this.main = main;
@@ -96,7 +96,7 @@ public class EditorActions {
                     + (isFraud ? "fraud" : "value")
                     + " value model (ctrl+"
                     + (isFraud ? "n" : "m")
-                    + ")", isFraud ? getIcon("page_red") : getIcon("page_green"),main);
+                    + ")", isFraud ? getIcon("page_red") : getIcon("page_green"), main);
             this.isFraud = isFraud;
         }
 
@@ -121,57 +121,59 @@ public class EditorActions {
             });
         }
     }
-    
+
     public static class OpenRecent extends JMenu {
-    	private Main main;
 
-		public OpenRecent(Main main) {
-			super("Open recent");
-    		this.main = main;
-    		
-    		addMenuListener(new MenuListener() {
-				@Override
-				public void menuCanceled(MenuEvent arg0) { }
+        private Main main;
 
-				@Override
-				public void menuDeselected(MenuEvent arg0) {
-					removeAll();
-				}
+        public OpenRecent(Main main) {
+            super("Open recent");
+            this.main = main;
 
-				@Override
-				public void menuSelected(MenuEvent arg0) {
-					List<String> recentFiles = Utils.getRecentlyOpenedFiles();
+            addMenuListener(new MenuListener() {
+                @Override
+                public void menuCanceled(MenuEvent arg0) {
+                }
 
-					if (recentFiles.size() == 0) {
-						JMenuItem mi = new JMenuItem("No recent files available");
-    					mi.setEnabled(false);
-    					add(mi);
-					} else {
-						recentFiles.stream().forEach(recentFile -> {
-							File file = new File(recentFile);
-							add(new AbstractAction(file.getName()) {
-								@Override
-								public void actionPerformed(ActionEvent e) {
-									Optional<E3Graph> result = GraphIO.loadGraph(file.getAbsolutePath());
+                @Override
+                public void menuDeselected(MenuEvent arg0) {
+                    removeAll();
+                }
 
-									if (!result.isPresent()) {
-										JOptionPane.showMessageDialog(
-												Main.mainFrame,
-												"Error during file loading. Please make sure the file destination is accesible.",
-												"Loading error",
-												JOptionPane.ERROR_MESSAGE);
-										
-									} else {
-										main.addNewTabAndSwitch(result.get());
-										Utils.addRecentlyOpened(file);
-									}
-								}
-							});
-						});
-					}
-				}
-    		});
-    	}
+                @Override
+                public void menuSelected(MenuEvent arg0) {
+                    List<String> recentFiles = Utils.getRecentlyOpenedFiles();
+
+                    if (recentFiles.size() == 0) {
+                        JMenuItem mi = new JMenuItem("No recent files available");
+                        mi.setEnabled(false);
+                        add(mi);
+                    } else {
+                        recentFiles.stream().forEach(recentFile -> {
+                            File file = new File(recentFile);
+                            add(new AbstractAction(file.getName()) {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    Optional<E3Graph> result = GraphIO.loadGraph(file.getAbsolutePath());
+
+                                    if (!result.isPresent()) {
+                                        JOptionPane.showMessageDialog(
+                                                Main.mainFrame,
+                                                "Error during file loading. Please make sure the file destination is accesible.",
+                                                "Loading error",
+                                                JOptionPane.ERROR_MESSAGE);
+
+                                    } else {
+                                        main.addNewTabAndSwitch(result.get());
+                                        Utils.addRecentlyOpened(file);
+                                    }
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        }
     }
 
     public static class Save extends BaseAction {
@@ -302,7 +304,7 @@ public class EditorActions {
 
                 return;
             }
-            
+
             JOptionPane.showMessageDialog(Main.mainFrame, "RDF exported to: " + targetFile);
 
             // SVG test
@@ -611,15 +613,16 @@ public class EditorActions {
     }
 
     public static class ToggleGrid extends BaseAction {
+
         public ToggleGrid(Main main) {
             super("Toggle grid", main);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-        	mxGraphComponent graphComponent = main.getCurrentGraphComponent();
-        	graphComponent.setGridVisible(!graphComponent.isGridVisible());
-        	main.getCurrentGraph().refresh();
+            mxGraphComponent graphComponent = main.getCurrentGraphComponent();
+            graphComponent.setGridVisible(!graphComponent.isGridVisible());
+            main.getCurrentGraph().refresh();
         }
     }
 
@@ -788,7 +791,7 @@ public class EditorActions {
             new ValueObjectDialog(main).show();
         }
     }
-    
+
     public static class ShowValueObjectDialog extends BaseAction {
 
         public ShowValueObjectDialog(Main main) {
@@ -821,7 +824,7 @@ public class EditorActions {
             new ValueObjectDialog(main).show();
         }
     }
-    
+
     public static class ShowValueTransactionsPanel extends BaseAction {
 
         public ShowValueTransactionsPanel(Main main) {
@@ -854,7 +857,7 @@ public class EditorActions {
             new ValueTransactionDialog(main).setVisible(true);
         }
     }
-    
+
     public static class ShowSearchDialog extends BaseAction {
 
         public ShowSearchDialog(Main main) {
@@ -887,7 +890,7 @@ public class EditorActions {
             new SearchDialog(main).setVisible(true);
         }
     }
-    
+
     public static class AnalyzeTransactions extends BaseAction {
 
         public AnalyzeTransactions(Main main) {
@@ -913,7 +916,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-        	
+
             if (main.views.getTabCount() == 0) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
@@ -922,43 +925,43 @@ public class EditorActions {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+
             boolean castMarketSegments = false;
             if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) > 0) {
-            	String oneMSMessage = 
-                        "<html>"
+                String oneMSMessage
+                        = "<html>"
                         + "This model contains a market segment. <br>"
                         + "Would you like to convert it to <b>one</b> actor "
                         + "to allow for the element to participate in collusion?"
                         + "</html>";
-                        
-                String moreThanOneMessage =
-                		"<html>"
-                		+ "This model contains multiple market segments. <br>"
-                		+ "Would you like to convert each market segment to <b>one</b> actor "
-                		+ "to allow for the elements to participate in collusions? "
-                		+ "</html>";
-                
+
+                String moreThanOneMessage
+                        = "<html>"
+                        + "This model contains multiple market segments. <br>"
+                        + "Would you like to convert each market segment to <b>one</b> actor "
+                        + "to allow for the elements to participate in collusions? "
+                        + "</html>";
+
                 String message;
                 if (main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class) == 1) {
-                	message = oneMSMessage;
+                    message = oneMSMessage;
                 } else {
-                	message = moreThanOneMessage;
+                    message = moreThanOneMessage;
                 }
-            	
+
                 int choice = JOptionPane.showConfirmDialog(
                         Main.mainFrame,
                         message,
                         "Market Segment conversion",
                         JOptionPane.YES_NO_OPTION
-                        );
-                
+                );
+
                 castMarketSegments = choice == JOptionPane.YES_OPTION;
             }
 
             long totalActors = (long) main.getCurrentGraph().countActors();
             if (castMarketSegments) {
-            	totalActors += main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class);
+                totalActors += main.getCurrentGraph().countE3ObjectsOfType(MarketSegment.class);
             }
             if (totalActors < 2) {
                 JOptionPane.showMessageDialog(
@@ -971,16 +974,16 @@ public class EditorActions {
             }
 
             E3Graph targetGraph = main.getCurrentGraph();
-            
+
             if (castMarketSegments) {
-            	targetGraph = targetGraph.castMarketSegmentsToActors();
+                targetGraph = targetGraph.castMarketSegmentsToActors();
             }
-            
+
             // Check if the model checker fails or not
             boolean cont = Utils.doModelCheck(targetGraph, main);
-            
+
             if (!cont) {
-            	return;
+                return;
             }
 
             if (main.getCurrentGraph().isFraud) {
@@ -1009,12 +1012,12 @@ public class EditorActions {
 
                 targetGraph = targetGraph.toValue();
                 main.addNewTabAndSwitch(targetGraph);
-            }       
-           
-            if(castMarketSegments){
+            }
+
+            if (castMarketSegments) {
                 targetGraph.castMarketSegmentsToActors();
             }
-            
+
             RDFExport rdfExporter = new RDFExport(targetGraph, true, VTMode.DERIVE_ORPHANED, castMarketSegments);
             if (!rdfExporter.getModel().isPresent()) {
                 Optional<String> error = rdfExporter.getError();
@@ -1060,7 +1063,7 @@ public class EditorActions {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+
             if (main.getCurrentGraph().countActors() < 1) {
                 JOptionPane.showMessageDialog(
                         Main.mainFrame,
@@ -1070,11 +1073,11 @@ public class EditorActions {
 
                 return;
             }
-            
+
             boolean cont = Utils.doModelCheck(main.getCurrentGraph(), main);
-            
+
             if (!cont) {
-            	return;
+                return;
             }
 
             RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, VTMode.DERIVE_ORPHANED, false);
@@ -1118,7 +1121,7 @@ public class EditorActions {
             super(caption, main);
             this.url = url;
         }
-        
+
         public OpenSite(Main main, Icon icon, String caption, String url) {
             super(caption, icon, main);
             this.url = url;
@@ -1168,99 +1171,101 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
-            if (main.getCurrentGraphComponent().valuationLabelsVisible){
-            main.getCurrentGraphComponent().toggleValuationLabels(false);
-            }
-            else{
+            if (main.getCurrentGraphComponent().valuationLabelsVisible) {
+                main.getCurrentGraphComponent().toggleValuationLabels(false);
+            } else {
                 main.getCurrentGraphComponent().toggleValuationLabels(true);
             }
         }
     }
 
     public static class SelectTheme extends BaseAction {
-		public SelectTheme(Main main) {
-			super("Select theme...", main);
-		}
 
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			List<String> choicesList = E3Style.getAvailableThemes();
-			String[] choices = new String[choicesList.size()];
-			choicesList.toArray(choices);
-			
-			String result = (String) JOptionPane.showInputDialog(
-					Main.mainFrame,
-					"Select a theme to use with the current model",
-					"Select a theme", 
-					JOptionPane.QUESTION_MESSAGE,
-					null,
-					choices,
-					choices[0]
-					);
-			
-			if (result == null) return;
-			
-			Optional <E3Style> newStyle = Optional.empty();
-			if (choicesList.contains(result)) {
-				newStyle = E3Style.load(result);
-			}
-			
-			if (!newStyle.isPresent()) {
-				JOptionPane.showMessageDialog(
-						Main.mainFrame,
-						"Could not load theme \"" + result + "\"",
-						"Error loading theme",
-						JOptionPane.ERROR_MESSAGE);
-				
-				return;
-			}
-			
-			E3Style style = newStyle.get();
-			E3Graph graph = main.getCurrentGraph();
-			
-			ThemeChange themeChange = new ThemeChange(
-					main.getCurrentGraphComponent(),
-					main.getCurrentToolComponent(),
-					style,
-					false);
+        public SelectTheme(Main main) {
+            super("Select theme...", main);
+        }
 
-			Utils.update(graph, () -> {
-				((mxGraphModel) graph.getModel()).execute(themeChange);
-			});
-		}
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            List<String> choicesList = E3Style.getAvailableThemes();
+            String[] choices = new String[choicesList.size()];
+            choicesList.toArray(choices);
+
+            String result = (String) JOptionPane.showInputDialog(
+                    Main.mainFrame,
+                    "Select a theme to use with the current model",
+                    "Select a theme",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    choices,
+                    choices[0]
+            );
+
+            if (result == null) {
+                return;
+            }
+
+            Optional<E3Style> newStyle = Optional.empty();
+            if (choicesList.contains(result)) {
+                newStyle = E3Style.load(result);
+            }
+
+            if (!newStyle.isPresent()) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "Could not load theme \"" + result + "\"",
+                        "Error loading theme",
+                        JOptionPane.ERROR_MESSAGE);
+
+                return;
+            }
+
+            E3Style style = newStyle.get();
+            E3Graph graph = main.getCurrentGraph();
+
+            ThemeChange themeChange = new ThemeChange(
+                    main.getCurrentGraphComponent(),
+                    main.getCurrentToolComponent(),
+                    style,
+                    false);
+
+            Utils.update(graph, () -> {
+                ((mxGraphModel) graph.getModel()).execute(themeChange);
+            });
+        }
     }
-    
+
     public static class EditTheme extends BaseAction {
-		public EditTheme(Main main) {
-			super("Edit current theme...", main);
-		}
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			E3Graph graph = main.getCurrentGraph();
-			E3StyleEditor editor = new E3StyleEditor(graph);
-			editor.setModal(true);
-			editor.addListener(e3ThemeStyleEvent -> {
-				E3Style newStyle = new E3Style(graph.style);
-				boolean anythingChanged = newStyle.applyStyleDelta(e3ThemeStyleEvent);
-				
-				if (anythingChanged) {
-					ThemeChange themeChange = new ThemeChange(
-							main.getCurrentGraphComponent(),
-							main.getCurrentToolComponent(),
-							newStyle,
-							false);
+        public EditTheme(Main main) {
+            super("Edit current theme...", main);
+        }
 
-					Utils.update(graph, () -> {
-						((mxGraphModel) graph.getModel()).execute(themeChange);
-					});
-				}
-			});
-			
-			editor.setVisible(true);
-		}
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            E3Graph graph = main.getCurrentGraph();
+            E3StyleEditor editor = new E3StyleEditor(graph);
+            editor.setModal(true);
+            editor.addListener(e3ThemeStyleEvent -> {
+                E3Style newStyle = new E3Style(graph.style);
+                boolean anythingChanged = newStyle.applyStyleDelta(e3ThemeStyleEvent);
+
+                if (anythingChanged) {
+                    ThemeChange themeChange = new ThemeChange(
+                            main.getCurrentGraphComponent(),
+                            main.getCurrentToolComponent(),
+                            newStyle,
+                            false);
+
+                    Utils.update(graph, () -> {
+                        ((mxGraphModel) graph.getModel()).execute(themeChange);
+                    });
+                }
+            });
+
+            editor.setVisible(true);
+        }
     }
-
 
     public static class ModelCheck extends BaseAction {
 
@@ -1270,71 +1275,134 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
-        	actionPerformed(main.getCurrentGraph());
+            actionPerformed(main.getCurrentGraph());
         }
-        
+
         public void actionPerformed(E3Graph graph) {
-//            E3Graph currentGraph = main.getCurrentGraph();
-//            System.out.println("Doing WEM");
-//            WalkEntireModel wem = new WalkEntireModel(currentGraph);
-//            System.out.println("Doing FC");
-////            FlowChecker fc = new FlowChecker(currentGraph);
-//            System.out.println("Done checking");
-//            if (fc.getConflictingDots().size() > 0) {
-//            	//System.out.println("Conflicting dots detected! Suspects:");
-//            	for (Object obj : fc.getConflictingDots()) {
-//            		Base info = (Base) currentGraph.getModel().getValue(obj);
-//            		System.out.println(info.name + " (" + info.SUID + ")");
-//            		
-//					currentGraph.getView().getState(obj).getStyle().put(
-//							mxConstants.STYLE_STROKECOLOR,
-//							"#00FF00"
-//							);
-//            	}
-//            	currentGraph.repaint();
-//            }
-        	
-//        	E3Graph graph = main.getCurrentGraph();
-        	
-//        	Utils.getAllCells(graph).stream()
-//        		.forEach(cell -> {
-//        			System.out.println(graph.getModel().getStyle(cell));
-//        			Map<String, Object> style = graph.getCellStyle(cell);
-//        			
-//        			Base val = (Base) graph.getModel().getValue(cell);
-//        			System.out.println("Object #" + val.SUID);
-//
-//        			style.entrySet().stream().forEach(e -> {
-////        				System.out.println("\tKey: " + e.getKey() + " Value: " + e.getValue());
-//					});
-//        				
-//        		});
-        	
-        	E3CheckDialog e3cd = new E3CheckDialog(main);
-        	
-        	e3cd.setVisible(true);
+            E3CheckDialog e3cd = new E3CheckDialog(main);
+            e3cd.setVisible(true);
         }
     }
 
     public static class NCF extends BaseAction {
 
         public NCF(Main main) {
-            super("Net Value Flow analysis", getIcon("old/nvf"), main);
+            super("Net Value Flow spreadsheet...", getIcon("old/nvf"), main);
         }
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
-        	boolean cont = Utils.doModelCheck(main.getCurrentGraph(), main);
-        	
-        	if (!cont) {
-        		return;
-        	}
+
+            E3Graph targetGraph = main.getCurrentGraph();
+            if (targetGraph.isFraud) {
+                int choice = JOptionPane.showConfirmDialog(
+                        Main.mainFrame,
+                        "Fraud generation currently only works on value models. Do you want to"
+                        + "convert this fraud model to a value model?",
+                        "Unsupported model type",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (choice == JOptionPane.NO_OPTION) {
+                    return;
+                }
+
+                int confirmation = JOptionPane.showConfirmDialog(
+                        Main.mainFrame,
+                        conversionMessage,
+                        "Conversion confirmation",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                if (confirmation == JOptionPane.CANCEL_OPTION) {
+                    return;
+                }
+                targetGraph = targetGraph.toValue();
+                main.addNewTabAndSwitch(targetGraph);
+            }
+
+            boolean cont = Utils.doModelCheck(main.getCurrentGraph(), main);
+
+            if (!cont) {
+                return;
+            }
 
             NCFDialog myDialog = new NCFDialog(main.getCurrentGraph());
         }
     }
-    
-     private static Icon getIcon(String iconString){
+
+    public static class ProfitabilityTable extends BaseAction {
+
+        public ProfitabilityTable(Main main) {
+            super("Profitability table", getIcon("table"), main);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            
+            if (main.views.getTabCount() == 0) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "A model must be opened to analyze. Click File ➡ New model to start building one.",
+                        "No model available",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (main.getCurrentGraph().countActors() < 1) {
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        "Sensitivity analysis requires at least one actor. Please add more actors to the model",
+                        "Not enough actors.",
+                        JOptionPane.ERROR_MESSAGE);
+
+                return;
+            }
+
+            boolean cont = Utils.doModelCheck(main.getCurrentGraph(), main);
+
+            if (!cont) {
+                return;
+            }
+
+            RDFExport rdfExporter = new RDFExport(main.getCurrentGraph(), false, VTMode.DERIVE_ORPHANED, false);
+
+            if (!rdfExporter.getModel().isPresent()) {
+                Optional<String> error = rdfExporter.getError();
+
+                String errorString = "An error occurred while converting to an internal format. Please make sure the model contains no errors.";
+                if (error.isPresent()) {
+                    errorString += " The error: \n" + error.get();
+                }
+
+                JOptionPane.showMessageDialog(
+                        Main.mainFrame,
+                        errorString,
+                        "Invalid model",
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+                return;
+            }
+
+            Model model = rdfExporter.getModel().get();
+            
+                E3Model e3model = new E3Model(model);
+                e3model.enhance();
+                JTable table = TableGenerator.generateTable(e3model);
+
+                table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
+                table.setAutoCreateRowSorter(true);
+
+                JFrame tableFrame = new JFrame("" + main.getCurrentGraphTitle() + " - profitability");
+                tableFrame.add(new JScrollPane(table));
+                tableFrame.pack();
+                tableFrame.setLocationByPlatform(true);
+                tableFrame.setVisible(true);
+        }
+    }
+
+    private static Icon getIcon(String iconString) {
         if (iconString.contains("old/")) {
             return IconStore.getOldIcon(iconString);
         } else {

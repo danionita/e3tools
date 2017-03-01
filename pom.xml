@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.utwente.e3fraud</groupId>
     <artifactId>e3tools</artifactId>
-    <version>0.7</version>
+    <version>0.7.5</version>
     <dependencies>
         <dependency>
             <groupId>org.tinyjee.jgraphx</groupId>

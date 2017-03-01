@@ -268,8 +268,6 @@ public class Main {
         JMenuItem changeType = new JMenuItem(new EditorActions.ChangeModelType(this));
         modelMenu.add(changeType);
 
-        //modelMenu.add(new EditorActions.AnalyzeTransactions(this));
-        //modelMenu.add(new EditorActions.ModelCheck(this));
 
         modelMenu.addMenuListener(new MenuListener() {
             @Override
@@ -299,11 +297,11 @@ public class Main {
         menuBar.add(modelMenu);
 
         JMenu toolMenu = new JMenu("Tools");
-
-        toolMenu.add(new EditorActions.NCF(this)).setEnabled(true);
-
-        //toolMenu.addSeparator();
-        toolMenu.add(new EditorActions.SensitivityChart(this));
+        toolMenu.add(new EditorActions.ProfitabilityTable(this));
+        toolMenu.add(new EditorActions.SensitivityChart(this));        
+        toolMenu.addSeparator();
+        toolMenu.add(new EditorActions.NCF(this));
+        toolMenu.addSeparator();
         toolMenu.add(new EditorActions.FraudGeneration(this));
 
 
@@ -361,7 +359,8 @@ public class Main {
         //addToolbarButton("old/vt", new EditorActions.AnalyzeTransactions(this));
 
         toolbar.addSeparator();
-
+        
+        addToolbarButton(new EditorActions.ProfitabilityTable(this));
         addToolbarButton(new EditorActions.NCF(this));
         addToolbarButton(new EditorActions.SensitivityChart(this));
         addToolbarButton(new EditorActions.FraudGeneration(this));

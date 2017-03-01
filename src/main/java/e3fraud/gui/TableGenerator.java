@@ -53,5 +53,22 @@ public class TableGenerator {
     return table;
     }
     
+   public static JTable generateTable(E3Model valueModel){
+    Object columnNames[] = { "Actor", "Result" };       
+    Object rowData[][] = new Object[valueModel.getActors().size()][2];
+    
+    int row=0;
+    for (Resource actor : valueModel.getActors()){
+        rowData[row][0] = actor.getProperty(E3value.e3_has_name).getLiteral().toString();
+        
+        double result = valueModel.getTotalForActor(actor, false);
+        rowData[row][1] = result;       
+        row++;
+    }    
+    
+    JTable table = new JTable(rowData, columnNames);
+    return table;
+    }
+    
     
 }

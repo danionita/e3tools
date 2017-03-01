@@ -66,7 +66,7 @@ public class E3Model {
         this.evaluatedModel = ExpressionEvaluator.evaluateModel(model).get();
         this.prefix = "";
         this.description = "Base Model";
-        this.fraudChanges = null;
+        this.fraudChanges = null;        
     }
 
     /**
