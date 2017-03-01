@@ -955,6 +955,10 @@ public class E3Model {
         if (debug) {
             System.out.println("\t\t\t... Entering MS '" + marketSegment.getProperty(E3value.e3_has_name).getLiteral().toString() + "'. Dividing occurences by " + count);
         }
+        
+        if (count==0){
+            return Double.toString(0);
+        }
 
         //If the occurrence rate is a number
         if (occurrences.matches("\\d*\\.?\\d*")) {

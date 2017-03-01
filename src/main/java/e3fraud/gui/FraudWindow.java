@@ -44,6 +44,7 @@ import com.mxgraph.view.mxGraphView;
 
 import design.E3Graph;
 import design.E3GraphComponent;
+import design.IconStore;
 import design.Main;
 import design.info.Actor;
 import design.info.MarketSegment;
@@ -55,14 +56,14 @@ import e3fraud.tools.SettingsObjects.FilteringSettings;
 import e3fraud.tools.SettingsObjects.GenerationSettings;
 import e3fraud.tools.SettingsObjects.SortingAndGroupingSettings;
 import e3fraud.vocabulary.E3value;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Enumeration;
 import java.util.HashMap;
+import javax.swing.JButton;
 import javax.swing.JTable;
 import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
 import javax.swing.tree.TreePath;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.JFreeChart;
 
 /**
  *
@@ -135,7 +136,7 @@ public class FraudWindow extends javax.swing.JPanel {
         showAllLabel = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        trustedActorsScrollPane = new javax.swing.JScrollPane();
         trustedActorsTextField = new javax.swing.JTextField();
         listPane = new javax.swing.JSplitPane();
         listSettingsPanel = new javax.swing.JPanel();
@@ -163,6 +164,7 @@ public class FraudWindow extends javax.swing.JPanel {
         visualizationPane = new javax.swing.JSplitPane();
         tablePane = new javax.swing.JPanel();
         tableLabel = new javax.swing.JLabel();
+        sensitivityAnalysisButton = new javax.swing.JButton();
         graphPane = new javax.swing.JPanel();
         graphLabel = new javax.swing.JLabel();
         placeholderLabel = new javax.swing.JLabel();
@@ -237,8 +239,8 @@ public class FraudWindow extends javax.swing.JPanel {
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/information.png"))); // NOI18N
         jLabel2.setToolTipText("Trusted actors will never collude with other actors, will always perform all outgoing value transfers as expected and will never be involved in hidden transfers.");
 
-        jScrollPane1.setToolTipText("");
-        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        trustedActorsScrollPane.setToolTipText("");
+        trustedActorsScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
         trustedActorsTextField.setText("<none> (click to add)");
         trustedActorsTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -258,7 +260,7 @@ public class FraudWindow extends javax.swing.JPanel {
                 trustedActorsTextFieldActionPerformed(evt);
             }
         });
-        jScrollPane1.setViewportView(trustedActorsTextField);
+        trustedActorsScrollPane.setViewportView(trustedActorsTextField);
 
         javax.swing.GroupLayout generationSettingsPanelLayout = new javax.swing.GroupLayout(generationSettingsPanel);
         generationSettingsPanel.setLayout(generationSettingsPanelLayout);
@@ -278,7 +280,7 @@ public class FraudWindow extends javax.swing.JPanel {
                     .addComponent(generationSettingsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(generationSettingsPanelLayout.createSequentialGroup()
                         .addGroup(generationSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1)
+                            .addComponent(trustedActorsScrollPane)
                             .addGroup(generationSettingsPanelLayout.createSequentialGroup()
                                 .addComponent(mainActorLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -299,7 +301,7 @@ public class FraudWindow extends javax.swing.JPanel {
                     .addComponent(mainActorLabel)
                     .addComponent(jLabel2))
                 .addGap(4, 4, 4)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(trustedActorsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(19, 19, 19)
@@ -513,8 +515,12 @@ public class FraudWindow extends javax.swing.JPanel {
         tableLabel.setBackground(new java.awt.Color(255, 255, 255));
         tableLabel.setForeground(new java.awt.Color(51, 51, 51));
         tableLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        tableLabel.setText("Profitability <double-click for sensitivity analysis>");
+        tableLabel.setText("Profitability");
         tablePane.add(tableLabel, java.awt.BorderLayout.PAGE_START);
+
+        sensitivityAnalysisButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/chart_curve.png"))); // NOI18N
+        sensitivityAnalysisButton.setText("Click here to run sensitivity analysis");
+        tablePane.add(sensitivityAnalysisButton, java.awt.BorderLayout.PAGE_END);
 
         visualizationPane.setRightComponent(tablePane);
         tablePane.getAccessibleContext().setAccessibleDescription("");
@@ -593,92 +599,78 @@ public class FraudWindow extends javax.swing.JPanel {
                 visualizationPane.setVisible(true);
                 placeholderLabel.setVisible(false);
 
-                if (node.getUserObject() instanceof E3Model) {
-                    //grab the E3Model of the selected row
-                    selectedModel = (E3Model) node.getUserObject();
+                //grab the E3Model of the selected row
+                selectedModel = (E3Model) node.getUserObject();
 
-                    //First create a table
-                    table = TableGenerator.generateTable(selectedModel, baseModel);
-                    table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
+                //Create the table
+                table = TableGenerator.generateTable(selectedModel, baseModel);
+                table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);     
+                table.setAutoCreateRowSorter(true);
+                
+                // Remove current table if one is present
+                if (tablePane.getComponentCount() > 2) {
+                    tablePane.remove(tableScrollPane);
+                    System.out.println("removing old table");                }
+                
+                //Add the table & sensititivy analaysis button
+                tableScrollPane = new JScrollPane(table);
+                tablePane.add(tableScrollPane, java.awt.BorderLayout.CENTER);
+                tablePane.add(sensitivityAnalysisButton, java.awt.BorderLayout.PAGE_END);
+                tableScrollPane.setVisible(true);
+                
+                tablePane.repaint();
+                tablePane.revalidate();
+                
+                //Create the graph
+                graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
 
-                    tableScrollPane = new JScrollPane(table);
-                    tablePane.add(tableScrollPane);
-                    tableScrollPane.setVisible(true);
-                    tableScrollPane.addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                            // On doubleclick
-                            if (e.getClickCount() == 2) {
-                                JFreeChart chart = SensitivityAnalysis.getSensitivityChart(myFrame, selectedModel, false);
-                                if (chart != null) {
-                                    String label = String.valueOf(root.getIndex(node));
-                                    if (node.getLevel() == 3) {
-                                        label += "." + String.valueOf(node.getParent().getIndex(node));
-                                    }
-                                    ChartFrame chartframe1 = new ChartFrame("Fraud scenario " + label + " - sensitivity chart", chart);
-                                    chartframe1.setPreferredSize(new Dimension(Main.DEFAULT_CHART_WIDTH, Main.DEFAULT_CHART_HEIGHT));
-                                    chartframe1.pack();
-                                    chartframe1.setLocationByPlatform(true);
-                                    chartframe1.setVisible(true);
-                                }
-                            }
+                // Remove current e3graph if one is present
+                if (graphPane.getComponentCount() > 1) {
+                    graphPane.remove(1);
+                }
+
+                // Then create a graph panel
+                graphPanel = new E3GraphComponent(graph);
+                // Disable right mouse clicks
+                graphPanel.setPopupTriggerEnabled(false);
+                // Prevent other funny business
+                graphPanel.setEnabled(false);
+                // Apparently mxGraphControl takes care of mouse business of
+                // mxGraph (which is the parent of E3Graph)
+                graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        // On doubleclick
+                        if (e.getClickCount() == 2) {
+                            // Create a new tab with the current graph
+                            FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph(), false));
+                            // Switch to the screen
+                            FraudWindow.this.mainFrame.mainFrame.requestFocus();
                         }
-                    });
-
-                    //NExt, create a graph
-                    graph = new E3Graph(baseGraph, selectedModel.getFraudChanges());
-
-                    // Remove current e3graph if it's already there
-                    if (graphPane.getComponentCount() > 1) {
-                        graphPane.remove(1);
                     }
+                });
 
-                    // Then create a graph panel
-                    graphPanel = new E3GraphComponent(graph);
-                    // Disable right mouse clicks
-                    graphPanel.setPopupTriggerEnabled(false);
-                    // Prevent other funny business
-                    graphPanel.setEnabled(false);
-                    // Apparently mxGraphControl takes care of mouse business of
-                    // mxGraph (which is the parent of E3Graph)
-                    graphPanel.getGraphControl().addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                            // On doubleclick
-                            if (e.getClickCount() == 2) {
-                                // Create a new tab with the current graph
-                                FraudWindow.this.mainFrame.addNewTabAndSwitch(new E3Graph((E3Graph) graphPanel.getGraph(), false));
-                                // Switch to the screen
-                                FraudWindow.this.mainFrame.mainFrame.requestFocus();
-                            }
-                        }
-                    });
+                // Refresh E3GraphComponent to make sure E3Style is used
+                graphPanel.refresh();
+                // Add it 
+                graphPane.add(graphPanel);
+                // Set it visible if it isn't already
+                graphPanel.setVisible(true);
 
-                    // Refresh E3GraphComponent to make sure E3Style is used
-                    graphPanel.refresh();
-                    // Add it 
-                    graphPane.add(graphPanel);
-                    // Set it visible if it isn't already
-                    graphPanel.setVisible(true);
-
-                    // Graph scaling code
-                    // To ensure that the size is not 0
-                    if (graphPane.getVisibleRect().getWidth() < 10) {
-                        myFrame.revalidate();
-                    }
-
-                    graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
-
-                    // Make the scrollbars disappear
-                    graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                    graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-
+                // Graph scaling code
+                // To ensure that the size is not 0
+                if (graphPane.getVisibleRect().getWidth() < 10) {
                     myFrame.revalidate();
                 }
-            } else {
-                visualizationPane.setVisible(false);
-                placeholderLabel.setVisible(true);
+                graphPanel.centerAndScaleView(graphPane.getVisibleRect().getWidth(), graphPane.getVisibleRect().getHeight());
+
+                // Make the scrollbars disappear
+                graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+
+                myFrame.revalidate();
             }
+
         } else {
             visualizationPane.setVisible(false);
             placeholderLabel.setVisible(true);
@@ -1012,7 +1004,6 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> groupComboBox;
     private javax.swing.JLabel groupSettingLabel;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSplitPane listPane;
     private javax.swing.JPanel listSettingsPanel;
@@ -1029,6 +1020,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JButton refreshButton;
     private javax.swing.JLabel resultCountLabel;
     private javax.swing.JScrollPane resultScrollPane;
+    private javax.swing.JButton sensitivityAnalysisButton;
     private javax.swing.JLabel showAllLabel;
     private javax.swing.JComboBox<String> sortComboBox;
     private javax.swing.JLabel tableLabel;
@@ -1037,6 +1029,7 @@ public class FraudWindow extends javax.swing.JPanel {
     private javax.swing.JTree tree;
     private DefaultMutableTreeNode root;
     private DefaultTreeModel treeModel;
+    private javax.swing.JScrollPane trustedActorsScrollPane;
     private javax.swing.JTextField trustedActorsTextField;
     private javax.swing.JSplitPane visualizationPane;
     // End of variables declaration//GEN-END:variables

@@ -17,19 +17,24 @@
 package e3fraud.gui;
 
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDF;
+import e3fraud.vocabulary.E3value;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeriesCollection;
-import e3fraud.model.E3Model;
-import e3fraud.vocabulary.E3value;
-import java.text.DecimalFormat;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 
 /**
@@ -42,19 +47,30 @@ public class ChartGenerator {
         //Get list of actors
         Set<Resource> actors = actorSeriesMap.keySet();
 
-        XYSeriesCollection line_chart_dataset = new XYSeriesCollection();   
+        //prepare chart
+        XYSeriesCollection line_chart_dataset = new XYSeriesCollection();
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setBaseShapesFilled(false);
+        
 
         //Then, for each actor
+        int i = 0;
         for (Resource actor : actors) {
             //add it's series to the chart
             XYSeries series = actorSeriesMap.get(actor);
             line_chart_dataset.addSeries(series);
+
+            //select a color based on the actor's name (to maintain actor-color tuples)
+            String actorName = actor.getProperty(E3value.e3_has_name).getLiteral().toString();
+            renderer.setSeriesPaint(i, stringToColor(actorName));
+            renderer.setSeriesStroke(i, new BasicStroke(6.0f));
+            i++;
         }
 
-        /* Step -2:Define the JFreeChart object to create line chart */
+        //Create the chart
         JFreeChart lineChartObject = null;
-        lineChartObject = ChartFactory.createScatterPlot("", parameter, "Revenue", line_chart_dataset, PlotOrientation.VERTICAL, true, true, false);
-
+        lineChartObject = ChartFactory.createXYLineChart("", parameter, "Revenue", line_chart_dataset);
+        lineChartObject.getXYPlot().setRenderer(renderer);
         return lineChartObject;
     }
 
@@ -66,5 +82,20 @@ public class ChartGenerator {
         /* Height of the image */
 
         ChartUtilities.saveChartAsPNG(file, lineChartObject, width, height);
+    }
+
+    
+    private static Color stringToColor(String str){
+                    byte[] bytesOfMessage = null;
+                bytesOfMessage = str.getBytes();
+            MessageDigest md = null;
+            try {
+                md = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(ChartGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            byte[] thedigest = md.digest(bytesOfMessage);
+            
+            return new Color(thedigest[0]+128,thedigest[1]+128,thedigest[2]+128);
     }
 }
