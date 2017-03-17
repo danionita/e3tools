@@ -23,6 +23,7 @@
  */
 package e3fraud.gui;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -46,6 +47,8 @@ import design.E3Graph;
 import design.E3GraphComponent;
 import design.IconStore;
 import design.Main;
+import design.Utils;
+import design.export.RDFExport;
 import design.info.Actor;
 import design.info.MarketSegment;
 import design.info.ValueActivity;
@@ -60,10 +63,14 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Optional;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
 import javax.swing.tree.TreePath;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
 
 /**
  *
@@ -520,6 +527,11 @@ public class FraudWindow extends javax.swing.JPanel {
 
         sensitivityAnalysisButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/chart_curve.png"))); // NOI18N
         sensitivityAnalysisButton.setText("Run sensitivity analysis");
+        sensitivityAnalysisButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                sensitivityAnalysisButtonMouseClicked(evt);
+            }
+        });
         tablePane.add(sensitivityAnalysisButton, java.awt.BorderLayout.PAGE_END);
 
         visualizationPane.setRightComponent(tablePane);
@@ -771,6 +783,19 @@ public class FraudWindow extends javax.swing.JPanel {
     private void trustedActorsTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trustedActorsTextFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_trustedActorsTextFieldActionPerformed
+
+    private void sensitivityAnalysisButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sensitivityAnalysisButtonMouseClicked
+        
+        JFreeChart chart = SensitivityAnalysis.getSensitivityChart(this.myFrame, selectedModel, false);
+        if (chart != null) {
+            ChartFrame chartframe1 = new ChartFrame("Generated fraud scenario - sensitivity chart", chart);
+            chartframe1.setPreferredSize(new Dimension(Main.DEFAULT_CHART_WIDTH, Main.DEFAULT_CHART_HEIGHT));
+            chartframe1.pack();
+            chartframe1.setLocationByPlatform(true);
+            chartframe1.setVisible(true);
+        }
+
+    }//GEN-LAST:event_sensitivityAnalysisButtonMouseClicked
 
     private void generateSortAndDisplay() {
         //Have a Worker thread to the time-consuming generation and raking (to not freeze the GUI)
