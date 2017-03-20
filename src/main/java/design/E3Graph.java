@@ -1644,9 +1644,17 @@ public class E3Graph extends mxGraph implements Serializable {
                 return sourceInfo.incoming != targetInfo.incoming;
             }
 
+            // TODO: I don't think this is needed anymore. If Dan confirms this, remove it.
             // Otherwise it's not allowed
             // Since if they are not ancestors, nor share their parents, they cannot connect!
-            return false;
+            // return false;
+            
+            // TODO: I think Dan requested for VI's with different parents (i.e. a top level actor
+            // and a nested actor) should be able to be connected. returning true here is
+            // a free fire way of ensuring all kinds of value interfaces can be connected.
+            // It might be buggy though, I'm not sure. Remove it & revert to the piece of code above
+            // this if it turns out to be.
+            return true;
         } else if (Utils.isDotValue(sourceVal) && Utils.isDotValue(targetVal)) {
             // If source and target are in the same top level element
             // Do not allow an edge. Nesting is irrelevant
