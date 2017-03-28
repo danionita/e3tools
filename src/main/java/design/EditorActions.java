@@ -861,7 +861,7 @@ public class EditorActions {
     public static class ShowSearchDialog extends BaseAction {
 
         public ShowSearchDialog(Main main) {
-            super("Search...", main);
+            super("Search...", getIcon("find"), main);
         }
 
         @Override
@@ -888,23 +888,6 @@ public class EditorActions {
             }
 
             new SearchDialog(main).setVisible(true);
-        }
-    }
-
-    public static class AnalyzeTransactions extends BaseAction {
-
-        public AnalyzeTransactions(Main main) {
-            super("Analyze transactions (coming soon)", main);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // TODO: Implement this
-            JOptionPane.showMessageDialog(
-                    Main.mainFrame,
-                    "This feature is not yet implemented",
-                    "Feature not implemented",
-                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1327,7 +1310,7 @@ public class EditorActions {
                 return;
             }
 
-            NCFDialog myDialog = new NCFDialog(main.getCurrentGraph());
+            new NCFDialog(main.getCurrentGraph());
         }
     }
 

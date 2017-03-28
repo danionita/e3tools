@@ -90,9 +90,9 @@ public class NCFDialog extends JDialog {
         
         JPanel contentPane= new JPanel();
         getContentPane().add(contentPane);
-        contentPane.setLayout(new MigLayout("", "[77px][9px][89px][5px][289px][4px][77px]", "[20px][20px][219px][23px][23px][][20px]"));
+        contentPane.setLayout(new MigLayout("", "[77px][9px][89px][5px][289px][4px][77px]", "[20px][20px][219px][23px][20px]"));
 
-        JLabel lblSvgFile = new JLabel("XSL file:");
+        JLabel lblSvgFile = new JLabel("XLS file:");
         contentPane.add(lblSvgFile, "cell 0 0,growx,aligny top");
         
         fileName = new JTextField();
@@ -105,7 +105,7 @@ public class NCFDialog extends JDialog {
         	fileName.setText("Untitled");
         }
         
-        JLabel lblSvgDirectory = new JLabel("XSL directory:");
+        JLabel lblSvgDirectory = new JLabel("XLS directory:");
         contentPane.add(lblSvgDirectory, "cell 0 1,growx,aligny top");
         
         directoryName = new JTextField();
@@ -141,36 +141,36 @@ public class NCFDialog extends JDialog {
         		onGenerate();
         	}
         });
-        contentPane.add(btnGenerate, "cell 6 3,grow");
-        
-        JButton btnOK = new JButton("OK");
-        btnOK.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		onOK();
-        	}
-        });
-        
-        JButton btnCancel = new JButton("Cancel");
-        btnCancel.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		onCancel();
-        	}
-        });
-        contentPane.add(btnCancel, "cell 6 4,grow");
-        
-                btnCancel.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        onCancel();
-                    }
-                });
-        contentPane.add(btnOK, "cell 6 5,grow");
-        getRootPane().setDefaultButton(btnOK);
-        
-                btnOK.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        onOK();
-                    }
-                });
+        contentPane.add(btnGenerate, "cell 6 3,growx");
+//        
+//        JButton btnOK = new JButton("OK");
+//        btnOK.addActionListener(new ActionListener() {
+//        	public void actionPerformed(ActionEvent e) {
+//        		onOK();
+//        	}
+//        });
+//        
+//        JButton btnCancel = new JButton("Cancel");
+//        btnCancel.addActionListener(new ActionListener() {
+//        	public void actionPerformed(ActionEvent e) {
+//        		onCancel();
+//        	}
+//        });
+//        contentPane.add(btnCancel, "cell 6 4,grow");
+//        
+//                btnCancel.addActionListener(new ActionListener() {
+//                    public void actionPerformed(ActionEvent e) {
+//                        onCancel();
+//                    }
+//                });
+//        contentPane.add(btnOK, "cell 6 5,grow");
+//        getRootPane().setDefaultButton(btnOK);
+//        
+//                btnOK.addActionListener(new ActionListener() {
+//                    public void actionPerformed(ActionEvent e) {
+//                        onOK();
+//                    }
+//                });
         
         statusField = new JTextField();
         statusField.setEditable(false);

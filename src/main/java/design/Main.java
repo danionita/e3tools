@@ -212,6 +212,11 @@ public class Main {
 
         
         JMenu editMenu = new JMenu("Edit");
+        
+       editMenu.add(new EditorActions.Undo(this));
+        editMenu.add(new EditorActions.Redo(this));
+        
+        editMenu.addSeparator();
 
         editMenu.add(new EditorActions.Cut(this));
         editMenu.add(new EditorActions.Copy(this));
@@ -220,13 +225,8 @@ public class Main {
         editMenu.add(new EditorActions.SelectAll(this));
 
         editMenu.addSeparator();
-
-        editMenu.add(new EditorActions.Undo(this));
-        editMenu.add(new EditorActions.Redo(this));
-
-        //editMenu.addSeparator();
-
-       // editMenu.add(new EditorActions.Find(this));
+       
+        editMenu.add(new EditorActions.ShowSearchDialog(this));
 
         menuBar.add(editMenu);
 
@@ -260,7 +260,6 @@ public class Main {
         modelMenu.add(new EditorActions.ShowValueObjectDialog(this));
         modelMenu.add(new EditorActions.ShowValueTransactionsPanel(this));
         modelMenu.add(new EditorActions.ModelCheck(this));
-        modelMenu.add(new EditorActions.ShowSearchDialog(this));
         
         modelMenu.addSeparator();
 
@@ -338,14 +337,17 @@ public class Main {
         addToolbarButton(new EditorActions.Save(this));
 
         toolbar.addSeparator();
-
-        addToolbarButton(new EditorActions.Cut(this));
-        addToolbarButton(new EditorActions.Copy(this));
-        addToolbarButton(new EditorActions.Paste(this));
-
-        toolbar.addSeparator();
+        
         addToolbarButton(new EditorActions.Undo(this));        
         addToolbarButton(new EditorActions.Redo(this));
+
+        toolbar.addSeparator();
+        
+        addToolbarButton(new EditorActions.Cut(this));
+        addToolbarButton(new EditorActions.Copy(this));
+        addToolbarButton(new EditorActions.Paste(this));        
+        addToolbarButton(new EditorActions.ShowSearchDialog(this));
+        
         toolbar.addSeparator();
 
         addToolbarButton(new EditorActions.ZoomIn(this));
@@ -356,7 +358,6 @@ public class Main {
         addToolbarButton(new EditorActions.DuplicateModel(this));
         addToolbarButton(new EditorActions.ChangeModelType(this));
         addToolbarButton(new EditorActions.ShowValueObjectDialog(this));
-        //addToolbarButton("old/vt", new EditorActions.AnalyzeTransactions(this));
 
         toolbar.addSeparator();
         
@@ -374,7 +375,8 @@ public class Main {
         addGlobalShortcut("ctrl M", new EditorActions.NewTab(this, true));
         addGlobalShortcut("ctrl S", new EditorActions.Save(this));
         addGlobalShortcut("ctrl A", new EditorActions.SelectAll(this));
-        addGlobalShortcut("ctrl F", new EditorActions.NCF(this));
+        addGlobalShortcut("ctrl F", new EditorActions.ShowSearchDialog(this));
+        
         //addGlobalShortcut("ctrl H", new EditorActions.AnalyzeTransactions(this));
         addGlobalShortcut("F1", new EditorActions.OpenHelpWiki(this));
 
