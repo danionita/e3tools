@@ -1142,7 +1142,7 @@ public class EditorActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(null, "The e3tool integrates the e3value value modelling and e-business analysis methodology developed by Jaap Gordjin with the e3fraud fraud assessment methodology developed by Dan Ionita. \n This tool was developed at the University of Twente by Dan Ionita and Bob Rubbens. \n Icons from the famfamfam Silk icon pack (http://www.famfamfam.com/lab/icons/silk/) owned by Mark James.", "About e3tool", INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "The e3tool integrates the e3value value modelling and e-business analysis methodology developed by Jaap Gordjin with the e3fraud fraud assessment methodology developed by Dan Ionita. \n Icons from the famfamfam Silk icon pack (http://www.famfamfam.com/lab/icons/silk/) owned by Mark James.", "About e3tool", INFORMATION_MESSAGE);
         }
     }
 
