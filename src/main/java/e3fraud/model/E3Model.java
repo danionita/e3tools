@@ -1125,16 +1125,18 @@ public class E3Model {
                     //Second, go down each path using occurence = OCCURENCE*FRACTION/Total_FRACTIONs
                     for (Statement node : outgoingNodeList) {
                         double ratio = node.getResource().getProperty(E3value.up_fraction).getFloat() / totalFractions;
+                        //We need to compute the occurrences on each path
+                        String pathOccurrences ;
                         //If the occurrence rate is a number
                         if (occurrences.matches("\\d*\\.?\\d*")) {
                             //Compute it now to keep it a number
-                            occurrences = Double.toString(Double.valueOf(occurrences) * ratio);
+                            pathOccurrences = Double.toString(Double.valueOf(occurrences) * ratio);
                         } //if it is an expression
                         else {
                             //Keep it as an expression
-                            occurrences = "(" + occurrences + ")*" + ratio;
+                            pathOccurrences = "(" + occurrences + ")*" + ratio;
                         }
-                        traverse(node.getResource(), occurrences);
+                        traverse(node.getResource(), pathOccurrences);
                     }
                     return;
                 }
